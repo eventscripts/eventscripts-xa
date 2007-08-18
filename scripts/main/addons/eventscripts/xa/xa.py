@@ -100,11 +100,9 @@ class Admin_module(object):
         module_delete(self.name)
     def addrequirement(self, gModuleList):
         fails = []
-        try:
-            # try if gModuleList is just a single module
-            module = str(gModuleList)
-            modules = [module]
-        except TypeError:
+        if type(gModuleList) == str:
+            modules = [gModuleList]
+        else:
             modules = list(gModuleList)
         for module in modules:
             if module in gModules:
@@ -119,11 +117,9 @@ class Admin_module(object):
             return True
     def delrequirement(self, gModuleList):
         fails = []
-        try:
-            # try if gModuleList is just a single module
-            module = str(gModuleList)
-            modules = [module]
-        except TypeError:
+        if type(gModuleList) == str:
+            modules = [gModuleList]
+        else:
             modules = list(gModuleList)
         for module in modules:
             if module in self.requiredlist:
