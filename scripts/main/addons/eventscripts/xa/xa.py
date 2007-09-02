@@ -43,60 +43,16 @@ class Admin_module(object):
     def __init__(self, gModule):
         #initialization of the module
         self.name = gModule
+        self.allowAutoUnload = True
         self.subCommands = {}
         self.subMenus = {}
-        self.loaded = False
-        self.requiredby = []
-        self.requiredlist = []
-        try:
-            es.load("xa/module/"+self.name)
-            es.dbgmsg(0, "[eXtendable Admin] Loaded module \""+self.name+"\"")
-            self.loaded = True
-        except:
-            es.dbgmsg(0, "[eXtendable Admin] Failed loading module \""+self.name+"\"")
-            self.loaded = False
-    def load(self):
-        if self.loaded == False:
-            try:
-                es.load("xa/module/"+self.name)
-                es.dbgmsg(0, "[eXtendable Admin] Loaded module \""+self.name+"\"")
-                self.loaded = True
-            except:
-                es.dbgmsg(0, "[eXtendable Admin] Failed loading module \""+self.name+"\"")
-                self.loaded = False
-                return False
-            return True
-        return False
-    def unload(self):
-        if self.loaded == True and len(self.requiredby) == 0:
-            try:
-                es.unload("xa/module/"+self.name)
-                es.dbgmsg(0, "[eXtendable Admin] Unloaded module \""+self.name+"\"")
-                self.loaded = False
-                for module in self.requiredlist:
-                    if module in gModules:
-                        m = gModules[module]
-                        m.requiredby.remove(self.name)
-                        self.requiredlist.remove(m.name)
-            except:
-                es.dbgmsg(0, "[eXtendable Admin] Failed unloading module \""+self.name+"\"")
-                self.loaded = True
-                return False
-            return True
-        elif len(self.requiredby) > 0:
-            es.dbgmsg(0, "[eXtendable Admin] Module \""+self.name+"\" is required by "+str(len(self.requiredby)))
-            for module in self.requiredlist:
-                if module in gModules:
-                    es.dbgmsg(0, "[eXtendable Admin]  \""+module+"\"")
-        return False
-    def log(self, msg, speciallog = True):
-        es.log(msg)
-        if speciallog == True:
-            # TODO
-            # log to an XA log
-            pass
+        self.requiredFrom = []
+        self.requiredList = []
+        es.dbgmsg(0, "[eXtendable Admin] Registered module \""+self.name+"\"")
     def delete(self):
-        delete(self.name)
+        unRegister(self.name)
+    def unRegister(self):
+        unRegister(self.name)
     def addRequirement(self, gModuleList):
         fails = []
         if type(gModuleList) == str:
@@ -106,8 +62,8 @@ class Admin_module(object):
         for module in modules:
             if module in gModules:
                 m = gModules[module]
-                m.requiredby.append(self.name)
-                self.requiredlist.append(m.name)
+                m.requiredFrom.append(self.name)
+                self.requiredList.append(m.name)
             else:
                 fails.append(module)
         if len(fails) > 0:
@@ -121,10 +77,10 @@ class Admin_module(object):
         else:
             modules = list(gModuleList)
         for module in modules:
-            if module in self.requiredlist:
+            if module in self.requiredList:
                 m = gModules[module]
-                m.requiredby.remove(self.name)
-                self.requiredlist.remove(m.name)
+                m.requiredFrom.remove(self.name)
+                self.requiredList.remove(m.name)
             else:
                 fails.append(module)
         if len(fails) > 0:
@@ -135,7 +91,6 @@ class Admin_module(object):
         #create new menu
         self.subCommands[menu] = Admin_command(command, block, perm, permlvl, target)
         return self.subCommands[command]
-    
     def delCommand(self, command):
         #delete a menu
         if (command in self.subCommands):
@@ -143,11 +98,18 @@ class Admin_module(object):
             del self.subCommands[command]
         else:
             es.dbgmsg(0,"Xa.py: Cannot delete menu \""+menu+"\", it does not exist")
+    def isCommand(self, command):
+        if (command in self.subCommands):
+            return True
+        return False
+    def findCommand(self, command):
+        if (command in self.subCommands):
+            return self.subCommands[command]
+        return None
     def addMenu(self, menu, display, menuname, perm, permlvl):
         #create new menu
-        self.subMenus[menu] = Admin_menu(menu, module, display, menuname, perm, permlvl)
+        self.subMenus[menu] = Admin_menu(menu, display, menuname, perm, permlvl)
         return self.subMenus[menu]
-    
     def delMenu(self, menu):
         #delete a menu
         if (menu in self.subMenus):
@@ -155,6 +117,14 @@ class Admin_module(object):
             del self.subMenus[menu]
         else:
             es.dbgmsg(0,"Xa.py: Cannot delete menu \""+menu+"\", it does not exist")
+    def isMenu(self, menu):
+        if (menu in self.subMenus):
+            return True
+        return False
+    def findMenu(self, menu):
+        if (menu in self.subMenus):
+            return self.subMenus[menu]
+        return None
     def information(self, listlevel):
         if listlevel >= 1:
             es.dbgmsg(0, " ")
@@ -162,11 +132,11 @@ class Admin_module(object):
         if listlevel >= 1:
             es.dbgmsg(0, "  Loaded:       "+str(self.loaded))
         if listlevel >= 2:
-            es.dbgmsg(0, "  Required by:  "+str(len(self.requiredby)))
-            for module in self.requiredby:
+            es.dbgmsg(0, "  Required by:  "+str(len(self.requiredFrom)))
+            for module in self.requiredFrom:
                 es.dbgmsg(0,"    "+module)
-            es.dbgmsg(0, "  Requires:     "+str(len(self.requiredlist)))
-            for module in self.requiredlist:
+            es.dbgmsg(0, "  Requires:     "+str(len(self.requiredList)))
+            for module in self.requiredList:
                 es.dbgmsg(0,"    "+module)
 
 # Admin_command is the clientcmd class
@@ -201,7 +171,10 @@ class Admin_command(object):
         auth = services.use("auth")
         auth.registerCapability(self.permission, self.permissionlevel)
     def register(self, gList):
-        cmdlist = list(gList)
+        if type(gList) == str:
+            cmdlist = [gList]
+        else:
+            cmdlist = list(gList)
         if "server" in cmdlist and self.server == False:
             es.regcmd(self.name, "xa/incoming_server", "eXtendable Admin command")
             self.server = True
@@ -211,8 +184,11 @@ class Admin_command(object):
         if "say" in cmdlist and self.say == False:
             es.regsaycmd(self.name, "xa/incoming_console", "eXtendable Admin command")
             self.say = True
-    def unregister(self, gList):
-        cmdlist = list(gList)
+    def unRegister(self, gList):
+        if type(gList) == str:
+            cmdlist = [gList]
+        else:
+            cmdlist = list(gList)
         if "console" in cmdlist and self.console == True:
             es.unregclientcmd(self.name)
             self.console = False
@@ -308,38 +284,52 @@ class Admin_menu(object):
 ###########################
 #Module methods start here#
 ###########################
-def create(pModuleid):
+def load(pModuleid):
+    es.load("xa/module/"+pModuleid)
+
+def unload(pModuleid):
+    es.unload("xa/module/"+pModuleid)
+
+def register(pModuleid):
     #create new module
     gModules[pModuleid] = Admin_module(pModuleid)
     return gModules[pModuleid]
 
-def delete(pModuleid):
+def unRegister(pModuleid):
     #delete a module
     if (pModuleid in gModules):
-        if bool(gModules[pModuleid].loaded):
-            gModules[pModuleid].unload()
+        if len(gModules[pModuleid].requiredFrom) > 0:
+            es.dbgmsg(0, "[eXtendable Admin] WARNING! Module \""+gModules[pModuleid].name+"\" is required by "+str(len(gModules[pModuleid].requiredFrom)))
+            for module in gModules[pModuleid].requiredFrom:
+                if module in gModules:
+                    es.dbgmsg(0, "[eXtendable Admin]  \""+module+"\"")
+                else:
+                    gModules[pModuleid].requiredFrom.remove(module)
+        for module in gModules[pModuleid].requiredList:
+            if module in gModules:
+                gModules[module].requiredFrom.remove(gModules[pModuleid].name)
+                gModules[pModuleid].requiredList.remove(module)
         for command in gModules[pModuleid].subCommands:
             gModules[pModuleid].delCommand(command)
         for menu in gModules[pModuleid].subMenus:
             gModules[pModuleid].delMenu(menu)
+        es.dbgmsg(0, "[eXtendable Admin] Unregistered module \""+gModules[pModuleid].name+"\"")
         del gModules[pModuleid]
     else:
-        es.dbgmsg(0,"Xa.py: Cannot delete module \""+pModuleid+"\", it does not exist")
+        es.dbgmsg(0,"Xa.py: Cannot unregister module \""+pModuleid+"\", it is not registered")
 
 def exists(pModuleid):
     #does named module exist
     return (pModuleid in gModules)
 
-def isloaded(pModuleid):
-    #does named module exist and is loaded
-    if (pModuleid in gModules):
-        return gModules[pModuleid].loaded
-    return False
+def isRegistered(pModuleid):
+    #does named module exist
+    return (pModuleid in gModules)
 
-def isrequired(pModuleid):
+def isRequired(pModuleid):
     #does named module exist and is required
     if (pModuleid in gModules):
-        return bool(len(gModules[pModuleid].requiredby))
+        return bool(len(gModules[pModuleid].requiredFrom))
     return False
 
 def find(pModuleid):
@@ -351,16 +341,14 @@ def find(pModuleid):
 def findMenu(pModuleid, pMenuid):
     #return class instance of named menu inside a module
     if (pModuleid in gModules):
-        module = gModules[pModuleid]
-        if (pMenuid in module.subMenus):
+        if (pMenuid in gModules[pModuleid].subMenus):
             return gModules[pModuleid].subMenus[pMenuid]
     return None
 
 def findCommand(pModuleid, pCommandid):
     #return class instance of named menu inside a module
     if (pModuleid in gModules):
-        module = gModules[pModuleid]
-        if (pCommandid in module.subCommands):
+        if (pCommandid in gModules[pModuleid].subCommands):
             return gModules[pModuleid].subCommands[pCommandid]
     return None
     
@@ -383,9 +371,9 @@ def unload():
     global gMainMenu
     es.dbgmsg(0, "[eXtendable Admin] Begin unloading...")
     for module in gModules:
-        es.dbgmsg(0, "[eXtendable Admin] Unloading module \""+module.name+"\"")
-        es.unload("xa/module/"+module.name)
-        del gModules[module]
+        if gModules[module].allowAutoUnload == True:
+            es.dbgmsg(0, "[eXtendable Admin] Unloading module \""+gModules[module].name+"\"")
+            es.unload("xa/module/"+gModules[module].name)
     if popuplib.exists("_xa_mainmenu"):
         if gMainMenu:
             gMainMenu.delete()
@@ -402,76 +390,82 @@ def consolecmd():
     seccmd = es.getargv(2).lower()
     xname = es.getargv(3)
     argc = es.getargc()
-    if subcmd == "module":
-        if xname in gModules:
-            x = gModules[xname]
+    if xname in gModules:
+        x = gModules[xname]
+    else:
+        x = None
+    if subcmd == "load":
+        if es.getargv(2):
+            load(es.getargv(2))
         else:
-            x = None
-        if seccmd == "load":
+            es.dbgmsg(0,"Syntax: xa load <module-name>")
+    elif subcmd == "unload":
+        if es.getargv(2):
+            unload(es.getargv(2))
+        else:
+            es.dbgmsg(0,"Syntax: xa unload <module-name>")
+    elif subcmd == "module":
+        if seccmd == "register":
             if xname:
                 if x:
-                    if not x.load():
-                        es.dbgmsg(0,"[eXtendable Admin] Could not load module \""+xname+"\", it might already be loaded")
+                    es.dbgmsg(0,"[eXtendable Admin] Could not register module \""+xname+"\", it is already registered")
                 else:
-                    create(xname)
+                    register(xname)
             else:
-                es.dbgmsg(0,"Syntax: xa module load <module-name>")
-        elif seccmd == "unload":
+                es.dbgmsg(0,"Syntax: xa module register <module-name>")
+        elif seccmd == "unregister":
             if xname:
                 if x:
-                    if not x.unload():
-                        es.dbgmsg(0,"[eXtendable Admin] Could not unload module \""+xname+"\", it might be required")
-                    else:
-                        delete(xname)
+                    unRegister(xname)
                 else:
-                    es.dbgmsg(0,"[eXtendable Admin] Could not unload module \""+xname+"\", it is not loaded")
+                    es.dbgmsg(0,"[eXtendable Admin] Could not unregister module \""+xname+"\", it is not registered")
             else:
                 es.dbgmsg(0,"Syntax: xa module load <module-name>")
         elif seccmd == "exists":
-            if argc == 4:
+            if argc >= 5:
                 xname = es.getargv(3)
                 retvar = es.getargv(4)
                 es.set(retvar,int(exists(xname)))
             else:
                 es.dbgmsg(0,"Syntax: xa module exists <module-name> <var>")
-        elif seccmd == "isloaded":
-            if argc == 4:
+        elif seccmd == "isregistered":
+            if argc >= 5:
                 xname = es.getargv(3)
                 retvar = es.getargv(4)
-                es.set(retvar,int(isloaded(xname)))
+                es.set(retvar,int(isRegistered(xname)))
             else:
                 es.dbgmsg(0,"Syntax: xa module isloaded <module-name> <var>")
         elif seccmd == "isrequired":
-            if argc == 4:
+            if argc >= 5:
                 xname = es.getargv(3)
                 retvar = es.getargv(4)
-                es.set(retvar,int(isrequired(xname)))
+                es.set(retvar,int(isRequired(xname)))
             else:
                 es.dbgmsg(0,"Syntax: xa module isrequired <module-name> <var>")
         elif seccmd == "addrequirement":
-            if xname:
+            if xname and argc >= 5:
                 if x:
-                    result = x.addrequirement(es.getargv(4))
+                    result = x.addRequirement(es.getargv(4))
                     if result == True:
-                        es.dbgmsg(0,"[eXtendable Admin] Added module \""+es.getargv(4)+"\" as a requirement for module \""+xname+"\"")
+                        es.dbgmsg(0,"[eXtendable Admin] Added module \""+str(es.getargv(4))+"\" as a requirement for module \""+xname+"\"")
                     else:
                         for failed in result:
-                            es.dbgmsg(0,"Xa.py: Could not add module \""+failed+"\" as a requirement for module \""+xname+"\"")
+                            es.dbgmsg(0,"[eXtendable Admin] Could not add module \""+failed+"\" as a requirement for module \""+xname+"\"")
                 else:
-                    es.dbgmsg(0,"Xa.py: The module \""+xname+"\" does not exists")
+                    es.dbgmsg(0,"[eXtendable Admin] The module \""+xname+"\" is not registered")
             else:
                 es.dbgmsg(0,"Syntax: xa module addrequirement <module-name> <required-module>")
         elif seccmd == "delrequirement":
-            if xname:
+            if xname and argc >= 5:
                 if x:
-                    result = x.delrequirement(es.getargv(4))
+                    result = x.delRequirement(es.getargv(4))
                     if result == True:
-                        es.dbgmsg(0,"[eXtendable Admin] Deleted module \""+es.getargv(4)+"\" as a requirement from module \""+xname+"\"")
+                        es.dbgmsg(0,"[eXtendable Admin] Deleted module \""+str(es.getargv(4))+"\" as a requirement from module \""+xname+"\"")
                     else:
                         for failed in result:
-                            es.dbgmsg(0,"Xa.py: Could not delete module \""+failed+"\" as a requirement from module \""+xname+"\"")
+                            es.dbgmsg(0,"[eXtendable Admin] Could not delete module \""+failed+"\" as a requirement from module \""+xname+"\"")
                 else:
-                    es.dbgmsg(0,"Xa.py: The module \""+xname+"\" does not exists")
+                    es.dbgmsg(0,"[eXtendable Admin] The module \""+xname+"\" is not registered")
             else:
                 es.dbgmsg(0,"Syntax: xa module delrequirement <module-name> <required-module>")
         elif seccmd == "list":
@@ -500,90 +494,157 @@ def consolecmd():
                 es.dbgmsg(0, "Syntax: xa module info <module-name> [level]")
         else:
             es.dbgmsg(0,"Syntax: xa module <subcommand>")
-    if subcmd == "menu":
-        if xname in gMenus:
-            x = gMenus[xname]
-        else:
-            x = None
-        if seccmd == "create":
-            if xname and argc == 9:
-                if not x:
-                    module = str(es.getargv(4))
-                    display = str(es.getargv(5))
-                    menuname = str(es.getargv(6))
-                    perm = str(es.getargv(7))
-                    permlvl = str(es.getargv(8))
-                    menu_create(xname, module, display, menuname, perm, permlvl)
-            else:
-                es.dbgmsg(0,"Syntax: xa menu create <menu-name> <module-name> <display-name> <popup/keymenu-name> <permission> <permission-level>")
-        elif seccmd == "delete":
-            if xname:
-                if x:
-                    delete(xname)
+    elif subcmd == "command":
+        if xname and x:
+            xcommand = x.findCommand(es.getargv(4))
+            if seccmd == "create":
+                if not xcommand and argc >= 9:
+                    if x:
+                        command = str(es.getargv(4))
+                        block = str(es.getargv(5))
+                        perm = str(es.getargv(6))
+                        permlvl = str(es.getargv(7))
+                        target = bool(es.getargv(8))
+                        x.addCommand(command, block, perm, permlvl, target)
                 else:
-                    es.dbgmsg(0,"[eXtendable Admin] Could not delete the menu \""+xname+"\", it does not exists")
-            else:
-                es.dbgmsg(0,"Syntax: xa menu delete <menu-name>")
-        elif seccmd == "exists":
-            if argc == 4:
-                xname = es.getargv(3)
-                retvar = es.getargv(4)
-                es.set(retvar,int(exists(xname)))
-            else:
-                es.dbgmsg(0,"Syntax: xa module exists <module-name> <var>")
-        elif seccmd == "setdisplay":
-            if xname:
-                if x:
-                    display = str(es.getargv(4))
-                    x.setdisplay(display)
-                else:
-                    es.dbgmsg(0,"Xa.py: The menu \""+xname+"\" does not exists")
-            else:
-                es.dbgmsg(0,"Syntax: xa menu setdisplay <menu-name> <display-name>")
-        elif seccmd == "setmenu":
-            if xname:
-                if x:
-                    menuname = str(es.getargv(4))
-                    if popuplib.exists(menuname) or keymenulib.exists(menuname):
-                        x.setmenu(menuname)
+                    es.dbgmsg(0,"Syntax: xa command create <module-name> <command-name> <block> <permission> <permission-level> <target 0/1>")
+            elif seccmd == "delete":
+                if argc >= 5:
+                    if xcommand:
+                        x.delCommand(command)
                     else:
-                        es.dbgmsg(0,"Xa.py: There is no popup or keymenu named \""+menuname+"\"")
+                        es.dbgmsg(0,"[eXtendable Admin] Could not delete the command \""+es.getargv(4)+"\", it does not exists")
                 else:
-                    es.dbgmsg(0,"Xa.py: The menu \""+xname+"\" does not exists")
-            else:
-                es.dbgmsg(0,"Syntax: xa menu setmenu <menu-name> <popup/keymenu-name>")
-        elif seccmd == "setpermission":
-            if xname:
-                if x:
-                    perm = str(es.getargv(4))
-                    permlvl = str(es.getargv(5))
-                    x.setpermission(perm, permlvl)
+                    es.dbgmsg(0,"Syntax: xa command delete <module-name> <command-name>")
+            elif seccmd == "exists":
+                if argc >= 6:
+                    retvar = es.getargv(5)
+                    es.set(retvar,int(x.isCommand(es.getargv(4))))
                 else:
-                    es.dbgmsg(0,"Xa.py: The menu \""+xname+"\" does not exists")
+                    es.dbgmsg(0,"Syntax: xa command exists <module-name> <command-name> <var>")
+            elif seccmd == "register":
+                if argc >= 6:
+                    if xcommand:
+                        cmdtype = str(es.getargv(5))
+                        xcommand.register(cmdtype)
+                    else:
+                        es.dbgmsg(0,"[eXtendable Admin] The command \""+es.getargv(4)+"\" does not exists")
+                else:
+                    es.dbgmsg(0,"Syntax: xa command register <module-name> <command-name> <server/console/say>")
+            elif seccmd == "unregister":
+                if argc >= 6:
+                    if xcommand:
+                        cmdtype = str(es.getargv(5))
+                        xcommand.unRegister(cmdtype)
+                    else:
+                        es.dbgmsg(0,"[eXtendable Admin] The command \""+es.getargv(4)+"\" does not exists")
+                else:
+                    es.dbgmsg(0,"Syntax: xa command unregister <module-name> <command-name> <server/console/say>")
+            elif seccmd == "list":
+                es.dbgmsg(0,"---------- List of commands:")
+                if argc == 4:
+                    listlevel = 0
+                else:
+                    listlevel = int(es.getargv(4))
+                for command in x.subCommands:
+                    m = x.subCommands[command]
+                    m.information(listlevel)
+                if argc == 4:
+                    es.dbgmsg(0, " ")
+                    es.dbgmsg(0, "For more details, supply list level (0-1):")
+                    es.dbgmsg(0, "Syntax: xa command list <module-name> [level]")
+                es.dbgmsg(0,"----------")
+            elif seccmd == "info":
+                if argc >= 4:
+                    m = x.findCommand(es.getargv(4))
+                    if m:
+                        m.information(1)
+                    else:
+                        es.dbgmsg(0,"[eXtendable Admin] The command \""+es.getargv(4)+"\" does not exists")
+                else:
+                    es.dbgmsg(0, "Syntax: xa command info <module-name> <command-name>")
             else:
-                es.dbgmsg(0,"Syntax: xa menu setdisplay <menu-name> <display-name>")
-        elif seccmd == "list":
-            es.dbgmsg(0,"---------- List of menus:")
-            if argc == 3:
-                listlevel = 0
-            else:
-                listlevel = int(xname)
-            for menu in gMenus:
-                x = gMenus[menu]
-                x.information(listlevel)
-            if argc == 3:
-                es.dbgmsg(0, " ")
-                es.dbgmsg(0, "For more details, supply list level (0-1):")
-                es.dbgmsg(0, "Syntax: xa menu list [level]")
-            es.dbgmsg(0,"----------")
-        elif seccmd == "info":
-            if argc >= 4:
-                if x:
-                    x.information(1)
-            else:
-                es.dbgmsg(0, "Syntax: xa menu info <menu-name>")
+                es.dbgmsg(0,"Syntax: xa command <module-name> <subcommand>")
         else:
-            es.dbgmsg(0,"Syntax: xa menu <subcommand>")
+            es.dbgmsg(0,"[eXtendable Admin] The module \""+xname+"\" is not registered")
+            es.dbgmsg(0,"Syntax: xa command <module-name> <subcommand>")
+    elif subcmd == "menu":
+        if xname and x:
+            xmenu = x.findMenu(es.getargv(4))
+            if seccmd == "create":
+                if not xmenu and argc >= 9:
+                    if x:
+                        menu = str(es.getargv(4))
+                        display = str(es.getargv(5))
+                        menuname = str(es.getargv(6))
+                        perm = str(es.getargv(7))
+                        permlvl = str(es.getargv(8))
+                        x.addMenu(menu, display, menuname, perm, permlvl)
+                else:
+                    es.dbgmsg(0,"Syntax: xa menu create <module-name> <menu-name> <display-name> <popup/keymenu-name> <permission> <permission-level>")
+            elif seccmd == "delete":
+                if argc >= 5:
+                    if xmenu:
+                        x.delMenu(menu)
+                    else:
+                        es.dbgmsg(0,"[eXtendable Admin] Could not delete the menu \""+es.getargv(4)+"\", it does not exists")
+                else:
+                    es.dbgmsg(0,"Syntax: xa menu delete <module-name> <menu-name>")
+            elif seccmd == "exists":
+                if argc >= 6:
+                    retvar = es.getargv(5)
+                    es.set(retvar,int(x.isMenu(es.getargv(4))))
+                else:
+                    es.dbgmsg(0,"Syntax: xa menu exists <module-name> <menu-name> <var>")
+            elif seccmd == "setdisplay":
+                if argc >= 6:
+                    if xmenu:
+                        display = str(es.getargv(5))
+                        xmenu.setDisplay(display)
+                    else:
+                        es.dbgmsg(0,"[eXtendable Admin] The menu \""+es.getargv(4)+"\" does not exists")
+                else:
+                    es.dbgmsg(0,"Syntax: xa menu setdisplay <module-name> <menu-name> <display-name>")
+            elif seccmd == "setmenu":
+                if argc >= 6:
+                    if xmenu:
+                        menuname = str(es.getargv(5))
+                        if popuplib.exists(menuname) or keymenulib.exists(menuname):
+                            xmenu.setMenu(menuname)
+                        else:
+                            es.dbgmsg(0,"[eXtendable Admin] There is no popup or keymenu named \""+menuname+"\"")
+                    else:
+                        es.dbgmsg(0,"[eXtendable Admin] The menu \""+es.getargv(4)+"\" does not exists")
+                else:
+                    es.dbgmsg(0,"Syntax: xa menu setmenu <module-name> <menu-name> <popup/keymenu-name>")
+            elif seccmd == "list":
+                es.dbgmsg(0,"---------- List of menus:")
+                if argc == 4:
+                    listlevel = 0
+                else:
+                    listlevel = int(es.getargv(4))
+                for menu in x.subMenus:
+                    m = x.subMenus[menu]
+                    m.information(listlevel)
+                if argc == 4:
+                    es.dbgmsg(0, " ")
+                    es.dbgmsg(0, "For more details, supply list level (0-1):")
+                    es.dbgmsg(0, "Syntax: xa menu list <module-name> [level]")
+                es.dbgmsg(0,"----------")
+            elif seccmd == "info":
+                if argc >= 4:
+                    m = x.findMenu(es.getargv(4))
+                    if m:
+                        m.information(1)
+                    else:
+                        es.dbgmsg(0,"[eXtendable Admin] The menu \""+es.getargv(4)+"\" does not exists")
+                else:
+                    es.dbgmsg(0, "Syntax: xa menu info <module-name> <menu-name>")
+            else:
+                es.dbgmsg(0,"Syntax: xa menu <module-name> <subcommand>")
+        else:
+            es.dbgmsg(0,"[eXtendable Admin] The module \""+xname+"\" is not registered")
+            es.dbgmsg(0,"Syntax: xa menu <module-name> <subcommand>")
     else:
         es.dbgmsg(0,"Invalid xa subcommand, see http://www.eventscripts.com/pages/Xa/ for help")
         
