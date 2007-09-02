@@ -90,9 +90,9 @@ class Admin_module(object):
             return fails
         else:
             return True
-    def addCommand(self, command, block, perm, permlvl, target):
+    def addCommand(self, command, block, perm, permlvl, target=False):
         #create new menu
-        self.subCommands[menu] = Admin_command(command, block, perm, permlvl, target)
+        self.subCommands[command] = Admin_command(command, block, perm, permlvl, target)
         return self.subCommands[command]
     def delCommand(self, command):
         #delete a menu
@@ -186,7 +186,7 @@ class Admin_command(object):
             es.regclientcmd(self.name, "xa/incoming_console", "eXtendable Admin command")
             self.console = True
         if "say" in cmdlist and self.say == False:
-            es.regsaycmd(self.name, "xa/incoming_console", "eXtendable Admin command")
+            es.regsaycmd(self.name, "xa/incoming_say", "eXtendable Admin command")
             self.say = True
     def unRegister(self, gList):
         if type(gList) == str:
@@ -416,6 +416,11 @@ def consolecmd():
             xa_unload(es.getargv(2))
         else:
             es.dbgmsg(0,"Syntax: xa unload <module-name>")
+    elif subcmd == "send":
+        if es.getargv(2):
+            sendMenu(es.getargv(2))
+        else:
+            es.dbgmsg(0,"Syntax: xa send <userid>")
     elif subcmd == "module":
         if seccmd == "register":
             if xname:
@@ -666,8 +671,8 @@ def consolecmd():
 
 def incoming_server():
     userid = es.getcmduserid()
-    command = es.getargv(0)
     args = es.getargs()
+    command = es.getargv(0)
     if command in gCommandsPerm:
         if gCommandsPerm[command]:
             perm = gCommandsPerm[command]
@@ -685,8 +690,8 @@ def incoming_server():
 
 def incoming_console():
     userid = es.getcmduserid()
-    command = es.getargv(0)
     args = es.getargs()
+    command = es.getargv(0)
     if command in gCommandsPerm:
         if gCommandsPerm[command]:
             perm = gCommandsPerm[command]
@@ -704,8 +709,8 @@ def incoming_console():
 
 def incoming_say():
     userid = es.getcmduserid()
-    command = es.getargv(0)
     args = es.getargs()
+    command = args.split(" ")[0].replace("\"","")
     if command in gCommandsPerm:
         if gCommandsPerm[command]:
             perm = gCommandsPerm[command]
