@@ -11,12 +11,11 @@ es.load("xa/module")
 
 #import custom stuff
 import os
-import popup
-import keymenu
+import services
 import playerlib
+import popuplib
+import keymenulib
 from os import getcwd
-from popup import popup
-from keymenu import keymenu
 
 #plugin information
 info = es.AddonInfo()
@@ -31,12 +30,10 @@ info.description = ""
 gMainMenu = None
 ## gModules holds all the modules
 gModules = {}
-## gCommands holds all the commands
-gCommands = {}
-## gMenus holds all the menus
-gMenus = {}
-## gConfigs holds all the configs
-gConfigs = {}
+## gCommandsPerm holds all the permission names of commands
+gCommandsPerm = {}
+## gMenusPerm holds all the permission names of menus
+gMenusPerm = {}
 
 #################### ######################################################
 #Core Class Section# # PLEASE KEEP IN MIND THAT THOSE CLASSES ARE PRIVATE #
@@ -46,6 +43,8 @@ class Admin_module(object):
     def __init__(self, gModule):
         #initialization of the module
         self.name = gModule
+        self.subMenus = {}
+        self.subCommands = {}
         self.loaded = False
         self.requiredby = []
         self.requiredlist = []
@@ -97,8 +96,8 @@ class Admin_module(object):
             # log to an XA log
             pass
     def delete(self):
-        module_delete(self.name)
-    def addrequirement(self, gModuleList):
+        delete(self.name)
+    def addRequirement(self, gModuleList):
         fails = []
         if type(gModuleList) == str:
             modules = [gModuleList]
@@ -115,7 +114,7 @@ class Admin_module(object):
             return fails
         else:
             return True
-    def delrequirement(self, gModuleList):
+    def delRequirement(self, gModuleList):
         fails = []
         if type(gModuleList) == str:
             modules = [gModuleList]
@@ -132,6 +131,30 @@ class Admin_module(object):
             return fails
         else:
             return True
+    def addCommand(self, command, block, perm, permlvl, target):
+        #create new menu
+        self.subCommands[menu] = Admin_command(command, block, perm, permlvl, target)
+        return self.subCommands[command]
+    
+    def delCommand(self, command):
+        #delete a menu
+        if (command in self.subCommands):
+            self.subCommands[command].unregister(['server','console','say'])
+            del self.subCommands[command]
+        else:
+            es.dbgmsg(0,"Xa.py: Cannot delete menu \""+menu+"\", it does not exist")
+    def addMenu(self, menu, display, menuname, perm, permlvl):
+        #create new menu
+        self.subMenus[menu] = Admin_menu(menu, module, display, menuname, perm, permlvl)
+        return self.subMenus[menu]
+    
+    def delMenu(self, menu):
+        #delete a menu
+        if (menu in self.subMenus):
+            gMainMenu.setoption(self.subMenus[menu].name, self.subMenus[menu].display, 0)
+            del self.subMenus[menu]
+        else:
+            es.dbgmsg(0,"Xa.py: Cannot delete menu \""+menu+"\", it does not exist")
     def information(self, listlevel):
         if listlevel >= 1:
             es.dbgmsg(0, " ")
@@ -148,10 +171,9 @@ class Admin_module(object):
 
 # Admin_command is the clientcmd class
 class Admin_command(object):
-    def __init__(self, gCommand, gModule, gBlock, gPerm, gPermLevel, gTarget=False):
+    def __init__(self, gCommand, gBlock, gPerm, gPermLevel, gTarget=False):
         #initialization of the module
         self.name = gCommand
-        self.module = gModule
         self.block = gBlock
         self.permission = gPerm
         self.permissionlevel = gPermLevel
@@ -159,31 +181,49 @@ class Admin_command(object):
         self.server = False
         self.console = False
         self.say = False
-    def create(self, gList):
+        if type(gPermLevel) == str:
+            gPermLevel = gPermLevel.lower()
+            if gPermLevel == "#root":
+                self.permissionlevel = auth.ROOT
+            elif gPermLevel == "#admin":
+                self.permissionlevel = auth.ADMIN
+            elif gPermLevel == "#poweruser":
+                self.permissionlevel = auth.POWERUSER
+            elif (gPermLevel == "#identified") or (gPermLevel == "#known"):
+                self.permissionlevel = auth.IDENTIFIED
+            elif (gPermLevel == "#unrestricted") or (gPermLevel == "#all"):
+                self.permissionlevel = auth.UNRESTRICTED
+        else:
+            self.permissionlevel = int(gPermLevel)
+        if type(self.permissionlevel) != int:
+            es.dbgmsg(0, "[eXtendable Admin] Invalid default permission \""+str(gPermLevel)+"\"")
+        gCommandsPerm[self.name] = self.permission
+        auth = services.use("auth")
+        auth.registerCapability(self.permission, self.permissionlevel)
+    def register(self, gList):
         cmdlist = list(gList)
         if "server" in cmdlist and self.server == False:
             es.regcmd(self.name, "xa/incoming_server", "eXtendable Admin command")
             self.server = True
         if "console" in cmdlist and self.console == False:
-            es.server.cmd("clientcmd create console "+str(self.name)+" xa/incoming_console "+str(self.permission)+" "+str(self.permissionlevel))
+            es.regclientcmd(self.name, "xa/incoming_console", "eXtendable Admin command")
             self.console = True
         if "say" in cmdlist and self.say == False:
-            es.server.cmd("clientcmd create say "+str(self.name)+" xa/incoming_say "+str(self.permission)+" "+str(self.permissionlevel))
+            es.regsaycmd(self.name, "xa/incoming_console", "eXtendable Admin command")
             self.say = True
-    def delete(self, gList):
+    def unregister(self, gList):
         cmdlist = list(gList)
         if "console" in cmdlist and self.console == True:
-            es.server.cmd("clientcmd delete console "+str(self.name))
+            es.unregclientcmd(self.name)
             self.console = False
         if "say" in cmdlist and self.say == True:
-            es.server.cmd("clientcmd delete say "+str(self.name))
+            es.unregsaycmd(self.name)
             self.say = False
     def information(self, listlevel):
         if listlevel >= 1:
             es.dbgmsg(0, " ")
         es.dbgmsg(0, self.name)
         if listlevel >= 1:
-            es.dbgmsg(0, "  Module:       "+str(self.module))
             es.dbgmsg(0, "  Block:        "+str(self.block))
             es.dbgmsg(0, "  Server cmd:   "+str(self.server))
             es.dbgmsg(0, "  Console cmd:  "+str(self.console))
@@ -194,107 +234,67 @@ class Admin_command(object):
             
 # Admin_menu is the clientcmd class
 class Admin_menu(object):
-    def __init__(self, gMenu, gModule, gDisplay, gMenuName, gPerm, gPermLevel):
+    def __init__(self, gMenu, gDisplay, gMenuName, gPerm, gPermLevel):
         #initialization of the module
         self.name = gMenu
-        self.module = gModule
         self.display = gDisplay
         self.menu = gMenuName
         self.menutype = ""
         self.menuobj = None
         self.permission = gPerm
         self.permissionlevel = gPermLevel
-        if popup.exists(self.menu):
+        if popuplib.exists(self.menu):
             self.menutype = "popup"
-            self.menuobj = popup.find(self.menu)
-        elif keymenu.exists(self.menu):
+            self.menuobj = popuplib.find(self.menu)
+        elif keymenulib.exists(self.menu):
             self.menutype = "keymenu"
-            self.menuobj = keymenu.find(self.menu)
+            self.menuobj = keymenulib.find(self.menu)
         gMainMenu.addoption(self.name, self.display, 1)
-    def delete(self):
-        menu_delete(self.name)
-    def setdisplay(self, display):
+        if type(gPermLevel) == str:
+            gPermLevel = gPermLevel.lower()
+            if gPermLevel == "#root":
+                self.permissionlevel = auth.ROOT
+            elif gPermLevel == "#admin":
+                self.permissionlevel = auth.ADMIN
+            elif gPermLevel == "#poweruser":
+                self.permissionlevel = auth.POWERUSER
+            elif (gPermLevel == "#identified") or (gPermLevel == "#known"):
+                self.permissionlevel = auth.IDENTIFIED
+            elif (gPermLevel == "#unrestricted") or (gPermLevel == "#all"):
+                self.permissionlevel = auth.UNRESTRICTED
+        else:
+            self.permissionlevel = int(gPermLevel)
+        if type(self.permissionlevel) != int:
+            es.dbgmsg(0, "[eXtendable Admin] Invalid default permission \""+str(gPermLevel)+"\"")
+        gMenusPerm[self.name] = self.permission
+        auth = services.use("auth")
+        auth.registerCapability(self.permission, self.permissionlevel)
+    def setDisplay(self, display):
         self.display = display
         gMainMenu.setoption(self.name, self.display, 1)
         return True
-    def setmenu(self, menu):
-        if popup.exists(menu):
+    def setMenu(self, menu):
+        if popuplib.exists(menu):
             self.menu = menu
             self.menutype = "popup"
-            self.menuobj = popup.find(self.menu)
+            self.menuobj = popuplib.find(self.menu)
             return True
-        elif keymenu.exists(menu):
+        elif keymenulib.exists(menu):
             self.menu = menu
             self.menutype = "keymenu"
-            self.menuobj = keymenu.find(self.menu)
+            self.menuobj = keymenulib.find(self.menu)
             return True
         return False
-    def setpermission(self, perm, permlevel):
-        self.permission = perm
-        self.permissionlevel = permlevel
     def information(self, listlevel):
         if listlevel >= 1:
             es.dbgmsg(0, " ")
         es.dbgmsg(0, self.name)
         if listlevel >= 1:
-            es.dbgmsg(0, "  Module:       "+str(self.module))
             es.dbgmsg(0, "  Display:      "+str(self.display))
             es.dbgmsg(0, "  Menuname:     "+str(self.menu))
             es.dbgmsg(0, "  Menutype:     "+str(self.menutype))
             es.dbgmsg(0, "  Permission:   "+str(self.permission))
             es.dbgmsg(0, "  Perm-level:   "+str(self.permissionlevel))
-
-# Admin_config is the config class for modules
-class Admin_config(object):
-    def __init__(self):
-        self.name = "null for now"
-    def loadfile(self, filepath):
-        try:
-            fp = open(filepath)
-        except IOError:
-            return False
-        else:
-            return fp
-    def loadDefaultConfig(self, filename):
-        self.dfilename = filename
-    def loadCustomConfig(self, filename):
-        self.cfilename = filename
-    def loadManiConfig(self, filename, filter=0):
-        # Lets see what files we are loadign and how to parse them
-        if filename == "mani_server.cfg":
-            manicfg = self.loadfile(getcwd() + "/cstrike/cfg/mani_server.cfg")
-            if manicfg:
-                return self.parse_mani_server(manicfg, filter)
-                
-    def parse_mani_server(self, fp, filter):
-        manivars = {}
-        for line in fp:
-            line = line.strip("\n")
-            line = line.strip("\r")
-            if filter:
-                if line.startswith(filter):
-                    temp = line.split(" ")
-                    vname = temp[0]
-                    temp.pop(0)
-                    vstring = ""
-                    for sect in temp:
-                        vstring = vstring + " " + sect
-                    vstring = vstring.strip(" ")
-                    vstring = vstring.strip("\"")
-                    manivars[vname] = vstring
-            else:
-            # return all vars then!
-                if line.startswith("mani_"):
-                    temp = line.split(" ")
-                    vname = temp[0]
-                    temp.pop(0)
-                    vstring = ""
-                    for sect in temp:
-                        vstring = vstring + " " + sect
-                    vstring = vstring.strip(" ")
-                    vstring = vstring.strip("\"")
-                    manivars[vname] = vstring
-        return manivars
 
 #basic commands begin here
 #usage from other Python scripts for example:
@@ -308,12 +308,12 @@ class Admin_config(object):
 ###########################
 #Module methods start here#
 ###########################
-def module_create(pModuleid):
+def create(pModuleid):
     #create new module
     gModules[pModuleid] = Admin_module(pModuleid)
     return gModules[pModuleid]
 
-def module_delete(pModuleid):
+def delete(pModuleid):
     #delete a module
     if (pModuleid in gModules):
         if bool(gModules[pModuleid].loaded):
@@ -322,84 +322,47 @@ def module_delete(pModuleid):
     else:
         es.dbgmsg(0,"Xa.py: Cannot delete module \""+pModuleid+"\", it does not exist")
 
-def module_exists(pModuleid):
+def exists(pModuleid):
     #does named module exist
     return (pModuleid in gModules)
 
-def module_isloaded(pModuleid):
+def isloaded(pModuleid):
     #does named module exist and is loaded
     if (pModuleid in gModules):
         return gModules[pModuleid].loaded
     return False
 
-def module_isrequired(pModuleid):
+def isrequired(pModuleid):
     #does named module exist and is required
     if (pModuleid in gModules):
         return bool(len(gModules[pModuleid].requiredby))
     return False
 
-def module_find(pModuleid):
+def find(pModuleid):
     #return class instance of named module
     if (pModuleid in gModules):
         return gModules[pModuleid]
     return None
 
-def module_addrequirement(pModuleid, modules):
-    #add a required module for the module
+def findMenu(pModuleid, pMenuid):
+    #return class instance of named menu inside a module
     if (pModuleid in gModules):
-        return gModules[pModuleid].addrequirement(modules)
+        module = gModules[pModuleid]
+        if (pMenuid in module.subMenus):
+            return gModules[pModuleid].subMenus[pMenuid]
     return None
 
-def module_delrequirement(pModuleid, modules):
-    #delete a required module for the module
+def findCommand(pModuleid, pCommandid):
+    #return class instance of named menu inside a module
     if (pModuleid in gModules):
-        return gModules[pModuleid].delrequirement(modules)
+        module = gModules[pModuleid]
+        if (pCommandid in module.subCommands):
+            return gModules[pModuleid].subCommands[pCommandid]
     return None
     
-#########################
-#Menu methods start here#
-#########################
-def menu_create(pMenuid, module, display, menuname, perm, permlvl):
-    #create new menu
-    gMenus[pMenuid] = Admin_menu(pMenuid, module, display, menuname, perm, permlvl)
-    return gMenus[pMenuid]
-
-def menu_delete(pMenuid):
-    #delete a menu
-    if (pMenuid in gMenus):
-        gMainMenu.setoption(gMenus[pMenuid].name, gMenus[pMenuid].display, 0)
-        del gMenus[pMenuid]
-    else:
-        es.dbgmsg(0,"Xa.py: Cannot delete menu \""+pMenuid+"\", it does not exist")
-
-def menu_exists(pMenuid):
-    #does named menu exist
-    return (pMenuid in gMenus)
-
-def menu_find(pMenuid):
-    #return class instance of named menu
-    if (pMenuid in gMenus):
-        return gMenus[pMenuid]
-    return None
-
-def menu_setdisplay(pMenuid, display):
-    #set the display text for a menu
-    if (pMenuid in gMenus):
-        return gMenus[pMenuid].setdisplay(display)
-    return None
-
-def menu_setmenu(pMenuid, menu):
-    #set the menu for the module
-    if (pMenuid in gMenus):
-        return gMenus[pMenuid].setmenu(menu)
-    return None
-
-def menu_setpermission(pMenuid, perm, permlevel):
-    #set the permission for the menu
-    if (pMenuid in gMenus):
-        return gMenus[pMenuid].setpermission(perm, permlevel)
-    return None
-
+def sendMenu(pUserid):
+    gMainMenu.send(pUserid)
+    
 ###########################################
 #EventScripts events and blocks start here#
 ###########################################
@@ -408,7 +371,7 @@ def load():
     global gMainMenu
     if not es.exists("command", "xa"):
         es.regcmd("xa", "xa/consolecmd", "eXtendable Admin")
-    gMainMenu = popup.easymenu("_xa_mainmenu", "_xa_choice", incoming_menu)
+    gMainMenu = popuplib.easymenu("_xa_mainmenu", "_xa_choice", incoming_menu)
     gMainMenu.c_titleformat = "eXtendable Admin" + (" "*(30-len("eXtendable Admin"))) + " (%p/%t)"
     es.dbgmsg(0, "[eXtendable Admin] Finished loading")
 
@@ -419,11 +382,11 @@ def unload():
         es.dbgmsg(0, "[eXtendable Admin] Unloading module \""+module.name+"\"")
         es.unload("xa/module/"+module.name)
         del gModules[module]
-    if popup.exists("_xa_mainmenu"):
+    if popuplib.exists("_xa_mainmenu"):
         if gMainMenu:
             gMainMenu.delete()
         else:
-            gMainMenu = popup.find("_xa_mainmenu")
+            gMainMenu = popuplib.find("_xa_mainmenu")
             gMainMenu.delete()
         gMainMenu = None
     es.unload("xa/module")
@@ -446,7 +409,7 @@ def consolecmd():
                     if not x.load():
                         es.dbgmsg(0,"[eXtendable Admin] Could not load module \""+xname+"\", it might already be loaded")
                 else:
-                    module_create(xname)
+                    create(xname)
             else:
                 es.dbgmsg(0,"Syntax: xa module load <module-name>")
         elif seccmd == "unload":
@@ -455,7 +418,7 @@ def consolecmd():
                     if not x.unload():
                         es.dbgmsg(0,"[eXtendable Admin] Could not unload module \""+xname+"\", it might be required")
                     else:
-                        module_delete(xname)
+                        delete(xname)
                 else:
                     es.dbgmsg(0,"[eXtendable Admin] Could not unload module \""+xname+"\", it is not loaded")
             else:
@@ -464,21 +427,21 @@ def consolecmd():
             if argc == 4:
                 xname = es.getargv(3)
                 retvar = es.getargv(4)
-                es.set(retvar,int(module_exists(xname)))
+                es.set(retvar,int(exists(xname)))
             else:
                 es.dbgmsg(0,"Syntax: xa module exists <module-name> <var>")
         elif seccmd == "isloaded":
             if argc == 4:
                 xname = es.getargv(3)
                 retvar = es.getargv(4)
-                es.set(retvar,int(module_isloaded(xname)))
+                es.set(retvar,int(isloaded(xname)))
             else:
                 es.dbgmsg(0,"Syntax: xa module isloaded <module-name> <var>")
         elif seccmd == "isrequired":
             if argc == 4:
                 xname = es.getargv(3)
                 retvar = es.getargv(4)
-                es.set(retvar,int(module_isrequired(xname)))
+                es.set(retvar,int(isrequired(xname)))
             else:
                 es.dbgmsg(0,"Syntax: xa module isrequired <module-name> <var>")
         elif seccmd == "addrequirement":
@@ -552,7 +515,7 @@ def consolecmd():
         elif seccmd == "delete":
             if xname:
                 if x:
-                    module_delete(xname)
+                    delete(xname)
                 else:
                     es.dbgmsg(0,"[eXtendable Admin] Could not delete the menu \""+xname+"\", it does not exists")
             else:
@@ -561,7 +524,7 @@ def consolecmd():
             if argc == 4:
                 xname = es.getargv(3)
                 retvar = es.getargv(4)
-                es.set(retvar,int(module_exists(xname)))
+                es.set(retvar,int(exists(xname)))
             else:
                 es.dbgmsg(0,"Syntax: xa module exists <module-name> <var>")
         elif seccmd == "setdisplay":
@@ -577,7 +540,7 @@ def consolecmd():
             if xname:
                 if x:
                     menuname = str(es.getargv(4))
-                    if popup.exists(menuname) or keymenu.exists(menuname):
+                    if popuplib.exists(menuname) or keymenulib.exists(menuname):
                         x.setmenu(menuname)
                     else:
                         es.dbgmsg(0,"Xa.py: There is no popup or keymenu named \""+menuname+"\"")
