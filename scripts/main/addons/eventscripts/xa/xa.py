@@ -1,6 +1,3 @@
-import psyco
-psyco.full()
-
 #import EventScripts
 import es
 from es import server_var
@@ -16,6 +13,9 @@ import playerlib
 import popuplib
 import keymenulib
 from os import getcwd
+
+import psyco
+psyco.full()
 
 #plugin information
 info = es.AddonInfo()
@@ -43,8 +43,8 @@ class Admin_module(object):
     def __init__(self, gModule):
         #initialization of the module
         self.name = gModule
-        self.subMenus = {}
         self.subCommands = {}
+        self.subMenus = {}
         self.loaded = False
         self.requiredby = []
         self.requiredlist = []
@@ -318,6 +318,10 @@ def delete(pModuleid):
     if (pModuleid in gModules):
         if bool(gModules[pModuleid].loaded):
             gModules[pModuleid].unload()
+        for command in gModules[pModuleid].subCommands:
+            gModules[pModuleid].delCommand(command)
+        for menu in gModules[pModuleid].subMenus:
+            gModules[pModuleid].delMenu(menu)
         del gModules[pModuleid]
     else:
         es.dbgmsg(0,"Xa.py: Cannot delete module \""+pModuleid+"\", it does not exist")
