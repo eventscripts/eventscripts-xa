@@ -30,10 +30,12 @@ info.description = ""
 gMainMenu = None
 ## gModules holds all the modules
 gModules = {}
-## gCommandsPerm holds all the permission names of commands
+## gCommandsPerm/Block holds all the permission/block names of commands
 gCommandsPerm = {}
-## gMenusPerm holds all the permission names of menus
+gCommandsBlock = {}
+## gMenusPerm/Page holds all the permission/page names of menus
 gMenusPerm = {}
+gMenusPage = {}
 
 #################### ######################################################
 #Core Class Section# # PLEASE KEEP IN MIND THAT THOSE CLASSES ARE PRIVATE #
@@ -168,6 +170,7 @@ class Admin_command(object):
         if type(self.permissionlevel) != int:
             es.dbgmsg(0, "[eXtendable Admin] Invalid default permission \""+str(gPermLevel)+"\"")
         gCommandsPerm[self.name] = self.permission
+        gCommandsBlock[self.name] = self.block
         auth = services.use("auth")
         auth.registerCapability(self.permission, self.permissionlevel)
     def register(self, gList):
@@ -243,6 +246,7 @@ class Admin_menu(object):
         if type(self.permissionlevel) != int:
             es.dbgmsg(0, "[eXtendable Admin] Invalid default permission \""+str(gPermLevel)+"\"")
         gMenusPerm[self.name] = self.permission
+        gMenusPage[self.name] = self.menuobj
         auth = services.use("auth")
         auth.registerCapability(self.permission, self.permissionlevel)
     def setDisplay(self, display):
@@ -254,11 +258,13 @@ class Admin_menu(object):
             self.menu = menu
             self.menutype = "popup"
             self.menuobj = popuplib.find(self.menu)
+            gMenusPage[self.name] = self.menuobj
             return True
         elif keymenulib.exists(menu):
             self.menu = menu
             self.menutype = "keymenu"
             self.menuobj = keymenulib.find(self.menu)
+            gMenusPage[self.name] = self.menuobj
             return True
         return False
     def information(self, listlevel):
@@ -652,16 +658,70 @@ def consolecmd():
 #EventScripts clientcmd blocks start here#
 ##########################################
 
-# TBD
-
 def incoming_menu(userid, choice, name):
-    print userid, choice, name
+    if choice in gMenusPerm:
+        if gMenusPerm[choice]:
+            perm = gMenusPerm[choice]
+            auth = services.use("auth")
+            if auth.isUseridAuthorized(userid, perm):
+                page = gMenusPage[choice]
+                es.set("_xa_userid", userid)
+                es.set("_xa_menu", page.name)
+                page.send(userid)
 
 def incoming_server():
-    print es.getargs()
+    userid = es.getcmduserid()
+    command = es.getargv(0)
+    args = es.getargs()
+    if command in gCommandsPerm:
+        if gCommandsPerm[command]:
+            perm = gCommandsPerm[command]
+            auth = services.use("auth")
+            if auth.isUseridAuthorized(userid, perm):
+                block = gCommandsBlock[command]
+                es.set("_xa_userid", userid)
+                es.set("_xa_command", command)
+                es.set("_xa_commandstring", args)
+                es.set("_xa_commandtype", "server")
+                if callable(block):
+                    block(userid, command, args, "server")
+                else:
+                    es.doblock(block)
 
 def incoming_console():
-    print es.getargs()
+    userid = es.getcmduserid()
+    command = es.getargv(0)
+    args = es.getargs()
+    if command in gCommandsPerm:
+        if gCommandsPerm[command]:
+            perm = gCommandsPerm[command]
+            auth = services.use("auth")
+            if auth.isUseridAuthorized(userid, perm):
+                block = gCommandsBlock[command]
+                es.set("_xa_userid", userid)
+                es.set("_xa_command", command)
+                es.set("_xa_commandstring", args)
+                es.set("_xa_commandtype", "console")
+                if callable(block):
+                    block(userid, command, args, "console")
+                else:
+                    es.doblock(block)
 
 def incoming_say():
-    print es.getargs()
+    userid = es.getcmduserid()
+    command = es.getargv(0)
+    args = es.getargs()
+    if command in gCommandsPerm:
+        if gCommandsPerm[command]:
+            perm = gCommandsPerm[command]
+            auth = services.use("auth")
+            if auth.isUseridAuthorized(userid, perm):
+                block = gCommandsBlock[command]
+                es.set("_xa_userid", userid)
+                es.set("_xa_command", command)
+                es.set("_xa_commandstring", args)
+                es.set("_xa_commandtype", "say")
+                if callable(block):
+                    block(userid, command, args, "say")
+                else:
+                    es.doblock(block)
