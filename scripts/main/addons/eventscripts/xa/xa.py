@@ -97,7 +97,7 @@ class Admin_module(object):
     def delCommand(self, command):
         #delete a menu
         if (command in self.subCommands):
-            self.subCommands[command].unregister(['server','console','say'])
+            self.subCommands[command].unRegister(['server','console','say'])
             del self.subCommands[command]
         else:
             es.dbgmsg(0,"Xa.py: Cannot delete menu \""+menu+"\", it does not exist")

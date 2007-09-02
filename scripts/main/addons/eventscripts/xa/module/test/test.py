@@ -14,7 +14,7 @@ def load():
     mycommand.register(["console","say"])
 
 def unload():
-    xa.unregister("test")
+    xa.unRegister("test")
 
 def mytestblock(userid, command, commandstring, type):
     es.msg("Hello World!")
