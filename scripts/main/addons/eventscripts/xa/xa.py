@@ -26,8 +26,9 @@ info.url = ""
 info.description = ""
 
 #global variables:
-## gMainMenu holds XAs main menu
+## gMainMenu/gMainCommand holds XAs main menu/main command
 gMainMenu = None
+gMainCommand = None
 ## gModules holds all the modules
 gModules = {}
 ## gCommandsPerm/Block holds all the permission/block names of commands
@@ -153,6 +154,7 @@ class Admin_command(object):
         self.server = False
         self.console = False
         self.say = False
+        auth = services.use("auth")
         if type(gPermLevel) == str:
             gPermLevel = gPermLevel.lower()
             if gPermLevel == "#root":
@@ -171,7 +173,6 @@ class Admin_command(object):
             es.dbgmsg(0, "[eXtendable Admin] Invalid default permission \""+str(gPermLevel)+"\"")
         gCommandsPerm[self.name] = self.permission
         gCommandsBlock[self.name] = self.block
-        auth = services.use("auth")
         auth.registerCapability(self.permission, self.permissionlevel)
     def register(self, gList):
         if type(gList) == str:
@@ -222,6 +223,7 @@ class Admin_menu(object):
         self.menuobj = None
         self.permission = gPerm
         self.permissionlevel = gPermLevel
+        auth = services.use("auth")
         if popuplib.exists(self.menu):
             self.menutype = "popup"
             self.menuobj = popuplib.find(self.menu)
@@ -247,7 +249,6 @@ class Admin_menu(object):
             es.dbgmsg(0, "[eXtendable Admin] Invalid default permission \""+str(gPermLevel)+"\"")
         gMenusPerm[self.name] = self.permission
         gMenusPage[self.name] = self.menuobj
-        auth = services.use("auth")
         auth.registerCapability(self.permission, self.permissionlevel)
     def setDisplay(self, display):
         self.display = display
@@ -290,10 +291,10 @@ class Admin_menu(object):
 ###########################
 #Module methods start here#
 ###########################
-def load(pModuleid):
+def xa_load(pModuleid):
     es.load("xa/module/"+pModuleid)
 
-def unload(pModuleid):
+def xa_unload(pModuleid):
     es.unload("xa/module/"+pModuleid)
 
 def register(pModuleid):
@@ -358,7 +359,8 @@ def findCommand(pModuleid, pCommandid):
             return gModules[pModuleid].subCommands[pCommandid]
     return None
     
-def sendMenu(pUserid):
+def sendMenu(pUserid, n1=None, n2=None, n3=None):
+    #n1, n2, n3 just for internal use
     gMainMenu.send(pUserid)
     
 ###########################################
@@ -366,15 +368,17 @@ def sendMenu(pUserid):
 ###########################################
 
 def load():
-    global gMainMenu
+    global gMainMenu, gMainCommand
     if not es.exists("command", "xa"):
         es.regcmd("xa", "xa/consolecmd", "eXtendable Admin")
     gMainMenu = popuplib.easymenu("_xa_mainmenu", "_xa_choice", incoming_menu)
     gMainMenu.c_titleformat = "eXtendable Admin" + (" "*(30-len("eXtendable Admin"))) + " (%p/%t)"
+    gMainCommand = Admin_command("xa", sendMenu, "xa_menu", "#all")
+    gMainCommand.register(["console","say"])
     es.dbgmsg(0, "[eXtendable Admin] Finished loading")
 
 def unload():
-    global gMainMenu
+    global gMainMenu, gMainCommand
     es.dbgmsg(0, "[eXtendable Admin] Begin unloading...")
     for module in gModules:
         if gModules[module].allowAutoUnload == True:
@@ -387,6 +391,8 @@ def unload():
             gMainMenu = popuplib.find("_xa_mainmenu")
             gMainMenu.delete()
         gMainMenu = None
+    gMainCommand.unRegister(["console","say"])
+    del gMainCommand
     es.unload("xa/module")
     es.dbgmsg(0, "[eXtendable Admin] Finished unloading")
 
@@ -402,12 +408,12 @@ def consolecmd():
         x = None
     if subcmd == "load":
         if es.getargv(2):
-            load(es.getargv(2))
+            xa_load(es.getargv(2))
         else:
             es.dbgmsg(0,"Syntax: xa load <module-name>")
     elif subcmd == "unload":
         if es.getargv(2):
-            unload(es.getargv(2))
+            xa_unload(es.getargv(2))
         else:
             es.dbgmsg(0,"Syntax: xa unload <module-name>")
     elif subcmd == "module":
@@ -654,20 +660,9 @@ def consolecmd():
     else:
         es.dbgmsg(0,"Invalid xa subcommand, see http://www.eventscripts.com/pages/Xa/ for help")
         
-##########################################
-#EventScripts clientcmd blocks start here#
-##########################################
-
-def incoming_menu(userid, choice, name):
-    if choice in gMenusPerm:
-        if gMenusPerm[choice]:
-            perm = gMenusPerm[choice]
-            auth = services.use("auth")
-            if auth.isUseridAuthorized(userid, perm):
-                page = gMenusPage[choice]
-                es.set("_xa_userid", userid)
-                es.set("_xa_menu", page.name)
-                page.send(userid)
+#############################################
+#EventScripts command/menu blocks start here#
+#############################################
 
 def incoming_server():
     userid = es.getcmduserid()
@@ -725,3 +720,14 @@ def incoming_say():
                     block(userid, command, args, "say")
                 else:
                     es.doblock(block)
+
+def incoming_menu(userid, choice, name):
+    if choice in gMenusPerm:
+        if gMenusPerm[choice]:
+            perm = gMenusPerm[choice]
+            auth = services.use("auth")
+            if auth.isUseridAuthorized(userid, perm):
+                page = gMenusPage[choice]
+                es.set("_xa_userid", userid)
+                es.set("_xa_menu", page.name)
+                page.send(userid)
