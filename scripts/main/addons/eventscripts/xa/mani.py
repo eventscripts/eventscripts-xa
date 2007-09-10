@@ -11,7 +11,7 @@ selfmoddir = str(selfaddondir).rsplit("/", 2)[0] + '/'
 #Module methods start here#
 ###########################
 def loadModules():
-    filename = "%s/%s" % (es.getAddonPath('xa'), 'mani.txt')
+    filename = "%s/%s" % (es.getAddonPath('xa'), 'data/mani.txt')
     if os.path.exists(filename):
         f = open(filename, "r")
         try:
@@ -24,4 +24,4 @@ def loadModules():
         finally:
             f.close()
     else:
-        raise FileError("Could not find xa/mani.txt!")
+        raise FileError("Could not find xa/data/mani.txt!")

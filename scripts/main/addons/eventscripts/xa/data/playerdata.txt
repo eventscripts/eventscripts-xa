@@ -1,0 +1,22 @@
+"playerdata.txt"
+{
+	"test"
+	{
+		"testpref"
+		{
+			"BOT_GRAHAM"		"Hello World! Online!"
+			"BOT_RON"		"Hello World! Online!"
+			"BOT_DEAN"		"Hello World! Online!"
+			"BOT_SHAWN"		"Hello World! Online!"
+			"BOT_IRWIN"		"Hello World! Online!"
+			"BOT_HENRY"		"Hello World! Online!"
+			"BOT_FERRIS"		"Hello World! Online!"
+			"BOT_WILL"		"Hello World! Online!"
+			"BOT_MARVIN"		"Hello World! Online!"
+			"BOT_PAT"		"Hello World! Online!"
+			"BOT_OPIE"		"Hello World! Online!"
+			"STEAM_0:0:7103742"		"Hello World! Online!"
+			"BOT_YURI"		"Hello World! Online!"
+		}
+	}
+}

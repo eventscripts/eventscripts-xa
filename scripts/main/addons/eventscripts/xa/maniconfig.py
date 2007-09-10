@@ -50,7 +50,7 @@ def getKeyList(filename):
         return False
             
 def getVariableList():
-    filename = "%s/%s" % (es.getAddonPath('xa'), 'maniconfig.txt')
+    filename = "%s/%s" % (es.getAddonPath('xa'), 'data/maniconfig.txt')
     if os.path.exists(filename):
         lines = {}
         f = open(filename, "r")
@@ -62,10 +62,10 @@ def getVariableList():
             f.close()
         return lines
     else:
-        raise FileError("Could not find xa/maniconfig.txt!")
+        raise FileError("Could not find xa/data/maniconfig.txt!")
 
 def getVariable(variable):
-    filename = "%s/%s" % (es.getAddonPath('xa'), 'maniconfig.txt')
+    filename = "%s/%s" % (es.getAddonPath('xa'), 'data/maniconfig.txt')
     if os.path.exists(filename):
         lines = {}
         f = open(filename, "r")
@@ -78,4 +78,4 @@ def getVariable(variable):
             f.close()
         return None
     else:
-        raise FileError("Could not find xa/maniconfig.txt!")
+        raise FileError("Could not find xa/data/maniconfig.txt!")

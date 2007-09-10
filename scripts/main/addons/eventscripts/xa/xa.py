@@ -14,6 +14,7 @@ import keymenulib
 from os import getcwd
 
 import language
+import playerdata
 import setting
 import mani
 import maniconfig
@@ -30,6 +31,8 @@ info.url = ""
 info.description = ""
 
 #global variables:
+## is Mani compatibility enabled?
+gManiMode = False
 ## gMainMenu/gMainCommand holds XAs main menu/main command
 gMainMenu = None
 gMainCommand = None
@@ -58,7 +61,11 @@ class Admin_module(object):
         self.subMenus = {}
         self.requiredFrom = []
         self.requiredList = []
+        self.variables = {}
+        self.variablesMani = {}
         es.dbgmsg(0, "[eXtendable Admin] Registered module \""+self.name+"\"")
+    def __str__(self):
+        return self.name
     def delete(self):
         unRegister(self.name)
     def unRegister(self):
@@ -148,12 +155,21 @@ class Admin_module(object):
             es.dbgmsg(0, "  Requires:     "+str(len(self.requiredList)))
             for module in self.requiredList:
                 es.dbgmsg(0,"    "+module)
+            es.dbgmsg(0, "  Variables:    "+str(len(self.variables)))
+            for var in self.variables:
+                es.dbgmsg(0,"    "+var)
+            es.dbgmsg(0, "  Mani Vars:    "+str(len(self.variablesMani)))
+            for var in self.variablesMani:
+                es.dbgmsg(0,"    "+var)
 
 # Admin_command is the clientcmd class
 class Admin_command(object):
     def __init__(self, gCommand, gBlock, gPerm, gPermLevel, gTarget=False):
         #initialization of the module
-        self.name = gCommand
+        if "xa_" == gCommand[0:3]:
+            self.name = gCommand
+        else:
+            self.name = "xa_"+gCommand
         self.block = gBlock
         self.permission = gPerm
         self.permissionlevel = gPermLevel
@@ -181,6 +197,8 @@ class Admin_command(object):
         gCommandsPerm[self.name] = self.permission
         gCommandsBlock[self.name] = self.block
         auth.registerCapability(self.permission, self.permissionlevel)
+    def __str__(self):
+        return self.name
     def register(self, gList):
         if type(gList) == str:
             cmdlist = [gList]
@@ -257,6 +275,8 @@ class Admin_menu(object):
         gMenusPerm[self.name] = self.permission
         gMenusPage[self.name] = self.menuobj
         auth.registerCapability(self.permission, self.permissionlevel)
+    def __str__(self):
+        return self.name
     def setDisplay(self, display):
         self.display = display
         gMainMenu.setoption(self.name, self.display, 1)
@@ -386,6 +406,7 @@ def load():
     es.mexec("xa.cfg")
     #Mani compatibility
     if os.path.exists(selfmodfolder+"cfg/mani_server.cfg"):
+        gManiMode = True
         es.dbgmsg(0, "[eXtendable Admin] Executing mani_server.cfg...")
         maniconfig.getVariableList() #setup basic mani variables
         es.mexec("mani_server.cfg")
