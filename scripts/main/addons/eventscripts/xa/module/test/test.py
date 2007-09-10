@@ -1,5 +1,9 @@
 import es
 import xa
+import xa.language
+import xa.setting
+import xa.mani
+import xa.maniconfig
 import popuplib
 from xa import xa
 

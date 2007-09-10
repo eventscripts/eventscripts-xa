@@ -4,7 +4,6 @@ from es import server_var
 
 #load and import the core
 es.dbgmsg(0, "[eXtendable Admin] Begin loading...")
-es.load("xa/module")
 
 #import custom stuff
 import os
@@ -13,6 +12,11 @@ import playerlib
 import popuplib
 import keymenulib
 from os import getcwd
+
+import language
+import setting
+import mani
+import maniconfig
 
 import psyco
 psyco.full()
@@ -37,6 +41,9 @@ gCommandsBlock = {}
 ## gMenusPerm/Page holds all the permission/page names of menus
 gMenusPerm = {}
 gMenusPage = {}
+
+selfaddondir = str(es.server_var["eventscripts_addondir"]).replace("\\", "/")
+selfmodfolder = str(selfaddondir).rsplit("/", 2)[0] + '/'
 
 #################### ######################################################
 #Core Class Section# # PLEASE KEEP IN MIND THAT THOSE CLASSES ARE PRIVATE #
@@ -373,8 +380,16 @@ def load():
         es.regcmd("xa", "xa/consolecmd", "eXtendable Admin")
     gMainMenu = popuplib.easymenu("_xa_mainmenu", "_xa_choice", incoming_menu)
     gMainMenu.c_titleformat = "eXtendable Admin" + (" "*(30-len("eXtendable Admin"))) + " (%p/%t)"
-    gMainCommand = Admin_command("xa", sendMenu, "xa_menu", "#all")
+    gMainCommand = Admin_command("xa", sendMenu, "xa_menu", "#admin")
     gMainCommand.register(["console","say"])
+    es.dbgmsg(0, "[eXtendable Admin] Executing xa.cfg...")
+    es.mexec("xa.cfg")
+    #Mani compatibility
+    if os.path.exists(selfmodfolder+"cfg/mani_server.cfg"):
+        es.dbgmsg(0, "[eXtendable Admin] Executing mani_server.cfg...")
+        maniconfig.getVariableList() #setup basic mani variables
+        es.mexec("mani_server.cfg")
+        mani.loadModules() #load the mani modules if needed
     es.dbgmsg(0, "[eXtendable Admin] Finished loading")
 
 def unload():
@@ -393,7 +408,6 @@ def unload():
         gMainMenu = None
     gMainCommand.unRegister(["console","say"])
     del gMainCommand
-    es.unload("xa/module")
     es.dbgmsg(0, "[eXtendable Admin] Finished unloading")
 
 def consolecmd():
