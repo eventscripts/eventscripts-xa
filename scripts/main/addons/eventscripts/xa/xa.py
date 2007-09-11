@@ -29,6 +29,7 @@ info.version = "oy1"
 info.author = "EventScripts Developers"
 info.url = ""
 info.description = ""
+info.basename = "xa"
 
 #global variables:
 ## is Mani compatibility enabled?
@@ -62,7 +63,6 @@ class Admin_module(object):
         self.requiredFrom = []
         self.requiredList = []
         self.variables = {}
-        self.variablesMani = {}
         es.dbgmsg(0, "[eXtendable Admin] Registered module \""+self.name+"\"")
     def __str__(self):
         return self.name
@@ -385,7 +385,10 @@ def findCommand(pModuleid, pCommandid):
         if (pCommandid in gModules[pModuleid].subCommands):
             return gModules[pModuleid].subCommands[pCommandid]
     return None
-    
+
+def isManiMode():
+    return gManiMode
+
 def sendMenu(pUserid, n1=None, n2=None, n3=None):
     #n1, n2, n3 just for internal use
     gMainMenu.send(pUserid)
@@ -396,6 +399,7 @@ def sendMenu(pUserid, n1=None, n2=None, n3=None):
 
 def load():
     global gMainMenu, gMainCommand
+    es.dbgmsg(0, "[eXtendable Admin] Second loading part...")
     if not es.exists("command", "xa"):
         es.regcmd("xa", "xa/consolecmd", "eXtendable Admin")
     gMainMenu = popuplib.easymenu("_xa_mainmenu", "_xa_choice", incoming_menu)

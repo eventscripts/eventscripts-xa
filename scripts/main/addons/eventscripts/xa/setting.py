@@ -18,24 +18,68 @@ if os.path.exists(selfsettingfile):
 ###########################
 #Module methods start here#
 ###########################
-def createVariable(module, variable, defaultvalue=0, description=""):
-    if (xa.gManiMode == True) and ("xa_" != variable[0:3]):
-        manivar = es.ServerVar("mani_"+variable, defaultvalue, description)
-        if str(module) in xa.gModules:
-            xa.gModules[str(module)].variablesMani[variable] = manivar
-    if "xa_" == variable[0:3]:
-        var = es.ServerVar(variable, defaultvalue, description)
-    else:
-        var = es.ServerVar("xa_"+variable, defaultvalue, description)
+def getList(module, filename):
     if str(module) in xa.gModules:
+        filename = "%s/module/%s/%s" % (es.getAddonPath('xa'), str(module), filename)
+        if os.path.exists(filename):
+            lines = []
+            f = os.open(filename, "r")
+            try:
+                for line in f:
+                    lines[len(lines)+1] = line
+            finally:
+                f.close()
+            return lines
+        else:
+            return False
+    else:
+        return False
+
+def getAliasList(module, filename):
+    if str(module) in xa.gModules:
+        filename = "%s/module/%s/%s" % (es.getAddonPath('xa'), str(module), filename)
+        if os.path.exists(filename):
+            lines = {}
+            f = open(filename, "r")
+            try:
+                for line in f:
+                    linelist = line.split(" ", 1)
+                    lines[linelist[0]] = linelist[1]
+            finally:
+                f.close()
+            return lines
+        else:
+            return False
+    else:
+        return False
+            
+def getKeyList(module, filename):
+    if str(module) in xa.gModules:
+        filename = "%s/module/%s/%s" % (es.getAddonPath('xa'), str(module), filename)
+        if os.path.exists(filename):
+            kv = keyvalues.KeyValues(name=basename(filename))
+            kv.load(filename)
+            return kv
+        else:
+            return False
+    else:
+        return False
+
+def createVariable(module, variable, defaultvalue=0, description=""):
+    if str(module) in xa.gModules:
+        if not "xa_" == variable[0:3]:
+            variable = "xa_"+variable
+        var = es.ServerVar(variable, defaultvalue, description) 
         xa.gModules[str(module)].variables[variable] = var
-    return var
+        return var
+    else:
+        return None
 
 def getVariable(module, variable):
     if str(module) in xa.gModules:
-        if (xa.gManiMode == True) and ("xa_" != variable[0:3]) and (variable in xa.gModules[str(module)].variablesMani):
-            return xa.gModules[str(module)].variablesMani[variable]
-        elif variable in xa.gModules[str(module)].variables:
+        if not "xa_" == variable[0:3]:
+            variable = "xa_"+variable
+        if variable in xa.gModules[str(module)].variables:
             return xa.gModules[str(module)].variables[variable]
         else:
             return None

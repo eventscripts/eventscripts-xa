@@ -11,17 +11,22 @@ selfmoddir = str(selfaddondir).rsplit("/", 2)[0] + '/'
 #Module methods start here#
 ###########################
 def loadModules():
-    filename = "%s/%s" % (es.getAddonPath('xa'), 'data/mani.txt')
+    filename = "%s/%s" % (es.getAddonPath('xa'), 'static/mani.txt')
     if os.path.exists(filename):
         f = open(filename, "r")
         try:
             for line in f:
-                linelist = line.split("|", 2)
-                variable = es.ServerVar(linelist[0], 0)
-                if linelist[2] == str(variable):
+                linelist = line.strip().split("|", 3)
+                variable = es.ServerVar(str(linelist[0]), 0)
+                print str(linelist[2])+"=="+str(variable)
+                print str(linelist[3])+"!="+str(variable)
+                if str(linelist[2]) == str(variable):
                     if not es.exists("script", "xa/module/"+linelist[2]):
-                        es.load("xa/module/"+linelist[2])
+                        es.load("xa/module/"+str(linelist[1]))
+                elif str(linelist[3]) != str(variable):
+                    if not es.exists("script", "xa/module/"+linelist[2]):
+                        es.load("xa/module/"+str(linelist[1]))
         finally:
             f.close()
     else:
-        raise FileError("Could not find xa/data/mani.txt!")
+        raise FileError("Could not find xa/static/mani.txt!")

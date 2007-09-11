@@ -2,6 +2,8 @@ import es
 import os
 import keyvalues
 
+import xa
+
 import psyco
 psyco.full()
 
@@ -50,32 +52,41 @@ def getKeyList(filename):
         return False
             
 def getVariableList():
-    filename = "%s/%s" % (es.getAddonPath('xa'), 'data/maniconfig.txt')
+    filename = "%s/%s" % (es.getAddonPath('xa'), 'static/maniconfig.txt')
     if os.path.exists(filename):
         lines = {}
         f = open(filename, "r")
         try:
             for line in f:
-                linelist = line.split("|", 2)
-                lines[linelist[0]] = es.ServerVar(linelist[0], linelist[1], linelist[2])
+                linelist = line.strip().split("|", 2)
+                lines[linelist[0]] = es.ServerVar(str(linelist[0]), str(linelist[1]), str(linelist[2]))
         finally:
             f.close()
         return lines
     else:
-        raise FileError("Could not find xa/data/maniconfig.txt!")
+        raise FileError("Could not find xa/static/maniconfig.txt!")
 
 def getVariable(variable):
-    filename = "%s/%s" % (es.getAddonPath('xa'), 'data/maniconfig.txt')
+    filename = "%s/%s" % (es.getAddonPath('xa'), 'static/maniconfig.txt')
     if os.path.exists(filename):
         lines = {}
         f = open(filename, "r")
         try:
             for line in f:
-                linelist = line.split("|", 2)
+                linelist = line.strip().split("|", 2)
                 if linelist[0] == str(variable):
-                    return es.ServerVar(linelist[0], linelist[1], linelist[2])
+                    return es.ServerVar(str(linelist[0]), str(linelist[1]), str(linelist[2]))
         finally:
             f.close()
         return None
     else:
-        raise FileError("Could not find xa/data/maniconfig.txt!")
+        raise FileError("Could not find xa/static/maniconfig.txt!")
+
+def getVariableName(variable):
+    if xa.isManiMode:
+        if not "mani_" == variable[0:5]:
+            variable = "mani_"+variable
+    else:
+        if not "xa_" == variable[0:3]:
+            variable = "xa_"+variable
+    return variable
