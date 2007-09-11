@@ -18,8 +18,6 @@ def loadModules():
             for line in f:
                 linelist = line.strip().split("|", 3)
                 variable = es.ServerVar(str(linelist[0]), 0)
-                print str(linelist[2])+"=="+str(variable)
-                print str(linelist[3])+"!="+str(variable)
                 if str(linelist[2]) == str(variable):
                     if not es.exists("script", "xa/module/"+linelist[2]):
                         es.load("xa/module/"+str(linelist[1]))
