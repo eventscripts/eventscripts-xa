@@ -17,12 +17,9 @@ info.url = "http://forums.mattie.info"
 info.description = "Clone of Mani Player Settings feature for XA"
 info.tags = "admin settings players"
 
-def config():
-    pass
 
 def load():
-    #Load Function for Chat Flood Control for XA.
-    config()
+    #Load Function for Player Settings for XA.
     xasettings = xa.register('xasettings')
 
 def unload():
