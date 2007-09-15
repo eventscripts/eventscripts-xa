@@ -1,12 +1,12 @@
 import es
 import playerlib
 from es import server_var
-from keymenu import keymenu
+import keymenulib
 import keyvalues
 
 info = es.AddonInfo()
 info.name = "XA: Skins"
-info.version = "0.21"
+info.version = "0.22"
 info.author = "Don"
 info.url = "Http://forums.mattie.info"
 info.description = "Clone of Mani skins feature for XA"
@@ -95,7 +95,7 @@ def consolecmd():
                 es.keycreate("xaskins", i + " - " + myskin)
                 es.keysetvalue("xaskins", i + " - " + myskin, "skinmenu", skinnames[j])
             j+=1
-        a = keymenu.create("xaskinmenu", "_keymenu_select", "xaskins/selectmenu", "xaskins", "#key", "#keyvalue skinmenu", "Skinlist\nSelect a Skin Menu")
+        a = keymenulib.create("xaskinmenu", "_keymenu_select", "xaskins/selectmenu", "xaskins", "#key", "#keyvalue skinmenu", "Skinlist\nSelect a Skin Menu")
         a.send(playerid)
         es.keygroupdelete("xaskins")
 
@@ -103,7 +103,7 @@ def selectmenu():
 # This function makes the submenu for whichever set of skins was chosen
     es.keycreate('xaskinuser' + server_var['_popup_userid'])
     es.keysetvalue('xaskinuser' + server_var['_popup_userid'], 'skinset', server_var['_keymenu_select'])
-    a = keymenu.create("xaskinmenu", "_keymenu_select", "xaskins/selectsubmenu", server_var['_keymenu_select'] + "skin", "#key", "#key", "Select a Skin Color")
+    a = keymenulib.create("xaskinmenu", "_keymenu_select", "xaskins/selectsubmenu", server_var['_keymenu_select'] + "skin", "#key", "#key", "Select a Skin Color")
     a.send(server_var['_popup_userid'])
 
 def selectsubmenu():
