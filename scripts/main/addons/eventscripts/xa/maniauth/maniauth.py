@@ -4,6 +4,9 @@ import services.auth
 import os
 import keyvalues
 
+import psyco
+psyco.full()
+
 #plugin information
 info = es.AddonInfo()
 info.name = "XA:Mani clients.txt Auth Provider"

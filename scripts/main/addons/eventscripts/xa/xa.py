@@ -33,7 +33,7 @@ info.basename = "xa"
 
 #global variables:
 ## is Mani compatibility enabled?
-gManiMode = False
+gManiMode = es.ServerVar("xa_manimode")
 ## gMainMenu/gMainCommand holds XAs main menu/main command
 gMainMenu = None
 gMainCommand = None
@@ -387,7 +387,7 @@ def findCommand(pModuleid, pCommandid):
     return None
 
 def isManiMode():
-    return gManiMode
+    return bool(gManiMode)
 
 def sendMenu(pUserid, n1=None, n2=None, n3=None):
     #n1, n2, n3 just for internal use
@@ -402,13 +402,6 @@ def load():
     es.dbgmsg(0, "[eXtendable Admin] Second loading part...")
     if not es.exists("command", "xa"):
         es.regcmd("xa", "xa/consolecmd", "eXtendable Admin")
-    #Mani compatibility
-    if os.path.exists(selfmodfolder+"cfg/mani_server.cfg"):
-        gManiMode = True
-        if not services.isRegistered("auth"):
-            if os.path.exists(selfmodfolder+"cfg/mani_admin_plugin/clients.txt"):
-                mani.loadAuth() #load the Auth Provider
-    #...
     gMainMenu = popuplib.easymenu("_xa_mainmenu", "_xa_choice", incoming_menu)
     gMainMenu.c_titleformat = "eXtendable Admin" + (" "*(30-len("eXtendable Admin"))) + " (%p/%t)"
     gMainCommand = Admin_command("xa", sendMenu, "xa_menu", "#admin")
@@ -416,7 +409,8 @@ def load():
     es.dbgmsg(0, "[eXtendable Admin] Executing xa.cfg...")
     es.mexec("xa.cfg")
     #Mani compatibility
-    if gManiMode == True:
+    es.dbgmsg(0, "[eXtendable Admin] Mani mode enabled = "+str(isManiMode()))
+    if isManiMode():
         es.dbgmsg(0, "[eXtendable Admin] Executing mani_server.cfg...")
         maniconfig.getVariableList() #setup basic mani variables
         es.mexec("mani_server.cfg")
