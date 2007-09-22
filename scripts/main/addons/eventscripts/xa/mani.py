@@ -10,6 +10,9 @@ selfmoddir = str(selfaddondir).rsplit("/", 2)[0] + '/'
 ###########################
 #Module methods start here#
 ###########################
+def loadAuth():
+    es.load("xa/auth")
+
 def loadModules():
     filename = "%s/%s" % (es.getAddonPath('xa'), 'static/mani.txt')
     if os.path.exists(filename):

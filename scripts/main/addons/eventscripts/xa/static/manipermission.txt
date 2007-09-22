@@ -1,0 +1,5 @@
+"manipermission.txt"
+{
+	"accept_vote" "A"
+	"refuse_vote" "A"
+}
