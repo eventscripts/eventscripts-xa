@@ -17,8 +17,7 @@ import language
 import logging
 import playerdata
 import setting
-import mani
-import maniconfig
+import manilib
 
 import psyco
 psyco.full()
@@ -422,9 +421,9 @@ def load():
     es.dbgmsg(0, "[eXtendable Admin] Mani mode enabled = "+str(isManiMode()))
     if isManiMode():
         es.dbgmsg(0, "[eXtendable Admin] Executing mani_server.cfg...")
-        maniconfig.getVariableList() #setup basic mani variables
+        manilib.loadVariableList() #setup basic mani variables
         es.mexec("mani_server.cfg")
-        mani.loadModules() #load the mani modules if needed
+        manilib.loadModules() #load the mani modules if needed
     es.dbgmsg(0, "[eXtendable Admin] Finished loading")
 
 def unload():

@@ -3,7 +3,7 @@ import os
 import time
 import xa
 import xa.setting
-import xa.maniconfig
+import xa.manilib
 from xa import xa
 
 global timer
@@ -19,8 +19,8 @@ info.description = "Clone of Mani Flood Control feature for XA"
 info.tags = "admin flood control XA"
 
 if xa.isManiMode:
-    chat_flood_time = xa.maniconfig.getVariable('mani_chat_flood_time')
-    chat_flood_message = xa.maniconfig.getVariable('mani_chat_flood_message')
+    chat_flood_time = xa.manilib.getVariable('mani_chat_flood_time')
+    chat_flood_message = xa.manilib.getVariable('mani_chat_flood_message')
     chat_flood_message.makepublic()
 else:
     chat_flood_time = xa.setting.createVariable('xafloodcontrol', 'xa_chat_flood_time', '1.5')
