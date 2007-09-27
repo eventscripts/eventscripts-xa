@@ -32,8 +32,9 @@ info.description = ""
 info.basename = "xa"
 
 #global variables:
+xa_log = es.ServerVar("xa_log", 0, "Activates the module logging")
 ## is Mani compatibility enabled?
-gManiMode = es.ServerVar("xa_manimode")
+gManiMode = es.ServerVar("xa_manimode", 0, "Is Mani compatibility mode active?")
 ## gMainMenu/gMainCommand holds XAs main menu/main command
 gMainMenu = None
 gMainCommand = None
@@ -71,8 +72,8 @@ class Admin_module(object):
     def unRegister(self):
         unRegister(self.name)
     def addRequirement(self, gModuleList):
-        fails = []
-        if type(gModuleList) == str:
+        fails = 0
+        if isinstance(gModuleList, str):
             modules = [gModuleList]
         else:
             modules = list(gModuleList)
@@ -82,14 +83,14 @@ class Admin_module(object):
                 m.requiredFrom.append(self.name)
                 self.requiredList.append(m.name)
             else:
-                fails.append(module)
-        if len(fails) > 0:
-            return fails
+                fails += 1
+        if fails > 0:
+            return False
         else:
             return True
     def delRequirement(self, gModuleList):
-        fails = []
-        if type(gModuleList) == str:
+        fails = 0
+        if isinstance(gModuleList, str):
             modules = [gModuleList]
         else:
             modules = list(gModuleList)
@@ -99,9 +100,9 @@ class Admin_module(object):
                 m.requiredFrom.remove(self.name)
                 self.requiredList.remove(m.name)
             else:
-                fails.append(module)
-        if len(fails) > 0:
-            return fails
+                fails += 1
+        if fails > 0:
+            return False
         else:
             return True
     def addCommand(self, command, block, perm, permlvl, target=False):
@@ -178,7 +179,7 @@ class Admin_command(object):
         self.console = False
         self.say = False
         auth = services.use("auth")
-        if type(gPermLevel) == str:
+        if isinstance(gPermLevel, str):
             gPermLevel = gPermLevel.lower()
             if gPermLevel == "#root":
                 self.permissionlevel = auth.ROOT
@@ -192,7 +193,7 @@ class Admin_command(object):
                 self.permissionlevel = auth.UNRESTRICTED
         else:
             self.permissionlevel = int(gPermLevel)
-        if type(self.permissionlevel) != int:
+        if not isinstance(self.permissionlevel, int):
             es.dbgmsg(0, "[eXtendable Admin] Invalid default permission \""+str(gPermLevel)+"\"")
         gCommandsPerm[self.name] = self.permission
         gCommandsBlock[self.name] = self.block
@@ -200,7 +201,7 @@ class Admin_command(object):
     def __str__(self):
         return self.name
     def register(self, gList):
-        if type(gList) == str:
+        if isinstance(gList, str):
             cmdlist = [gList]
         else:
             cmdlist = list(gList)
@@ -214,7 +215,7 @@ class Admin_command(object):
             es.regsaycmd(self.name, "xa/incoming_say", "eXtendable Admin command")
             self.say = True
     def unRegister(self, gList):
-        if type(gList) == str:
+        if isinstance(gList, str):
             cmdlist = [gList]
         else:
             cmdlist = list(gList)
@@ -259,7 +260,7 @@ class Admin_menu(object):
             self.menutype = "setting"
             self.menuobj = settinglib.find(self.menu)
         gMainMenu.addoption(self.name, self.display, 1)
-        if type(gPermLevel) == str:
+        if isinstance(gPermLevel, str):
             gPermLevel = gPermLevel.lower()
             if gPermLevel == "#root":
                 self.permissionlevel = auth.ROOT
@@ -273,7 +274,7 @@ class Admin_menu(object):
                 self.permissionlevel = auth.UNRESTRICTED
         else:
             self.permissionlevel = int(gPermLevel)
-        if type(self.permissionlevel) != int:
+        if not isinstance(self.permissionlevel, int):
             es.dbgmsg(0, "[eXtendable Admin] Invalid default permission \""+str(gPermLevel)+"\"")
         gMenusPerm[self.name] = self.permission
         gMenusPage[self.name] = self.menuobj
@@ -514,8 +515,7 @@ def consolecmd():
                     if result == True:
                         es.dbgmsg(0,"[eXtendable Admin] Added module \""+str(es.getargv(4))+"\" as a requirement for module \""+xname+"\"")
                     else:
-                        for failed in result:
-                            es.dbgmsg(0,"[eXtendable Admin] Could not add module \""+failed+"\" as a requirement for module \""+xname+"\"")
+                        es.dbgmsg(0,"[eXtendable Admin] Could not add modules as a requirement for module \""+xname+"\"")
                 else:
                     es.dbgmsg(0,"[eXtendable Admin] The module \""+xname+"\" is not registered")
             else:
@@ -527,8 +527,7 @@ def consolecmd():
                     if result == True:
                         es.dbgmsg(0,"[eXtendable Admin] Deleted module \""+str(es.getargv(4))+"\" as a requirement from module \""+xname+"\"")
                     else:
-                        for failed in result:
-                            es.dbgmsg(0,"[eXtendable Admin] Could not delete module \""+failed+"\" as a requirement from module \""+xname+"\"")
+                        es.dbgmsg(0,"[eXtendable Admin] Could not delete modules as a requirement from module \""+xname+"\"")
                 else:
                     es.dbgmsg(0,"[eXtendable Admin] The module \""+xname+"\" is not registered")
             else:
