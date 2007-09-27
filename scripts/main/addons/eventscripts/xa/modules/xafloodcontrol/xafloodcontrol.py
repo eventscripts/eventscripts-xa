@@ -31,20 +31,20 @@ def floodcontrol(userid, message, teamonly):
     #floodcontrol function. Eats spam according to time set in config options.
     global timer
     try:
-             if not userid in timer.keys():
-                 timer[userid] = time.time()
-                 return userid, message, teamonly
-             else:
-                 if time.time() - float(chat_flood_time) < timer[userid]:
-                     es.tell(userid, chat_flood_message)
-                     timer[userid] = time.time()
-                     return 0, message, teamonly
-                 else:
-                     timer[userid] = time.time()
-                     return userid, message, teamonly
-    except Exception, inst:
-             es.dbgmsg(0, "Error: ", inst)
+        if not userid in timer.keys():
+         timer[userid] = time.time()
+         return userid, message, teamonly
+        else:
+         if time.time() - float(chat_flood_time) < timer[userid]:
+             es.tell(userid, chat_flood_message)
+             timer[userid] = time.time()
+             return 0, message, teamonly
+         else:
+             timer[userid] = time.time()
              return userid, message, teamonly
+    except Exception, inst:
+         es.dbgmsg(0, "Error: ", inst)
+         return userid, message, teamonly
            
 def load():
     #Load Function for Chat Flood Control for XA.
