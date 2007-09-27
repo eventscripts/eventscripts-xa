@@ -14,6 +14,7 @@ import keymenulib
 from os import getcwd
 
 import language
+import logging
 import playerdata
 import setting
 import mani
@@ -255,6 +256,9 @@ class Admin_menu(object):
         elif keymenulib.exists(self.menu):
             self.menutype = "keymenu"
             self.menuobj = keymenulib.find(self.menu)
+        elif settinglib.exists(self.menu):
+            self.menutype = "setting"
+            self.menuobj = settinglib.find(self.menu)
         gMainMenu.addoption(self.name, self.display, 1)
         if type(gPermLevel) == str:
             gPermLevel = gPermLevel.lower()
@@ -292,6 +296,12 @@ class Admin_menu(object):
             self.menu = menu
             self.menutype = "keymenu"
             self.menuobj = keymenulib.find(self.menu)
+            gMenusPage[self.name] = self.menuobj
+            return True
+        elif settinglib.exists(menu):
+            self.menu = menu
+            self.menutype = "setting"
+            self.menuobj = settinglib.find(self.menu)
             gMenusPage[self.name] = self.menuobj
             return True
         return False

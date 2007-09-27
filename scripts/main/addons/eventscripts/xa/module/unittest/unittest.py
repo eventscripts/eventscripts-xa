@@ -1,6 +1,7 @@
 import es
 import xa
 import xa.language
+import xa.logging
 import xa.setting
 import xa.playerdata
 import xa.mani
@@ -11,6 +12,8 @@ from xa import xa
 def load():    
     mymodule = xa.register("unittest")
     mymodule.addRequirement("anothermodulethatwasalreadyregistered")
+    
+    xa.logging.log(mymodule, "unittest loaded")
     
     mypopup = popuplib.create("mypopup")
     mypopup.addline("Hello World!")
@@ -49,6 +52,7 @@ def player_disconnect(event_var):
     xa.playerdata.saveKeyValues()
 
 def unload():
+    xa.logging.log(mymodule, "unittest unloaded")
     xa.unRegister("unittest")
 
 def myunittestblock(userid, command, commandstring, type):
