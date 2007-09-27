@@ -4,8 +4,7 @@ import xa.language
 import xa.logging
 import xa.setting
 import xa.playerdata
-import xa.mani
-import xa.maniconfig
+import xa.manilib
 import popuplib
 from xa import xa
 
