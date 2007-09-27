@@ -329,10 +329,10 @@ class Admin_menu(object):
 #Module methods start here#
 ###########################
 def xa_load(pModuleid):
-    es.load("xa/module/"+pModuleid)
+    es.load("xa/modules/"+pModuleid)
 
 def xa_unload(pModuleid):
-    es.unload("xa/module/"+pModuleid)
+    es.unload("xa/modules/"+pModuleid)
 
 def register(pModuleid):
     #create new module
@@ -433,7 +433,7 @@ def unload():
     for module in gModules:
         if gModules[module].allowAutoUnload == True:
             es.dbgmsg(0, "[eXtendable Admin] Unloading module \""+gModules[module].name+"\"")
-            es.unload("xa/module/"+gModules[module].name)
+            es.unload("xa/modules/"+gModules[module].name)
     if popuplib.exists("_xa_mainmenu"):
         if gMainMenu:
             gMainMenu.delete()

@@ -19,11 +19,11 @@ def loadModules():
                 linelist = line.strip().split("|", 3)
                 variable = es.ServerVar(str(linelist[0]), 0)
                 if str(linelist[2]) == str(variable):
-                    if not es.exists("script", "xa/module/"+linelist[2]):
-                        es.load("xa/module/"+str(linelist[1]))
+                    if not es.exists("script", "xa/modules/"+linelist[2]):
+                        es.load("xa/modules/"+str(linelist[1]))
                 elif str(linelist[3]) != str(variable):
-                    if not es.exists("script", "xa/module/"+linelist[2]):
-                        es.load("xa/module/"+str(linelist[1]))
+                    if not es.exists("script", "xa/modules/"+linelist[2]):
+                        es.load("xa/modules/"+str(linelist[1]))
         finally:
             f.close()
     else:

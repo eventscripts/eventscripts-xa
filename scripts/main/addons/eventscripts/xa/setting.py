@@ -20,7 +20,7 @@ if os.path.exists(selfsettingfile):
 ###########################
 def getList(module, filename):
     if str(module) in xa.gModules:
-        filename = "%s/module/%s/%s" % (es.getAddonPath('xa'), str(module), filename)
+        filename = "%s/modules/%s/%s" % (es.getAddonPath('xa'), str(module), filename)
         if os.path.exists(filename):
             lines = []
             f = os.open(filename, "r")
@@ -37,7 +37,7 @@ def getList(module, filename):
 
 def getAliasList(module, filename):
     if str(module) in xa.gModules:
-        filename = "%s/module/%s/%s" % (es.getAddonPath('xa'), str(module), filename)
+        filename = "%s/modules/%s/%s" % (es.getAddonPath('xa'), str(module), filename)
         if os.path.exists(filename):
             lines = {}
             f = open(filename, "r")
@@ -55,7 +55,7 @@ def getAliasList(module, filename):
             
 def getKeyList(module, filename):
     if str(module) in xa.gModules:
-        filename = "%s/module/%s/%s" % (es.getAddonPath('xa'), str(module), filename)
+        filename = "%s/modules/%s/%s" % (es.getAddonPath('xa'), str(module), filename)
         if os.path.exists(filename):
             kv = keyvalues.KeyValues(name=basename(filename))
             kv.load(filename)
