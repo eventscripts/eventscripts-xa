@@ -398,7 +398,10 @@ def findCommand(pModuleid, pCommandid):
     return None
 
 def isManiMode():
-    return bool(gManiMode)
+    if str(gManiMode) == '0':
+        return False
+    else:
+        return True
 
 def sendMenu(pUserid, n1=None, n2=None, n3=None):
     #n1, n2, n3 just for internal use
@@ -424,7 +427,7 @@ def load():
     if isManiMode():
         es.dbgmsg(0, "[eXtendable Admin] Executing mani_server.cfg...")
         manilib.loadVariables() #setup basic mani variables
-        es.mexec("mani_server.cfg")
+        es.server.cmd("exec mani_server.cfg")
         manilib.loadModules() #load the mani modules if needed
     es.dbgmsg(0, "[eXtendable Admin] Finished loading")
 
