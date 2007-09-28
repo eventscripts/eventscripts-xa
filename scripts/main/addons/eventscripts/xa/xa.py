@@ -34,6 +34,8 @@ info.basename = "xa"
 
 #global variables:
 xa_log = es.ServerVar("xa_log", 0, "Activates the module logging")
+## language strings
+gLanguage = language.getLanguage()
 ## is Mani compatibility enabled?
 gManiMode = es.ServerVar("xa_manimode", 0, "Is Mani compatibility mode active?")
 ## gMainMenu/gMainCommand holds XAs main menu/main command
@@ -334,6 +336,9 @@ def xa_load(pModuleid):
 
 def xa_unload(pModuleid):
     es.unload("xa/modules/"+pModuleid)
+    
+def xa_exec(pModuleid):
+    es.server.cmd("exec xa_"+pModuleid+".cfg")
 
 def register(pModuleid):
     #create new module
@@ -417,7 +422,7 @@ def load():
     if not es.exists("command", "xa"):
         es.regcmd("xa", "xa/consolecmd", "eXtensible Admin")
     gMainMenu = popuplib.easymenu("_xa_mainmenu", "_xa_choice", incoming_menu)
-    gMainMenu.c_titleformat = "eXtensible Admin" + (" "*(30-len("eXtensible Admin"))) + " (%p/%t)"
+    gMainMenu.settitle(gLanguage["eXtensible Admin"])
     gMainCommand = Admin_command("xa", sendMenu, "xa_menu", "#admin")
     gMainCommand.register(["console","say"])
     es.dbgmsg(0, "[eXtensible Admin] Executing xa.cfg...")
