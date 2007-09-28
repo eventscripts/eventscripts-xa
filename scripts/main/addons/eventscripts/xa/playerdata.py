@@ -9,7 +9,7 @@ import psyco
 psyco.full()
 
 selfaddondir = str(es.server_var["eventscripts_addondir"]).replace("\\", "/")
-selfmoddir = str(selfaddondir).rsplit("/", 2)[0] + '/'
+selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
 
 selfsettingfile = "%s/data/playerdata.txt" % es.getAddonPath('xa')
 selfkeyvalues = keyvalues.KeyValues(name="playerdata.txt")

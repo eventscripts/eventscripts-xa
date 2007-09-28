@@ -7,7 +7,7 @@ import psyco
 psyco.full()
 
 selfaddondir = str(es.server_var["eventscripts_addondir"]).replace("\\", "/")
-selfmoddir = str(selfaddondir).rsplit("/", 2)[0] + '/'
+selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
 selflogdir = "%s/logs/" % es.getAddonPath('xa')
 
 xa_log = es.ServerVar("xa_log", 0, "Activates the module logging")

@@ -1,9 +1,10 @@
 import es
 import xa
+import xa.configparser
 import xa.language
 import xa.logging
-import xa.setting
 import xa.playerdata
+import xa.setting
 import xa.manilib
 import popuplib
 from xa import xa

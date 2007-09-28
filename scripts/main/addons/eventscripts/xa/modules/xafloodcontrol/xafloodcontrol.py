@@ -3,7 +3,6 @@ import os
 import time
 import xa
 import xa.setting
-import xa.manilib
 from xa import xa
 
 global timer
@@ -18,14 +17,10 @@ info.url = "http://forums.mattie.info"
 info.description = "Clone of Mani Flood Control feature for XA"
 info.tags = "admin flood control XA"
 
-if xa.isManiMode:
-    chat_flood_time = xa.manilib.getVariable('mani_chat_flood_time')
-    chat_flood_message = xa.manilib.getVariable('mani_chat_flood_message')
-    chat_flood_message.makepublic()
-else:
-    chat_flood_time = xa.setting.createVariable('xafloodcontrol', 'xa_chat_flood_time', '1.5')
-    chat_flood_message = xa.setting.createVariable('xafloodcontrol', 'xa_chat_flood_message', 'Stop Spaming the server!')
-    chat_flood_message.makepublic()
+xafloodcontrol = xa.register('xafloodcontrol')
+chat_flood_time = xa.setting.createVariable('xafloodcontrol', 'chat_flood_time', '1.5')
+chat_flood_message = xa.setting.createVariable('xafloodcontrol', 'chat_flood_message', 'Stop Spaming the server!')
+chat_flood_message.makepublic()
 
 def floodcontrol(userid, message, teamonly):
     #floodcontrol function. Eats spam according to time set in config options.
@@ -48,7 +43,6 @@ def floodcontrol(userid, message, teamonly):
            
 def load():
     #Load Function for Chat Flood Control for XA.
-    xafloodcontrol = xa.register('xafloodcontrol')
     if chat_flood_time != '0':
         if not floodcontrol in es.addons.SayListeners:
             es.addons.registerSayFilter(floodcontrol)
@@ -56,7 +50,7 @@ def load():
             es.dbgmsg(0, 'chat_flood_time set to 0, exiting...')
 
 def server_cvar(event_var):
-    if event_var['cvarname'] == 'chat_flood_time':
+    if event_var['cvarname'] == xa.setting.getVariableName('chat_flood_time'):
         if event_var['cvarvalue'] == '0':
             if floodcontrol in es.addons.SayListeners:
                 es.addons.unregisterSayFilter(floodcontrol)
@@ -66,7 +60,7 @@ def server_cvar(event_var):
 
 def unload():
     #Unloads XA Flood Control, and unregisteres saylisteners - if registered
-    xa.unRegister('xafloodcontrol')
+    xa.unRegister(xafloodcontrol)
     if floodcontrol in es.addons.SayListeners:
         es.addons.unregisterSayFilter(floodcontrol)
 

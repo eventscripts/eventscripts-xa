@@ -13,6 +13,7 @@ import popuplib
 import keymenulib
 from os import getcwd
 
+import configparser
 import language
 import logging
 import playerdata
@@ -48,7 +49,7 @@ gMenusPerm = {}
 gMenusPage = {}
 
 selfaddondir = str(es.server_var["eventscripts_addondir"]).replace("\\", "/")
-selfmodfolder = str(selfaddondir).rsplit("/", 2)[0] + '/'
+selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
 
 #################### ######################################################
 #Core Class Section# # PLEASE KEEP IN MIND THAT THOSE CLASSES ARE PRIVATE #
@@ -422,7 +423,7 @@ def load():
     es.dbgmsg(0, "[eXtendable Admin] Mani mode enabled = "+str(isManiMode()))
     if isManiMode():
         es.dbgmsg(0, "[eXtendable Admin] Executing mani_server.cfg...")
-        manilib.loadVariableList() #setup basic mani variables
+        manilib.loadVariables() #setup basic mani variables
         es.mexec("mani_server.cfg")
         manilib.loadModules() #load the mani modules if needed
     es.dbgmsg(0, "[eXtendable Admin] Finished loading")

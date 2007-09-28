@@ -8,7 +8,7 @@ import psyco
 psyco.full()
 
 selfaddondir = str(es.server_var["eventscripts_addondir"]).replace("\\", "/")
-selfmoddir = str(selfaddondir).rsplit("/", 2)[0] + '/'
+selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
 
 selfsettingfile = "%s/data/setting.txt" % es.getAddonPath('xa')
 selfkeyvalues = keyvalues.KeyValues(name="setting.txt")
@@ -18,66 +18,35 @@ if os.path.exists(selfsettingfile):
 ###########################
 #Module methods start here#
 ###########################
-def getList(module, filename):
-    if str(module) in xa.gModules:
-        filename = "%s/modules/%s/%s" % (es.getAddonPath('xa'), str(module), filename)
-        if os.path.exists(filename):
-            lines = []
-            f = os.open(filename, "r")
-            try:
-                for line in f:
-                    lines[len(lines)+1] = line
-            finally:
-                f.close()
-            return lines
-        else:
-            return False
-    else:
-        return False
-
-def getAliasList(module, filename):
-    if str(module) in xa.gModules:
-        filename = "%s/modules/%s/%s" % (es.getAddonPath('xa'), str(module), filename)
-        if os.path.exists(filename):
-            lines = {}
-            f = open(filename, "r")
-            try:
-                for line in f:
-                    linelist = line.split(" ", 1)
-                    lines[linelist[0]] = linelist[1]
-            finally:
-                f.close()
-            return lines
-        else:
-            return False
-    else:
-        return False
-            
-def getKeyList(module, filename):
-    if str(module) in xa.gModules:
-        filename = "%s/modules/%s/%s" % (es.getAddonPath('xa'), str(module), filename)
-        if os.path.exists(filename):
-            kv = keyvalues.KeyValues(name=basename(filename))
-            kv.load(filename)
-            return kv
-        else:
-            return False
-    else:
-        return False
-
 def createVariable(module, variable, defaultvalue=0, description=""):
     if str(module) in xa.gModules:
-        if not "xa_" == variable[0:3]:
+        if es.exists("variable", "mani_"+variable):
+            variable = "mani_"+variable
+        else:
             variable = "xa_"+variable
         var = es.ServerVar(variable, defaultvalue, description) 
         xa.gModules[str(module)].variables[variable] = var
         return var
     else:
         return None
+        
+def deleteVariable(module, variable):
+    if str(module) in xa.gModules:
+        if es.exists("variable", "mani_"+variable):
+            variable = "mani_"+variable
+        else:
+            variable = "xa_"+variable
+        if variable in xa.gModules[str(module)].variables:
+            xa.gModules[str(module)].variables.remove(variable)
+            var = es.ServerVar(variable, defaultvalue, description) 
+            var.set(0)
+    return None
 
 def getVariable(module, variable):
     if str(module) in xa.gModules:
-        if not "xa_" == variable[0:3]:
+        if es.exists("variable", "mani_"+variable):
+            variable = "mani_"+variable
+        else:
             variable = "xa_"+variable
         if variable in xa.gModules[str(module)].variables:
             return xa.gModules[str(module)].variables[variable]
@@ -85,6 +54,16 @@ def getVariable(module, variable):
             return None
     else:
         return None
+
+def getVariableName(variable):
+    if es.exists("variable", "mani_"+variable):
+        variable = "mani_"+variable
+    else:
+        variable = "xa_"+variable
+    return variable
+
+def createKeyValues(module):
+    return useKeyValues(module)
     
 def useKeyValues(module):
     if str(module) in xa.gModules:
