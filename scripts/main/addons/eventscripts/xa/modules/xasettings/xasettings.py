@@ -21,16 +21,14 @@ xasettings                  = xa.register('xasettings')
 xalanguage                  = xa.language.getLanguage(xasettings)
 
 def load():
-    #Load Function for Player Settings for XA.
-    xasettings = xa.find('xasettings')
-    
+    #Load Function for Player Settings for XA.    
     xasettingmenu = popuplib.easymenu("xasettingmenu", "_tempcore", _select_setting)
     xasettingmenu.settitle(xalanguage["player settings"])
-    xapunishments.addMenu("xasettingmenu", xalanguage["player settings"], "xasettingmenu", "change_playersetting", "#all")
+    xasettings.addMenu("xasettingmenu", xalanguage["player settings"], "xasettingmenu", "change_playersetting", "#all")
 
 def unload():
     popuplib.delete("xasettingmenu")
-    xa.unRegister('xasettings')
+    xa.unRegister(xasettings)
 
 def _select_setting(userid, choice, name):
     pass
