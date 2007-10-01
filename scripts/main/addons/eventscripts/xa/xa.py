@@ -726,23 +726,17 @@ def consolecmd():
 #############################################
 
 def incoming_server():
-    userid = es.getcmduserid()
     args = es.getargs()
     command = es.getargv(0)
     if command in gCommandsPerm:
-        if gCommandsPerm[command]:
-            perm = gCommandsPerm[command]
-            auth = services.use("auth")
-            if auth.isUseridAuthorized(userid, perm):
-                block = gCommandsBlock[command]
-                es.set("_xa_userid", userid)
-                es.set("_xa_command", command)
-                es.set("_xa_commandstring", args)
-                es.set("_xa_commandtype", "server")
-                if callable(block):
-                    block(userid, command, args, "server")
-                else:
-                    es.doblock(block)
+        block = gCommandsBlock[command]
+        es.set("_xa_command", command)
+        es.set("_xa_commandstring", args)
+        es.set("_xa_commandtype", "server")
+        if callable(block):
+            block(userid, command, args, "server")
+        else:
+            es.doblock(block)
 
 def incoming_console():
     userid = es.getcmduserid()
