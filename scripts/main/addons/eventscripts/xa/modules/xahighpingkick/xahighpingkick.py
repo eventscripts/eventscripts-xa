@@ -1,7 +1,7 @@
 import es
 import repeat
 import xa
-import xa.maniconfig 
+import xa.manilib
 from xa import xa
 
 #plugin information
