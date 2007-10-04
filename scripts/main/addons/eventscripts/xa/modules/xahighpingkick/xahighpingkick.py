@@ -1,7 +1,7 @@
 import es
 import repeat
 import xa
-import xa.manilib
+import xa.setting
 from xa import xa
 
 #plugin information
@@ -18,17 +18,11 @@ gInfo = {}
 xahighpingkick = xa.register('xahighpingkick')
 
 # make config vars
-xa.setting.createVariable(xahighpingkick,'ping_maxping', '300', 'Maximum ping of a player before they are kicked')
-xa.setting.createVariable(xahighpingkick,'ping_check', '10', 'How many total times to check the players ping over a period of time before they are kicked')
-xa.setting.createVariable(xahighpingkick,'ping_interval', '5', 'How often the players ping is checked, in seconds')
-xa.setting.createVariable(xahighpingkick,'ping_exceedlimit', '3', 'If the players ping is above the max when checked this many times, player will be kicked')
-xa.setting.createVariable(xahighpingkick,'ping_kickmsg', 'Your ping is too high!', 'Message displayed to kicked player')
-
-maxping       = xa.setting.getVariable(xahighpingkick,'ping_maxping')
-check         = xa.setting.getVariable(xahighpingkick,'ping_check')
-interval      = xa.setting.getVariable(xahighpingkick,'ping_interval')
-exceedlimit   = xa.setting.getVariable(xahighpingkick,'ping_exceedlimit')
-kickmsg       = xa.setting.getVariable(xahighpingkick,'ping_kickmsg')
+maxping       = xa.setting.createVariable(xahighpingkick,'ping_maxping', '300', 'Maximum ping of a player before they are kicked')
+check         = xa.setting.createVariable(xahighpingkick,'ping_check', '10', 'How many total times to check the players ping over a period of time before they are kicked')
+interval      = xa.setting.createVariable(xahighpingkick,'ping_interval', '5', 'How often the players ping is checked, in seconds')
+exceedlimit   = xa.setting.createVariable(xahighpingkick,'ping_exceedlimit', '3', 'If the players ping is above the max when checked this many times, player will be kicked')
+kickmsg       = xa.setting.createVariable(xahighpingkick,'ping_kickmsg', 'Your ping is too high!', 'Message displayed to kicked player')
 
 def unload(): 
     xa.unRegister('xahighpingkick') 
