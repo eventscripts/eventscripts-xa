@@ -170,6 +170,7 @@ class Admin_module(object):
 class Admin_command(object):
     def __init__(self, gCommand, gBlock, gPerm, gPermLevel, gTarget=False):
         #initialization of the module
+        self.name = gCommand
         self.block = gBlock
         self.permission = gPerm
         self.permissionlevel = gPermLevel
