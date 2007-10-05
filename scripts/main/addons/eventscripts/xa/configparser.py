@@ -39,7 +39,7 @@ def getAliasList(module, filename):
             try:
                 for line in f:
                     linelist = line.split(" ", 1)
-                    lines[linelist[0]] = linelist[1]
+                    lines[linelist[0].replace("\"", "")] = linelist[1]
             finally:
                 f.close()
             return lines
