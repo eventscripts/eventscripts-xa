@@ -14,7 +14,7 @@ selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
 #Module methods start here#
 ###########################
 def loadModules():
-    filename = "%s/%s" % (es.getAddonPath('xa'), 'static/mani.txt')
+    filename = "%s/%s" % (es.getAddonPath('xa'), 'static/manimodule.txt')
     if os.path.exists(filename):
         f = open(filename, "r")
         try:
@@ -30,7 +30,7 @@ def loadModules():
         finally:
             f.close()
     else:
-        raise FileError("Could not find xa/static/mani.txt!")
+        raise FileError("Could not find xa/static/manimodule.txt!")
         
 def loadVariables():
     filename = "%s/%s" % (es.getAddonPath('xa'), 'static/maniconfig.txt')
