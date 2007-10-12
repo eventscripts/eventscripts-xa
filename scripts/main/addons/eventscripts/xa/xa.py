@@ -723,21 +723,16 @@ def consolecmd():
 #############################################
 
 def incoming_server():
-    args = es.getargs()
     command = es.getargv(0)
     if command in gCommandsPerm:
         block = gCommandsBlock[command]
-        es.set("_xa_command", command)
-        es.set("_xa_commandstring", args)
-        es.set("_xa_commandtype", "server")
         if callable(block):
-            block(userid, command, args, "server")
+            block()
         else:
             es.doblock(block)
 
 def incoming_console():
     userid = es.getcmduserid()
-    args = es.getargs()
     command = es.getargv(0)
     if command in gCommandsPerm:
         if gCommandsPerm[command]:
@@ -745,31 +740,22 @@ def incoming_console():
             auth = services.use("auth")
             if auth.isUseridAuthorized(userid, perm):
                 block = gCommandsBlock[command]
-                es.set("_xa_userid", userid)
-                es.set("_xa_command", command)
-                es.set("_xa_commandstring", args)
-                es.set("_xa_commandtype", "console")
                 if callable(block):
-                    block(userid, command, args, "console")
+                    block()
                 else:
                     es.doblock(block)
 
 def incoming_say():
     userid = es.getcmduserid()
-    args = es.getargs()
-    command = args.split(" ")[0].replace("\"","")
+    command = es.getargv(0)
     if command in gCommandsPerm:
         if gCommandsPerm[command]:
             perm = gCommandsPerm[command]
             auth = services.use("auth")
             if auth.isUseridAuthorized(userid, perm):
                 block = gCommandsBlock[command]
-                es.set("_xa_userid", userid)
-                es.set("_xa_command", command)
-                es.set("_xa_commandstring", args)
-                es.set("_xa_commandtype", "say")
                 if callable(block):
-                    block(userid, command, args, "say")
+                    block()
                 else:
                     es.doblock(block)
 
@@ -780,6 +766,4 @@ def incoming_menu(userid, choice, name):
             auth = services.use("auth")
             if auth.isUseridAuthorized(userid, perm):
                 page = gMenusPage[choice]
-                es.set("_xa_userid", userid)
-                es.set("_xa_menu", page.name)
                 page.send(userid)
