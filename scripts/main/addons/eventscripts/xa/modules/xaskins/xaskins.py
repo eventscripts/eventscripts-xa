@@ -64,13 +64,14 @@ def unload():
 def player_activate(event_var):
 # This function is called when a player is validated
 # Check if the player is in the database yet
-    player_exists = xaplayerdata_exists.exists(int(event_var['userid']))
 # If not in the database then go create a record
-    if not player_exists:
-        create_record(int(event_var['userid']))
+    create_record(event_var)
         
 def player_spawn(event_var):
 # This function is called when a player spawns.  It gets the player's current level
+# Check if the player is in the database yet
+# If not in the database then go create a record
+    create_record(event_var)
 # then gets the team and then the model and sets it
     if event_var['es_steamid'] != "BOT":
         if event_var['es_userteam'] == "2" or event_var['es_userteam'] == "3":
@@ -90,25 +91,27 @@ def player_spawn(event_var):
             if model != "None":
                 myPlayer = playerlib.getPlayer(event_var['userid'])
                 myPlayer.set('model', model)
+                
+def create_record(event_var):
+    userid = int(event_var['userid'])
+    if not xaplayerdata_exists.exists(userid):
+        xaplayerdata_exists.set(userid, "1")
 
-def create_record(userid):
-# This function creates a new player record
-    xaplayerdata_exists.set(userid, "1")
-    xaplayerdata_admin_t.set(userid, "None")
-    xaplayerdata_admin_ct.set(userid, "None")
-    xaplayerdata_reserved_t.set(userid, "None")
-    xaplayerdata_reserved_ct.set(userid, "None")
-    xaplayerdata_public_t.set(userid, "None")
-    xaplayerdata_public_ct.set(userid, "None")
-    
-    xaplayerdata_admin_t_skin.set(userid, "None")
-    xaplayerdata_admin_ct_skin.set(userid, "None")
-    xaplayerdata_reserved_t_skin.set(userid, "None")
-    xaplayerdata_reserved_ct_skin.set(userid, "None")
-    xaplayerdata_public_t_skin.set(userid, "None")
-    xaplayerdata_public_ct_skin.set(userid, "None")
-    
-    xa.playerdata.saveKeyValues()
+        xaplayerdata_admin_t.set(userid, "None")
+        xaplayerdata_admin_ct.set(userid, "None")
+        xaplayerdata_reserved_t.set(userid, "None")
+        xaplayerdata_reserved_ct.set(userid, "None")
+        xaplayerdata_public_t.set(userid, "None")
+        xaplayerdata_public_ct.set(userid, "None")
+        
+        xaplayerdata_admin_t_skin.set(userid, "None")
+        xaplayerdata_admin_ct_skin.set(userid, "None")
+        xaplayerdata_reserved_t_skin.set(userid, "None")
+        xaplayerdata_reserved_ct_skin.set(userid, "None")
+        xaplayerdata_public_t_skin.set(userid, "None")
+        xaplayerdata_public_ct_skin.set(userid, "None")
+        
+        xa.playerdata.saveKeyValues()
     
 def consolecmd(playerid = False):
 # This function handles the console and client command.  Probably need to modify for use with XA
