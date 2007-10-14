@@ -13,7 +13,7 @@ import playerlib
 
 info = es.AddonInfo()
 info.name           = "XA: Skins"
-info.version        = "0.23"
+info.version        = "0.3"
 info.author         = "Don"
 info.url            = "http://forums.mattie.info/"
 info.description    = "Clone of Mani skins feature for XA"
@@ -24,7 +24,6 @@ skinnames               = ['admin_t', 'admin_ct', 'public_t', 'public_ct', 'rese
 skinlist                = {}
 playermenu              = {}
 skins_downloadable      = 1
-xaskins_path            = server_var['eventscripts_gamedir'] + "/addons/eventscripts/xaskins/"
 xaskins_skinfiles_path  = server_var['eventscripts_gamedir'] + "/cfg/mani_admin_plugin/skins/"
 
 # Register XASkins as a xa module
@@ -117,7 +116,8 @@ def _sendmenu(playerid = False):
     if popuplib.exists("xaskinmenu"+str(playerid)):
         popuplib.delete("xaskinmenu"+str(playerid))
     page = popuplib.easymenu("xaskinmenu"+str(playerid), "_tempcore", _selectmenu)
-    page.cachemode = "user"
+# This is commented out becuase popuplib seems to have a bug
+#    page.cachemode = "user"
     page.settitle(xalanguage["choose skins"])
     j = 0
     auth = services.use("auth")
@@ -135,7 +135,8 @@ def _selectmenu(userid, choice, name):
     if popuplib.exists("xaskinselect"+str(userid)):
         popuplib.delete("xaskinselect"+str(userid))
     page = popuplib.easymenu("xaskinselect"+str(userid), "_tempcore", _selectsubmenu)
-    page.cachemode = "user"
+# This is commented out becuase popuplib seems to have a bug
+#    page.cachemode = "user"
     page.settitle(xalanguage["choose skins"])
     for i in skinlist[choice]:
         page.addoption(i, i)
