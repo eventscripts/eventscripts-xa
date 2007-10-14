@@ -22,7 +22,6 @@ info.tags           = "skins models XA"
 skinmenu                = ['Admin T', 'Admin CT', 'Public T', 'Public CT', 'Reserved T', 'Reserved CT', 'Misc']
 skinnames               = ['admin_t', 'admin_ct', 'public_t', 'public_ct', 'reserved_t', 'reserved_ct', 'misc']
 skinlist                = {}
-playerid                = 0
 playermenu              = {}
 skins_downloadable      = 1
 xaskins_path            = server_var['eventscripts_gamedir'] + "/addons/eventscripts/xaskins/"
@@ -131,12 +130,12 @@ def consolecmd(playerid = False):
 def _selectmenu(userid, choice, name):
 # This function makes the submenu for whichever set of skins was chosen
     playermenu[userid] = choice
-    page = popuplib.easymenu("xaskinselect"+str(playerid), "_tempcore", _selectsubmenu)
+    page = popuplib.easymenu("xaskinselect"+str(userid), "_tempcore", _selectsubmenu)
     page.cachemode = "user"
     page.settitle(xalanguage["choose skins"])
     for i in skinlist[choice]:
         page.addoption(i, i)
-    page.send(playerid)
+    page.send(userid)
 
 def _selectsubmenu(userid, choice, name):
 # In this function we need to set the model path into the player's settings
