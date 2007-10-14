@@ -122,7 +122,7 @@ def _sendmenu(playerid = False):
     j = 0
     auth = services.use("auth")
     for i in skinmenu:
-        if (i != "Misc") and ((auth.isUseridAuthorized(int(event_var['userid']), "skin_admin") and ("admin" == skinnames[j][0:5])) or (auth.isUseridAuthorized(int(event_var['userid']), "skin_reserved") and ("reserved" == skinnames[j][0:8])) or ("public" == skinnames[j][0:6])):
+        if (i != "Misc") and ((auth.isUseridAuthorized(playerid, "skin_admin") and ("admin" == skinnames[j][0:5])) or (auth.isUseridAuthorized(playerid, "skin_reserved") and ("reserved" == skinnames[j][0:8])) or ("public" == skinnames[j][0:6])):
             xaplayerdata = xa.playerdata.getUserSetting(xaskins, skinnames[j])
             myskin = xaplayerdata.get(playerid)
             page.addoption(skinnames[j], i + " - " + myskin)
