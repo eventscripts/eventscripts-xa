@@ -61,7 +61,7 @@ def unload():
 # This function is called when the script is es_unload-ed
     xaskins.unRegister()
         
-def es_player_validated(event_var):
+def player_activate(event_var):
 # This function is called when a player is validated
 # Check if the player is in the database yet
     player_exists = xaplayerdata_exists.exists(int(event_var['userid']))
@@ -86,7 +86,7 @@ def player_spawn(event_var):
             elif event_var['es_userteam'] == "3":
                 team = 'ct'
             xaplayerdata = xa.playerdata.getUserSetting(xaskins, level + '_' + team + '_skin')
-            model = xaplayerdata.get(userid)
+            model = xaplayerdata.get(int(event_var['userid']))
             if model != "":
                 myPlayer = playerlib.getPlayer(event_var['userid'])
                 myPlayer.set('model', model)
