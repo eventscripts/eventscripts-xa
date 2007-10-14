@@ -51,9 +51,9 @@ xaplayerdata_public_ct_skin      = xa.playerdata.createUserSetting(xaskins, "pub
 def load():
 # This function is called when the script is es_load-ed
     # Register client console and server command
-    xaskincommand = xaskins.addCommand("xaskin", consolecmd, "set_skin", "#all")
+    xaskincommand = xaskins.addCommand("xaskin", _sendmenu, "set_skin", "#all")
     xaskincommand.register(['console', 'server'])
-    xasettings.registerMethod(xaskins, consolecmd, xalanguage["player skins"])
+    xasettings.registerMethod(xaskins, _sendmenu, xalanguage["player skins"])
     for i in range(7):
         add_skin_files(i)
 
@@ -110,19 +110,22 @@ def create_record(event_var):
         xaplayerdata_public_ct_skin.set(userid, "None")
         xa.playerdata.saveKeyValues()
     
-def consolecmd(playerid = False):
+def _sendmenu(playerid = False):
 # This function handles the console and client command.  Probably need to modify for use with XA
     if not playerid:
         playerid = es.getcmduserid()
+    if popuplib.exists("xaskinmenu"+str(playerid)):
+        popuplib.delete("xaskinmenu"+str(playerid))
     page = popuplib.easymenu("xaskinmenu"+str(playerid), "_tempcore", _selectmenu)
     page.cachemode = "user"
     page.settitle(xalanguage["choose skins"])
     j = 0
     for i in skinmenu:
         if i != "Misc":
-            xaplayerdata_skin = xa.playerdata.getUserSetting(xaskins, skinnames[j])
-            myskin = xaplayerdata_skin.get(playerid)
-            page.addoption(skinnames[j], i + " - " + myskin)
+            if (auth.isUseridAuthorized(int(event_var['userid']), "skin_admin") and ("admin" == skinnames[j][0:5])) or (auth.isUseridAuthorized(int(event_var['userid']), "skin_reserved") and ("reserved" == skinnames[j][0:8])) or ("public" == skinnames[j][0:6]):
+                xaplayerdata = xa.playerdata.getUserSetting(xaskins, skinnames[j])
+                myskin = xaplayerdata.get(playerid)
+                page.addoption(skinnames[j], i + " - " + myskin)
             
         j+=1
     page.send(playerid)
@@ -130,6 +133,8 @@ def consolecmd(playerid = False):
 def _selectmenu(userid, choice, name):
 # This function makes the submenu for whichever set of skins was chosen
     playermenu[userid] = choice
+    if popuplib.exists("xaskinselect"+str(userid)):
+        popuplib.delete("xaskinselect"+str(userid))
     page = popuplib.easymenu("xaskinselect"+str(userid), "_tempcore", _selectsubmenu)
     page.cachemode = "user"
     page.settitle(xalanguage["choose skins"])
@@ -141,24 +146,10 @@ def _selectsubmenu(userid, choice, name):
 # In this function we need to set the model path into the player's settings
     levelset = playermenu[userid]
     mynewskin = skinlist[levelset][choice]
-    if levelset == "admin_t":
-        xaplayerdata_admin_t.set(userid, choice)
-        xaplayerdata_admin_t_skin.set(userid, mynewskin)
-    elif levelset == "admin_ct":
-        xaplayerdata_admin_ct.set(userid, choice)
-        xaplayerdata_admin_ct_skin.set(userid, mynewskin)
-    elif levelset == "reserved_t":
-        xaplayerdata_reserved_t.set(userid, choice)
-        xaplayerdata_reserved_t_skin.set(userid, mynewskin)
-    elif levelset == "reserved_ct":
-        xaplayerdata_reserved_ct.set(userid, choice)
-        xaplayerdata_reserved_ct_skin.set(userid, mynewskin)
-    elif levelset == "public_t":
-        xaplayerdata_public_t.set(userid, choice)
-        xaplayerdata_public_t_skin.set(userid, mynewskin)
-    elif levelset == "public_ct":
-        xaplayerdata_public_ct.set(userid, choice)
-        xaplayerdata_public_ct_skin.set(userid, mynewskin)
+    xaplayerdata = xa.playerdata.getUserSetting(xaskins, levelset)
+    xaplayerdata_skin = xa.playerdata.getUserSetting(xaskins, levelset + '_skin')
+    xaplayerdata.set(userid, choice)
+    xaplayerdata_skin.set(userid, mynewskin)
     xa.playerdata.saveKeyValues()
     
 def add_skin_files(i):
