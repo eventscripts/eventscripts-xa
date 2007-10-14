@@ -54,10 +54,10 @@ class UserSetting(object):
     def get(self, userid):
         if es.exists("userid",userid):
             steamid = playerlib.uniqueid(userid, True)
-            if not steamid in selfkeyvalues[self.module][self.name]:
-                return False
-            else:
+            if steamid in selfkeyvalues[self.module][self.name]:
                 return selfkeyvalues[self.module][self.name][steamid]
+            else:
+                return None
         else:
             return False
             
