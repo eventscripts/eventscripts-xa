@@ -8,6 +8,7 @@ import xa.playerdata
 from xa.modules.xasettings import xasettings
 from xa import xa
 import services
+import popuplib
 import playerlib
 
 info = es.AddonInfo()
