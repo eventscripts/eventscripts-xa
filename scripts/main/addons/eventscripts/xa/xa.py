@@ -151,7 +151,7 @@ class Admin_module(object):
             es.dbgmsg(0, " ")
         es.dbgmsg(0, self.name)
         if listlevel >= 1:
-            es.dbgmsg(0, "  Loaded:       "+str(self.loaded))
+            es.dbgmsg(0, "  Auto-Unload:  "+str(self.allowAutoUnload))
         if listlevel >= 2:
             es.dbgmsg(0, "  Required by:  "+str(len(self.requiredFrom)))
             for module in self.requiredFrom:
