@@ -120,13 +120,12 @@ def _sendmenu(playerid = False):
     page.cachemode = "user"
     page.settitle(xalanguage["choose skins"])
     j = 0
+    auth = services.use("auth")
     for i in skinmenu:
-        if i != "Misc":
-            if (auth.isUseridAuthorized(int(event_var['userid']), "skin_admin") and ("admin" == skinnames[j][0:5])) or (auth.isUseridAuthorized(int(event_var['userid']), "skin_reserved") and ("reserved" == skinnames[j][0:8])) or ("public" == skinnames[j][0:6]):
-                xaplayerdata = xa.playerdata.getUserSetting(xaskins, skinnames[j])
-                myskin = xaplayerdata.get(playerid)
-                page.addoption(skinnames[j], i + " - " + myskin)
-            
+        if (i != "Misc") and ((auth.isUseridAuthorized(int(event_var['userid']), "skin_admin") and ("admin" == skinnames[j][0:5])) or (auth.isUseridAuthorized(int(event_var['userid']), "skin_reserved") and ("reserved" == skinnames[j][0:8])) or ("public" == skinnames[j][0:6])):
+            xaplayerdata = xa.playerdata.getUserSetting(xaskins, skinnames[j])
+            myskin = xaplayerdata.get(playerid)
+            page.addoption(skinnames[j], i + " - " + myskin)
         j+=1
     page.send(playerid)
 
