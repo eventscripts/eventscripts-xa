@@ -86,9 +86,9 @@ def player_spawn(event_var):
                 team = 't'
             elif event_var['es_userteam'] == "3":
                 team = 'ct'
-            xaplayerdata = xa.playerdata.getUserSetting(xaskins, level + '_' + team + '_skin')
-            model = xaplayerdata.get(int(event_var['userid']))
-            if model != "None":
+            xaplayerdata_skin = xa.playerdata.getUserSetting(xaskins, level + '_' + team + '_skin')
+            model = xaplayerdata_skin.get(int(event_var['userid']))
+            if model != "None" and model != None:
                 myPlayer = playerlib.getPlayer(event_var['userid'])
                 myPlayer.set('model', model)
                 
@@ -120,8 +120,8 @@ def consolecmd(playerid = False):
     j = 0
     for i in skinmenu:
         if i != "Misc":
-            xaplayerdata = xa.playerdata.getUserSetting(xaskins, skinnames[j])
-            myskin = xaplayerdata.get(playerid)
+            xaplayerdata_skin = xa.playerdata.getUserSetting(xaskins, skinnames[j])
+            myskin = xaplayerdata_skin.get(playerid)
             page.addoption(skinnames[j], i + " - " + myskin)
             
         j+=1
