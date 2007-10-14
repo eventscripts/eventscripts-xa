@@ -34,7 +34,8 @@ def unload():
     popuplib.delete("xasettingmenu")
     xa.unRegister(xasettings)
     
-def _send_menu(userid, command, args, type):
+def _send_menu():
+    userid = es.getcmduserid()
     for setting in setting_object:
         setting_object[setting].rebuild(userid)
     xasettingmenu.recache([userid])
