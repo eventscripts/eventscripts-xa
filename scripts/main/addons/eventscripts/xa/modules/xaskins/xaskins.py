@@ -87,6 +87,7 @@ def player_spawn(event_var):
                 team = 'ct'
             xaplayerdata = xa.playerdata.getUserSetting(xaskins, level + '_' + team + '_skin')
             model = xaplayerdata.get(int(event_var['userid']))
+            print model, level + '_' + team + '_skin'
             if model != "":
                 myPlayer = playerlib.getPlayer(event_var['userid'])
                 myPlayer.set('model', model)
