@@ -50,6 +50,7 @@ class Setting_switch(object):
         self.texts = dict(texts)
         self.options = dict(options)
         xa.setting.createUserSetting(xasettings,self.name)
+        xasettingmenu = popuplib.find("xasettingmenu")
         xasettingmenu.addoption(self.name, "Switch: "+self.name)
     def use(self, userid, popup):
         usersetting = xa.setting.getUserSetting(xasettings,self.name)
@@ -87,16 +88,37 @@ class Setting_menu(object):
             self.menu = menu
             self.menutype = "setting"
             self.menuobj = settinglib.find(self.menu)
+        xasettingmenu = popuplib.find("xasettingmenu")
         xasettingmenu.addoption(setting, self.texts)
     def use(self, userid, popup):
         self.menu.send(userid)
     def rebuild(self, userid):
         pass
         
+class Setting_method(object):
+    def __init__(self, setting, method, texts):
+        self.name = str(setting)
+        self.texts = dict(texts)
+        self.method = method
+        xasettingmenu = popuplib.find("xasettingmenu")
+        xasettingmenu.addoption(setting, self.texts)
+    def use(self, userid, popup):
+        if callable(self.method):
+            self.method(userid)
+        else:
+            es.set("_xa_userid", str(userid))
+            es.doblock(self.method)
+    def rebuild(self, userid):
+        pass
+        
 def registerSetting(setting, options, texts):
     if not setting in setting_object:
-        setting_object[setting] = Setting_switch(options, texts)
+        setting_object[setting] = Setting_switch(setting, options, texts)
         
 def registerSubmenu(setting, menu, texts):
     if not setting in setting_object:
-        setting_object[setting] = Setting_menu(menu, texts)
+        setting_object[setting] = Setting_menu(setting, menu, texts)
+
+def registerMethod(setting, method, texts):
+    if not setting in setting_object:
+        setting_object[setting] = Setting_method(setting, method, texts)

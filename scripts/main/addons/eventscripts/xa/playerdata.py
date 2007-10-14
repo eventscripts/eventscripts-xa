@@ -32,6 +32,15 @@ class UserSetting(object):
             return None
     def __str__(self):
         return self.name
+    def exists(self, userid):
+        if es.exists("userid",userid):
+            steamid = playerlib.uniqueid(userid, True)
+            if steamid in selfkeyvalues[self.module][self.name]:
+                return True
+            else:
+                return False
+        else:
+            return False
     def set(self, userid, value):
         if es.exists("userid",userid):
             steamid = playerlib.uniqueid(userid, True)
