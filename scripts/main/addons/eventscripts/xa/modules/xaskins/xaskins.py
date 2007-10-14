@@ -96,21 +96,18 @@ def create_record(event_var):
     userid = int(event_var['userid'])
     if not xaplayerdata_exists.exists(userid):
         xaplayerdata_exists.set(userid, "1")
-
         xaplayerdata_admin_t.set(userid, "None")
         xaplayerdata_admin_ct.set(userid, "None")
         xaplayerdata_reserved_t.set(userid, "None")
         xaplayerdata_reserved_ct.set(userid, "None")
         xaplayerdata_public_t.set(userid, "None")
         xaplayerdata_public_ct.set(userid, "None")
-        
         xaplayerdata_admin_t_skin.set(userid, "None")
         xaplayerdata_admin_ct_skin.set(userid, "None")
         xaplayerdata_reserved_t_skin.set(userid, "None")
         xaplayerdata_reserved_ct_skin.set(userid, "None")
         xaplayerdata_public_t_skin.set(userid, "None")
         xaplayerdata_public_ct_skin.set(userid, "None")
-        
         xa.playerdata.saveKeyValues()
     
 def consolecmd(playerid = False):
