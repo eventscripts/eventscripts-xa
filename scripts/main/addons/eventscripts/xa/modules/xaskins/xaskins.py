@@ -87,8 +87,7 @@ def player_spawn(event_var):
                 team = 'ct'
             xaplayerdata = xa.playerdata.getUserSetting(xaskins, level + '_' + team + '_skin')
             model = xaplayerdata.get(int(event_var['userid']))
-            print model, level + '_' + team + '_skin'
-            if model != "":
+            if model != "None":
                 myPlayer = playerlib.getPlayer(event_var['userid'])
                 myPlayer.set('model', model)
 
@@ -102,12 +101,12 @@ def create_record(userid):
     xaplayerdata_public_t.set(userid, "None")
     xaplayerdata_public_ct.set(userid, "None")
     
-    xaplayerdata_admin_t_skin.set(userid, "")
-    xaplayerdata_admin_ct_skin.set(userid, "")
-    xaplayerdata_reserved_t_skin.set(userid, "")
-    xaplayerdata_reserved_ct_skin.set(userid, "")
-    xaplayerdata_public_t_skin.set(userid, "")
-    xaplayerdata_public_ct_skin.set(userid, "")
+    xaplayerdata_admin_t_skin.set(userid, "None")
+    xaplayerdata_admin_ct_skin.set(userid, "None")
+    xaplayerdata_reserved_t_skin.set(userid, "None")
+    xaplayerdata_reserved_ct_skin.set(userid, "None")
+    xaplayerdata_public_t_skin.set(userid, "None")
+    xaplayerdata_public_ct_skin.set(userid, "None")
     
     xa.playerdata.saveKeyValues()
     
