@@ -72,8 +72,10 @@ class Admin_module(object):
         return self.name
     def delete(self):
         unRegister(self.name)
+    def unregister(self):
+        unregister(self.name)
     def unRegister(self):
-        unRegister(self.name)
+        unregister(self.name)
     def addRequirement(self, gModuleList):
         fails = 0
         if isinstance(gModuleList, str):
@@ -341,8 +343,11 @@ def register(pModuleid):
     #create new module
     gModules[pModuleid] = Admin_module(pModuleid)
     return gModules[pModuleid]
-
+    
 def unRegister(pModuleid):
+    unregister(pModuleid)
+
+def unregister(pModuleid):
     #delete a module
     if (pModuleid in gModules):
         if len(gModules[pModuleid].requiredFrom) > 0:
