@@ -15,10 +15,16 @@ xa_log = es.ServerVar("xa_log", 0, "Activates the module logging")
 ###########################
 #Module methods start here#
 ###########################
-def log(module, text):
+def log(module, text, userid=0, admin=False):
     if str(xa_log) != '0':
         if str(module) in xa.gModules:
-            logtext = str(module) + ': ' + str(text)
+            if (int(userid) > 0) and es.exists('userid', int(userid)):
+                if admin == True:
+                    logtext = str(module) + ': Admin ' + es.getplayername(userid) + ' [' + es.getplayersteamid(userid) + ']: ' + str(text)
+                else:
+                    logtext = str(module) + ': User ' + es.getplayername(userid) + ' [' + es.getplayersteamid(userid) + ']: ' + str(text)
+            else:
+                logtext = str(module) + ': ' + str(text)
             logname = "%sl%s" % (selflogdir, time.strftime('%m%d000.log'))
             logfile = open(logname, 'a+')
             logfile.write(time.strftime('L %m/%d/%Y - %H:%M:%S: ') + logtext + '\n')
