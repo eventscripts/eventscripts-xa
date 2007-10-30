@@ -55,5 +55,6 @@ def unload():
     xa.logging.log(mymodule, "unittest unloaded")
     xa.unRegister("unittest")
 
-def myunittestblock(userid, command, commandstring, type):
-    es.msg("Hello World!")
+def myunittestblock():
+    userid = int(es.getcmduserid())
+    es.tell(userid, "Hello World!")
