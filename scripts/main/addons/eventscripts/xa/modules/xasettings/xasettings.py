@@ -25,10 +25,10 @@ xalanguage                  = xa.language.getLanguage(xasettings)
 def load():
     #Load Function for Player Settings for XA.    
     xasettingmenu = popuplib.easymenu("xasettingmenu", "_tempcore", _select_setting)
-    xasettingmenu.cachemode = "user"
     xasettingmenu.settitle(xalanguage["player settings"])
     xasettings.addMenu("xasettingmenu", xalanguage["player settings"], "xasettingmenu", "change_playersetting", "#all")
-    xasettings.addCommand("settings", _send_menu, "change_playersetting", "#all")
+    xacommand = xasettings.addCommand("settings", _send_menu, "change_playersetting", "#all")
+    xacommand.register(["console","say"])
 
 def unload():
     popuplib.delete("xasettingmenu")
@@ -37,41 +37,14 @@ def unload():
 def _send_menu():
     userid = es.getcmduserid()
     for setting in setting_object:
-        setting_object[setting].rebuild(userid)
-    xasettingmenu.recache([userid])
+        setting_object[setting].rebuild(userid) # TODO: finish rebuild methods later
+    xasettingmenu = popuplib.find("xasettingmenu")
+    xasettingmenu.recache(userid)
     xasettingmenu.send(userid)
 
 def _select_setting(userid, choice, name):
     if choice in setting_object:
         setting_object[choice].use(userid, name)
-    
-class Setting_switch(object):
-    def __init__(self, setting, options, texts):
-        self.name = str(setting)
-        self.texts = dict(texts)
-        self.options = dict(options)
-        xa.setting.createUserSetting(xasettings,self.name)
-        xasettingmenu = popuplib.find("xasettingmenu")
-        xasettingmenu.addoption(self.name, "Switch: "+self.name)
-    def use(self, userid, popup):
-        usersetting = xa.setting.getUserSetting(xasettings,self.name)
-        useroption = usersetting.get(userid)
-        nextoption = False
-        for option in self.options:
-            if nextoption == True:
-                usersetting.set(userid, option)
-                nextoption = False
-            if self.options[option] == useroption:
-                nextoption = True
-        if nextoption == True:
-            usersetting.set(userid, self.options[0])
-        popuplib.send(popup, userid)
-    def rebuild(self, userid):
-        usersetting = xa.setting.getUserSetting(xasettings,self.name)
-        useroption = usersetting.get(userid)
-        for option in self.options:
-            if self.options[option] == useroption:
-                xasettingmenu.addoption(self.name, self.texts[option])
 
 class Setting_menu(object):
     def __init__(self, setting, menu, texts):
@@ -111,10 +84,6 @@ class Setting_method(object):
             es.doblock(self.method)
     def rebuild(self, userid):
         pass
-        
-def registerSetting(setting, options, texts):
-    if not setting in setting_object:
-        setting_object[setting] = Setting_switch(setting, options, texts)
         
 def registerSubmenu(setting, menu, texts):
     if not setting in setting_object:

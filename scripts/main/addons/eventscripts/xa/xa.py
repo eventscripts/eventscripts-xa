@@ -36,10 +36,13 @@ info.basename = "xa"
 xa_log = es.ServerVar("xa_log", 0, "Activates the module logging")
 ## language strings
 gLanguage = language.getLanguage()
+## Version variable
+gVersion = es.ServerVar("eventscripts_xa", "0.0.1.000", "eXtensible Admin Version")
+gVersion.makepublic()
 ## is Mani compatibility enabled?
 gManiMode = es.ServerVar("xa_manimode", 0, "Is Mani compatibility mode active?")
 ## gMainMenu/gMainCommand holds XAs main menu/main command
-gMainMenu = None
+gMainMenu = {}
 gMainCommand = None
 ## gModules holds all the modules
 gModules = {}
@@ -49,6 +52,7 @@ gCommandsBlock = {}
 ## gMenusPerm/Page holds all the permission/page names of menus
 gMenusPerm = {}
 gMenusPage = {}
+gMenusText = {}
 
 selfaddondir = str(es.server_var["eventscripts_addondir"]).replace("\\", "/")
 selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
@@ -118,7 +122,7 @@ class Admin_module(object):
         #delete a menu
         if (command in self.subCommands):
             self.subCommands[command].unRegister(['server','console','say'])
-            del self.subCommands[command]
+            self.subCommands[command] = None
         else:
             es.dbgmsg(0,"Xa.py: Cannot delete menu \""+menu+"\", it does not exist")
     def isCommand(self, command):
@@ -136,8 +140,8 @@ class Admin_module(object):
     def delMenu(self, menu):
         #delete a menu
         if (menu in self.subMenus):
-            gMainMenu.setoption(self.subMenus[menu].name, self.subMenus[menu].display, 0)
-            del self.subMenus[menu]
+            self.subMenus[menu].unRegister()
+            self.subMenus[menu] = None
         else:
             es.dbgmsg(0,"Xa.py: Cannot delete menu \""+menu+"\", it does not exist")
     def isMenu(self, menu):
@@ -261,7 +265,7 @@ class Admin_menu(object):
         elif settinglib.exists(self.menu):
             self.menutype = "setting"
             self.menuobj = settinglib.find(self.menu)
-        gMainMenu.addoption(self.name, self.display, 1)
+        gMenusText[self.name] = self.display
         if isinstance(gPermLevel, str):
             gPermLevel = gPermLevel.lower()
             if gPermLevel == "#root":
@@ -283,9 +287,13 @@ class Admin_menu(object):
         auth.registerCapability(self.permission, self.permissionlevel)
     def __str__(self):
         return self.name
+    def unRegister(self):
+        del gMenusPerm[self.name]
+        del gMenusPage[self.name]
+        del gMenusText[self.name]
     def setDisplay(self, display):
         self.display = display
-        gMainMenu.setoption(self.name, self.display, 1)
+        gMenusText[self.name] = self.display
         return True
     def setMenu(self, menu):
         if popuplib.exists(menu):
@@ -349,6 +357,7 @@ def unRegister(pModuleid):
 
 def unregister(pModuleid):
     #delete a module
+    pModuleid = str(pModuleid)
     if (pModuleid in gModules):
         if len(gModules[pModuleid].requiredFrom) > 0:
             es.dbgmsg(0, "[eXtensible Admin] WARNING! Module \""+gModules[pModuleid].name+"\" is required by "+str(len(gModules[pModuleid].requiredFrom)))
@@ -410,10 +419,26 @@ def isManiMode():
     else:
         return True
 
-def sendMenu(pUserid, n1=None, n2=None, n3=None):
-    #n1, n2, n3 just for internal use
-    gMainMenu.send(pUserid)
-    
+def sendMenu(userid=None):
+    #send the XA main menu to a player
+    if userid:
+        userid = int(userid)
+    elif es.getcmduserid():
+        userid = int(es.getcmduserid())
+    if userid and (es.exists("userid", userid)):
+        auth = services.use("auth")
+        if userid in gMainMenu:
+            gMainMenu[userid].delete()
+        gMainMenu[userid] = popuplib.easymenu("_xa_mainmenu"+str(userid), "_xa_choice", incoming_menu)
+        gMainMenu[userid].settitle(gLanguage["eXtensible Admin"])
+        for page in gMenusText:
+            if gMenusPerm[page]:
+                perm = gMenusPerm[page]
+                auth = services.use("auth")
+                if auth.isUseridAuthorized(userid, perm):
+                    gMainMenu[userid].addoption(page, gMenusText[page], 1)
+        gMainMenu[userid].send(userid)
+
 ###########################################
 #EventScripts events and blocks start here#
 ###########################################
@@ -423,8 +448,6 @@ def load():
     es.dbgmsg(0, "[eXtensible Admin] Second loading part...")
     if not es.exists("command", "xa"):
         es.regcmd("xa", "xa/consolecmd", "eXtensible Admin")
-    gMainMenu = popuplib.easymenu("_xa_mainmenu", "_xa_choice", incoming_menu)
-    gMainMenu.settitle(gLanguage["eXtensible Admin"])
     gMainCommand = Admin_command("xa", sendMenu, "xa_menu", "#admin")
     gMainCommand.register(["console","say"])
     es.dbgmsg(0, "[eXtensible Admin] Executing xa.cfg...")
@@ -445,13 +468,9 @@ def unload():
         if gModules[module].allowAutoUnload == True:
             es.dbgmsg(0, "[eXtensible Admin] Unloading module \""+gModules[module].name+"\"")
             es.unload("xa/modules/"+gModules[module].name)
-    if popuplib.exists("_xa_mainmenu"):
-        if gMainMenu:
-            gMainMenu.delete()
-        else:
-            gMainMenu = popuplib.find("_xa_mainmenu")
-            gMainMenu.delete()
-        gMainMenu = None
+    for menu in gMainMenu:
+        if popuplib.exists(str(menu)):
+            menu.delete()
     gMainCommand.unRegister(["console","say"])
     del gMainCommand
     es.dbgmsg(0, "[eXtensible Admin] Finished unloading")
