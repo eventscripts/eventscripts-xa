@@ -30,8 +30,6 @@ if xa.isManiMode():
 else:
     xaskins_skinfiles_path  = server_var['eventscripts_gamedir'] + "/addons/eventscripts/xa/modules/xaskins/skins/"
 
-print xa.isManiMode()
-
 # Register XASkins as a xa module
 xaskins                 = xa.register('xaskins')
 xaskins.addRequirement('xasettings')
