@@ -1,4 +1,5 @@
 import es
+import os
 from es import server_var
 import xa
 import xa.language
@@ -13,7 +14,7 @@ import playerlib
 
 info = es.AddonInfo()
 info.name           = "XA: Skins"
-info.version        = "0.3"
+info.version        = "0.4"
 info.author         = "Don"
 info.url            = "http://forums.mattie.info/"
 info.description    = "Clone of Mani skins feature for XA"
@@ -24,7 +25,12 @@ skinnames               = ['admin_t', 'admin_ct', 'public_t', 'public_ct', 'rese
 skinlist                = {}
 playermenu              = {}
 skins_downloadable      = 1
-xaskins_skinfiles_path  = server_var['eventscripts_gamedir'] + "/cfg/mani_admin_plugin/skins/"
+if xa.isManiMode():
+    xaskins_skinfiles_path  = server_var['eventscripts_gamedir'] + "/cfg/mani_admin_plugin/skins/"
+else:
+    xaskins_skinfiles_path  = server_var['eventscripts_gamedir'] + "/addons/eventscripts/xa/modules/xaskins/skins/"
+
+print xa.isManiMode()
 
 # Register XASkins as a xa module
 xaskins                 = xa.register('xaskins')
@@ -53,6 +59,7 @@ def load():
     xaskincommand = xaskins.addCommand("xaskin", _sendmenu, "set_skin", "#all")
     xaskincommand.register(['console', 'server'])
     xasettings.registerMethod(xaskins, _sendmenu, xalanguage["player skins"])
+    check_if_files_exist()
     for i in range(7):
         add_skin_files(i)
 
@@ -189,3 +196,26 @@ def findsplit(phrase):
             foundsplit = 1
             return i
         i-=1
+
+def check_if_files_exist():
+    if not os.path.isfile(xaskins_skinfiles_path + 'admin_t.txt'):
+        f = open(xaskins_skinfiles_path + 'admin_t.txt', 'w')
+        f.close()
+    if not os.path.isfile(xaskins_skinfiles_path + 'admin_ct.txt'):
+        f = open(xaskins_skinfiles_path + 'admin_ct.txt', 'w')
+        f.close()
+    if not os.path.isfile(xaskins_skinfiles_path + 'reserved_t.txt'):
+        f = open(xaskins_skinfiles_path + 'reserved_t.txt', 'w')
+        f.close()
+    if not os.path.isfile(xaskins_skinfiles_path + 'reserved_ct.txt'):
+        f = open(xaskins_skinfiles_path + 'reserved_ct.txt', 'w')
+        f.close()
+    if not os.path.isfile(xaskins_skinfiles_path + 'public_t.txt'):
+        f = open(xaskins_skinfiles_path + 'public_t.txt', 'w')
+        f.close()
+    if not os.path.isfile(xaskins_skinfiles_path + 'public_ct.txt'):
+        f = open(xaskins_skinfiles_path + 'public_ct.txt', 'w')
+        f.close()
+    if not os.path.isfile(xaskins_skinfiles_path + 'misc.txt'):
+        f = open(xaskins_skinfiles_path + 'misc.txt', 'w')
+        f.close()
