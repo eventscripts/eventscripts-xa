@@ -14,7 +14,7 @@ import playerlib
 
 info = es.AddonInfo()
 info.name           = "XA: Skins"
-info.version        = "0.4"
+info.version        = "0.41"
 info.author         = "Don"
 info.url            = "http://forums.mattie.info/"
 info.description    = "Clone of Mani skins feature for XA"
@@ -28,7 +28,7 @@ skins_downloadable      = 1
 if xa.isManiMode():
     xaskins_skinfiles_path  = server_var['eventscripts_gamedir'] + "/cfg/mani_admin_plugin/skins/"
 else:
-    xaskins_skinfiles_path  = server_var['eventscripts_gamedir'] + "/addons/eventscripts/xa/modules/xaskins/skins/"
+    xaskins_skinfiles_path  = server_var['eventscripts_gamedir'] + "/cfg/xa/xaskins/"
 
 # Register XASkins as a xa module
 xaskins                 = xa.register('xaskins')
