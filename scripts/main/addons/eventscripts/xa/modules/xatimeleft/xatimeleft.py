@@ -1,4 +1,4 @@
-# ./xa/modules/xatimeleft/xatimeleft.py
+\# ./xa/modules/xatimeleft/xatimeleft.py
 
 import es
 import time
@@ -42,6 +42,6 @@ def timeleft_cmd():
    float_mp_timelimit = float(es.ServerVar('mp_timelimit')) * 60
    if float_mp_timelimit:
       float_time_left = float_mp_timelimit - (time.time() - float_map_start_time)
-      es.tell(int_userid, 'Time left in map: %s:%s' % (int(float_time_left / 60) int(float_time_left % 60)))
+      es.tell(int_userid, 'Time left in map: %s:%s' % (int(float_time_left / 60), int(float_time_left % 60)))
    else:
       es.tell(int_userid, 'No map time limit')
