@@ -9,13 +9,23 @@ from xa import xa
 
 
 float_map_start_time = 0
+mymodule = None
 
 
 def load():
     """ """
+    global mymodule
+    #######################################
+    # MODULE NAME
+    # This is the name of the module.
+    mymodulename = "xatimeleft"
+    # Register the module
+    # this is a global reference to your module
+    mymodule = xa.register(mymodulename)
+
     xa.logging.log(mymodule, 'xatimeleft loaded')
 
-    mycommand = mymodule.addCommand('timeleft', show_timeleft, 'display_timeleft', '#all')
+    mycommand = mymodule.addCommand('timeleft', timeleft_cmd, 'display_timeleft', '#all')
     mycommand.register(('console', 'say'))
 
 
