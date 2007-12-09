@@ -1,4 +1,4 @@
-\# ./xa/modules/xatimeleft/xatimeleft.py
+# ./xa/modules/xatimeleft/xatimeleft.py
 
 import es
 import time
