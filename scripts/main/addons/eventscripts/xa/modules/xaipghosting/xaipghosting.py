@@ -72,7 +72,7 @@ def blindplayer(self, uid):
     es.tell(int(plib), text("blind_message",None,plib.get("lang")))
     es.tell(int(plib), text("blind_message",None,plib.get("lang")))
     
-def checkplayer(self, uid):
+def checkplayer(uid):
     '''
     Checks if a player is ghosting and blinds them if so (does not test bots)
     '''
