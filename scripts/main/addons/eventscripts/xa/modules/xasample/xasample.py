@@ -21,13 +21,13 @@ info.description    = "Sample XA Module"
 # TODO: Change this to your module name.    -- TODO
 mymodulename = "mymodule"
 # Register the module
-# this is a global reference to your module
+# this is a global reference to our module
 mymodule = xa.register(mymodulename)
 
 
 #######################################
 # SERVER VARIABLES
-# The list of our my server variables
+# The list of our server variables
 # TODO: Add your own variables              -- TODO
 myvariable = xa.setting.createVariable('some_variable', 1, "XA: Some variable (1=on, 0=off)")
 
@@ -52,8 +52,8 @@ def unload():
     xa.logging.log(mymodule, "XA module is %s being unloaded." % mymodulename)
     # Unregister the module
     xa.unregister(mymodulename)
-    
-    
+
+
 #######################################
 # MODULE FUNCTIONS
-# Register your
+# Register your module's functions
