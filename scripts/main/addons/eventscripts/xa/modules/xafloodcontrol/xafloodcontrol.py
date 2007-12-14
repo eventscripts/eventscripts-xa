@@ -20,7 +20,6 @@ info.tags = "admin flood control XA"
 xafloodcontrol = xa.register('xafloodcontrol')
 chat_flood_time = xa.setting.createVariable('xafloodcontrol', 'chat_flood_time', '1.5')
 chat_flood_message = xa.setting.createVariable('xafloodcontrol', 'chat_flood_message', 'Stop Spaming the server!')
-chat_flood_message.makepublic()
 
 def floodcontrol(userid, message, teamonly):
     #floodcontrol function. Eats spam according to time set in config options.

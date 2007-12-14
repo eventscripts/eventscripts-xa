@@ -8,7 +8,7 @@ from xa import xa
 #plugin information
 info = es.AddonInfo()
 info.name           = "XA:BotManagement"
-info.version        = "0.1"
+info.version        = "0.1.1"
 info.author         = "GODJonez"
 info.url            = "http://forums.mattie.info"
 info.description    = "Bot management menu for XA"
@@ -190,7 +190,7 @@ Adds a bot with team auto-assign
     cvar = es.ServerVar('bot_join_team')
     old = str(cvar).upper()
     cvar.set('ANY')
-    es.server.cmd('bot_add')
+    es.server.queuecmd('bot_add')
     if old != 'ANY':
         cvar.set(old)
     return True
@@ -199,21 +199,21 @@ def _action_add_2(userid, popupid):
     '''
 Adds a bot to team 2
     '''
-    es.server.cmd('bot_add_t')
+    es.server.queuecmd('bot_add_t')
     return True
 
 def _action_add_3(userid, popupid):
     '''
 Adds a bot to team 3
     '''
-    es.server.cmd('bot_add_ct')
+    es.server.queuecmd('bot_add_ct')
     return True
 
 def _action_kick_all(userid, popupid):
     '''
 Kicks all bots
     '''
-    es.server.cmd('bot_kick')
+    es.server.queuecmd('bot_kick')
     return True
 
 def _action_remove(userid, popupid):
@@ -237,14 +237,14 @@ Removes one bot, trying to conserve team balance
                 level += 2
             if level == 7:
                 # max level, we found our bot >:)
-                es.server.cmd('bot_kick '+botid.get('name'))
+                es.server.queuecmd('bot_kick '+botid.get('name'))
                 return True
             if level > currentlevel:
                 currentbot = botid
                 currentlevel = level
         if currentbot:
             # we found at least one bot...
-            es.server.cmd('bot_kick '+currentbot.get('name'))
+            es.server.queuecmd('bot_kick '+currentbot.get('name'))
             return True
     # TODO: Insert a message here telling that no bots on server
     # message string: remove_no_bots
