@@ -30,7 +30,7 @@ mymodule = xa.register(mymodulename)
 var_ip = xa.setting.createVariable('redirect_ip', '127.0.0.1:27015', 'IP players will be redirected to')
 var_delay = xa.setting.createVariable('redirect_delay', 15, 'Number of seconds to show redirect prompt')
 var_kick = xa.setting.createVariable('redirect_kick', 0, '0 = do nothing when players choose not to be redirected, 1 = kick players who choose not to be redirected')
-var_count = xa.setting.createVariable('redirect_count', 0, ' Number of connected players required to automatically send redirect prompt, 0 = never automatically send redirect prompt')
+var_count = xa.setting.createVariable('redirect_count', 0, 'Number of connected players required to automatically send redirect prompt, 0 = never automatically send redirect prompt')
 
 
 #######################################
