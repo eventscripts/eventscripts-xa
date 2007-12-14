@@ -114,7 +114,7 @@ def cfg_vars():
         if os.path.exists("/addons/eventscripts/cfg/xa/xareserveslots/xareserveslots.cfg"):
             es.server.cmd('es_xmexec ../addons/eventscripts/cfg/xa/xareserveslots.cfg')
         else:
-            es.dbgmsg(0, "XA Reserve Slosts: The main cfg file could not be loaded.")
+            es.dbgmsg(0, "XA Reserve Slots: The main cfg file could not be loaded.")
 
 
 def player_activate(event_var):
