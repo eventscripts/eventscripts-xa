@@ -112,7 +112,7 @@ def cfg_vars():
     # now if we have no mani mode on then let's update these variables with our own settings
     if not xa.isManiMode():
         if os.path.exists("/addons/eventscripts/cfg/xa/xareserveslots/xareserveslots.cfg"):
-            es.server.cmd('es_xmexec ../addons/eventscripts/cfg/xa/xareserveslots/xareserveslots.cfg')
+            es.server.cmd('es_xmexec ../addons/eventscripts/cfg/xa/xareserveslots.cfg')
         else:
             es.dbgmsg(0, "XA Reserve Slosts: The main cfg file could not be loaded.")
 
