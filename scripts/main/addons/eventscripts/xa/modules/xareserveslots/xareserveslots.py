@@ -4,6 +4,7 @@ import xa.language
 import xa.logging
 import xa.playerdata
 import xa.setting
+import services
 from xa import xa
 import playerlib
 import os
@@ -192,9 +193,9 @@ def choosePlayer():
     else:
         ping = 0
         for id in kicklist:
-            pping = id.attributes["ping"]   
-                if pping > ping:
-                    ping = pping
-                    kickuid = id
+            pping = id.attributes["ping"]
+            if pping > ping:
+                ping = pping
+                kickuid = id
         return kickuid
         

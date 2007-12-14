@@ -2,6 +2,7 @@ import es
 import xa
 import xa.setting
 import xa.logging
+from xa import xa
 
 #######################################
 # ADDON INFORMATION
