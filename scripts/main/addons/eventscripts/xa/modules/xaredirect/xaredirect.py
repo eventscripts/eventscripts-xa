@@ -77,12 +77,12 @@ def unload():
 
 def es_map_start(event_var):
     """Cancels outstanding delays and clears list_delays"""
-     global list_delays
-
-     for int_userid in list_delays:
-         gamethread.cancelDelayed('xaredirect_%s' % int_userid)
-
-     list_delays[:] = []
+    global list_delays
+    
+    for int_userid in list_delays:
+       gamethread.cancelDelayed('xaredirect_%s' % int_userid)
+    
+    list_delays[:] = []
 
 
 def player_activate(event_var):

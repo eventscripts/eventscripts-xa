@@ -141,17 +141,17 @@ def kickPlayer(ulib):
         # we have an ip to get!
         es.dbgmsg(0, "TODO: Reserved slots doesn't yet support redirect. %s" % ip)
     else:
-    if str(xa.setting.getVariable("xareserveslots", "reserve_slots_kick_message")) != "0":
-        if ip != "0":
-            msg = text("ip_kick_message",{"ip":ip},ulib.get("lang"))
+        if str(xa.setting.getVariable("xareserveslots", "reserve_slots_kick_message")) != "0":
+            if ip != "0":
+                msg = text("ip_kick_message",{"ip":ip},ulib.get("lang"))
+            else:
+                msg = text("kick_message",None,ulib.get("lang"))
         else:
-            msg = text("kick_message",None,ulib.get("lang"))
-    else:
-        if ip != "0":
-            msg = str(xa.setting.getVariable("xareserveslots", "reserve_slots_kick_message"))
-        else:
-            msg = str(xa.setting.getVariable("xareserveslots", "reserve_slots_kick_message")) + " " + ip
-    ulib.kick(msg)
+            if ip != "0":
+                msg = str(xa.setting.getVariable("xareserveslots", "reserve_slots_kick_message"))
+            else:
+                msg = str(xa.setting.getVariable("xareserveslots", "reserve_slots_kick_message")) + " " + ip
+        ulib.kick(msg)
    
 def chooseKick():
     '''
