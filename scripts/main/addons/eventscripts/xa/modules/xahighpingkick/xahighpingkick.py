@@ -2,12 +2,13 @@ import es
 import repeat
 import xa
 import xa.setting
+import playerlib
 from xa import xa
 
 #plugin information
 info = es.AddonInfo() 
 info.name     = 'High Ping Kicker - XA Module' 
-info.version  = 'oy1' 
+info.version  = 'oy2' 
 info.url      = 'http://mattie.info/cs' 
 info.basename = 'highpingkick' 
 info.author   = 'SumGuy14 (Aka SoccerDude)'
@@ -42,11 +43,12 @@ def player_disconnect(event_var):
 
 def tracker(userid,info):
     if es.exists('userid',userid):
-        ping = es.createplayerlist(userid)[userid]['ping']
+        ping = es.createplayerlist(userid)[int(userid)]['ping']
         if ping >= maxping:
             gInfo[userid]+=1
         if gInfo[userid] >= exceedlimit:
-            es.server.cmd('kickid %s %s' % (userid,kickmsg))
+            slowguy = playerlib.getPlayer(userid)
+            slowguy.kick(reason=kickmsg)
     else:
         myRepeat = info[0]
         myRepeat.delete()

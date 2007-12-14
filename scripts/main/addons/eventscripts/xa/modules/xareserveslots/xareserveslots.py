@@ -176,7 +176,7 @@ def chooseKick():
             if bot.attributes["steamid"] == "BOT":
                 return bot
            
-def choosePlayer()         
+def choosePlayer():         
     '''
     Used by chooseKick() to determine a player to kick
     '''
