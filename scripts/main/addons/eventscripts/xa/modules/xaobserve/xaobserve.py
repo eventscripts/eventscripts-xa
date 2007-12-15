@@ -182,14 +182,14 @@ def client_command_filter(int_userid, list_args):
 
 def end_spec_delay(int_userid):
     """
-    Forces the client to spectate a teammate
     Removes the delay from the list of delays
+    Forces the client to spectate a teammate
     """
-    client_command_filter(int_userid, ['spec_mode'])
-    client_command_filter(int_userid, ['spec_next'])
-
     if int_userid in list_delays:
         list_delays.remove(int_userid)
+
+    client_command_filter(int_userid, ['spec_mode'])
+    client_command_filter(int_userid, ['spec_next'])
 
 
 def add_player_handle(int_userid, int_team):
