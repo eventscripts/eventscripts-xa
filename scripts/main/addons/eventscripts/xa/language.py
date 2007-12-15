@@ -22,4 +22,4 @@ def getLanguage(module=None,file=None):
     if os.path.exists(filename):
         return langlib.Strings(filename)
     else:
-        raise FileError("Could not find %s!" % filename)
+        raise IOError, "Could not find %s!" % filename
