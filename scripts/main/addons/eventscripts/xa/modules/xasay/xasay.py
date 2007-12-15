@@ -31,7 +31,7 @@ mymodule = xa.register(mymodulename)
 #######################################
 # SERVER VARIABLES
 # The list of our my server variables
-say_admin_prefix = xa.setting.createVariable(mymodule, 'say_admin_prefix', '@', "XA: Some variable (1=on, 0=off)")
+say_admin_prefix = xa.setting.createVariable(mymodule, 'say_admin_prefix', '@', "XA: Prefix for admin chat")
 say_admin_soundfile = xa.setting.createVariable(mymodule, 'say_admin_soundfile', 'ui/buttonclick.wav', "XA: Determines the sound played with an admin say.")
 # normal admin say
 # normal
@@ -55,7 +55,7 @@ def load():
         es.addons.registerSayFilter(saywatcher)
 
     playerlib.registerPlayerListFilter("#admin_say", admin_say_filter)
-    registerSayPrefix("@", _admin_say, "admin_say", auth.ADMIN)
+    registerSayPrefix(str(say_admin_prefix), _admin_say, "admin_say", auth.ADMIN)
     # ..
     # ..
     xa.logging.log(mymodule, "XA module %s loaded." % mymodulename)

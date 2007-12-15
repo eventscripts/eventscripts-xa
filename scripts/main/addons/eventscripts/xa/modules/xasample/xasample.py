@@ -30,7 +30,7 @@ mymodule = xa.register(mymodulename)
 # SERVER VARIABLES
 # The list of our server variables
 # TODO: Add your own variables              -- TODO
-myvariable = xa.setting.createVariable(mymodulename, 'some_variable', 1, "XA: Some variable (1=on, 0=off)")
+myvariable = xa.setting.createVariable(mymodule, 'some_variable', 1, "XA: Some variable (1=on, 0=off)")
 
 
 #######################################

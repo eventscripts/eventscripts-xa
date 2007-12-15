@@ -32,8 +32,8 @@ mymodule = xa.register(mymodulename)
 # SERVER VARIABLES
 # The list of our server variables
 
-var_allow_chase = xa.setting.createVariable(mymodulename, 'observe_allow_chase', 1, 'xaobserve: 0 = only allow first-person view for dead players, 1 = allow frist-person or chase-cam view for dead players')
-var_spec_delay = xa.setting.createVariable(mymodulename, 'observe_spec_delay', 3, 'xaobserve: Number of seconds after death a player can be spectated')
+var_allow_chase = xa.setting.createVariable(mymodule, 'observe_allow_chase', 1, 'xaobserve: 0 = only allow first-person view for dead players, 1 = allow frist-person or chase-cam view for dead players')
+var_spec_delay = xa.setting.createVariable(mymodule, 'observe_spec_delay', 3, 'xaobserve: Number of seconds after death a player can be spectated')
 
 
 #######################################
@@ -127,9 +127,27 @@ def player_death(event_var):
             es.addons.registerClientCommandFilter(client_command_filter)
 
         dict_dead_players[int_userid] = -1
-        gamethread.delayedname(float(var_spec_delay), 'xaobserve_%s' % int_userid, end_spec_delay, int_userid)
+        gamethread.delayedname(float(var_spec_delay), 'xaobserve_%s' % int_userid, end_spec_delay, (int_userid, True))
         if int_userid not in list_delays:
             list_delays.append(int_userid)
+
+
+def player_disconnect(event_var):
+    """
+    Cancels any delays for the disconnecting player
+    Removes the disconnecting player from the dictionary of unauthorized dead players
+    """
+    global dict_dead_players
+
+    int_userid = int(event_var['userid'])
+    if int_userid in list_delays:
+        gamethread.cancelDelayed('xaobserve_%s' % int_userid)
+        list_delays.remove(int_userid)
+
+    if dict_dead_players.has_key(int_userid):
+        del dict_dead_players[int_userid]
+        if not dict_dead_players:
+            es.addons.unregisterClientCommandFilter(client_command_filter)
 
 
 def client_command_filter(int_userid, list_args):
@@ -138,14 +156,14 @@ def client_command_filter(int_userid, list_args):
     """
     global dict_dead_players
 
-    if not dict_dead_players.has_key(int_userid):
+    int_team = es.getplayerteam(int_userid)
+    if not dict_dead_players.has_key(int_userid) or not list_args or int_team not in (2, 3):
         return 1
 
     if int_userid in list_delays:
         gamethread.cancelDelayed('xaobserve_%s' % int_userid)
         list_delays.remove(int_userid)
 
-    int_team = es.getplayerteam(int_userid)
     if list_args[0] == 'spec_mode':
         if es.getplayerprop(int_userid, 'CBasePlayer.m_iObserverMode') == 3 and int(var_allow_chase):
             es.setplayerprop(int_userid, 'CBasePlayer.m_iObserverMode', 4)
@@ -165,7 +183,7 @@ def client_command_filter(int_userid, list_args):
         es.setplayerprop(int_userid, 'CBasePlayer.m_hObserverTarget', dict_dead_players[int_userid])
         return 0
 
-    elif list_args[0] == 'spec_prev':
+    elif list_args[0] == 'spec_prev' and dict_team_handles[int_team]:
         int_target_handle = es.getplayerprop(int_userid, 'CBasePlayer.m_hObserverTarget')
         if int_target_handle in dict_team_handles[int_team]:
             int_target_index = dict_team_handles[int_team].index(int_target_handle) - 1
@@ -180,7 +198,7 @@ def client_command_filter(int_userid, list_args):
     return 1
 
 
-def end_spec_delay(int_userid):
+def end_spec_delay(int_userid, bool_set_mode=False):
     """
     Removes the delay from the list of delays
     Forces the client to spectate a teammate
@@ -188,7 +206,8 @@ def end_spec_delay(int_userid):
     if int_userid in list_delays:
         list_delays.remove(int_userid)
 
-    client_command_filter(int_userid, ['spec_mode'])
+    if bool_set_mode:
+        client_command_filter(int_userid, ['spec_mode'])
     client_command_filter(int_userid, ['spec_next'])
 
 
