@@ -50,7 +50,7 @@ def load():
 
 
 def unload():
-    xa.logging.log(mymodule, "XA module is %s being unloaded." % mymodulename)
+    xa.logging.log(mymodule, "XA module %s is being unloaded." % mymodulename)
     # Unregister the module
     xa.unregister(mymodulename)
 
