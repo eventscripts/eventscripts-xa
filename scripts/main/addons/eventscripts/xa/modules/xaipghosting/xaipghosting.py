@@ -41,7 +41,7 @@ OY1   | [BETA] | 15/09/2007 |  Working Standalone version
  #  |  Status       | Desc
 1.5 | [UNSTARTED]   | Add other features, provide admin notification / features, add further config options
 '''
-    
+
 def repeat_fade(x):
     '''
     Method to handle the fading. Is run every second by the repeat xaip. 
@@ -61,8 +61,8 @@ def blindplayer(self, uid):
     '''
     plib = playerlib.getPlayer(uid) 
     if repeat.status("xaip") == 0:
-            a = repeat.create("xaip", repeat_fade)
-            a.start(1,0)
+        a = repeat.create("xaip", repeat_fade)
+        a.start(1,0)
     # do the initial fade 
     usermsg.fade(uid,2,500,1000,0,0,0,255)
     # add them to the usergroup
@@ -71,19 +71,19 @@ def blindplayer(self, uid):
     es.tell(int(plib), text("blind_message",None,plib.get("lang")))
     es.tell(int(plib), text("blind_message",None,plib.get("lang")))
     es.tell(int(plib), text("blind_message",None,plib.get("lang")))
-    
+
 def checkplayer(uid):
     '''
     Checks if a player is ghosting and blinds them if so (does not test bots)
     '''
     if not es.isbot(uid):
         plist = es.createplayerlist()
-        uip = self.plist[uid]["address"]    
+        uip = plist[uid]["address"]   
         for id in plist:
-            testip = self.plist[id]["address"]
+            testip = plist[id]["address"]
             if testip == uip:
-                self.blindplayer(uid)
-        
+                blindplayer(uid) 
+
 def load():
     global ipg_active
     global text
@@ -95,7 +95,7 @@ def load():
     # Grab the languages file using the XA langlib wrapper
     text = xa.language.getLanguage('xaipghosting')
     xa.logging.log(ghosting, "Loaded IP Ghosting (mani clone) V1.0")
-    
+
 def player_death(event_var):
     global blinded
     '''
@@ -113,3 +113,8 @@ def round_end(event_var):
         r = repeat.find("xaip")
         r.stop()
     blinded = {}
+
+def unload():
+    xa.logging.log(mymodule, "XA module xaipghosting is being unloaded.")
+    # Unregister the module
+    xa.unregister("xaipghosting")
