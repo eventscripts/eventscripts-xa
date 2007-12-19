@@ -65,7 +65,7 @@ def es_map_start(event_var):
     if '_' in str_mapname: # No prefix, no .cfg
         str_prefix = str_mapname.split('_')[0]
         if os.path.isfile(str_dir + '/%s.cfg' % str_prefix):
-            es.server.queuecmd('es_xmexec ../cfg/xa/%s/%s.cfg' % (mymodulename, str_prefix))
+            es.server.queuecmd('exec xa/%s/%s.cfg' % (mymodulename, str_prefix))
 
 
 def _check_directory(str_dir):
