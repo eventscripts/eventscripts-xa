@@ -25,8 +25,7 @@ def load():
 
     xa.logging.log(mymodule, 'xatimeleft loaded')
 
-    mycommand = mymodule.addCommand('timeleft', timeleft_cmd, 'display_timeleft', '#all')
-    mycommand.register(('console', 'say'))
+    mymodule.addCommand('timeleft', timeleft_cmd, 'display_timeleft', '#all').register(('console', 'say'))
 
 
 def es_map_start(event_var):

@@ -32,9 +32,9 @@ def load():
     """Registers the xarcon commands"""
     xa.logging.log(mymodule, 'XA module %s loaded.' % mymodulename)
 
-    mymodule.addCommand('xarcon', rcon_cmd, 'use_rcon', '#root').register(('say', 'client'))
-    mymodule.addCommand('xarcon_round', rcon_round_cmd, 'use_rcon', '#root').register(('say', 'client'))
-    mymodule.addCommand('xarcon_map', rcon_map_cmd, 'use_rcon', '#root').register(('say', 'client'))
+    mymodule.addCommand('xarcon', rcon_cmd, 'use_rcon', '#root').register(('say', 'console'))
+    mymodule.addCommand('xarcon_round', rcon_round_cmd, 'use_rcon', '#root').register(('say', 'console'))
+    mymodule.addCommand('xarcon_map', rcon_map_cmd, 'use_rcon', '#root').register(('say', 'console'))
 
 
 def unload():

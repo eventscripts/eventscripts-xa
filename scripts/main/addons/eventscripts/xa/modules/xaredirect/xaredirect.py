@@ -55,7 +55,7 @@ def load():
     """
     xa.logging.log(mymodule, 'XA module %s loaded.' % mymodulename)
 
-    mymodule.addCommand('xaredirect', redirect_cmd, 'redirect_client', '#admin').register(('server', 'say', 'client'))
+    mymodule.addCommand('xaredirect', redirect_cmd, 'redirect_client', '#admin').register(('server', 'say', 'console'))
 
 
 def unload():
