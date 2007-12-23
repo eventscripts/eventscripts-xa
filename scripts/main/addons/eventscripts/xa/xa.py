@@ -1,5 +1,6 @@
 #import EventScripts
 import es
+import gamethread
 from es import server_var
 
 #load and import the core
@@ -243,7 +244,7 @@ class Admin_command(object):
             es.dbgmsg(0, "  Target:       "+str(self.target))
             es.dbgmsg(0, "  Permission:   "+str(self.permission))
             es.dbgmsg(0, "  Perm-level:   "+str(self.permissionlevel))
-            
+
 # Admin_menu is the clientcmd class
 class Admin_menu(object):
     def __init__(self, gMenu, gDisplay, gMenuName, gPerm, gPermLevel):
@@ -344,6 +345,10 @@ def xa_load(pModuleid):
 def xa_unload(pModuleid):
     es.unload("xa/modules/"+pModuleid)
     
+def xa_reload(pModuleid):
+    xa_unload(pModuleid)
+    gamethread.delayed(0.1, xa_load, (pModuleid,))
+    
 def xa_exec(pModuleid):
     es.server.cmd("exec xa_"+pModuleid+".cfg")
 
@@ -351,7 +356,7 @@ def register(pModuleid):
     #create new module
     gModules[pModuleid] = Admin_module(pModuleid)
     return gModules[pModuleid]
-    
+
 def unRegister(pModuleid):
     unregister(pModuleid)
 
@@ -414,6 +419,7 @@ def findCommand(pModuleid, pCommandid):
     return None
 
 def isManiMode():
+    print gManiMode
     if str(gManiMode) == '0':
         return False
     else:
@@ -495,6 +501,11 @@ def consolecmd():
             xa_unload(es.getargv(2))
         else:
             es.dbgmsg(0,"Syntax: xa unload <module-name>")
+    elif subcmd == "reload":
+        if es.getargv(2):
+            xa_reload(es.getargv(2))
+        else:
+            es.dbgmsg(0,"Syntax: xa reload <module-name>")
     elif subcmd == "send":
         if es.getargv(2):
             sendMenu(es.getargv(2))
@@ -741,7 +752,7 @@ def consolecmd():
             es.dbgmsg(0,"Syntax: xa menu <module-name> <subcommand>")
     else:
         es.dbgmsg(0,"Invalid xa subcommand, see http://www.eventscripts.com/pages/Xa/ for help")
-        
+
 #############################################
 #EventScripts command/menu blocks start here#
 #############################################
