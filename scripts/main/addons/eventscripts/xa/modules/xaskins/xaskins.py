@@ -14,10 +14,10 @@ import playerlib
 
 info = es.AddonInfo()
 info.name           = "XA: Skins"
-info.version        = "0.42"
+info.version        = "0.43"
 info.author         = "Don"
 info.url            = "http://forums.mattie.info/"
-info.description    = "Clone of Mani skins feature for XA"
+info.description    = "Skins feature for XA"
 info.tags           = "skins models XA"
 
 skinmenu                = ['Admin T', 'Admin CT', 'Public T', 'Public CT', 'Reserved T', 'Reserved CT', 'Misc']
@@ -64,7 +64,11 @@ def load():
 def unload():
 # This function is called when the script is es_unload-ed
     xaskins.unRegister()
-        
+
+def es_map_start(event_var):
+    for i in range(7):
+        add_skin_files(skinnames, i)
+
 def player_activate(event_var):
 # This function is called when a player is validated
 # Check if the player is in the database yet
@@ -181,7 +185,8 @@ def makedownloadable(skinfile,skingroup):
             if skins_downloadable == 1:
                 es.stringtable("downloadables", line)
             if '.mdl' in line:
-                return line
+                model = line
+    return model
             
 def findsplit(phrase):
 # This function just splits the lines in the main skin files and returns the line position of the split
