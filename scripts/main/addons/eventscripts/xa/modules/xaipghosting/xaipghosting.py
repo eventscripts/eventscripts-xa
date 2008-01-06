@@ -78,7 +78,7 @@ def checkplayer(uid):
     '''
     if not es.isbot(uid):
         plist = es.createplayerlist()
-        uip = plist[uid]["address"]   
+        uip = plist[int(uid)]["address"]   
         for id in plist:
             testip = plist[id]["address"]
             if testip == uip:
