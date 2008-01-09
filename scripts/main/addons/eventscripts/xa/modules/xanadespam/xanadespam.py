@@ -77,6 +77,11 @@ def round_start(event_var):
 round_start({})
 
 
+def player_activate(event_var):
+    """Creates the player in the dictionary"""
+    dict_players[int(event_var['userid'])] = {'hegrenade':0, 'flashbang':0, 'smokegrenade':0}
+
+
 def player_disconnect(event_var):
     """Removes the disconnecting player from the dictionary."""
     global dict_players
