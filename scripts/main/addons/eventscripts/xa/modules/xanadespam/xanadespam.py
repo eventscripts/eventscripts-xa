@@ -90,8 +90,8 @@ def _cc_filter(userid, args):
     """Eats the client command if the player tries to buy more grenades than allowed."""
     global dict_players
 
-    if args[0] == 'buy' and len(args) > 1:
-        item = args[1].replace('weapon_', '')
+    if args[0].lower() == 'buy' and len(args) > 1:
+        item = args[1].lower().replace('weapon_', '')
         if dict_grenade_limits.has_key(item):
             count = dict_players[userid][item] = dict_players[userid][item] + 1
             if count > dict_grenade_limits[item] and not auth_service.isUseridAuthorized(userid, 'nadespam_immune'):
