@@ -9,10 +9,10 @@ from xa import xa
 
 
 mymodule = xa.register('xathetime')
-adjust_time = xa.setting.createVariable(mymodule, 'adjust_time', 0)
-military_time = xa.setting.createVariable(mymodule, 'military_time', 0)
-thetime_player_only = xa.setting.createVariable(mymodule, 'thetime_player_only', 1)
-thetime_timezone = xa.setting.createVariable(mymodule, 'thetime_timezone', 'GMT')
+adjust_time = xa.setting.createVariable(mymodule, 'adjust_time', 0, 'Minutes to add to server clock')
+military_time = xa.setting.createVariable(mymodule, 'military_time', 0, '0 = use 12hr format, 1 = use 24hr format')
+thetime_player_only = xa.setting.createVariable(mymodule, 'thetime_player_only', 1, '0 = time is sent to all players on request, 1 = time is only sent to the requesting player')
+thetime_timezone = xa.setting.createVariable(mymodule, 'thetime_timezone', 'GMT', 'Timezone to display -- DOES NOT AFFECT TIME DISPLAYED')
 
 
 def load():
