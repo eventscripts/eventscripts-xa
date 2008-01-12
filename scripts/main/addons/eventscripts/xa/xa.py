@@ -419,7 +419,6 @@ def findCommand(pModuleid, pCommandid):
     return None
 
 def isManiMode():
-    print gManiMode
     if str(gManiMode) == '0':
         return False
     else:
@@ -457,7 +456,7 @@ def load():
     gMainCommand = Admin_command("xa", sendMenu, "xa_menu", "#admin")
     gMainCommand.register(["console","say"])
     es.dbgmsg(0, "[eXtensible Admin] Executing xa.cfg...")
-    es.mexec("xa.cfg")
+    es.server.cmd('exec xa.cfg')
     #Mani compatibility
     es.dbgmsg(0, "[eXtensible Admin] Mani mode enabled = "+str(isManiMode()))
     if isManiMode():
@@ -465,6 +464,10 @@ def load():
         manilib.loadVariables() #setup basic mani variables
         es.server.cmd("exec mani_server.cfg")
         manilib.loadModules() #load the mani modules if needed
+    es.dbgmsg(0, "[eXtensible Admin] Executing xamodules.cfg...")
+    es.server.cmd('exec xamodules.cfg')
+    es.dbgmsg(0, "[eXtensible Admin] Updating xamodules.cfg...")
+    setting.addVariables()
     es.dbgmsg(0, "[eXtensible Admin] Finished loading")
 
 def unload():
