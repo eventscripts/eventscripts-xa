@@ -65,42 +65,60 @@ def getVariableName(variable):
     return variable
     
 def addVariables(module=None):
-    varlist = {}
+    varlist = []
     if module:
-        for variable in xa.gModules[str(module)].variables:
-            varlist[str(variable)] = xa.gModules[str(module)].variables[str(variable)]
+        for variable in sorted(xa.gModules[str(module)].variables):
+            varlist.append(xa.gModules[str(module)].variables[str(variable)])
     else:
-        for module in xa.gModules:
-            for variable in xa.gModules[str(module)].variables:
-                varlist[str(variable)] = xa.gModules[str(module)].variables[str(variable)]
+        for module in sorted(xa.gModules):
+            for variable in sorted(xa.gModules[str(module)].variables):
+                varlist.append(xa.gModules[str(module)].variables[str(variable)])
     if not os.path.isfile(selfmoduleconfig):
         f = open(selfmoduleconfig, 'w+')
+        f.write('// XA Module configuration\n')
+        f.write('// \n')
     else:
-        f = open(selfmoduleconfig, 'r+')
-    for line in f:
-        line = line.strip("\n")
-        line = line.strip("\r")
-        if line[0:2] != '//' and line != '':
-            data = line.split(' ', 1)
-            if data[0] in varlist:
-                del varlist[data[0]]
-    f.close()
-    f = open(selfmoduleconfig, 'a')
+        f = open(selfmoduleconfig, 'r')
+        for line in f:
+            line = line.strip('\n')
+            line = line.strip('\r')
+            if line[0:2] != '//' and line[0:1] != '#' and line != '':
+                data = line.split(' ', 1)
+                for var in varlist:
+                    if var.getName() == data[0]:
+                        varlist.remove(var)
+        f.close()
+        f = open(selfmoduleconfig, 'a')
     for var in varlist:
-        isstr = False
-        try:
-            value = float(varlist[var])
-            if value == int(varlist[var]):
-                value = int(varlist[var])
-        except:
-            value = str(varlist[var])
-            isstr = True
-        if len(varlist[var]._descr) > 0:
-            f.write('// '+str(varlist[var]._descr)+'\n')
-        if isstr:
-            f.write(str(var)+' "'+str(value)+'"\n\n')
-        else:
-            f.write(str(var)+' '+str(value)+'\n\n')
+        name = var.getName().replace('_', '')
+        print name, name.isalnum()
+        if name.isalnum():
+            if len(var._descr) > 0:
+                f.write('// '+str(var._descr)+'\n')
+            if str(var).isdigit():
+                f.write(str(var.getName())+' '+str(var)+'\n\n')
+            else:
+                f.write(str(var.getName())+' "'+str(var)+'"\n\n')
+    f.close()
+
+def saveVariables():
+    varlist = []
+    for module in sorted(xa.gModules):
+        for variable in sorted(xa.gModules[str(module)].variables):
+            varlist.append(xa.gModules[str(module)].variables[str(variable)])
+    f = open(selfmoduleconfig, 'w+')
+    f.write('// XA Module configuration\n')
+    f.write('// \n')
+    for var in varlist:
+        name = var.getName().replace('_', '')
+        print name, name.isalnum()
+        if name.isalnum():
+            if len(var._descr) > 0:
+                f.write('// '+str(var._descr)+'\n')
+            if str(var).isdigit():
+                f.write(str(var.getName())+' '+str(var)+'\n\n')
+            else:
+                f.write(str(var.getName())+' "'+str(var)+'"\n\n')
     f.close()
 
 def createKeyValues(module):
