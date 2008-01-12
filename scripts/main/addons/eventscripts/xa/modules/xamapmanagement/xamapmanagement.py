@@ -40,7 +40,7 @@ def es_map_start(event_var):
         gCurrentMap = -1
 
 def map_check(mapname):
-    if mapname in default_maps or os.path.isfile(es.ServerVar('eventscripts_gamedir') + '/maps/%s.bsp' % mapname):
+    if mapname in gDefaultMaps or os.path.isfile(es.ServerVar('eventscripts_gamedir') + '/maps/%s.bsp' % mapname):
         return True
     else:
         es.dbgmsg(0, 'XAMapManagement: Unable to find map: %s.' % mapname)
