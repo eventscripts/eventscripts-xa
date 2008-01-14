@@ -5,7 +5,6 @@
 import es
 import os.path
 import shelve
-import keyvalues
 import playerlib
 import popuplib
 import services
@@ -16,7 +15,7 @@ from sqlite3 import dbapi2 as sqlite
 
 info = es.AddonInfo()
 info.name        = "XA:AuthManage"
-info.version     = "0.1"
+info.version     = "0.2"
 info.author      = "HTP"
 info.url         = "http://forums.mattie.info/cs/forums/index.php"
 info.description = "Popup interface for Authorization Management"
@@ -121,16 +120,18 @@ def load():
         capmain.submenu(8,'capsmenu')
         capmain.submenu(9,'maingroupauthmenu')
         
-        
+        xa.logging.log(xaauthmanage, 'group_auth use setup complete.')
 
     elif authaddon == 'basic_auth':
         """ BasicAuth specific setup """
-        global bauthmain, addadmin, b_admins, b_admins_path, admindetail, basicadmins
+        global bauthmain, b_admins, b_admins_path, admindetail, basicadmins, basicadmins_default, adminlevel
         b_admins = {}
         b_admins_path = es.getAddonPath('xa/modules/xaauthmanage') + '/admins'
-        basicadmins = str(es.ServerVar('BASIC_AUTH_ADMIN_LIST'))
-        basicadmins = basicadmins.split(';') 
-        _basic_auth_convar()        
+        basicadmins_default = str(es.ServerVar('BASIC_AUTH_ADMIN_LIST'))
+        es.dbgmsg(0,'basicadmins_default=%s' %basicadmins_default)
+        basicadmins = basicadmins_default.split(';')
+        _basic_auth_convar()
+        adminlevel = 0        
         
         bauthmain = popuplib.easymenu('mainbasicauthmenu',None,_bauthmain_select)
         bauthmain.settitle(lang['auth manage'])
@@ -159,21 +160,35 @@ def load():
         admindetail.select(3, _admin_remove)
         admindetail.submenu(8, 'mainbasicauthmenu')
         admindetail.select(9, _adminlist)
+
+        xa.logging.log(xaauthmanage, 'basic_auth use setup complete.')
 	
 def unload():
     es.dbgmsg(0,'*****unload')
     if authaddon == 'basic_auth': 
         popuplib.delete('admindetail')
-        popuplib.delete('adminlistmenu')    
-        popuplib.delete('addadmin')
+        if int(popuplib.exists('adminlistmenu')):
+            popuplib.delete('adminlistmenu')
+        es.dbgmsg(0,'basicadmins_default=%s' %basicadmins_default)
+        es.set('BASIC_AUTH_ADMIN_LIST', basicadmins_default)
     else:
-        popuplib.delete('groupsmenu')
         popuplib.delete('groupsmainmenu')
-        popuplib.delete('groupslist')
-        popuplib.delete('groupsusers')
-        popuplib.delete('groupcaps')
+        popuplib.delete('usermenu')
+        popuplib.delete('capmain')
+        if int(popuplib.exists('groupsmenu')):
+            popuplib.delete('groupsmenu')
+        if int(popuplib.exists('groupslist')):
+            popuplib.delete('groupslist')
+        if int(popuplib.exists('groupsusers')):
+            popuplib.delete('groupsusers')
+        if int(popuplib.exists('groupcaps')):
+            popuplib.delete('groupcaps')
         es.unregclientcmd('newgroup')
-    popuplib.delete('playermenu')
+		
+    if int(popuplib.exists('playermenu')):
+        popuplib.delete('playermenu')
+
+    xa.unregister('xaauthmanage')
 
 def player_activate(event_var):
     #following line commented out for testing only
@@ -203,10 +218,19 @@ def _gauthmain_select(userid,choice,popupid):
 
 def _bauthmain_select(userid,choice,popupid):
     es.dbgmsg(0,'*****_bauthmain_select')
-    if choice == 'players':
-        _playerlist(userid)
-    elif choice == 'admins':
-        _adminlist(userid)
+    es.dbgmsg(0,'*****userid=%s' %userid)
+    master = es.getplayersteamid(userid)
+    es.dbgmsg(0,'*****master=%s' %master)
+    b_admins = shelve.open(b_admins_path)
+    es.dbgmsg(0,'*****adminlevel=%s' %b_admins[master][1])
+    if b_admins.has_key(master) and int(b_admins[master][1]):
+        if choice == 'players':
+            _playerlist(userid)
+        elif choice == 'admins':
+            _adminlist(userid)
+    else:
+        es.tell(userid,'#multi', prefix + lang('master access only'))
+    b_admins.close	
 
 
 ###############################################
@@ -257,7 +281,7 @@ def _addadmin_select(userid,choice,popupid):
         if steamid not in basicadmins:
             _update_badmins(steamid,choice[0],'0','0')
         else:
-            es.tell(userid, '#multi', '#green[AuthManage]#default %s is already an admin.' %choice[0])
+            es.tell(userid, '#multi', prefix + choice[0] + ' is already an admin.')
 
 def _admin_suspend(userid,choice,popupid):
     es.dbgmsg(0,'*****_admin_suspend')
@@ -333,7 +357,7 @@ def _groupsmain_select(userid,choice,popupid):
                 groupslist.addoption(group[0], utfcode(group[0]))
             groupslist.send(userid)
         else:
-            es.tell(userid, '#multi', '#green[AuthManage]#default %s' %lang['no groups'])    
+            es.tell(userid, '#multi', prefix + lang('no groups'))    
     if choice == 3:
         _newgroup_handle(userid)
 
@@ -552,14 +576,21 @@ def convertQuery(result):
     return newresult
 
 def _sendmain():
+    es.dbgmsg(0,'*****_sendmain')
     userid = es.getcmduserid()
     if auth.isUseridAuthorized(userid, 'xaauth'):
         if authaddon == 'group_auth':
             gauthmain.send(userid)
         elif authaddon == 'basic_auth':
-            bauthmain.send(userid)
+            master = es.getplayersteamid(userid)
+            b_admins = shelve.open(b_admins_path)
+            if b_admins.has_key(master) and int(b_admins[master][1]):
+                bauthmain.send(userid)
+            else:
+                es.tell(userid,'#multi', prefix + lang('master access only'))
+            b_admins.close
     else:
-        es.tell(userid, '#multi', '#green[AuthManage]#default You do not have access to that command.')	
+        es.tell(userid, '#multi', prefix + lang('master access only'))	
 
 def _playerlist(userid):
     es.dbgmsg(0,'*****_playerlist')
