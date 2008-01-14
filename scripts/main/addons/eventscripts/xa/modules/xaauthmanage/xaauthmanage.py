@@ -125,9 +125,11 @@ def load():
 
     elif authaddon == 'basic_auth':
         """ BasicAuth specific setup """
-        global bauthmain, addadmin, b_admins, b_admins_path, admindetail
+        global bauthmain, addadmin, b_admins, b_admins_path, admindetail, basicadmins
         b_admins = {}
         b_admins_path = es.getAddonPath('xa/modules/xaauthmanage') + '/admins'
+        basicadmins = str(es.ServerVar('BASIC_AUTH_ADMIN_LIST'))
+        basicadmins = basicadmins.split(';') 
         _basic_auth_convar()        
         
         bauthmain = popuplib.easymenu('mainbasicauthmenu',None,_bauthmain_select)
@@ -271,9 +273,7 @@ def _admin_remove(userid,choice,popupid):
     _update_badmins(str(es.ServerVar('_pdetails')),'_pdelete',None,None)
     
 def _basic_auth_convar():
-    es.dbgmsg(0,'*****_basic_auth_convar')
-    basicadmins = str(es.ServerVar('BASIC_AUTH_ADMIN_LIST'))
-    basicadmins = basicadmins.split(';')        
+    es.dbgmsg(0,'*****_basic_auth_convar')       
     b_admins = shelve.open(b_admins_path)
     for admin in basicadmins:
         if admin:                
