@@ -27,6 +27,7 @@ def createVariable(module, variable, defaultvalue=0, description=""):
             variable = "xa_"+variable
         var = es.ServerVar(variable, defaultvalue, description) 
         xa.gModules[str(module)].variables[variable] = var
+        xa.gModules[str(module)].variables[variable]._def = defaultvalue
         xa.gModules[str(module)].variables[variable]._descr = description
         return var
     else:
@@ -64,6 +65,17 @@ def getVariableName(variable):
         variable = "xa_"+variable
     return variable
     
+def getVariables(module=None):
+    varlist = []
+    if module:
+        for variable in sorted(xa.gModules[str(module)].variables):
+            varlist.append(xa.gModules[str(module)].variables[str(variable)])
+    else:    
+        for module in sorted(xa.gModules):
+            for variable in sorted(xa.gModules[str(module)].variables):
+                varlist.append(xa.gModules[str(module)].variables[str(variable)])
+    return varlist
+    
 def addVariables(module=None):
     varlist = []
     if module:
@@ -91,7 +103,6 @@ def addVariables(module=None):
         f = open(selfmoduleconfig, 'a')
     for var in varlist:
         name = var.getName().replace('_', '')
-        print name, name.isalnum()
         if name.isalnum():
             if len(var._descr) > 0:
                 f.write('// '+str(var._descr)+'\n')
@@ -111,7 +122,6 @@ def saveVariables():
     f.write('// \n')
     for var in varlist:
         name = var.getName().replace('_', '')
-        print name, name.isalnum()
         if name.isalnum():
             if len(var._descr) > 0:
                 f.write('// '+str(var._descr)+'\n')
