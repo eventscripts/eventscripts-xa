@@ -35,7 +35,7 @@ def load():
     mainmenu.addoption('core', lang['core config'])
     mainmenu.addoption('module', lang['module config'])
     menulist.append(mainmenu)
-    xaconfig.addMenu('maingroupauthmenu',lang['xa menu choice'],'xamainconfigmenu','change_config','#root')
+    xaconfig.addMenu('xamainconfigmenu',lang['xa menu choice'],'xamainconfigmenu','change_config','#root')
 	
 def unload():
     for menu in menulist:

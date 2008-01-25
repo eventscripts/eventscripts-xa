@@ -13,6 +13,9 @@ gDefaultMaps = ('cs_assault','cs_compound','cs_havana','cs_italy','cs_militia','
 xamapmanagement = xa.register('xamapmanagement')
 xalanguage = xa.language.getLanguage(xamapmanagement)
 
+nextmapvar = es.ServerVar('eventscripts_nextmapoverride')
+gamedir = str(es.ServerVar('eventscripts_gamedir'))
+
 def load():
     xamapmainmenu = popuplib.easymenu('xamapmainmenu',None,xamapmainmenu_handler)
     xamapmainmenu.settitle(xalanguage['map management'])
@@ -40,7 +43,7 @@ def es_map_start(event_var):
         gCurrentMap = -1
 
 def map_check(mapname):
-    if mapname in gDefaultMaps or os.path.isfile(es.ServerVar('eventscripts_gamedir') + '/maps/%s.bsp' % mapname):
+    if mapname in gDefaultMaps or os.path.isfile(gamedir + '/maps/%s.bsp' % mapname):
         return True
     else:
         es.dbgmsg(0, 'XAMapManagement: Unable to find map: %s.' % mapname)
@@ -49,7 +52,7 @@ def map_check(mapname):
 def map_menu():
     if popuplib.exists('xamapmenu'):
         popuplib.delete('xamapmenu')
-    maplist_path = es.ServerVar['eventscripts_gamedir'] + '/maplist.txt'
+    maplist_path = gamedir + '/maplist.txt'
     if os.path.isfile(maplist_path):
         mapfile = open(maplist_path, 'r')
         maplist = filter(map_check,map(string.strip,mapfile.readlines()))
@@ -69,7 +72,7 @@ def map_menu():
 def map_cycle():
     global gMapCycle
     gMapCycle = []
-    mapcycle_path = es.ServerVar('eventscripts_gamedir') + '/' + es.ServerVar('mapcyclefile')
+    mapcycle_path = gamedir + '/' + str(es.ServerVar('mapcyclefile'))
     if os.path.isfile(mapcycle_path):
         mapfile = open(mapcycle_path, 'r')
         gMapCycle = filter(map_check,map(string.strip,mapfile.readlines()))
@@ -79,8 +82,8 @@ def map_cycle():
 
 def show_nextmap():
     userid = es.getcmduserid()
-    if es.server_var['eventscripts_nextmapoverride'] != '':
-        nextmap = es.server_var['eventscripts_nextmapoverride']
+    if str(nextmapvar) != '':
+        nextmap = str(nextmapvar)
     else:
         nextmap = gMapCycle[gCurrentMap+1]
     es.tell(userid,'Next map: '+nextmap)
@@ -93,13 +96,13 @@ def mapmenu_handler(userid,choice,popupname):
     if gActions[userid] == 'changemap':
         es.server.cmd('changelevel '+choice)
     elif gActions[userid] == 'setnextmap':
-        es.ServerVar['eventscripts_nextmapoverride'] = choice
+        nextmapvar.set(choice)
     del gActions[userid]
 
 def set_nextmap():
     mapname = es.getargv(1)
     if map_check(mapname):
-        es.ServerVar['eventscripts_nextmapoverride'] = mapname
+        nextmapvar.set(mapname)
     else:
         userid = int(es.getcmduserid())
         if userid:

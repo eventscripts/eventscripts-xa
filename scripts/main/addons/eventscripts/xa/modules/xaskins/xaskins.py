@@ -67,7 +67,7 @@ def unload():
 
 def es_map_start(event_var):
     for i in range(7):
-        add_skin_files(skinnames, i)
+        add_skin_files(i)
 
 def player_activate(event_var):
 # This function is called when a player is validated
