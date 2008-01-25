@@ -13,7 +13,7 @@ from xa import xa
 #plugin information
 info = es.AddonInfo()
 info.name = "XA:IP Ghosting"
-info.version = "1.1.0"
+info.version = "1.1.0a"
 info.author = "Errant"
 info.url = "http://forums.mattie.info/cs/forums/viewtopic.php?t=16321"
 info.description = "Clone of Mani's IP ghosting feature for XA"
@@ -47,12 +47,12 @@ blinded = {}
 text = xa.language.getLanguage('xaipghosting')
 
 # Public variable for version
-es.ServerVar("xa_blind_ip_ghosters_ver" info.version, "XA: Blind IP Ghosters, version").makepublic()
+es.ServerVar("xa_blind_ip_ghosters_ver",info.version, "XA: Blind IP Ghosters, version").makepublic()
 
 '''
 Internal classes
 '''
-class Player(playerlib.Player)
+class Player(playerlib.Player):
     '''
     Extends playerlib.Player to provide special functions
     '''
@@ -82,7 +82,7 @@ def repeat_fade(x):
         blinded[uid].blind()
 
 
-def blindplayer(uid)
+def blindplayer(uid):
     '''
     - Starts the fade repeat if it isn't already running
     - Fades out the player

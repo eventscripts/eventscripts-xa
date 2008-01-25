@@ -14,7 +14,7 @@ import playerlib
 
 info = es.AddonInfo()
 info.name           = "XA: Skins"
-info.version        = "0.43"
+info.version        = "0.43a"
 info.author         = "Don"
 info.url            = "http://forums.mattie.info/"
 info.description    = "Skins feature for XA"
@@ -203,8 +203,8 @@ def findsplit(phrase):
 def check_if_files_exist():
     if not os.path.isdir(server_var['eventscripts_gamedir'] + "/cfg/xa"):
         os.mkdir(server_var['eventscripts_gamedir'] + "/cfg/xa")
-    if not os.path.isdir(server_var['eventscripts_gamedir'] + "/cfg/xa/xaskins"):
-        os.mkdir(server_var['eventscripts_gamedir'] + "/cfg/xa/xaskins")
+    if not os.path.isdir(xaskins_skinfiles_path):
+        os.mkdir(xaskins_skinfiles_path)
     if not os.path.isfile(xaskins_skinfiles_path + 'admin_t.txt'):
         print "does not exist"
         f = open(xaskins_skinfiles_path + 'admin_t.txt', 'w')

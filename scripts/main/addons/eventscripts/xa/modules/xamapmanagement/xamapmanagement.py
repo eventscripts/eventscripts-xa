@@ -101,6 +101,10 @@ def set_nextmap():
     if map_check(mapname):
         es.ServerVar['eventscripts_nextmapoverride'] = mapname
     else:
-        userid = int(es.getcmduserid()
+        userid = int(es.getcmduserid())
         if userid:
-            es.tell(userid,'#multi','#green[XA] #default'xalanguage['map management',{'mapname':mapname}])
+            es.tell(userid,'#multi','#green[XA] #default',xalanguage['map management',{'mapname':mapname}])
+
+            
+
+
