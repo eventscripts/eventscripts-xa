@@ -33,6 +33,7 @@ OY1   | [BETA] | 15/09/2007 |  Working Standalone version
 1.0   | [FULL] | 08/10/2007 |  Converted to work within XA, added multi-lingual functionality
 1.0.1 | [FULL] | 15/11/2007 | [FIX] r_screenoverlay requires a cheat - changed to use 1 1sec repeated fade via usermsg.fade (works v well - thx to Mattie for the idea)
 1.1.0 | [FULL] | 21/01/2008 | Changed to using a class for the blind, fixed a few idiot errors and cleaned things up a bit. Added a cvar to show the version publicly. Added logging of the blind
+1.1.1 | [FULL] | 21/01/2008 | Lots of silly fixes (thx mattie) - and fixed a repeat problem that stopped it working
 
 
 --Future--
@@ -140,6 +141,7 @@ def round_end(event_var):
     if repeat.status("xaip") > 0:
         r = repeat.find("xaip")
         r.stop()
+        r.delete()
     blinded = {}
 
 def unload():
