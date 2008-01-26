@@ -60,15 +60,15 @@ class Player(playerlib.Player):
         '''
         The actual blind
         '''
-        usermsg.fade(self.id,2,500,1000,0,0,0,255)
+        usermsg.fade(self.userid,2,500,1000,0,0,0,255)
     def tell_blinded(self):
         '''
         Used to tell the player they were blinded
         '''
         # And tell them about it
-        es.tell(int(self.id), text("blind_message",None,self.get("lang")))
-        es.tell(int(self.id), text("blind_message",None,self.get("lang")))
-        es.tell(int(self.id), text("blind_message",None,self.get("lang")))
+        es.tell(int(self.userid), text("blind_message",None,self.get("lang")))
+        es.tell(int(self.userid), text("blind_message",None,self.get("lang")))
+        es.tell(int(self.userid), text("blind_message",None,self.get("lang")))
         
 '''
 Internal methods
@@ -98,7 +98,7 @@ def blindplayer(uid):
     # tell them
     blinded[uid].tell_blinded()
     # log that they were blinded
-    xa.logging.log(ghosting, "Blinded player %s (%s)" % (str(uid), es.getsteamid(uid)))
+    xa.logging.log(ghosting, "Blinded player %s (%s)" % (str(uid), es.getplayersteamid(uid)))
     
 
 def checkplayer(uid):
