@@ -14,7 +14,7 @@ import playerlib
 
 info = es.AddonInfo()
 info.name           = "XA: Skins"
-info.version        = "0.43a"
+info.version        = "0.44"
 info.author         = "Don"
 info.url            = "http://forums.mattie.info/"
 info.description    = "Skins feature for XA"
@@ -58,8 +58,7 @@ def load():
     xaskincommand.register(['console', 'server'])
     xasettings.registerMethod(xaskins, _sendmenu, xalanguage["player skins"])
     check_if_files_exist()
-    for i in range(7):
-        add_skin_files(i)
+    if str(es.ServerVar('eventscripts_currentmap')) != "": es_map_start(None)
 
 def unload():
 # This function is called when the script is es_unload-ed
