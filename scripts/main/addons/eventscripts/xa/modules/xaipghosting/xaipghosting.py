@@ -110,8 +110,7 @@ def checkplayer(uid):
         plist = es.createplayerlist()
         uip = plist[int(uid)]["address"]   
         for id in plist:
-            testip = plist[id]["address"]
-            if testip == uip:
+            if not id == int(uid) and plist[id]["address"]== uip: 
                 blindplayer(uid) 
 '''
 Events
