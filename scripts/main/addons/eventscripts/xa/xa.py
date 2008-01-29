@@ -28,10 +28,10 @@ psyco.full()
 #plugin information
 info = es.AddonInfo()
 info.name = "eXtensible Admin EventScripts Python addon"
-info.version = "oy1"
+info.version = "0.7.0"
 info.author = "EventScripts Developers"
-info.url = ""
-info.description = ""
+info.url = "http://forums.mattie.info/cs/forums/viewforum.php?f=93"
+info.description = "eXtensible Admin EventScripts Python addon"
 info.basename = "xa"
 
 #global variables:
@@ -39,7 +39,7 @@ xa_log = es.ServerVar("xa_log", 0, "Activates the module logging")
 ## language strings
 gLanguage = language.getLanguage()
 ## Version variable
-gVersion = es.ServerVar("eventscripts_xa", "0.0.6.000", "eXtensible Admin Version")
+gVersion = es.ServerVar("eventscripts_xa", "0.7.0.164", "eXtensible Admin Version")
 gVersion.makepublic()
 ## is Mani compatibility enabled?
 gManiMode = es.ServerVar("xa_manimode", 0, "Is Mani compatibility mode active?")
