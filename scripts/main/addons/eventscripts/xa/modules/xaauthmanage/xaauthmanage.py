@@ -48,7 +48,7 @@ prefix = '#green[AuthManage]#default'
 #      EVENTS
 
 def load():
-    es.dbgmsg(0,'*****authmanage load')
+    es.dbgmsg(1,'*****authmanage load')
     xaauthcmd = xaauthmanage.addCommand('xaauth', _sendmain, 'xaauth', '#admin')
     xaauthcmd.register('say')
    
@@ -164,12 +164,12 @@ def load():
         xa.logging.log(xaauthmanage, 'basic_auth use setup complete.')
 	
 def unload():
-    es.dbgmsg(0,'*****unload')
+    es.dbgmsg(1,'*****unload')
     if authaddon == 'basic_auth': 
         popuplib.delete('admindetail')
         if int(popuplib.exists('adminlistmenu')):
             popuplib.delete('adminlistmenu')
-        es.dbgmsg(0,'basicadmins_default=%s' %basicadmins_default)
+        es.dbgmsg(1,'basicadmins_default=%s' %basicadmins_default)
         es.set('BASIC_AUTH_ADMIN_LIST', basicadmins_default)
     else:
         popuplib.delete('groupsmainmenu')
@@ -191,8 +191,7 @@ def unload():
     xa.unregister('xaauthmanage')
 
 def player_activate(event_var):
-    #following line commented out for testing only
-    #if event_var['es_steamid'] != 'BOT':
+    if event_var['es_steamid'] != 'BOT':
         if authaddon == 'basic_auth':
             steamid, name = event_var['es_steamid'], event_var['es_username']
             _update_badmins(steamid,name,None,None)
@@ -206,7 +205,7 @@ def player_changename(event_var):
 #       MAIN MENUS SELECT
 
 def _gauthmain_select(userid,choice,popupid):
-    es.dbgmsg(0,'*****_gauthmain_select')
+    es.dbgmsg(1,'*****_gauthmain_select')
     if choice == 'players':
         _playerlist(userid)
     elif choice == 'groups':
@@ -217,12 +216,9 @@ def _gauthmain_select(userid,choice,popupid):
         _capslist(userid)
 
 def _bauthmain_select(userid,choice,popupid):
-    es.dbgmsg(0,'*****_bauthmain_select')
-    es.dbgmsg(0,'*****userid=%s' %userid)
+    es.dbgmsg(1,'*****_bauthmain_select')
     master = es.getplayersteamid(userid)
-    es.dbgmsg(0,'*****master=%s' %master)
     b_admins = shelve.open(b_admins_path)
-    es.dbgmsg(0,'*****adminlevel=%s' %b_admins[master][1])
     if b_admins.has_key(master) and int(b_admins[master][1]):
         if choice == 'players':
             _playerlist(userid)
@@ -237,7 +233,7 @@ def _bauthmain_select(userid,choice,popupid):
 #   BASIC_AUTH METHODS
 
 def _adminlist(userid,choice=None,popupid=None):
-    es.dbgmsg(0,'*****_adminlist')
+    es.dbgmsg(1,'*****_adminlist')
     global adminlist
     b_admins = shelve.open(b_admins_path)
     adminlist = popuplib.easymenu('adminlistmenu', None, _adminlist_select)
@@ -248,7 +244,7 @@ def _adminlist(userid,choice=None,popupid=None):
     b_admins.close
         
 def _adminlist_select(userid,choice,popupid):
-    es.dbgmsg(0,'*****_adminlist_select')
+    es.dbgmsg(1,'*****_adminlist_select')
     global admindetail
     es.set('_pdetails', 0)
     admindetail.modlineAll(3, choice[1][0])
@@ -272,7 +268,7 @@ def _adminlist_select(userid,choice,popupid):
     admindetail.send(userid)
 
 def _addadmin_select(userid,choice,popupid):
-    es.dbgmsg(0,'*****_addadmin_select')
+    es.dbgmsg(1,'*****_addadmin_select')
     if choice[1]:
         id = es.getuserid(choice[0])
         steamid = es.getplayersteamid(id)
@@ -284,20 +280,20 @@ def _addadmin_select(userid,choice,popupid):
             es.tell(userid, '#multi', prefix + choice[0] + ' is already an admin.')
 
 def _admin_suspend(userid,choice,popupid):
-    es.dbgmsg(0,'*****_admin_suspend')
+    es.dbgmsg(1,'*****_admin_suspend')
     steamid = str(es.ServerVar('_pdetails'))
     _update_badmins(steamid,None,None,'1')
 
 def _admin_unsuspend(userid,choice,popupid):
-    es.dbgmsg(0,'*****_admin_unsuspend')
+    es.dbgmsg(1,'*****_admin_unsuspend')
     _update_badmins(str(es.ServerVar('_pdetails')),None,None,'0')
 
 def _admin_remove(userid,choice,popupid):
-    es.dbgmsg(0,'*****_admin_remove')
+    es.dbgmsg(1,'*****_admin_remove')
     _update_badmins(str(es.ServerVar('_pdetails')),'_pdelete',None,None)
     
 def _basic_auth_convar():
-    es.dbgmsg(0,'*****_basic_auth_convar')       
+    es.dbgmsg(1,'*****_basic_auth_convar')       
     b_admins = shelve.open(b_admins_path)
     for admin in basicadmins:
         if admin:                
@@ -311,7 +307,7 @@ def _basic_auth_convar():
     b_admins.close()
 
 def _update_badmins(steamid,name=None,master=None,suspend=None):
-    es.dbgmsg(0,'*****_update_badmins')
+    es.dbgmsg(1,'*****_update_badmins')
     b_admins = shelve.open(b_admins_path)
     if b_admins.has_key(steamid):
         if name and b_admins[steamid][0] != name: #name change
@@ -332,12 +328,12 @@ def _update_badmins(steamid,name=None,master=None,suspend=None):
 #    GROUP_AUTH METHODS
 
 def _set_playergroup(userid,choice,popupid):
-    es.dbgmsg(0,'*****_set_playergroup')
+    es.dbgmsg(1,'*****_set_playergroup')
     es.server.queuecmd('gauth user join %s %s' %(choice[1], choice[0]))
   
   #========= gauthmain groups use ================
 def _groupsmain_select(userid,choice,popupid):
-    es.dbgmsg(0,'*****_groupsmain_select')
+    es.dbgmsg(1,'*****_groupsmain_select')
     global groupslist
     if choice != 3:
         groups = db.query("SELECT GroupName FROM Groups WHERE GroupName!='UnidentifiedPlayers' and GroupName!='IdentifiedPlayers';")
@@ -362,7 +358,7 @@ def _groupsmain_select(userid,choice,popupid):
         _newgroup_handle(userid)
 
 def _groupusers_list(userid,choice,popupid):
-    es.dbgmsg(0,'*****_groupusers_list')
+    es.dbgmsg(1,'*****_groupusers_list')
     users = db.query("SELECT ALL Name FROM vwPlayersGroups WHERE GroupName='%s'" %choice)
     if users:
         groupusers = popuplib.easymenu('groupusers', None, _groupuser_remove)
@@ -374,7 +370,7 @@ def _groupusers_list(userid,choice,popupid):
         es.tell(userid, '#multi', prefix + lang('no users in group') + ' ' + choice)
 
 def _groupuser_remove(userid,choice=None,popupid=None):
-    es.dbgmsg(0,'*****_groupuser_remove')
+    es.dbgmsg(1,'*****_groupuser_remove')
     es.server.queuecmd('gauth user leave %s %s' %(choice[0],choice[1]))
     if popupid == 'groupusers':
         groupsmain.send(userid)
@@ -382,7 +378,7 @@ def _groupuser_remove(userid,choice=None,popupid=None):
         _userslist(userid)
 
 def _groupcaps_list(userid,choice,popupid=None):
-    es.dbgmsg(0,'*****_groupcaps_list')
+    es.dbgmsg(1,'*****_groupcaps_list')
     caps = db.query("SELECT ALL CName FROM vwCapsGroups WHERE GroupName='%s'" %choice)
     if caps:
         groupcaps = popuplib.easymenu('groupcaps', None, _groupcap_remove)
@@ -394,21 +390,21 @@ def _groupcaps_list(userid,choice,popupid=None):
         es.tell(userid, '#multi', prefix + lang('no caps in group') + ' ' + choice)       
 
 def _groupcap_remove(userid,choice=None,popupid=None):
-    es.dbgmsg(0,'*****_groupcap_remove')
+    es.dbgmsg(1,'*****_groupcap_remove')
     es.server.queuecmd('gauth power revoke %s %s' %(choice[0],choice[1]))
     groupsmain.send(userid) 
 
 def _remove_group(userid,choice,popupid):
-    es.dbgmsg(0,'*****_remove_group')
+    es.dbgmsg(1,'*****_remove_group')
     es.server.queuecmd('gauth group delete %s' %choice)
 
 def _newgroup_handle(userid,choice,popupid):
-    es.dbgmsg(0,'*****_newgroup_handle')
+    es.dbgmsg(1,'*****_newgroup_handle')
     if auth.isUseridAuthorized(userid, 'newgroup'):
         es.escinputbox(30,userid,'Add a group:\n <groupname- no spaces>, <grouptype>\n -Accepted types (in order of most powerful to least)\n- admin \n  poweruser \n  known \n  all','<groupname> <access level>','newgroup')
 
 def inputbox_handle():
-    es.dbgmsg(0,'*****inputbox_handle')
+    es.dbgmsg(1,'*****inputbox_handle')
     userid = es.getcmduserid()    
     count = int(es.getargc())
     if count == 3:
@@ -434,7 +430,7 @@ def inputbox_handle():
 
   #============= gauthmain users use =================
 def _userslist(userid):
-    es.dbgmsg(0,'*****_userslist')
+    es.dbgmsg(1,'*****_userslist')
     users = db.query("SELECT Name FROM Players")
     if users:
         global usersmenu
@@ -447,7 +443,7 @@ def _userslist(userid):
         es.dbgmsg(0,'*****no users')
 
 def _usersmenu_select(userid,choice,popupid):
-    es.dbgmsg(0,'*****_usersmenu_select')
+    es.dbgmsg(1,'*****_usersmenu_select')
     global usermenu
     es.set('_puser',0)
     usermenu.modlineAll(1,'User: %s' %choice)
@@ -457,7 +453,7 @@ def _usersmenu_select(userid,choice,popupid):
     usermenu.send(userid)
 	
 def _user_groups(userid,choice,popupid):
-    es.dbgmsg(0,'*****_user_groups')
+    es.dbgmsg(1,'*****_user_groups')
     guser = utfcode(es.ServerVar('_puser'))
     if int(choice) == 1:
         groups = db.query("SELECT GroupName FROM vwPlayersGroups  WHERE Name='%s'" %guser)
@@ -467,7 +463,7 @@ def _user_groups(userid,choice,popupid):
         else:
             es.tell(userid,'#multi',prefix + '#lightgreen' + guser + '#default' + lang('not in groups'))
     elif int(choice) == 2:
-        es.dbgmsg(0,'*****add user to group')
+        es.dbgmsg(1,'*****add user to group')
         groups = db.query("SELECT GroupName FROM Groups WHERE GId NOT IN (SELECT GId FROM PlayersGroups WHERE UId=(SELECT Uid FROM Players WHERE Name='%s') AND (SELECT GId FROM Groups WHERE GId IN (SELECT GId FROM PlayersGroups))) AND GroupName!='UnidentifiedPlayers' AND GroupName!='IdentifiedPlayers'" %guser)
         if groups:
             usergroups = popuplib.easymenu('usergroups', None, _groupuser_add)
@@ -480,19 +476,19 @@ def _user_groups(userid,choice,popupid):
         usergroups.send(userid)
 
 def _groupuser_add(userid,choice,popupid):
-    es.dbgmsg(0,'*****_groupuser_add')
+    es.dbgmsg(1,'*****_groupuser_add')
     es.server.queuecmd('gauth user join %s %s' %(choice[0],choice[1]))
     usermenu.send(userid)
 
 def _user_dropfrom_all(userid,choice,popupid):
-    es.dbgmsg(0,'*****_user_dropfrom_all')
+    es.dbgmsg(1,'*****_user_dropfrom_all')
     guser = utfcode(es.ServerVar('_puser'))
     es.server.queuecmd('gauth user delete %s' %guser)
   #------------- end gauthmain users use ------------------ 
  
   #============= gauthmain caps use ================= 
 def _capslist(userid):
-    es.dbgmsg(0,'*****_capslist')
+    es.dbgmsg(1,'*****_capslist')
     global capsmenu
     caps = db.query("SELECT ALL CName FROM Caps")
     if caps:
@@ -505,7 +501,7 @@ def _capslist(userid):
         es.tell(userid,'#multi',prefix + '#lightgreen' + guser + '#default' + lang('no registered capabilities'))
 
 def _capsmenu_select(userid,choice,popupid):
-    es.dbgmsg(0,'*****_capsmenu_select')
+    es.dbgmsg(1,'*****_capsmenu_select')
     global capmain
     es.set('_pcap',0)
     capmain.modlineAll(2,' - ' + choice)
@@ -515,7 +511,7 @@ def _capsmenu_select(userid,choice,popupid):
     capmain.send(userid)
 
 def _capmain_select(userid,choice,popupid):
-    es.dbgmsg(0,'*****_capmain_select')
+    es.dbgmsg(1,'*****_capmain_select')
     global capgroups
     capname = es.ServerVar('_pcap')
     if int(choice) == 1:
@@ -551,7 +547,7 @@ def _capmain_select(userid,choice,popupid):
         capmain.send(userid)
 
 def _capgroup_set(userid,choice,popupid):
-    es.dbgmsg(0,'*****_capgroup_set')
+    es.dbgmsg(1,'*****_capgroup_set')
     if choice[0] == 'go':
         _groupcaps_list(userid,choice[2],None)        
     else:
@@ -576,7 +572,7 @@ def convertQuery(result):
     return newresult
 
 def _sendmain():
-    es.dbgmsg(0,'*****_sendmain')
+    es.dbgmsg(1,'*****_sendmain')
     userid = es.getcmduserid()
     if auth.isUseridAuthorized(userid, 'xaauth'):
         if authaddon == 'group_auth':
@@ -593,11 +589,11 @@ def _sendmain():
         es.tell(userid, '#multi', prefix + lang('master access only'))	
 
 def _playerlist(userid):
-    es.dbgmsg(0,'*****_playerlist')
+    es.dbgmsg(1,'*****_playerlist')
     global playermenu
     #uncomment following line, #all is for testing only	
-    #players = playerlib.getPlayerList('#human')
-    players = playerlib.getPlayerList('#all')
+    players = playerlib.getPlayerList('#human')
+    #players = playerlib.getPlayerList('#all')
     playermenu = popuplib.easymenu('playermenu',None,_manage_player)
     playermenu.settitle(lang['current players'])
     for player in players:
@@ -606,7 +602,7 @@ def _playerlist(userid):
     playermenu.send(userid)
     
 def _manage_player(userid,choice,popupid):
-    es.dbgmsg(0,'*****_manage_player')
+    es.dbgmsg(1,'*****_manage_player')
     if authaddon == 'group_auth':
         groups = db.query("SELECT GroupName FROM Groups WHERE GroupName!='UnidentifiedPlayers' and GroupName!='IdentifiedPlayers';")
         if popuplib.exists('groupsmenu'):
