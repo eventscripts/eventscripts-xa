@@ -72,8 +72,10 @@ def _variableListMenu(userid, module, parent):
 
 def _variableEditMenu(userid, module, variable, parent):
     descr = str(variable._descr)
-    if len(descr) > 25:
-        descr = descr[0:25]
+    if len(descr) > 100:
+        descr = descr[0:50] + '\n' + descr[50:50] + '\n' + descr[100:50]
+    elif len(descr) > 50:
+        descr = descr[0:50] + '\n' + descr[50:50]
     changesetting = popuplib.create('xachangesettingmenu_'+str(random.randint(1, 10))+'_'+str(userid)+'_'+variable.getName())
     changesetting.addline(lang('change setting'))
     changesetting.addlineAll('Name: '+variable.getName())
@@ -174,13 +176,13 @@ def _changesetting_select(userid,choice,popupid):
             elif int(choice) == 4:
                 variable.set(value-0.1)
             elif int(choice) == 5:
-                variable.set(value+10.0)
+                variable.set(value+1.0)
             elif int(choice) == 6:
-                variable.set(value-10.0)
+                variable.set(value-1.0)
             elif int(choice) == 7:
-                variable.set(value+100.0)
+                variable.set(value+10.0)
             elif int(choice) == 8:
-                variable.set(value-100.0)
+                variable.set(value-10.0)
             menu = _variableEditMenu(userid, module, variable, parent)
             menu.send(userid)
         else:
