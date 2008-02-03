@@ -12,7 +12,7 @@ xa = _xa.__dict__['xa']
 # ADDON INFORMATION
 # This describes the XA module
 info = es.AddonInfo()
-info.name           = "XA:Say"
+info.name           = "Say"
 info.version        = "0.1"
 info.author         = "Mattie"
 info.url            = "http://forums.mattie.info/cs/forums"
@@ -31,8 +31,8 @@ mymodule = xa.register(mymodulename)
 #######################################
 # SERVER VARIABLES
 # The list of our my server variables
-say_admin_prefix = xa.setting.createVariable(mymodule, 'say_admin_prefix', '@', "XA: Prefix for admin chat")
-say_admin_soundfile = xa.setting.createVariable(mymodule, 'say_admin_soundfile', 'ui/buttonclick.wav', "XA: Determines the sound played with an admin say.")
+say_admin_prefix = xa.setting.createVariable(mymodule, 'say_admin_prefix', '@', "Prefix for admin chat")
+say_admin_soundfile = xa.setting.createVariable(mymodule, 'say_admin_soundfile', 'ui/buttonclick.wav', "Determines the sound played with an admin say.")
 # normal admin say
 # normal
 

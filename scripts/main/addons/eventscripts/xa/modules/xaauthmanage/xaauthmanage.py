@@ -14,7 +14,7 @@ from xa import xa
 from sqlite3 import dbapi2 as sqlite
 
 info = es.AddonInfo()
-info.name        = "XA:AuthManage"
+info.name        = "AuthManage"
 info.version     = "0.2"
 info.author      = "HTP"
 info.url         = "http://forums.mattie.info/cs/forums/index.php"

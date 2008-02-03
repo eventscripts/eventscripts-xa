@@ -12,7 +12,7 @@ from xa import xa
 
 #plugin information
 info = es.AddonInfo()
-info.name = "XA:IP Ghosting"
+info.name = "IP Ghosting"
 info.version = "1.1.0a"
 info.author = "Errant"
 info.url = "http://forums.mattie.info/cs/forums/viewtopic.php?t=16321"
@@ -20,7 +20,7 @@ info.description = "Clone of Mani's IP ghosting feature for XA"
 info.tags = "admin ip ghosting player_death XA"
 
 '''
-==  XA:IP Ghosting - A full port of mani's fuctionality to blind IP ghosters  ==
+==  IP Ghosting - A full port of mani's fuctionality to blind IP ghosters  ==
  
 -- About --
 
@@ -48,7 +48,7 @@ blinded = {}
 text = xa.language.getLanguage('xaipghosting')
 
 # Public variable for version
-es.ServerVar("xa_blind_ip_ghosters_ver",info.version, "XA: Blind IP Ghosters, version").makepublic()
+es.ServerVar("xa_blind_ip_ghosters_ver",info.version, "Blind IP Ghosters, version").makepublic()
 
 '''
 Internal classes
@@ -120,7 +120,7 @@ def load():
     # Register the module
     ghosting = xa.register("xaipghosting") 
     # sort the variable registration
-    xa.setting.createVariable(ghosting, 'blind_ghosters', '1', "XA: Blind IP Ghosters when they die (1=On, 0=Off)") 
+    xa.setting.createVariable(ghosting, 'blind_ghosters', '1', "Blind IP Ghosters when they die (1=On, 0=Off)") 
     # log what happened
     xa.logging.log(ghosting, "Loaded IP Ghosting (mani clone) V%s" % (info.version))
 

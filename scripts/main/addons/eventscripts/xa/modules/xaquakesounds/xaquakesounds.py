@@ -13,7 +13,7 @@ firstblood = False
 
 #plugin information
 info = es.AddonInfo()
-info.name           = "XA:Quake Sounds"
+info.name           = "Quake Sounds"
 info.version        = "0.1"
 info.author         = "Hunter"
 info.url            = "http://forums.mattie.info/"

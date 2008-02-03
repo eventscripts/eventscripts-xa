@@ -10,7 +10,7 @@ from xa import xa
 
 #plugin information
 info = es.AddonInfo()
-info.name           = "XA:Settings"
+info.name           = "Settings"
 info.version        = "0.1"
 info.author         = "Hunter"
 info.url            = "http://forums.mattie.info"

@@ -9,7 +9,7 @@ psyco.full()
 
 #plugin information
 info = es.AddonInfo()
-info.name = "XA:Mani clients.txt Auth Provider"
+info.name = "Mani clients.txt Auth Provider"
 info.version = "0.1"
 info.author = "Hunter"
 info.url = "http://forums.mattie.info/"

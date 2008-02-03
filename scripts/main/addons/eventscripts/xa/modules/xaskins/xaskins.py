@@ -13,7 +13,7 @@ import popuplib
 import playerlib
 
 info = es.AddonInfo()
-info.name           = "XA: Skins"
+info.name           = "Skins"
 info.version        = "0.44"
 info.author         = "Don"
 info.url            = "http://forums.mattie.info/"

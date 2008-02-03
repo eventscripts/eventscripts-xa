@@ -10,7 +10,7 @@ timer = {}
 
 #plugin information
 info = es.AddonInfo()
-info.name = "XA:Flood Control"
+info.name = "Flood Control"
 info.version = "0.1"
 info.author = "Venjax"
 info.url = "http://forums.mattie.info"

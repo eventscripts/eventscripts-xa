@@ -9,7 +9,7 @@ from xa import xa
 # This describes the XA module
 info = es.AddonInfo()
 # TODO: Change this to your module's data.  -- TODO
-info.name           = "XA:Sample"
+info.name           = "Sample"
 info.version        = "0.1"
 info.author         = "New Scripter"
 info.url            = "http://forums.mattie.info/"
@@ -30,7 +30,7 @@ mymodule = xa.register(mymodulename)
 # SERVER VARIABLES
 # The list of our server variables
 # TODO: Add your own variables              -- TODO
-myvariable = xa.setting.createVariable(mymodule, 'some_variable', 1, "XA: Some variable (1=on, 0=off)")
+myvariable = xa.setting.createVariable(mymodule, 'some_variable', 1, "Some variable (1=on, 0=off)")
 
 
 #######################################

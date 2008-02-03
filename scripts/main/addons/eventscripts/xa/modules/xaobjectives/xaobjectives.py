@@ -1,10 +1,10 @@
-﻿import es
+import es
 from playerlib import getPlayerList
 import xa.setting
 from xa import xa
 
 info = es.AddonInfo()
-info.name = "XA:Objectives for CS:S"
+info.name = "Objectives for CS:S"
 info.version = "0.1"
 info.author = "Wonder"
 info.description = "Slays the team which fails to complete their objectives."
@@ -13,7 +13,7 @@ def load():
     global xaobjectives, slay, text
 
     xaobjectives = xa.register("xaobjectives")
-    slay = xa.setting.createVariable(xaobjectives, "css_objectives", "1", "XA: If 1, losing team will be slain.")
+    slay = xa.setting.createVariable(xaobjectives, "css_objectives", "1", "If 1, losing team will be slain.")
     text = xa.language.getLanguage("xaobjectives")
 
     if es.getgame() != "Counter-Strike: Source":

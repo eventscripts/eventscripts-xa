@@ -8,7 +8,7 @@ import random
 from xa import xa
 
 info = es.AddonInfo()
-info.name        = "XA:Config"
+info.name        = "Config"
 info.version     = "0.1"
 info.author      = "Hunter"
 info.url         = "http://forums.mattie.info/cs/forums/index.php"

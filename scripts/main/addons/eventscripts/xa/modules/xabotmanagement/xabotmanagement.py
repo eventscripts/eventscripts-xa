@@ -7,7 +7,7 @@ from xa import xa
 
 #plugin information
 info = es.AddonInfo()
-info.name           = "XA:BotManagement"
+info.name           = "BotManagement"
 info.version        = "0.1.1"
 info.author         = "GODJonez"
 info.url            = "http://forums.mattie.info"

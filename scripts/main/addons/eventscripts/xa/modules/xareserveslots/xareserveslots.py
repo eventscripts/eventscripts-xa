@@ -11,7 +11,7 @@ import os
 
 #plugin information
 info = es.AddonInfo()
-info.name = "XA:Reserve Slots"
+info.name = "Reserve Slots"
 info.version = "1.0a"
 info.author = "Errant"
 info.url = ""
@@ -20,7 +20,7 @@ info.tags = "admin reserve slots kick players XA"
 
 
 '''
-XA:Reserved slots - a full port of manis reserved slots (horrible though it is Smile) functionality for eXtendable Admin.
+Reserved slots - a full port of manis reserved slots (horrible though it is Smile) functionality for eXtendable Admin.
 This module uses all the Mani configuration straight from the box.
 However currently this feature does NOT support the redirect option. IF a server IP is set this is added to the kick message.
 '''
@@ -100,12 +100,12 @@ def es_map_start(event_var):
        
 def cfg_vars():
     vars = {
-    "reserve_slots":{"val":"1", "desc":"XA: Turn on reserve slots (1=On, 0=Off)"},
-    "reserve_slots_kick_method":{"val":"0", "desc":"XA: Reserve slots kick selection (1=By time connected, 0=By ping)"},
-    "reserve_slots_redirect":{"val":"0", "desc":"XA: Redirect people without reserved slots to an IP (will not redirect them but will give them the IP on kick"},
-    "reserve_slots_kick_message":{"val":"0", "desc":"XA: A message to give to people when you kick them for using a reserved slot [0=use the ES language file]"},
-    "reserve_slots_number_of_slots":{"val":"0", "desc":"XA: The number of reserved slots on the server"},
-    "reserve_slots_allow_slot_fill":{"val":"0", "desc":"XA: Allow reserved slots to fill on the server [0=do not let them fill, 1=allow them to fill]"},
+    "reserve_slots":{"val":"1", "desc":"Turn on reserve slots (1=On, 0=Off)"},
+    "reserve_slots_kick_method":{"val":"0", "desc":"Reserve slots kick selection (1=By time connected, 0=By ping)"},
+    "reserve_slots_redirect":{"val":"0", "desc":"Redirect people without reserved slots to an IP (will not redirect them but will give them the IP on kick"},
+    "reserve_slots_kick_message":{"val":"0", "desc":"A message to give to people when you kick them for using a reserved slot [0=use the ES language file]"},
+    "reserve_slots_number_of_slots":{"val":"0", "desc":"The number of reserved slots on the server"},
+    "reserve_slots_allow_slot_fill":{"val":"0", "desc":"Allow reserved slots to fill on the server [0=do not let them fill, 1=allow them to fill]"},
     }
     for x in vars:
         xa.setting.createVariable("xareserveslots", x, vars[x]["val"], vars[x]["desc"])
