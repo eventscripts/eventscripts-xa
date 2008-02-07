@@ -39,7 +39,7 @@ xa_log = es.ServerVar("xa_log", 0, "Activates the module logging")
 ## language strings
 gLanguage = language.getLanguage()
 ## Version variable
-gVersion = es.ServerVar("eventscripts_xa", "0.7.0.166", "eXtensible Admin Version")
+gVersion = es.ServerVar("eventscripts_xa", "0.7.0.190", "eXtensible Admin Version")
 gVersion.makepublic()
 ## is Mani compatibility enabled?
 gManiMode = es.ServerVar("xa_manimode", 0, "Is Mani compatibility mode active?")
