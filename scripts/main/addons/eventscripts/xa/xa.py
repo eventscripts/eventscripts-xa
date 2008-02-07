@@ -39,7 +39,7 @@ xa_log = es.ServerVar("xa_log", 0, "Activates the module logging")
 ## language strings
 gLanguage = language.getLanguage()
 ## Version variable
-gVersion = es.ServerVar("eventscripts_xa", "0.7.0.190", "eXtensible Admin Version")
+gVersion = es.ServerVar("eventscripts_xa", "0.7.0.166", "eXtensible Admin Version")
 gVersion.makepublic()
 ## is Mani compatibility enabled?
 gManiMode = es.ServerVar("xa_manimode", 0, "Is Mani compatibility mode active?")
@@ -515,6 +515,19 @@ def consolecmd():
             sendMenu(es.getargv(2))
         else:
             es.dbgmsg(0,"Syntax: xa send <userid>")
+    elif subcmd == "permissions":
+        permissions = []
+        permissions.append(['Module', 'Permission', 'Level', 'Type', 'Name'])
+        for module in sorted(gModules):
+            x = gModules[module]
+            for command in sorted(x.subCommands):
+                permissions.append([str(x.name), str(x.subCommands[command].permission), str(x.subCommands[command].permissionlevel), 'command', str(x.subCommands[command].name)])
+            for menu in x.subMenus:
+                permissions.append([str(x.name), str(x.subMenus[menu].permission), str(x.subMenus[menu].permissionlevel), 'menu', str(x.subMenus[menu].name)])
+        es.dbgmsg(0,"---------- List of permissions:")
+        for perm in permissions:
+            es.dbgmsg(0,("%-*s"%(15, perm[0]))+" "+("%-*s"%(20, perm[1]))+" "+("%-*s"%(8, "["+perm[2]+"]"))+" "+("%-*s"%(10, perm[3]))+" "+perm[4])
+        es.dbgmsg(0,"----------")
     elif subcmd == "module":
         if seccmd == "register":
             if xname:
