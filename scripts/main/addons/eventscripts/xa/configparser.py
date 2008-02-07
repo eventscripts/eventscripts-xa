@@ -16,7 +16,7 @@ selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
 def getList(module, filename, modfolder = False):
     if str(module) in xa.gModules:
         if modfolder == False:
-            filename = "%s/modules/%s/%s" % (es.getAddonPath('xa'), str(module), filename)
+            filename = "%s/cfg/xa/%s/%s" % (selfmoddir, str(module), filename)
         else:
             filename = "%s/%s" % (selfmoddir, filename)
         if os.path.exists(filename):
@@ -36,7 +36,7 @@ def getList(module, filename, modfolder = False):
 def getAliasList(module, filename, modfolder = False):
     if str(module) in xa.gModules:
         if modfolder == False:
-            filename = "%s/modules/%s/%s" % (es.getAddonPath('xa'), str(module), filename)
+            filename = "%s/cfg/xa/%s/%s" % (selfmoddir, str(module), filename)
         else:
             filename = "%s/%s" % (selfmoddir, filename)
         if os.path.exists(filename):
@@ -57,7 +57,7 @@ def getAliasList(module, filename, modfolder = False):
 def getKeyList(module, filename, modfolder = False):
     if str(module) in xa.gModules:
         if modfolder == False:
-            filename = "%s/modules/%s/%s" % (es.getAddonPath('xa'), str(module), filename)
+            filename = "%s/cfg/xa/%s/%s" % (selfmoddir, str(module), filename)
         else:
             filename = "%s/%s" % (selfmoddir, filename)
         if os.path.exists(filename):
