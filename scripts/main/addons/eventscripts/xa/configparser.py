@@ -24,7 +24,11 @@ def getList(module, filename, modfolder = False):
             f = os.open(filename, "r")
             try:
                 for line in f:
-                    lines[len(lines)+1] = line
+                    if (len(line) > 0) and (line[0:2] != '//') and (line != '\n'):
+                        line = line.replace("\n", "")
+                        line = line.replace("\t", " ")
+                        line = line.replace("  ", " ")
+                        lines[len(lines)+1] = line
             finally:
                 f.close()
             return lines
@@ -44,8 +48,12 @@ def getAliasList(module, filename, modfolder = False):
             f = open(filename, "r")
             try:
                 for line in f:
-                    linelist = line.split(" ", 1)
-                    lines[linelist[0].replace("\"", "")] = linelist[1]
+                    if (len(line) > 0) and (line[0:2] != '//') and (line != '\n'):
+                        line = line.replace("\n", "")
+                        line = line.replace("\t", " ")
+                        line = line.replace("  ", " ")
+                        linelist = line.split(" ", 1)
+                        lines[linelist[0].replace("\"", "")] = linelist[1]
             finally:
                 f.close()
             return lines
