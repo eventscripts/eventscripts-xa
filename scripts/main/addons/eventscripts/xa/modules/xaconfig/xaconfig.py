@@ -16,7 +16,6 @@ info.description = "Popup interface for XA configuration"
 
 xaconfig = xa.register('xaconfig')
 lang = xa.language.getLanguage(xaconfig)
-
 auth = services.use('auth')
 
 def load():
@@ -69,20 +68,39 @@ def _variableListMenu(userid, module, parent):
         for ll in langlib.getLanguages():
             varmenu.addoption(str(var.getName()), str(var.getName())+' = '+str(value),1,langlib.getLangAbbreviation(ll))
     return varmenu
+    
+def _variableCoreListMenu(userid, parent):
+    varlist = xa.gCoreVariables
+    varmenu = popuplib.easymenu('xalistsettingmenu_'+str(userid)+'_core',None,_varmenu_select)
+    varmenu.settitle(lang['core variables'])
+    varmenu.submenu(parent)
+    varmenu._xa = ['core', parent]
+    menulist.append(varmenu)
+    for var in sorted(varlist):
+        var._def = str(var)
+        var._descr = 'Core variable'
+        value = str(var)
+        if len(value) > 10:
+            value = value[0:10]
+        for ll in langlib.getLanguages():
+            varmenu.addoption(str(var.getName()), str(var.getName())+' = '+str(value),1,langlib.getLangAbbreviation(ll))
+    return varmenu
 
 def _variableEditMenu(userid, module, variable, parent):
-    descr = str(variable._descr)
-    if len(descr) > 100:
-        descr = descr[0:50] + '\n' + descr[50:50] + '\n' + descr[100:50]
-    elif len(descr) > 50:
-        descr = descr[0:50] + '\n' + descr[50:50]
+    if str(module) != 'core':
+        descr = str(variable._descr)
+        if len(descr) > 100:
+            descr = descr[0:50] + '\n' + descr[50:50] + '\n' + descr[100:50]
+        elif len(descr) > 50:
+            descr = descr[0:50] + '\n' + descr[50:50]
     changesetting = popuplib.create('xachangesettingmenu_'+str(random.randint(1, 10))+'_'+str(userid)+'_'+variable.getName())
     changesetting.addline(lang('change setting'))
     changesetting.addlineAll('Name: '+variable.getName())
     changesetting.addlineAll('Value: '+str(variable))
-    changesetting.addlineAll(descr)
-    changesetting.addlineAll(' ')
-    changesetting.addline(lang('variable warning'))
+    if str(module) != 'core':
+        changesetting.addlineAll(descr)
+        changesetting.addlineAll(' ')
+        changesetting.addline(lang('variable warning'))
     changesetting.addlineAll('------------------------------------')
     changesetting.addline(popuplib.langstring('->1. ',lang['type value']))
     changesetting.addline(popuplib.langstring('->2. ',lang['default value']))
@@ -107,7 +125,8 @@ def _variableEditMenu(userid, module, variable, parent):
         changesetting._xatype = 'float'
     else:
         changesetting._xatype = 'str'
-    changesetting.addline(popuplib.langstring('->9. ',lang['save back']))
+    if str(module) != 'core':
+        changesetting.addline(popuplib.langstring('->9. ',lang['save back']))
     changesetting.addline(popuplib.langstring('0. ',lang['just back']))
     changesetting.menuselect = _changesetting_select
     changesetting._xa = [module, variable, parent]
@@ -121,7 +140,8 @@ def _sendmain():
         
 def _mainmenu_select(userid,choice,popupid):
     if choice == 'core':
-        pass
+        menu = _variableCoreListMenu(userid, popupid)
+        menu.send(userid)
     elif choice == 'module':
         menu = _moduleListMenu(userid)
         menu.send(userid)
@@ -136,10 +156,16 @@ def _varmenu_select(userid,choice,popupid):
     if es.exists('variable', choice):
         parentmenu = popuplib.find(popupid)
         parent = parentmenu._xa[0]
-        if choice in xa.gModules[str(parent)].variables:
-            var = xa.gModules[str(parent)].variables[choice]
-            menu = _variableEditMenu(userid, parent, var, popupid)
-            menu.send(userid)
+        if str(parent) != 'core':
+            if choice in xa.gModules[str(parent)].variables:
+                var = xa.gModules[str(parent)].variables[choice]
+                menu = _variableEditMenu(userid, parent, var, popupid)
+                menu.send(userid)
+        else:
+            for var in xa.gCoreVariables:
+                if var.getName() == choice:
+                    menu = _variableEditMenu(userid, parent, var, popupid)
+                    menu.send(userid)
 
 def _changesetting_select(userid,choice,popupid):
     menu = popuplib.find(popupid)
@@ -190,11 +216,17 @@ def _changesetting_select(userid,choice,popupid):
     elif int(choice) == 9:
         xa.setting.saveVariables()
         parent = popuplib.find(parent)
-        newparent = _variableListMenu(userid, module, str(parent._xa[1]))
+        if str(module) != 'core':
+            newparent = _variableListMenu(userid, module, str(parent._xa[1]))
+        else:
+            newparent = _variableCoreListMenu(userid, str(parent._xa[1]))
         newparent.send(userid)
     else:
         parent = popuplib.find(parent)
-        newparent = _variableListMenu(userid, module, str(parent._xa[1]))
+        if str(module) != 'core':
+            newparent = _variableListMenu(userid, module, str(parent._xa[1]))
+        else:
+            newparent = _variableCoreListMenu(userid, str(parent._xa[1]))
         newparent.send(userid)
     
 def _setconfig_handle(userid, module, var, parent):

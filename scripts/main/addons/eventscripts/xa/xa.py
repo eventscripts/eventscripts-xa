@@ -35,14 +35,19 @@ info.description = "eXtensible Admin EventScripts Python addon"
 info.basename = "xa"
 
 #global variables:
-xa_log = es.ServerVar("xa_log", 0, "Activates the module logging")
+## list of core variables
+gCoreVariables = []
 ## language strings
 gLanguage = language.getLanguage()
 ## Version variable
 gVersion = es.ServerVar("eventscripts_xa", "0.7.0.166", "eXtensible Admin Version")
 gVersion.makepublic()
+## is server logging enabled?
+gLog = es.ServerVar("xa_log", 0, "Activates the module logging")
+gCoreVariables.append(gLog)
 ## is Mani compatibility enabled?
 gManiMode = es.ServerVar("xa_manimode", 0, "Is Mani compatibility mode active?")
+gCoreVariables.append(gManiMode)
 ## gMainMenu/gMainCommand holds XAs main menu/main command
 gMainMenu = {}
 gMainCommand = None
