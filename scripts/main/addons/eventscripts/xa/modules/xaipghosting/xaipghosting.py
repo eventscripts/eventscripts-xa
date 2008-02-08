@@ -145,7 +145,7 @@ def remove_from_spec(uid):
     Removes the user from the spec dict and stops the repeat if the dict is empty
     '''
     global spec_blinded
-    spec_blinded.pop(event_var["userid"])
+    spec_blinded.pop(uid)
     if len(spec_blinded) < 1:
         # no one IP ghosting as spec so kill the repeat
         if repeat.status("xaip_spec") > 0:
