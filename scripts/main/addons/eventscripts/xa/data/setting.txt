@@ -1,7 +1,3 @@
 "setting.txt"
 {
-	"test"
-	{
-		"test"		"Hello World!"
-	}
 }
