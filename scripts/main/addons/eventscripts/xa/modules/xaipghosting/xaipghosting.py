@@ -13,7 +13,7 @@ from xa import xa
 #plugin information
 info = es.AddonInfo()
 info.name = "IP Ghosting"
-info.version = "1.2.0"
+info.version = "1.3.0"
 info.author = "Errant"
 info.url = "http://forums.mattie.info/cs/forums/viewtopic.php?t=16321"
 info.description = "Clone of Mani's IP ghosting feature for XA"
@@ -52,7 +52,7 @@ spec_blinded = {}
 text = xa.language.getLanguage('xaipghosting')
 
 # Public variable for version
-es.ServerVar("xa_blind_ip_ghosters_ver",info.version, "Blind IP Ghosters, version").makepublic()
+es.ServerVar("xa_blind_ip_ghosters_ver",str(info.version), "Blind IP Ghosters, version").makepublic()
 
 '''
 Internal classes
@@ -127,22 +127,6 @@ def blindplayer_spec(uid):
     # log that they were blinded
     xa.logging.log(ghosting, "Blinded player %s (%s)" % (str(uid), es.getplayersteamid(uid)))
     
-def blindplayer_spec(uid):
-    '''
-    As above but for console command
-    '''
-    global spec_blinded
-    if repeat.status("xaip_con") == 0:
-        a = repeat.create("xaip_spec", repeat_fade_spec)
-        a.start(1,0)
-    # do the initial fade 
-    con_blinded[uid] = Player(uid)
-    con_blinded[uid].blind()
-    # tell them
-    con_blinded[uid].tell_blinded()
-    # log that they were blinded
-    xa.logging.log(ghosting, "Blinded player %s (%s)" % (str(uid), es.getplayersteamid(uid)))
-    
 
 def checkplayer(uid):
     '''
@@ -181,9 +165,9 @@ def blind_con_com():
             if xa.setting.getVariable(ghosting, 'blind_ghosters') == "0":
                 # can only use this if auto blinding is OFF
                 if checkplayer(int(target)):
-                    es.msg("#green %s blinded %s till the end of the map for ghosting" % (admin.attributes["name"], target.attributes["name"]))
+                    es.msg("#green %s blinded %s till the end of the round for ghosting" % (admin.attributes["name"], target.attributes["name"]))
                     xa.logging.log(ghosting, "Admin (%s) blinded player %s for ghosting " % (admin.attributes["name"], target.attributes["name"]))
-                    blindplayer_con(str(target))
+                    blindplayer(str(target))
                 else:
                     es.tell(int(admin), "#green %s was not IP ghosting" % (target.attributes["name"]))
             else:
