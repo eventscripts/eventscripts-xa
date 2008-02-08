@@ -35,11 +35,11 @@ OY1   | [BETA] | 15/09/2007 |  Working Standalone version
 1.1.0 | [FULL] | 21/01/2008 | Changed to using a class for the blind, fixed a few idiot errors and cleaned things up a bit. Added a cvar to show the version publicly. Added logging of the blind
 1.1.1 | [FULL] | 21/01/2008 | Lots of silly fixes (thx mattie) - and fixed a repeat problem that stopped it working
 1.2.0 | [FULL] | 04/02/2008 | Added option to blind spectators who are IP ghosting, Added catchem for players leaving the server, Reworked some of the methods in a minor way.
-
+1.3.0 | [FULL] | 08/02/2008 | Added a console command for when auto blinding is turned off 
 
 --Future--
  #  |  Status       | Desc
-1.3 | [UNSTARTED]   | Add a console command
+
 1.5 | [UNSTARTED]   | Add other features, provide admin notification / features, add further config options
 '''
 
@@ -127,6 +127,22 @@ def blindplayer_spec(uid):
     # log that they were blinded
     xa.logging.log(ghosting, "Blinded player %s (%s)" % (str(uid), es.getplayersteamid(uid)))
     
+def blindplayer_spec(uid):
+    '''
+    As above but for console command
+    '''
+    global spec_blinded
+    if repeat.status("xaip_con") == 0:
+        a = repeat.create("xaip_spec", repeat_fade_spec)
+        a.start(1,0)
+    # do the initial fade 
+    con_blinded[uid] = Player(uid)
+    con_blinded[uid].blind()
+    # tell them
+    con_blinded[uid].tell_blinded()
+    # log that they were blinded
+    xa.logging.log(ghosting, "Blinded player %s (%s)" % (str(uid), es.getplayersteamid(uid)))
+    
 
 def checkplayer(uid):
     '''
@@ -146,12 +162,36 @@ def remove_from_spec(uid):
     '''
     global spec_blinded
     spec_blinded.pop(event_var["userid"])
-        if len(spec_blinded) < 1:
-            # no one IP ghosting as spec so kill the repeat
-            if repeat.status("xaip_spec") > 0:
-                r = repeat.find("xaip_spec")
-                r.stop()
-                r.delete()
+    if len(spec_blinded) < 1:
+        # no one IP ghosting as spec so kill the repeat
+        if repeat.status("xaip_spec") > 0:
+            r = repeat.find("xaip_spec")
+            r.stop()
+            r.delete()
+                
+def blind_con_com():
+    '''
+    Allows admins to blind via a console command
+    '''
+    if es.getargc() > 1:
+        id = es.getuserid(es.getargv(1))
+        admin = playerlib.getPlayer(es.getcmduserid())
+        if id > 0:
+            target = playerlib.getPlayer(id)
+            if xa.setting.getVariable(ghosting, 'blind_ghosters') == "0":
+                # can only use this if auto blinding is OFF
+                if checkplayer(int(target)):
+                    es.msg("#green %s blinded %s till the end of the map for ghosting" % (admin.attributes["name"], target.attributes["name"]))
+                    xa.logging.log(ghosting, "Admin (%s) blinded player %s for ghosting " % (admin.attributes["name"], target.attributes["name"]))
+                    blindplayer_con(str(target))
+                else:
+                    es.tell(int(admin), "#green %s was not IP ghosting" % (target.attributes["name"]))
+            else:
+                es.tell(int(admin), "#green XA will blind %s automatically if they are IP ghosting" % (target.attributes["name"]))
+        else:
+            es.tell(int(admin), "#green Player %s could not be found" % (str(es.getargv(1))))
+    else:
+        es.dbgmsg(0, "Syntax: xa_blind_ghoster <steamid|userid> - blinds ghosting players till the end of the round")
 '''
 Events
 '''
@@ -164,7 +204,7 @@ def load():
     # Option to blind people who are speccing
     xa.setting.createVariable(ghosting, 'blind_ghosters_when_spectating', '1', "Blind IP Ghosters when they are spectating (1=On, 0=Off)") 
     # create the console command
-    # NOT DONE YET
+    ghosting.addCommand('xa_blind_ghoster',blind_con_com,'blind_ghoster','#admin').register(('console','say'))
     # log what happened
     xa.logging.log(ghosting, "Loaded IP Ghosting (mani clone) V%s" % (info.version))
 
