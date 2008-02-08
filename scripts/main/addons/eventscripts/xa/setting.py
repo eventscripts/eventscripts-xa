@@ -1,15 +1,12 @@
 import es
 import os
 import keyvalues
-
 import xa
 
 import psyco
 psyco.full()
 
-selfaddondir = str(es.server_var["eventscripts_addondir"]).replace("\\", "/")
 selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
-
 selfsettingfile = "%s/data/setting.txt" % es.getAddonPath('xa')
 selfmoduleconfig = "%s/cfg/xamodules.cfg" % selfmoddir
 selfkeyvalues = keyvalues.KeyValues(name="setting.txt")
@@ -88,7 +85,7 @@ def addVariables(module=None):
     if not os.path.isfile(selfmoduleconfig):
         f = open(selfmoduleconfig, 'w+')
         f.write('// XA Module configuration\n')
-        f.write('// \n')
+        f.write('// \n\n')
     else:
         f = open(selfmoduleconfig, 'r')
         for line in f:
@@ -119,7 +116,7 @@ def saveVariables():
             varlist.append(xa.gModules[str(module)].variables[str(variable)])
     f = open(selfmoduleconfig, 'w+')
     f.write('// XA Module configuration\n')
-    f.write('// \n')
+    f.write('// \n\n')
     for var in varlist:
         name = var.getName().replace('_', '')
         if name.isalnum():

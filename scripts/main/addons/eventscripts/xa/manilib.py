@@ -1,14 +1,10 @@
 import es
 import os
 import keyvalues
-
 import xa
 
 import psyco
 psyco.full()
-
-selfaddondir = str(es.server_var["eventscripts_addondir"]).replace("\\", "/")
-selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
 
 ###########################
 #Module methods start here#
@@ -30,7 +26,7 @@ def loadModules():
         finally:
             f.close()
     else:
-        raise FileError("Could not find xa/static/manimodule.txt!")
+        raise IOError, "Could not find xa/static/manimodule.txt!"
         
 def loadVariables():
     filename = "%s/%s" % (es.getAddonPath('xa'), 'static/maniconfig.txt')
@@ -44,4 +40,4 @@ def loadVariables():
             f.close()
         return True
     else:
-        raise FileError("Could not find xa/static/maniconfig.txt!")
+        raise IOError, "Could not find xa/static/maniconfig.txt!"

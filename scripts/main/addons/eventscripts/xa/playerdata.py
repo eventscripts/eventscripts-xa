@@ -2,14 +2,10 @@ import es
 import os
 import keyvalues
 import playerlib
-
 import xa
 
 import psyco
 psyco.full()
-
-selfaddondir = str(es.server_var["eventscripts_addondir"]).replace("\\", "/")
-selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
 
 selfsettingfile = "%s/data/playerdata.txt" % es.getAddonPath('xa')
 selfkeyvalues = keyvalues.KeyValues(name="playerdata.txt")
@@ -65,7 +61,7 @@ def createUserSetting(module, pref):
     return UserSetting(module, pref)
     
 def getUserSetting(module, pref):
-    return UserSetting(module, pref)
+    return createUserSetting(module, pref)
 
 def saveKeyValues():
     selfkeyvalues.save(selfsettingfile)
