@@ -52,7 +52,8 @@ def getAliasList(module, filename, modfolder = False):
                         line = line.replace("\n", "")
                         line = line.replace("\t", " ")
                         line = line.replace("  ", " ")
-                        linelist = line.split(" ", 1)
+                        line = line[1:]
+                        linelist = line.split("\" ", 1)
                         lines[linelist[0].replace("\"", "")] = linelist[1]
             finally:
                 f.close()
