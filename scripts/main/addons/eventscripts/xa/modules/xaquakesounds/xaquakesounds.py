@@ -33,6 +33,7 @@ else:
     xaquakesoundslist               = xa.configparser.getAliasList('xaquakesounds', 'quakesoundlist.txt')
 
 quake_sounds                        = xa.setting.createVariable('xaquakesounds', 'quake_sounds', '1', '0 = off, 1 = enable Quake Sounds')
+quake_sounds_download               = xa.setting.createVariable('xaquakesounds', 'quake_auto_download', '0', '0 = Don\'t auto download files to client, 1 = automatically download files to client')
 quake_sounds_settings               = xa.setting.createVariable('xaquakesounds', 'player_settings_quake', '1', '0 = player settings default to off, 1 = player settings default to on')
 quake_kill_streak_mode              = xa.setting.createVariable('xaquakesounds', 'quake_kill_streak_mode', '0', 'Reset kill streaks per round 1 = per round/death, 0 = per death')
 quake_humiliation_mode              = xa.setting.createVariable('xaquakesounds', 'quake_humiliation_mode', '0', '0 = off, 1 = all players hear it, 2 = players involved hear it, 3 = attacker hears it, 4 = victim hears it')
@@ -107,9 +108,10 @@ def es_map_start(event_var):
         playertimes[userid] = 0
         playerheads[userid] = False
     if len(xaquakesoundslist) > 0:
-        for sound in xaquakesoundslist:
-            soundfile = str(xaquakesoundslist[sound])
-            es.stringtable('downloadables', 'sound/'+sound)
+        if int(quake_sounds_download) == 1:
+            for sound in xaquakesoundslist:
+                soundfile = str(xaquakesoundslist[sound])
+                es.stringtable('downloadables', 'sound/'+sound)
     else:
         quake_sounds.set('0')
 
