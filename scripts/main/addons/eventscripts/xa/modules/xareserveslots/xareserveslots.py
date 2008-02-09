@@ -14,7 +14,7 @@ import os
 #plugin information
 info = es.AddonInfo()
 info.name = "Reserve Slots"
-info.version = "1.1.0"
+info.version = "1.1.1"
 info.author = "Errant"
 info.url = ""
 info.description = "Clone of Mani's reserve slot feature for XA"
@@ -28,6 +28,8 @@ Reserved slots - a full port of manis reserved slots (horrible though it is Smil
 This module uses all the Mani configuration straight from the box.
 However currently this feature does NOT support the redirect option. IF a server IP is set this is added to the kick message.
 
+ -- 1.1.1 -- 
+ * Mani file now loaded with xa.configparser (Yay Hunter)
  -- 1.1.0 --
  * [CHNG] Tweaked to use xa.configparser (plus custom method for the mani file)
  * [CHNG] Pulled a lot of the global vars out of methods
@@ -60,8 +62,8 @@ text = xa.language.getLanguage('xareserveslots')
 
 # load the list of reserved players
 if xa.isManiMode():
-    # woot manit mode is on so lets check the mani file
-    maniReservedList = getManiFile("mani_admin_plugin/reserveslots.txt")
+    # woot mani mode is on so lets check the mani file
+    maniReservedList = xa.configparser.getList("cfg/mani_admin_plugin/reserveslots.txt", True)
 xaReservedList = xa.configparser.getList("xareserveslots", "reserved_slots_list.txt")  
 
 try:
@@ -101,29 +103,6 @@ def returnReservedStatus(x):
         if auth.isUseridAuthorized(int(x), "reserve_slot"):
             return False
     return True
-
-def getManiFile(filename):
-    '''
-    Similar to xa.configparser.getlist() but for mani files...
-    '''
-    filename = "%s/cfg/%s" % (gameDir, filename)
-    if os.path.exists(filename):
-        lines = []
-        f = os.open(filename, "r")
-        try:
-            for line in f:
-                if line.startswith("STEAM"):
-                    lsplit = line.split(" ")
-                    line = lsplit[0]
-                    line = line.replace("\n", "")
-                    line = line.replace("\t", " ")
-                    line = line.replace("  ", " ")
-                    lines[len(lines)+1] = line
-        finally:
-            f.close()
-        return lines
-    else:
-        return []
         
 def cfg_vars():
     '''
@@ -252,7 +231,7 @@ def es_map_start(event_var):
     # load the list of reserved players
     if xa.isManiMode():
         # woot manit mode is on so lets check the mani file
-        maniReservedList = getManiFile("mani_admin_plugin/reserveslots.txt")
+        maniReservedList = xa.configparser.getList("cfg/mani_admin_plugin/reserveslots.txt", True)
     xaReservedList = xa.configparser.getList("xareserveslots", "reserved_slots_list.txt")
  
 def player_activate(event_var):
