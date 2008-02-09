@@ -1,5 +1,6 @@
 import es
 import os
+import time
 import keyvalues
 import xa
 
@@ -74,6 +75,7 @@ def getVariables(module=None):
     return varlist
     
 def addVariables(module=None):
+    writeaddstamp = True
     varlist = []
     if module:
         for variable in sorted(xa.gModules[str(module)].variables):
@@ -83,8 +85,10 @@ def addVariables(module=None):
             for variable in sorted(xa.gModules[str(module)].variables):
                 varlist.append(xa.gModules[str(module)].variables[str(variable)])
     if not os.path.isfile(selfmoduleconfig):
+        writeaddstamp = False
         f = open(selfmoduleconfig, 'w+')
         f.write('// XA Module configuration\n')
+        f.write('// Written on '+time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())+'\n')
         f.write('// \n\n')
     else:
         f = open(selfmoduleconfig, 'r')
@@ -98,6 +102,9 @@ def addVariables(module=None):
                         varlist.remove(var)
         f.close()
         f = open(selfmoduleconfig, 'a')
+    if writeaddstamp:
+        f.write('// Added on '+time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())+'\n')
+        f.write('// \n\n')
     for var in varlist:
         name = var.getName().replace('_', '')
         if name.isalnum():
@@ -116,6 +123,7 @@ def saveVariables():
             varlist.append(xa.gModules[str(module)].variables[str(variable)])
     f = open(selfmoduleconfig, 'w+')
     f.write('// XA Module configuration\n')
+    f.write('// Written on '+time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())+'\n')
     f.write('// \n\n')
     for var in varlist:
         name = var.getName().replace('_', '')
