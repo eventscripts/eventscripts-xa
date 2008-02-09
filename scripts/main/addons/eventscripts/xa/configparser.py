@@ -21,14 +21,14 @@ def getList(module, filename, modfolder = False):
             filename = "%s/%s" % (selfmoddir, filename)
         if os.path.exists(filename):
             lines = []
-            f = os.open(filename, "r")
+            f = open(filename, "r")
             try:
                 for line in f:
                     if (len(line) > 0) and (line[0:2] != '//') and (line != '\n'):
                         line = line.replace("\n", "")
                         line = line.replace("\t", " ")
                         line = line.replace("  ", " ")
-                        lines[len(lines)+1] = line
+                        lines.append(line)
             finally:
                 f.close()
             return lines
