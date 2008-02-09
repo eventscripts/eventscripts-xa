@@ -218,7 +218,7 @@ def player_team(event_var):
     '''
     if xa.setting.getVariable(ghosting, 'blind_ghosters_when_spectator') != "0" and checkplayer(event_var['userid']) and int(vent_var['team']) == 1:
         blindplayer_spec(event_var['userid'])
-    if int(event_var['team']) > 1:
+    if int(event_var['team']) > 1 and  event_var["userid"] in spec_blinded:
         # check they are not on the list and remove them
         remove_from_spec(event_var['userid'])
         
