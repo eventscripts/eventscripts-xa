@@ -17,13 +17,12 @@ info.description = "Popup interface for XA configuration"
 xaconfig = xa.register('xaconfig')
 lang = xa.language.getLanguage(xaconfig)
 auth = services.use('auth')
+menulist = []
 
 def load():
-    xacmd = xaconfig.addCommand('xaconfig', _sendmain, 'xaconfig', '#root')
-    xacmd.register('say')
-
     global menulist,mainmenu
-    menulist = []
+    xacmd = xaconfig.addCommand('xaconfig', _sendmain, 'xaconfig', '#root')
+    xacmd.register('say')  
 
     auth.registerCapability("setconfig", auth.ROOT)  
     if not int(es.exists('clientcommand','setconfig')):
@@ -37,9 +36,10 @@ def load():
     xaconfig.addMenu('xamainconfigmenu',lang['xa menu choice'],'xamainconfigmenu','change_config','#root')
 	
 def unload():
+    global menulist
     for menu in menulist:
-        if popuplib.exists(menu): 
-            popuplib.delete(menu)
+        if popuplib.exists(str(menu)): 
+            popuplib.delete(str(menu))
     es.unregclientcmd('setconfig')
     xa.unregister('xaconfig')
     

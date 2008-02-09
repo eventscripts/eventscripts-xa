@@ -227,7 +227,7 @@ class Admin_command(object):
         if "say" in cmdlist and self.say == False:
             es.regsaycmd(self.name, "xa/incoming_say", "eXtensible Admin command")
             self.say = True
-    def unRegister(self, gList):
+    def unregister(self, gList):
         if isinstance(gList, str):
             cmdlist = [gList]
         else:
@@ -238,6 +238,8 @@ class Admin_command(object):
         if "say" in cmdlist and self.say == True:
             es.unregsaycmd(self.name)
             self.say = False
+    def unRegister(self, gList):
+        self.unregister(gList)
     def information(self, listlevel):
         if listlevel >= 1:
             es.dbgmsg(0, " ")
@@ -294,10 +296,13 @@ class Admin_menu(object):
         auth.registerCapability(self.permission, self.permissionlevel)
     def __str__(self):
         return self.name
+    def unregister(self):
+        if self.name in gMenusPage:
+            del gMenusPerm[self.name]
+            del gMenusPage[self.name]
+            del gMenusText[self.name]
     def unRegister(self):
-        del gMenusPerm[self.name]
-        del gMenusPage[self.name]
-        del gMenusText[self.name]
+        self.unregister()
     def setDisplay(self, display):
         self.display = display
         gMenusText[self.name] = self.display
@@ -440,7 +445,7 @@ def sendMenu(userid=None):
         auth = services.use("auth")
         if userid in gMainMenu:
             gMainMenu[userid].delete()
-        gMainMenu[userid] = popuplib.easymenu("_xa_mainmenu"+str(userid), "_xa_choice", incoming_menu)
+        gMainMenu[userid] = popuplib.easymenu("xamainmenu_"+str(userid), None, incoming_menu)
         gMainMenu[userid].settitle(gLanguage["eXtensible Admin"])
         for page in gMenusText:
             if gMenusPerm[page]:
@@ -481,6 +486,10 @@ def unload():
     es.dbgmsg(0, "[eXtensible Admin] Begin unloading...")
     for module in gModules:
         if gModules[module].allowAutoUnload == True:
+            for command in gModules[module].subCommands:
+                gModules[module].subCommands[command].unregister(['console', 'say'])
+            for menu in gModules[module].subMenus:
+                gModules[module].subMenus[menu].unregister()
             es.dbgmsg(0, "[eXtensible Admin] Unloading module \""+gModules[module].name+"\"")
             es.unload("xa/modules/"+gModules[module].name)
     for menu in gMainMenu:
@@ -488,7 +497,8 @@ def unload():
             menu.delete()
     gMainCommand.unRegister(["console","say"])
     del gMainCommand
-    es.dbgmsg(0, "[eXtensible Admin] Finished unloading")
+    es.dbgmsg(0, "[eXtensible Admin] Finished unloading sequence")
+    es.dbgmsg(0, "[eXtensible Admin] Modules will now unregister themself...")
 
 def consolecmd():
     #Command from server console or non-python script
