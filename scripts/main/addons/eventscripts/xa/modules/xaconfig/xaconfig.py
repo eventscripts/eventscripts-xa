@@ -38,7 +38,8 @@ def load():
 	
 def unload():
     for menu in menulist:
-        popuplib.delete(menu)
+        if popuplib.exists(menu): 
+            popuplib.delete(menu)
     es.unregclientcmd('setconfig')
     xa.unregister('xaconfig')
     

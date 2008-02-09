@@ -17,9 +17,9 @@ if os.path.exists(selfsettingfile):
 ###########################
 class UserSetting(object):
     def __init__(self, module, pref):
+        self.module = str(module)
+        self.name = str(pref)
         if str(module) in xa.gModules:
-            self.module = str(module)
-            self.name = str(pref)
             if not str(module) in selfkeyvalues:
                 selfkeyvalues[str(module)] = keyvalues.KeyValues(name=str(module))
             if not str(pref) in selfkeyvalues[str(module)]:

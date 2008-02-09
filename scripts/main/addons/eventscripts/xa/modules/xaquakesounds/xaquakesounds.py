@@ -25,7 +25,7 @@ info.tags           = "admin quake sounds XA"
 
 xaquakesounds                       = xa.register('xaquakesounds')
 xalanguage                          = xa.language.getLanguage('xaquakesounds')
-xaplayerdata                        = xa.playerdata.createUserSetting(xaquakesounds, 'quakesounds')
+xaplayerdata_quakesounds            = xa.playerdata.createUserSetting(xaquakesounds, 'quakesounds')
 
 if xa.isManiMode():
     xaquakesoundslist               = xa.configparser.getAliasList('xaquakesounds', 'cfg/mani_admin_plugin/quakesoundlist.txt', True)
@@ -100,15 +100,18 @@ def unload():
     xa.unregister(xaquakesounds)
 
 def es_map_start(event_var):
-    global firstblood
+    global firstblood, quake_sounds
     firstblood = True
     for userid in es.getUseridList():
         playerkills[userid] = 0
         playertimes[userid] = 0
         playerheads[userid] = False
-    for sound in xaquakesoundslist:
-        soundfile = str(xaquakesoundslist[sound])
-        es.stringtable('downloadables', 'sound/'+sound)
+    if len(xaquakesoundslist) > 0:
+        for sound in xaquakesoundslist:
+            soundfile = str(xaquakesoundslist[sound])
+            es.stringtable('downloadables', 'sound/'+sound)
+    else:
+        quake_sounds.set('0')
 
 def round_start(event_var):
     global firstblood
@@ -125,8 +128,8 @@ def player_activate(event_var):
     playerkills[userid] = 0
     playertimes[userid] = 0
     playerheads[userid] = False
-    if not xaplayerdata.exists(userid):
-        xaplayerdata.set(userid, int(quake_sounds_settings))
+    if not xaplayerdata_quakesounds.exists(userid):
+        xaplayerdata_quakesounds.set(userid, int(quake_sounds_settings))
     
 def player_disconnect(event_var):
     userid = int(event_var['userid'])
@@ -140,8 +143,8 @@ def player_spawn(event_var):
     playerheads[userid] = False
     if not userid in playerkills:
         playerkills[userid] = 0
-    if not xaplayerdata.exists(userid):
-        xaplayerdata.set(userid, int(quake_sounds_settings))
+    if not xaplayerdata_quakesounds.exists(userid):
+        xaplayerdata_quakesounds.set(userid, int(quake_sounds_settings))
 
 def player_hurt(event_var):
     userid = int(event_var['userid'])
@@ -189,12 +192,12 @@ def player_death(event_var):
                 _prepare_killsound(userid, attackerid)
             
 def _switch_setting(userid):
-    if int(xaplayerdata.get(userid)) == 1:
-        xaplayerdata.set(userid, 0)
+    if int(xaplayerdata_quakesounds.get(userid)) == 1:
+        xaplayerdata_quakesounds.set(userid, 0)
         player = playerlib.getPlayer(userid)
         es.tell(userid, xalanguage('turn off', {}, player.get("lang")))
     else:
-        xaplayerdata.set(userid, 1)
+        xaplayerdata_quakesounds.set(userid, 1)
         player = playerlib.getPlayer(userid)
         es.tell(userid, xalanguage('turn on', {}, player.get("lang")))
 
@@ -235,10 +238,10 @@ def _play_quakesound(soundfile, soundname, userid, attackerid, mode, visual_mode
     else:
         langdata = {}
     for userid in useridlist_sound:
-        if int(xaplayerdata.get(userid)) == 1:
+        if int(xaplayerdata_quakesounds.get(userid)) == 1:
             es.playsound(userid, soundfile, 1.0)
     for userid in useridlist_text:
-        if int(xaplayerdata.get(userid)) == 1:
+        if int(xaplayerdata_quakesounds.get(userid)) == 1:
             player = playerlib.getPlayer(userid)
             soundtext = xalanguage(soundname, langdata, player.get("lang"))
             es.usermsg('create', 'centermsg', 'TextMsg')
