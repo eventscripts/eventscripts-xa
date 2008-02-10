@@ -39,7 +39,7 @@ def show_time():
         int_hour = tuple_time[3]
     else:
         int_hour = tuple_time[3] % 12
-    str_time = '%s:%s %s %s-%s-%s' % (int_hour, tuple_time[4], thetime_timezone, tuple_time[2], tuple_time[1], tuple_time[0])
+    str_time = '%s:%02d %s %s-%s-%s' % (int_hour, tuple_time[4], thetime_timezone, tuple_time[2], tuple_time[1], tuple_time[0])
 
     if int(thetime_player_only):
         es.tell(int_userid, str_time)
