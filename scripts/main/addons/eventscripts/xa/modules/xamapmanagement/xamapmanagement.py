@@ -46,7 +46,8 @@ def map_check(mapname):
     if mapname in gDefaultMaps or os.path.isfile(gamedir + '/maps/%s.bsp' % mapname):
         return True
     else:
-        es.dbgmsg(0, 'XAMapManagement: Unable to find map: %s.' % mapname)
+        if not mapname.startswith('//'):
+            es.dbgmsg(0, 'XAMapManagement: Unable to find map: %s.' % mapname)
         return False
 
 def map_menu():
