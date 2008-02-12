@@ -464,7 +464,7 @@ def load():
     es.dbgmsg(0, "[eXtensible Admin] Second loading part...")
     if not es.exists("command", "xa"):
         es.regcmd("xa", "xa/consolecmd", "eXtensible Admin")
-    gMainCommand = Admin_command("xa", sendMenu, "xa_menu", "#admin")
+    gMainCommand = Admin_command("xa", sendMenu, "xa_menu", "#all")
     gMainCommand.register(["console","say"])
     es.dbgmsg(0, "[eXtensible Admin] Executing xa.cfg...")
     es.server.cmd('exec xa.cfg')
