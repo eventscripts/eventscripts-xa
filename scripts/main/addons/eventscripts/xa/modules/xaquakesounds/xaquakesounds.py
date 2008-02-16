@@ -149,13 +149,15 @@ def player_spawn(event_var):
         xaplayerdata_quakesounds.set(userid, int(quake_sounds_settings))
 
 def player_hurt(event_var):
-    if 'hitgroup' in event_var:
+    try:
         userid = int(event_var['userid'])
         attackerid = int(event_var['attacker'])
         hitgroup = int(event_var['hitgroup'])
         health = int(event_var['health'])
         if (userid > 0) and (attackerid > 0) and (hitgroup == 1) and (health == 0):
             playerheads[userid] = True
+    except:
+        pass
 
 def player_death(event_var):
     global firstblood
@@ -180,9 +182,11 @@ def player_death(event_var):
             userteam = int(event_var['es_userteam'])
             attackerteam = int(event_var['es_attackerteam'])
             weapon = str(event_var['weapon'])
-            if 'headshot' in event_var:
+            try:
                 if int(event_var['headshot']):
                     playerheads[userid] = True
+            except:
+                pass
             if (userteam == attackerteam) and (userid != attackerid):
                 _play_quakesound(xaquakesoundslist['teamkiller'], 'teamkiller', userid, attackerid, int(quake_team_killer_mode), int(quake_team_killer_visual_mode))
             elif (weapon == str(quake_humiliation_weapon)) or (weapon == str(quake_humiliation_weapon2)):
