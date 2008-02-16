@@ -13,7 +13,7 @@ from xa import xa
 #plugin information
 info = es.AddonInfo()
 info.name = "IP Ghosting"
-info.version = "1.3.0"
+info.version = "1.3.1"
 info.author = "Errant"
 info.url = "http://forums.mattie.info/cs/forums/viewtopic.php?t=16321"
 info.description = "Clone of Mani's IP ghosting feature for XA"
@@ -36,6 +36,7 @@ OY1   | [BETA] | 15/09/2007 |  Working Standalone version
 1.1.1 | [FULL] | 21/01/2008 | Lots of silly fixes (thx mattie) - and fixed a repeat problem that stopped it working
 1.2.0 | [FULL] | 04/02/2008 | Added option to blind spectators who are IP ghosting, Added catchem for players leaving the server, Reworked some of the methods in a minor way.
 1.3.0 | [FULL] | 08/02/2008 | Added a console command for when auto blinding is turned off 
+1.3.1 | [FULL] | 16/02/2008 | Fixed a bunch of minor errors in player_team, commented out global variable
 
 --Future--
  #  |  Status       | Desc
@@ -52,7 +53,7 @@ spec_blinded = {}
 text = xa.language.getLanguage('xaipghosting')
 
 # Public variable for version
-es.ServerVar("xa_blind_ip_ghosters_ver",str(info.version), "Blind IP Ghosters, version").makepublic()
+#es.ServerVar("xa_blind_ip_ghosters_ver",str(info.version), "Blind IP Ghosters, version").makepublic()
 
 '''
 Internal classes
@@ -216,11 +217,12 @@ def player_team(event_var):
     '''
     Blinds a ghoster when they switch to Spec.. and removes them again when they go back to playing.
     '''
-    if xa.setting.getVariable(ghosting, 'blind_ghosters_when_spectator') != "0" and checkplayer(event_var['userid']) and int(vent_var['team']) == 1:
-        blindplayer_spec(event_var['userid'])
-    if int(event_var['team']) > 1 and  event_var["userid"] in spec_blinded:
-        # check they are not on the list and remove them
-        remove_from_spec(event_var['userid'])
+    if !int(event_var['disconnect']):
+        if xa.setting.getVariable(ghosting, 'blind_ghosters_when_spectator') != "0" and checkplayer(event_var['userid']) and int(vent_var['team']) == 1:
+            blindplayer_spec(event_var['userid'])
+        if int(event_var['team']) > 1 and  event_var["userid"] in spec_blinded:
+            # check they are not on the list and remove them
+            remove_from_spec(event_var['userid'])
         
 def player_disconnect(event_var):
     '''
