@@ -82,15 +82,15 @@ def display_advert():
             advert_text = advert_text.replace(k, '')
             
       # set tags
-      if es.ServerVar('eventscripts_nextmapoverride') != '':
-         advert_text = advert_text.replace('{NEXTMAP}', es.ServerVar('eventscripts_nextmapoverride'))
+      if str(es.ServerVar('eventscripts_nextmapoverride')) != '':
+         advert_text = advert_text.replace('{NEXTMAP}', str(es.ServerVar('eventscripts_nextmapoverride')))
       else:
          advert_text = advert_text.replace('{NEXTMAP}', 'UNKNOWN')
          
       advert_text = advert_text.replace('{CURRENTMAP}', str(es.ServerVar('eventscripts_currentmap')))
       advert_text = advert_text.replace('{TICKRATE}', 'UNKNOWN')
       
-      if es.ServerVar('mp_friendlyfire'):
+      if int(es.ServerVar('mp_friendlyfire')):
          advert_text = advert_text.replace('{FF}', 'on')
       else:
          advert_text = advert_text.replace('{FF}', 'off')
