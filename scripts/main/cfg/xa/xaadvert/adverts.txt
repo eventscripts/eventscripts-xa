@@ -1,6 +1,4 @@
-{RED}http://www.mani-admin-plugin.com
+{BLUE}EventScripts 2.0
+{RED}http://www.eventscripts.com
 {GREEN}Current map is {CURRENTMAP}
-{BLUE}Mani Admin Plugin
-Next map is {NEXTMAP}
-{WHITE}Server Tick Rate {TICKRATE}
-
+{BLUE}eXtensible Admin
