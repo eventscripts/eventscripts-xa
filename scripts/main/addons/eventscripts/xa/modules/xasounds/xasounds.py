@@ -117,3 +117,6 @@ def _play_sound(soundfile, soundname, userid):
                 player = playerlib.getPlayer(userid)
                 soundtext = xalanguage('played sound', langdata, player.get("lang"))
                 es.tell(userid, soundtext)
+    else:
+        soundtext = xalanguage('sound limit', {}, player.get("lang"))
+        es.tell(userid, soundtext)
