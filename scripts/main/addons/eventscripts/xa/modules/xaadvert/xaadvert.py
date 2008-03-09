@@ -1,134 +1,141 @@
-import es
-import gamethread
-import xa
-import xa.setting
-import xa.configparser
-import xa.logging
-import playerlib
-import msglib
-import usermsg
-import time
-from xa import xa
+import re 
+import es 
+import gamethread 
+import xa 
+import xa.setting 
+import xa.configparser 
+import xa.logging 
+import playerlib 
+import msglib 
+import usermsg 
+import time 
+from xa import xa 
 
-#plugin information
+#plugin information 
 info = es.AddonInfo() 
 info.name     = 'Advert' 
 info.version  = 'oy1' 
 info.url      = 'http://mattie.info/cs' 
 info.basename = 'xaadvert' 
-info.author   = 'Rio'
+info.author   = 'Rio' 
 
-next_advert = 0
-colors = {'{RED}': '255 0 0 255', '{BLUE}': '0 0 255 255', '{GREEN}': '0 255 0 255', '{MAGENTA}': '139 0 139 255', '{BROWN}': '128 42 42 255', '{GREY}': '128 128 128', '{CYAN}':  '0 204 204 255', '{YELLOW}': '255 255 0 255', '{ORANGE}': '255 127 0 255', '{WHITE}': '255 255 255 255', '{PINK}': '255 0 204 255'}
+next_advert = 0 
+colors = {'{RED}': '255 0 0 255', '{BLUE}': '0 0 255 255', '{GREEN}': '0 255 0 255', '{MAGENTA}': '139 0 139 255', '{BROWN}': '128 42 42 255', '{GREY}': '128 128 128', '{CYAN}':  '0 204 204 255', '{YELLOW}': '255 255 0 255', '{ORANGE}': '255 127 0 255', '{WHITE}': '255 255 255 255', '{PINK}': '255 0 204 255'} 
 
-def load():
-   global xaadvert, adverts, time_between_advert, adverts_chat_area, adverts_top_left, advert_col_red, advert_col_green, advert_col_blue, advert_dead_only, adverts_bottom_area, xaadvertlist
+def load(): 
+   global xaadvert, adverts, time_between_advert, adverts_chat_area, adverts_top_left, advert_col_red, advert_col_green, advert_col_blue, advert_dead_only, adverts_bottom_area, xaadvertlist 
 
-   # register module with XA
-   xaadvert = xa.register('xaadvert')
-   
-   # log
-   xa.logging.log(xaadvert, "Loaded Advert (mani clone) %s" % (info.version))
+   # register module with XA 
+   xaadvert = xa.register('xaadvert') 
+    
+   # log 
+   xa.logging.log(xaadvert, "Loaded Advert (mani clone) %s" % (info.version)) 
 
-   # make config vars
-   adverts              = xa.setting.createVariable(xaadvert, 'adverts', 1, 'Turns adverts on or off')
-   time_between_advert  = xa.setting.createVariable(xaadvert, 'time_between_advert', 120, 'Time between adverts displayed')
-   adverts_chat_area    = xa.setting.createVariable(xaadvert, 'adverts_chat_area', 1, 'Allow adverts in chat area of screen')
-   adverts_top_left     = xa.setting.createVariable(xaadvert, 'adverts_top_left', 1, 'Allow adverts in top left corner of screen')
-   advert_col_red       = xa.setting.createVariable(xaadvert, 'advert_col_red', 0, 'Red component colour of adverts (255 = max)')
-   advert_col_green     = xa.setting.createVariable(xaadvert, 'advert_col_green', 0, ' Green component colour of adverts (255 = max)')
-   advert_col_blue      = xa.setting.createVariable(xaadvert, 'advert_col_blue', 255, ' Blue component colour of adverts (255 = max)')
-   advert_dead_only     = xa.setting.createVariable(xaadvert, 'advert_dead_only', 0, 'Specify if all players or only dead players can see adverts')
-   adverts_bottom_area  = xa.setting.createVariable(xaadvert, 'adverts_bottom_area', 0, 'Show adverts in the hint text area')
-   
-   # get advert list
-   if xa.isManiMode():
-      xaadvertlist = xa.configparser.getList(xaadvert, 'cfg/mani_admin_plugin/adverts.txt', True)
-   else:
-      xaadvertlist = xa.configparser.getList(xaadvert, 'adverts.txt')
-   
-   # start timer
-   gamethread.delayedname(time_between_advert, 'adverts', display_advert)
+   # make config vars 
+   adverts              = xa.setting.createVariable(xaadvert, 'adverts', 1, 'Turns adverts on or off') 
+   time_between_advert  = xa.setting.createVariable(xaadvert, 'time_between_advert', 120, 'Time between adverts displayed') 
+   adverts_chat_area    = xa.setting.createVariable(xaadvert, 'adverts_chat_area', 1, 'Allow adverts in chat area of screen') 
+   adverts_top_left     = xa.setting.createVariable(xaadvert, 'adverts_top_left', 1, 'Allow adverts in top left corner of screen') 
+   advert_col_red       = xa.setting.createVariable(xaadvert, 'advert_col_red', 0, 'Red component colour of adverts (255 = max)') 
+   advert_col_green     = xa.setting.createVariable(xaadvert, 'advert_col_green', 0, ' Green component colour of adverts (255 = max)') 
+   advert_col_blue      = xa.setting.createVariable(xaadvert, 'advert_col_blue', 255, ' Blue component colour of adverts (255 = max)') 
+   advert_dead_only     = xa.setting.createVariable(xaadvert, 'advert_dead_only', 0, 'Specify if all players or only dead players can see adverts') 
+   adverts_bottom_area  = xa.setting.createVariable(xaadvert, 'adverts_bottom_area', 0, 'Show adverts in the hint text area') 
+    
+   # get advert list 
+   if xa.isManiMode(): 
+      xaadvertlist = xa.configparser.getList(xaadvert, 'cfg/mani_admin_plugin/adverts.txt', True) 
+   else: 
+      xaadvertlist = xa.configparser.getList(xaadvert, 'adverts.txt') 
+    
+   # start timer 
+   gamethread.delayedname(time_between_advert, 'adverts', display_advert) 
 
-def unload():
-   # unregister module with XA
-   xa.unregister('xaadvert')
-   
-   # log
-   xa.logging.log(xaadvert, "UnLoaded Advert (mani clone) %s" % (info.version))
-   
-   # stop timer
-   gamethread.cancelDelayed('adverts')
-   
-def display_advert():
-   global next_advert
-   
-   # repeat the timer
-   gamethread.delayedname(time_between_advert, 'adverts', display_advert)
-   
-   if adverts and es.ServerVar('eventscripts_currentmap') != '':
-      # start at the beginning
-      if next_advert >= len(xaadvertlist):
-         next_advert = 0
-         
-      # get advert         
-      advert_text = xaadvertlist[next_advert]
-           
-      # set color
-      color = '%s %s %s 255' % (str(advert_col_red), str(advert_col_green), str(advert_col_blue))
-      for k in colors:
-         if k in advert_text:
-            color = colors[k]
-            advert_text = advert_text.replace(k, '')
+def unload(): 
+   # unregister module with XA 
+   xa.unregister('xaadvert') 
+    
+   # log 
+   xa.logging.log(xaadvert, "UnLoaded Advert (mani clone) %s" % (info.version)) 
+    
+   # stop timer 
+   gamethread.cancelDelayed('adverts') 
+    
+def display_advert(): 
+   global next_advert 
+    
+   # repeat the timer 
+   gamethread.delayedname(time_between_advert, 'adverts', display_advert) 
+    
+   if adverts and es.ServerVar('eventscripts_currentmap') != '': 
+      # start at the beginning 
+      if next_advert >= len(xaadvertlist): 
+         next_advert = 0 
+          
+      # get advert          
+      advert_text = xaadvertlist[next_advert] 
             
-      # set tags
-      if str(es.ServerVar('eventscripts_nextmapoverride')) != '':
-         advert_text = advert_text.replace('{NEXTMAP}', str(es.ServerVar('eventscripts_nextmapoverride')))
-      else:
-         advert_text = advert_text.replace('{NEXTMAP}', 'UNKNOWN')
-         
-      advert_text = advert_text.replace('{CURRENTMAP}', str(es.ServerVar('eventscripts_currentmap')))
-      advert_text = advert_text.replace('{TICKRATE}', 'UNKNOWN')
+      tags = re.compile(r'(?P<tag>\{\w+\})') 
+      for tag in tags.findall(advert_text):              
+         //es.msg('#lightgreen', tag) 
+         advert_text = advert_text.replace(tag,tag.upper()) 
+                
+      # set color 
+      color = '%s %s %s 255' % (str(advert_col_red), str(advert_col_green), str(advert_col_blue)) 
+      for k in colors: 
+         if k in advert_text: 
+            color = colors[k] 
+            advert_text = advert_text.replace(k, '') 
+                        
+                
+      # set tags 
+      if str(es.ServerVar('eventscripts_nextmapoverride')) != '': 
+         advert_text = advert_text.replace('{NEXTMAP}', str(es.ServerVar('eventscripts_nextmapoverride'))) 
+      else: 
+         advert_text = advert_text.replace('{NEXTMAP}', 'UNKNOWN') 
+          
+      advert_text = advert_text.replace('{CURRENTMAP}', str(es.ServerVar('eventscripts_currentmap'))) 
+      advert_text = advert_text.replace('{TICKRATE}', 'UNKNOWN') 
       
-      if int(es.ServerVar('mp_friendlyfire')):
-         advert_text = advert_text.replace('{FF}', 'on')
-      else:
-         advert_text = advert_text.replace('{FF}', 'off')
-         
-      advert_text = advert_text.replace('{THETIME}', str(time.strftime("%H:%M:%S", time.localtime())))
-      advert_text = advert_text.replace('{SERVERHOST}', 'UNKNOWN')
+      if int(es.ServerVar('mp_friendlyfire')): 
+         advert_text = advert_text.replace('{FF}', 'on') 
+      else: 
+         advert_text = advert_text.replace('{FF}', 'off') 
+          
+      advert_text = advert_text.replace('{THETIME}', str(time.strftime("%H:%M:%S", time.localtime()))) 
+      advert_text = advert_text.replace('{SERVERHOST}', 'UNKNOWN') 
 
       # send top text  
-      if adverts_top_left:
-         if int(advert_dead_only) == 1:
-            xaadvert_playerlist = playerlib.getPlayerList('#human,#dead')
-         else:
-            xaadvert_playerlist = playerlib.getPlayerList('#human')
+      if adverts_top_left: 
+         if int(advert_dead_only) == 1: 
+            xaadvert_playerlist = playerlib.getPlayerList('#human,#dead') 
+         else: 
+            xaadvert_playerlist = playerlib.getPlayerList('#human') 
             
-         toptext = msglib.VguiDialog(title=advert_text, level=5, time=25, mode=msglib.VguiMode.MSG)
+         toptext = msglib.VguiDialog(title=advert_text, level=5, time=25, mode=msglib.VguiMode.MSG) 
          toptext['color'] = color 
             
-         for k in xaadvert_playerlist:
-            toptext.send(k.userid)
+         for k in xaadvert_playerlist: 
+            toptext.send(k.userid) 
             
       # send chat text  
-      if adverts_chat_area:
-         if int(advert_dead_only) == 1:
-            es.msg('test')
-            xaadvert_playerlist = playerlib.getPlayerList('#human,#dead')
-            for k in xaadvert_playerlist:
-               es.tell(k.userid, '#lightgreen', advert_text)
+      if adverts_chat_area: 
+         if int(advert_dead_only) == 1: 
+            es.msg('test') 
+            xaadvert_playerlist = playerlib.getPlayerList('#human,#dead') 
+            for k in xaadvert_playerlist: 
+               es.tell(k.userid, '#lightgreen', advert_text) 
          else: 
-            es.msg('#lightgreen', advert_text)
+            es.msg('#lightgreen', advert_text) 
       
-      # send bottom text
-      if adverts_bottom_area:
-         if int(advert_dead_only) == 1:
-            xaadvert_playerlist = playerlib.getPlayerList('#human,#dead')
-         else:
-            xaadvert_playerlist = playerlib.getPlayerList('#human')
+      # send bottom text 
+      if adverts_bottom_area: 
+         if int(advert_dead_only) == 1: 
+            xaadvert_playerlist = playerlib.getPlayerList('#human,#dead') 
+         else: 
+            xaadvert_playerlist = playerlib.getPlayerList('#human') 
             
-         for k in xaadvert_playerlist:
-            usermsg.hudhint(k.userid, advert_text)
+         for k in xaadvert_playerlist: 
+            usermsg.hudhint(k.userid, advert_text) 
             
       next_advert = next_advert + 1
