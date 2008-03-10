@@ -40,7 +40,7 @@ gCoreVariables = []
 ## language strings
 gLanguage = language.getLanguage()
 ## Version variable
-gVersion = es.ServerVar("eventscripts_xa", "0.7.0.225", "eXtensible Admin Version")
+gVersion = es.ServerVar("eventscripts_xa", "0.7.0.228", "eXtensible Admin Version")
 gVersion.makepublic()
 ## is server logging enabled?
 gLog = es.ServerVar("xa_log", 0, "Activates the module logging")
@@ -48,6 +48,9 @@ gCoreVariables.append(gLog)
 ## is Mani compatibility enabled?
 gManiMode = es.ServerVar("xa_manimode", 0, "Is Mani compatibility mode active?")
 gCoreVariables.append(gManiMode)
+## whats the say command prefix?
+gSayPrefix = es.ServerVar("xa_sayprefix", "!", "Say command prefix")
+gCoreVariables.append(gSayPrefix)
 ## gMainMenu/gMainCommand holds XAs main menu/main command
 gMainMenu = {}
 gMainCommand = None
@@ -121,9 +124,9 @@ class Admin_module(object):
             return False
         else:
             return True
-    def addCommand(self, command, block, perm, permlvl, target=False):
+    def addCommand(self, command, block, perm, permlvl, target=False, mani=False):
         #create new menu
-        self.subCommands[command] = Admin_command(command, block, perm, permlvl, target)
+        self.subCommands[command] = Admin_command(command, block, perm, permlvl, target, mani)
         return self.subCommands[command]
     def delCommand(self, command):
         #delete a menu
@@ -181,13 +184,14 @@ class Admin_module(object):
 
 # Admin_command is the clientcmd class
 class Admin_command(object):
-    def __init__(self, gCommand, gBlock, gPerm, gPermLevel, gTarget=False):
+    def __init__(self, gCommand, gBlock, gPerm, gPermLevel, gTarget=False, gManiComp=False):
         #initialization of the module
         self.name = gCommand
         self.block = gBlock
         self.permission = gPerm
         self.permissionlevel = gPermLevel
         self.target = gTarget
+        self.manicomp = gManiComp
         self.server = False
         self.console = False
         self.say = False
@@ -220,12 +224,19 @@ class Admin_command(object):
             cmdlist = list(gList)
         if "server" in cmdlist and self.server == False:
             es.regcmd(self.name, "xa/incoming_server", "eXtensible Admin command")
+            if self.manicomp and isManiMode() and self.name.startswith('xa_'):
+                es.regcmd('ma_'+self.name[3:], "xa/incoming_server", "eXtensible Admin command")
             self.server = True
         if "console" in cmdlist and self.console == False:
             es.regclientcmd(self.name, "xa/incoming_console", "eXtensible Admin command")
+            if self.manicomp and isManiMode() and self.name.startswith('xa_'):
+                es.regclientcmd('ma_'+self.name[3:], "xa/incoming_console", "eXtensible Admin command")
             self.console = True
         if "say" in cmdlist and self.say == False:
-            es.regsaycmd(self.name, "xa/incoming_say", "eXtensible Admin command")
+            if self.name.startswith('xa_'):
+                es.regsaycmd(str(gSayPrefix)+self.name[3:], "xa/incoming_say", "eXtensible Admin command")
+            else:
+                es.regsaycmd(self.name, "xa/incoming_say", "eXtensible Admin command")
             self.say = True
     def unregister(self, gList):
         if isinstance(gList, str):
@@ -234,9 +245,14 @@ class Admin_command(object):
             cmdlist = list(gList)
         if "console" in cmdlist and self.console == True:
             es.unregclientcmd(self.name)
+            if self.manicomp and es.exists('command', 'ma_'+self.name[3:]) and self.name.startswith('xa_'):
+                es.unregclientcmd('ma_'+self.name[3:])
             self.console = False
         if "say" in cmdlist and self.say == True:
-            es.unregsaycmd(self.name)
+            if self.name.startswith('xa_'):
+                es.unregsaycmd(str(gSayPrefix)+self.name[3:])
+            else:
+                es.unregsaycmd(self.name)
             self.say = False
     def unRegister(self, gList):
         self.unregister(gList)
@@ -250,6 +266,7 @@ class Admin_command(object):
             es.dbgmsg(0, "  Console cmd:  "+str(self.console))
             es.dbgmsg(0, "  Say cmd:      "+str(self.say))
             es.dbgmsg(0, "  Target:       "+str(self.target))
+            es.dbgmsg(0, "  Mani comp:    "+str(self.manicomp))
             es.dbgmsg(0, "  Permission:   "+str(self.permission))
             es.dbgmsg(0, "  Perm-level:   "+str(self.permissionlevel))
 
@@ -635,16 +652,17 @@ def consolecmd():
         if xname and x:
             xcommand = x.findCommand(es.getargv(4))
             if seccmd == "create":
-                if not xcommand and argc >= 9:
+                if not xcommand and argc >= 8:
                     if x:
                         command = str(es.getargv(4))
                         block = str(es.getargv(5))
                         perm = str(es.getargv(6))
                         permlvl = str(es.getargv(7))
                         target = bool(es.getargv(8))
-                        x.addCommand(command, block, perm, permlvl, target)
+                        manicomp = bool(es.getargv(9))
+                        x.addCommand(command, block, perm, permlvl, target, manicomp)
                 else:
-                    es.dbgmsg(0,"Syntax: xa command create <module-name> <command-name> <block> <permission> <permission-level> <target 0/1>")
+                    es.dbgmsg(0,"Syntax: xa command create <module-name> <command-name> <block> <permission> <permission-level> [target 0/1] [mani compatible 0/1]")
             elif seccmd == "delete":
                 if argc >= 5:
                     if xcommand:
