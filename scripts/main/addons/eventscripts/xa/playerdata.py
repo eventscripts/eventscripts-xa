@@ -53,7 +53,7 @@ class UserSetting(object):
             if steamid in selfkeyvalues[self.module][self.name]:
                 return selfkeyvalues[self.module][self.name][steamid]
             else:
-                return None
+                return False
         else:
             return False
             
