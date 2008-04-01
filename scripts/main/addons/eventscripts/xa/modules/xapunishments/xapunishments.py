@@ -5,6 +5,7 @@ import xa.logging
 import xa.setting
 import playerlib
 import popuplib
+import services
 from xa import xa
 
 #plugin information
@@ -21,6 +22,8 @@ punishment_method = {}
 punishment_display = {}
 punishment_target = {}
 punishment_pmenus = {}
+punishment_argc = {}
+punishment_cross_ref = {}
 
 xapunishments               = xa.register('xapunishments')
 xalanguage                  = xa.language.getLanguage(xapunishments)
@@ -43,9 +46,9 @@ def load():
     xapunishtargetmenu.addoption("team2", xalanguage["terrorists"])
     xapunishtargetmenu.addoption("all", xalanguage["all players"])
     
-    registerPunishment("burn", xalanguage["burn"], _punishment_burn)
-    registerPunishment("slap", xalanguage["slap"], _punishment_slap)
-    registerPunishment("slay", xalanguage["slay"], _punishment_slay)
+    registerPunishment("burn", xalanguage["burn"], _punishment_burn, 1)
+    registerPunishment("slap", xalanguage["slap"], _punishment_slap, 1)
+    registerPunishment("slay", xalanguage["slay"], _punishment_slay, 1)
 
 def unload():
     for punishment in punishment_method:
@@ -84,20 +87,49 @@ def _select_target(userid, choice, name):
             
 def _select_player(userid, choice, name):
     _punish_player(choice, punishment_choice[userid], userid)
+    
+def _command_player():
+    adminid = es.getcmduserid()
+    if adminid > 0:
+        admin = playerlib.getPlayer(adminid)
+    cmd = es.getargv(0).replace('ma_', 'xa_')
+    if cmd in punishment_cross_ref:
+        punishment = punishment_cross_ref[cmd]
+        if punishment in punishment_argc:
+            argc = es.getargc()
+            if argc > punishment_argc[punishment]:
+                args = []
+                for i in range(1, argc):
+                    args.append(es.getargv(i))
+                user = es.getargv(1)
+                for userid in playerlib.getUseridList(user):
+                    _punish_player(userid, punishment, adminid, args)
+            elif adminid > 0:
+                es.tell(adminid, xalanguage("not enough args", (), admin.get("lang")))
+            else:
+                es.dbgmsg(0, xalanguage("not enough args"))
 
-def _punish_player(userid, punishment, adminid):
-    if callable(punishment_method[punishment]):
-        xa.logging.log('xapunishments', "Admin "+str(adminid)+ " used punishment "+str(punishment)+" on player "+str(userid))
-        punishment_method[punishment](userid, adminid)
+def _punish_player(userid, punishment, adminid, args = []):
+    auth = services.use("auth")
+    if (adminid == 0) or auth.isUseridAuthorized(adminid, punishment+"_player"):
+        if callable(punishment_method[punishment]):
+            xa.logging.log(xapunishments, "Admin "+str(adminid)+ " used punishment "+str(punishment)+" on player "+str(userid))
+            punishment_method[punishment](userid, adminid, args)
+        else:
+            es.dbgmsg(0, "xapunishments.py: Cannot find method '"+str(punishment_method[punishment])+"'!")
     else:
-        es.dbgmsg(0, "xapunishments.py: Cannot find method '"+str(punishment_method[punishment])+"'!")
+        es.tell(adminid, xalanguage("not allowed", (), playerlib.getPlayer(adminid).get("lang")))
 
-def registerPunishment(punishment, name, method):
+def registerPunishment(punishment, name, method, argc = 0):
     if not punishment in punishment_method:
         punishment_method[punishment] = method
         punishment_display[punishment] = name
+        punishment_argc[punishment] = argc
+        punishment_cross_ref['xa_'+punishment] = punishment
         xapunishmentmenu = popuplib.find("xapunishmentmenu")
         xapunishmentmenu.addoption(punishment, name, 1)
+        if punishment_argc[punishment] > 0:
+            xapunishments.addCommand('xa_'+punishment, _command_player, punishment+"_player", "#admin").register(('say', 'console','server'))
         return True
     else:
         return False
@@ -108,6 +140,8 @@ def unRegisterPunishment(punishment):
         xapunishmentmenu.addoption(punishment, punishment_display[punishment], 0)
         punishment_method[punishment] = None
         del punishment_display[punishment]
+        del punishment_argc[punishment]
+        del punishment_cross_ref['xa_'+punishment]
         return True
     else:
         return False
@@ -125,7 +159,7 @@ def sendPunishmentMenu(userid, victimid):
         xapunishmentmenu.send(user)
 
 # The default punishments that ship with the module
-def _punishment_burn(userid, adminid):
+def _punishment_burn(userid, adminid, args):
     if str(xa_adminburn_anonymous) == '0':
         tokens = {}
         tokens['admin']   = es.getplayername(adminid)
@@ -135,18 +169,22 @@ def _punishment_burn(userid, adminid):
     # TODO: need to add burn time
     es.server.cmd("es_xfire "+str(userid)+" !self Ignite")
 
-def _punishment_slap(userid, adminid):
+def _punishment_slap(userid, adminid, args):
+    if len(args) > 1:
+        health = args[1]
+    else:
+        health = xa_slap_to_damage
     if str(xa_adminslap_anonymous) == '0':
         tokens = {}
         tokens['admin']   = es.getplayername(adminid)
         tokens['user']    = es.getplayername(userid)
-        tokens['health']  = str(xa_slap_to_damage)
+        tokens['health']  = str(health)
         for user in playerlib.getPlayerList():
             es.tell(int(user), xalanguage("admin slap", tokens, user.get("lang")))
     player = playerlib.getPlayer(userid)
-    player.set("health", int(xa_slap_to_damage))
+    player.set("health", int(health))
 
-def _punishment_slay(userid, adminid):
+def _punishment_slay(userid, adminid, args):
     if str(xa_adminslay_anonymous) == '0':
         tokens = {}
         tokens['admin']   = es.getplayername(adminid)
