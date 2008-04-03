@@ -77,9 +77,8 @@ def display_advert():
             
       tags = re.compile(r'(?P<tag>\{\w+\})') 
       for tag in tags.findall(advert_text):              
-         //es.msg('#lightgreen', tag) 
          advert_text = advert_text.replace(tag,tag.upper()) 
-                
+
       # set color 
       color = '%s %s %s 255' % (str(advert_col_red), str(advert_col_green), str(advert_col_blue)) 
       for k in colors: 
