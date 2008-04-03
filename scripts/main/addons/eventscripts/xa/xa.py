@@ -40,7 +40,7 @@ gCoreVariables = []
 ## language strings
 gLanguage = language.getLanguage()
 ## Version variable
-gVersion = es.ServerVar("eventscripts_xa", "0.7.0.228", "eXtensible Admin Version")
+gVersion = es.ServerVar("eventscripts_xa", "0.7.0.233", "eXtensible Admin Version")
 gVersion.makepublic()
 ## is server logging enabled?
 gLog = es.ServerVar("xa_log", 0, "Activates the module logging")
