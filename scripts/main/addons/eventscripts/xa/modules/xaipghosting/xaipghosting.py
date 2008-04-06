@@ -217,7 +217,7 @@ def player_team(event_var):
     '''
     Blinds a ghoster when they switch to Spec.. and removes them again when they go back to playing.
     '''
-    if !int(event_var['disconnect']):
+    if not int(event_var['disconnect']):
         if xa.setting.getVariable(ghosting, 'blind_ghosters_when_spectator') != "0" and checkplayer(event_var['userid']) and int(vent_var['team']) == 1:
             blindplayer_spec(event_var['userid'])
         if int(event_var['team']) > 1 and  event_var["userid"] in spec_blinded:
