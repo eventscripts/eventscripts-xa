@@ -12,7 +12,10 @@ selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
 
 ###########################
 #Module methods start here#
-###########################
+########################################################
+# All methods that should be able to be called through #
+# the API need to have "module" as first parameter     #
+########################################################
 def getList(module, filename, modfolder = False):
     if str(module) in xa.gModules:
         if modfolder == False:

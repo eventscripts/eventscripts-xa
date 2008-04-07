@@ -10,8 +10,11 @@ selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
 
 ###########################
 #Module methods start here#
-###########################
-def getLanguage(module=None,file=None):
+########################################################
+# All methods that should be able to be called through #
+# the API need to have "module" as first parameter     #
+########################################################
+def getLanguage(module = None, file = None):
     if module:
         if file:
             filename = "%s/modules/%s/%s.ini" % (es.getAddonPath('xa'), module, file)

@@ -14,7 +14,10 @@ if os.path.exists(selfsettingfile):
 
 ###########################
 #Module methods start here#
-###########################
+########################################################
+# All methods that should be able to be called through #
+# the API need to have "module" as first parameter     #
+########################################################
 class UserSetting(object):
     def __init__(self, module, pref):
         self.module = str(module)
@@ -63,5 +66,5 @@ def createUserSetting(module, pref):
 def getUserSetting(module, pref):
     return createUserSetting(module, pref)
 
-def saveKeyValues():
+def saveKeyValues(module = None):
     selfkeyvalues.save(selfsettingfile)

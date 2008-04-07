@@ -16,7 +16,10 @@ if os.path.exists(selfsettingfile):
 
 ###########################
 #Module methods start here#
-###########################
+########################################################
+# All methods that should be able to be called through #
+# the API need to have "module" as first parameter     #
+########################################################
 def createVariable(module, variable, defaultvalue=0, description=""):
     if str(module) in xa.gModules:
         if es.exists("variable", "mani_"+variable):
@@ -56,14 +59,17 @@ def getVariable(module, variable):
     else:
         return None
 
-def getVariableName(variable):
+###### parameter ordering to be backwards compatible ######
+def getVariableName(variable = None, module = None):
+    if module:
+        variable = str(module) 
     if es.exists("variable", "mani_"+variable):
         variable = "mani_"+variable
     else:
         variable = "xa_"+variable
     return variable
     
-def getVariables(module=None):
+def getVariables(module = None):
     varlist = []
     if module:
         for variable in sorted(xa.gModules[str(module)].variables):
@@ -74,7 +80,7 @@ def getVariables(module=None):
                 varlist.append(xa.gModules[str(module)].variables[str(variable)])
     return varlist
     
-def addVariables(module=None):
+def addVariables(module = None):
     writeaddstamp = True
     varlist = []
     if module:
@@ -116,7 +122,7 @@ def addVariables(module=None):
                 f.write(str(var.getName())+' "'+str(var)+'"\n\n')
     f.close()
 
-def saveVariables():
+def saveVariables(module = None):
     varlist = []
     for module in sorted(xa.gModules):
         for variable in sorted(xa.gModules[str(module)].variables):

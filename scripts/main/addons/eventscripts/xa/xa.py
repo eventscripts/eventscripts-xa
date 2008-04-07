@@ -8,6 +8,7 @@ es.dbgmsg(0, "[eXtensible Admin] Begin loading...")
 
 #import custom stuff
 import os
+import imp
 import services
 import playerlib
 import popuplib
@@ -34,7 +35,11 @@ info.url = "http://forums.mattie.info/cs/forums/viewforum.php?f=93"
 info.description = "eXtensible Admin EventScripts Python addon"
 info.basename = "xa"
 
-#global variables:
+##################### ######################################################
+#Variables Section# # PLEASE KEEP IN MIND THAT THOSE VARIABLES ARE PRIVATE #
+##################### ######################################################
+##generate import dict
+gImportLibraries = dir()
 ## list of core variables
 gCoreVariables = []
 ## language strings
@@ -63,17 +68,40 @@ gCommandsBlock = {}
 gMenusPerm = {}
 gMenusPage = {}
 gMenusText = {}
-
+## helper variables
 selfaddondir = str(es.server_var["eventscripts_addondir"]).replace("\\", "/")
 selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
 
 #################### ######################################################
 #Core Class Section# # PLEASE KEEP IN MIND THAT THOSE CLASSES ARE PRIVATE #
 #################### ######################################################
+## Library API
+# Admin_libfunc is a 'fake' method class used for the lib API
+class Admin_libfunc(object):
+    def __init__(self, gFunc, gModule):
+        self._xalibfunc = gFunc
+        self._xamod = gModule
+    def __call__(self, *args, **kw):
+        return self._xalibfunc(self._xamod, *args, **kw)
+
+# Admin_lib is a 'fake' library class used for the lib API
+class Admin_lib(object):
+    def __init__(self, gLib, gModule):
+        self._xalib = gLib
+        self._xamod = gModule
+    def __getattr__(self, name):
+        if self._xalib.__dict__.has_key(name):
+            return Admin_libfunc(self._xalib.__dict__[name], self._xamod)
+        else:
+            raise AttributeError
+
+## Core
 # Admin_module is the module class
 class Admin_module(object):
     def __init__(self, gModule):
         #initialization of the module
+        self._xa = None
+        self._xalibs = {}
         self.name = gModule
         self.allowAutoUnload = True
         self.subCommands = {}
@@ -82,6 +110,17 @@ class Admin_module(object):
         self.requiredList = []
         self.variables = {}
         es.dbgmsg(0, "[eXtensible Admin] Registered module \""+self.name+"\"")
+    def __getattr__(self, name):
+        if not self._xa:
+            for mod in es.addons.getAddonList():
+                if mod.__name__ == 'xa.xa':
+                    self._xa = mod
+        if (name in gImportLibraries) and (self._xa.__dict__.has_key(name)):
+            if not name in self._xalibs:
+                self._xalibs[name] = Admin_lib(self._xa.__dict__[name], self)
+            return self._xalibs[name]
+        else:
+            raise AttributeError
     def __str__(self):
         return self.name
     def delete(self):
