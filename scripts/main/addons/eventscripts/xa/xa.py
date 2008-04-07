@@ -90,7 +90,7 @@ class Admin_lib(object):
         self._xalib = gLib
         self._xamod = gModule
     def __getattr__(self, name):
-        if self._xalib.__dict__.has_key(name):
+        if self._xalib.__dict__.has_key(name) and not name.startswith('_'):
             return Admin_libfunc(self._xalib.__dict__[name], self._xamod)
         else:
             raise AttributeError
