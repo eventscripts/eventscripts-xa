@@ -101,6 +101,7 @@ class Admin_module(object):
     def __init__(self, gModule):
         #initialization of the module
         self._xa = None
+        self._xamod = None
         self._xalibs = {}
         self.name = gModule
         self.allowAutoUnload = True
@@ -123,6 +124,12 @@ class Admin_module(object):
             raise AttributeError
     def __str__(self):
         return self.name
+    def getModule(self):
+        if not self._xamod:
+            for mod in es.addons.getAddonList():
+                if mod.__name__ == 'xa.xa.modules.'+self.name:
+                    self._xamod = mod
+        return self._xamod
     def delete(self):
         unRegister(self.name)
     def unregister(self):
