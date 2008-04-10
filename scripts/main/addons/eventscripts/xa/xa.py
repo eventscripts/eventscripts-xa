@@ -224,9 +224,6 @@ class Admin_module(object):
             es.dbgmsg(0, "  Variables:    "+str(len(self.variables)))
             for var in self.variables:
                 es.dbgmsg(0,"    "+var)
-            es.dbgmsg(0, "  Mani Vars:    "+str(len(self.variablesMani)))
-            for var in self.variablesMani:
-                es.dbgmsg(0,"    "+var)
 
 # Admin_command is the clientcmd class
 class Admin_command(object):
