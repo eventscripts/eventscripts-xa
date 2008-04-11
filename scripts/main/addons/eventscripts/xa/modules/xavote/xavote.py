@@ -67,11 +67,13 @@ def load():
     xaquestionvote = popuplib.easymenu("xaquestionvote", "_question_vote", _question_vote) 
     xaquestionvote.settitle(xalanguage("question vote")) 
     
-    for line in xavoterconlist: 
-        _get_rcon_votelist(xarconvote, line) 
-        
-    for line in xavotelist: 
-        _get_question_votelist(xaquestionvote, line) 
+    if xavoterconlist:
+        for line in xavoterconlist: 
+            _get_rcon_votelist(xarconvote, line) 
+    
+    if xavotelist:
+        for line in xavotelist: 
+            _get_question_votelist(xaquestionvote, line) 
     
     mymodule.addMenu("xavotemenu", xalanguage["vote"], "xavotemenu", "vote_type", "#admin") 
     mymodule.addCommand("xa_set_title", _xa_set_title, "set_a_title", "#all").register("console") 

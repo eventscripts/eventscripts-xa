@@ -108,7 +108,7 @@ def addVariables(module = None):
                         varlist.remove(var)
         f.close()
         f = open(selfmoduleconfig, 'a')
-    if writeaddstamp:
+    if writeaddstamp and varlist:
         f.write('// Added on '+time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())+'\n')
         f.write('// \n\n')
     for var in varlist:

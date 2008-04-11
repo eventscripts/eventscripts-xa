@@ -14,6 +14,7 @@ import playerlib
 import popuplib
 import keymenulib
 import settinglib
+import keyvalues
 from os import getcwd
 
 import configparser
@@ -21,7 +22,6 @@ import language
 import logging
 import playerdata
 import setting
-import manilib
 
 import psyco
 psyco.full()
@@ -515,6 +515,43 @@ def sendMenu(userid=None):
                     gMainMenu[userid].addoption(page, gMenusText[page], 1)
         gMainMenu[userid].send(userid)
 
+##############################################
+#Mani compatibility helper methods start here#
+##############################################
+class Admin_mani(object):
+    def loadModules(self):
+        filename = "%s/%s" % (es.getAddonPath('xa'), 'static/manimodule.txt')
+        if os.path.exists(filename):
+            f = open(filename, "r")
+            try:
+                for line in f:
+                    linelist = line.strip().split("|", 3)
+                    variable = es.ServerVar(str(linelist[0]), 0)
+                    if str(linelist[2]) == str(variable):
+                        if not es.exists("script", "xa/modules/"+linelist[2]):
+                            xa_load(str(linelist[1]))
+                    elif str(linelist[3]) != str(variable):
+                        if not es.exists("script", "xa/modules/"+linelist[2]):
+                            xa_load(str(linelist[1]))
+            finally:
+                f.close()
+        else:
+            raise IOError, "Could not find xa/static/manimodule.txt!"
+
+    def loadVariables(self):
+        filename = "%s/%s" % (es.getAddonPath('xa'), 'static/maniconfig.txt')
+        if os.path.exists(filename):
+            f = open(filename, "r")
+            try:
+                for line in f:
+                    linelist = line.strip().split("|", 2)
+                    es.ServerVar(str(linelist[0]), str(linelist[1]), str(linelist[2]))
+            finally:
+                f.close()
+            return True
+        else:
+            raise IOError, "Could not find xa/static/maniconfig.txt!"
+
 ###########################################
 #EventScripts events and blocks start here#
 ###########################################
@@ -531,10 +568,11 @@ def load():
     #Mani compatibility
     es.dbgmsg(0, "[eXtensible Admin] Mani mode enabled = "+str(isManiMode()))
     if isManiMode():
+        ma = Admin_mani()
         es.dbgmsg(0, "[eXtensible Admin] Executing mani_server.cfg...")
-        manilib.loadVariables() #setup basic mani variables
+        ma.loadVariables() #setup basic mani variables
         es.server.cmd("exec mani_server.cfg")
-        manilib.loadModules() #load the mani modules if needed
+        ma.loadModules()   #load the mani modules if needed
     es.dbgmsg(0, "[eXtensible Admin] Executing xamodules.cfg...")
     es.server.cmd('exec xamodules.cfg')
     es.dbgmsg(0, "[eXtensible Admin] Updating xamodules.cfg...")

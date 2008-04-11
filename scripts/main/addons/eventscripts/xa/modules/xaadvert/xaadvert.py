@@ -67,7 +67,7 @@ def display_advert():
    # repeat the timer 
    gamethread.delayedname(time_between_advert, 'adverts', display_advert) 
     
-   if adverts and es.ServerVar('eventscripts_currentmap') != '': 
+   if adverts and xaadvertlist and es.ServerVar('eventscripts_currentmap') != '': 
       # start at the beginning 
       if next_advert >= len(xaadvertlist): 
          next_advert = 0 
