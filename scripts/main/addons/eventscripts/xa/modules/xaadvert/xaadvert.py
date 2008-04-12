@@ -1,52 +1,48 @@
-import re 
-import es 
-import gamethread 
-import xa 
-import xa.setting 
-import xa.configparser 
-import xa.logging 
-import playerlib 
-import msglib 
-import usermsg 
-import time 
-from xa import xa 
+import re
+import es
+import gamethread
+import playerlib
+import msglib
+import usermsg
+import time
+from xa import xa
 
-#plugin information 
+#plugin information
 info = es.AddonInfo() 
 info.name     = 'Advert' 
 info.version  = 'oy1' 
 info.url      = 'http://mattie.info/cs' 
 info.basename = 'xaadvert' 
-info.author   = 'Rio' 
+info.author   = 'Rio'
+
+# register module with XA 
+xaadvert = xa.register('xaadvert') 
 
 next_advert = 0 
 colors = {'{RED}': '255 0 0 255', '{BLUE}': '0 0 255 255', '{GREEN}': '0 255 0 255', '{MAGENTA}': '139 0 139 255', '{BROWN}': '128 42 42 255', '{GREY}': '128 128 128', '{CYAN}':  '0 204 204 255', '{YELLOW}': '255 255 0 255', '{ORANGE}': '255 127 0 255', '{WHITE}': '255 255 255 255', '{PINK}': '255 0 204 255'} 
 
 def load(): 
-   global xaadvert, adverts, time_between_advert, adverts_chat_area, adverts_top_left, advert_col_red, advert_col_green, advert_col_blue, advert_dead_only, adverts_bottom_area, xaadvertlist 
-
-   # register module with XA 
-   xaadvert = xa.register('xaadvert') 
+   global adverts, time_between_advert, adverts_chat_area, adverts_top_left, advert_col_red, advert_col_green, advert_col_blue, advert_dead_only, adverts_bottom_area, xaadvertlist 
     
    # log 
-   xa.logging.log(xaadvert, "Loaded Advert (mani clone) %s" % (info.version)) 
+   xaadvert.logging.log("Loaded Advert (mani clone) %s" % (info.version)) 
 
    # make config vars 
-   adverts              = xa.setting.createVariable(xaadvert, 'adverts', 1, 'Turns adverts on or off') 
-   time_between_advert  = xa.setting.createVariable(xaadvert, 'time_between_advert', 120, 'Time between adverts displayed') 
-   adverts_chat_area    = xa.setting.createVariable(xaadvert, 'adverts_chat_area', 1, 'Allow adverts in chat area of screen') 
-   adverts_top_left     = xa.setting.createVariable(xaadvert, 'adverts_top_left', 1, 'Allow adverts in top left corner of screen') 
-   advert_col_red       = xa.setting.createVariable(xaadvert, 'advert_col_red', 0, 'Red component colour of adverts (255 = max)') 
-   advert_col_green     = xa.setting.createVariable(xaadvert, 'advert_col_green', 0, ' Green component colour of adverts (255 = max)') 
-   advert_col_blue      = xa.setting.createVariable(xaadvert, 'advert_col_blue', 255, ' Blue component colour of adverts (255 = max)') 
-   advert_dead_only     = xa.setting.createVariable(xaadvert, 'advert_dead_only', 0, 'Specify if all players or only dead players can see adverts') 
-   adverts_bottom_area  = xa.setting.createVariable(xaadvert, 'adverts_bottom_area', 0, 'Show adverts in the hint text area') 
+   adverts              = xaadvert.setting.createVariable('adverts', 1, 'Turns adverts on or off') 
+   time_between_advert  = xaadvert.setting.createVariable('time_between_advert', 120, 'Time between adverts displayed') 
+   adverts_chat_area    = xaadvert.setting.createVariable('adverts_chat_area', 1, 'Allow adverts in chat area of screen') 
+   adverts_top_left     = xaadvert.setting.createVariable('adverts_top_left', 1, 'Allow adverts in top left corner of screen') 
+   advert_col_red       = xaadvert.setting.createVariable('advert_col_red', 0, 'Red component colour of adverts (255 = max)') 
+   advert_col_green     = xaadvert.setting.createVariable('advert_col_green', 0, ' Green component colour of adverts (255 = max)') 
+   advert_col_blue      = xaadvert.setting.createVariable('advert_col_blue', 255, ' Blue component colour of adverts (255 = max)') 
+   advert_dead_only     = xaadvert.setting.createVariable('advert_dead_only', 0, 'Specify if all players or only dead players can see adverts') 
+   adverts_bottom_area  = xaadvert.setting.createVariable('adverts_bottom_area', 0, 'Show adverts in the hint text area') 
     
    # get advert list 
    if xa.isManiMode(): 
-      xaadvertlist = xa.configparser.getList(xaadvert, 'cfg/mani_admin_plugin/adverts.txt', True) 
+      xaadvertlist = xaadvert.configparser.getList('cfg/mani_admin_plugin/adverts.txt', True) 
    else: 
-      xaadvertlist = xa.configparser.getList(xaadvert, 'adverts.txt') 
+      xaadvertlist = xaadvert.configparser.getList('adverts.txt') 
     
    # start timer 
    gamethread.delayedname(time_between_advert, 'adverts', display_advert) 
@@ -56,7 +52,7 @@ def unload():
    xa.unregister('xaadvert') 
     
    # log 
-   xa.logging.log(xaadvert, "UnLoaded Advert (mani clone) %s" % (info.version)) 
+   xaadvert.logging.log("UnLoaded Advert (mani clone) %s" % (info.version)) 
     
    # stop timer 
    gamethread.cancelDelayed('adverts') 

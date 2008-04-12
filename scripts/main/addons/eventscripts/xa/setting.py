@@ -155,5 +155,5 @@ def useKeyValues(module):
     else:
         return None
 
-def saveKeyValues():
+def saveKeyValues(module = None):
     selfkeyvalues.save(selfsettingfile)

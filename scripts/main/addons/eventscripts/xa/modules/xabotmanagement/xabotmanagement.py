@@ -1,6 +1,4 @@
 import es
-import xa
-import xa.language
 import popuplib
 import playerlib
 from xa import xa
@@ -15,7 +13,7 @@ info.description    = "Bot management menu for XA"
 info.tags           = "admin bot-management"
 
 xabotmanagement     = xa.register('xabotmanagement')
-xalanguage          = xa.language.getLanguage(xabotmanagement)
+xalanguage          = xabotmanagement.language.getLanguage()
 
 xabmmenu = None
 menu_display = {

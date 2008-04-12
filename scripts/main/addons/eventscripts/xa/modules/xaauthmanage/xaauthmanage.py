@@ -8,8 +8,6 @@ import shelve
 import playerlib
 import popuplib
 import services
-import xa
-import xa.logging
 from xa import xa
 from sqlite3 import dbapi2 as sqlite
 
@@ -35,7 +33,7 @@ class connection(object):
     
 
 xaauthmanage = xa.register('xaauthmanage')
-lang = xa.language.getLanguage(xaauthmanage)
+lang = xaauthmanage.language.getLanguage()
 
 auth = services.use('auth')
 authaddon = auth.name
@@ -120,7 +118,7 @@ def load():
         capmain.submenu(8,'capsmenu')
         capmain.submenu(9,'maingroupauthmenu')
         
-        xa.logging.log(xaauthmanage, 'group_auth use setup complete.')
+        xaauthmanage.logging.log('group_auth use setup complete.')
 
     elif authaddon == 'basic_auth':
         """ BasicAuth specific setup """
@@ -161,7 +159,7 @@ def load():
         admindetail.submenu(8, 'mainbasicauthmenu')
         admindetail.select(9, _adminlist)
 
-        xa.logging.log(xaauthmanage, 'basic_auth use setup complete.')
+        xaauthmanage.logging.log('basic_auth use setup complete.')
 	
 def unload():
     es.dbgmsg(1,'*****unload')
@@ -188,7 +186,7 @@ def unload():
     if int(popuplib.exists('playermenu')):
         popuplib.delete('playermenu')
 
-    xa.unregister('xaauthmanage')
+    xa.unregister(xaauthmanage)
 
 def player_activate(event_var):
     if event_var['es_steamid'] != 'BOT':

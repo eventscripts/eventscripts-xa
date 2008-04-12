@@ -2,8 +2,6 @@ import es
 import services
 import popuplib
 import langlib
-import xa
-import xa.setting
 import random
 from xa import xa
 
@@ -15,7 +13,7 @@ info.url         = "http://forums.mattie.info/cs/forums/index.php"
 info.description = "Popup interface for XA configuration"
 
 xaconfig = xa.register('xaconfig')
-lang = xa.language.getLanguage(xaconfig)
+lang = xaconfig.language.getLanguage()
 auth = services.use('auth')
 menulist = []
 
