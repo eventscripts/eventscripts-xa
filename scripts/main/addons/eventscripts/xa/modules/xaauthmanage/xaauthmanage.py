@@ -47,7 +47,7 @@ prefix = '#green[AuthManage]#default'
 
 def load():
     es.dbgmsg(1,'*****authmanage load')
-    xaauthcmd = xaauthmanage.addCommand('xaauth', _sendmain, 'xaauth', '#admin')
+    xaauthcmd = xaauthmanage.addCommand('xa_auth', _sendmain, 'manage_auth', '#admin')
     xaauthcmd.register('say')
    
     if authaddon == 'group_auth':
@@ -65,7 +65,7 @@ def load():
         gauthmain.addoption('groups', lang['groups'])
         gauthmain.addoption('users', lang['users'])
         gauthmain.addoption('capabilities', lang['capabilities'])
-        xaauthmanage.addMenu('maingroupauthmenu',lang['xa menu choice'],'maingroupauthmenu','auth_manage','#admin')
+        xaauthmanage.addMenu('maingroupauthmenu',lang['xa menu choice'],'maingroupauthmenu','manage_auth','#admin')
 
         groupsmain = popuplib.create('groupsmainmenu')
         groupsmain.addline(lang('manage groups'))
@@ -135,7 +135,7 @@ def load():
         bauthmain.settitle(lang['auth manage'])
         bauthmain.addoption('players', lang['current players'])
         bauthmain.addoption('admins', lang['admin list'])	
-        xaauthmanage.addMenu('mainbasicauthmenu',lang['xa menu choice'],'mainbasicauthmenu','auth_manage','#admin')
+        xaauthmanage.addMenu('mainbasicauthmenu',lang['xa menu choice'],'mainbasicauthmenu','manage_auth','#admin')
 	
         admindetail = popuplib.create('admindetail')
         admindetail.addline(lang('admin detail'))

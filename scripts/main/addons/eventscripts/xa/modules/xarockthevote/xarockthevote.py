@@ -82,9 +82,9 @@ selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
 
 def load(): 
     xartv.logging.log("XA module %s loaded." % xartvname) 
-    xartv.addCommand('rtv',rtv,'rtv','#unrestricted').register(('say', 'console')) 
-    xartv.addCommand('rockthevote',rtv,'rtv','#unrestricted').register(('say', 'console')) 
-    xartv.addCommand('nominate',nominate,'rtv','#unrestricted').register(('say', 'console')) 
+    xartv.addCommand('rtv',rtv,'use_rtv','#unrestricted').register(('say', 'console')) 
+    xartv.addCommand('rockthevote',rtv,'use_rtv','#unrestricted').register(('say', 'console')) 
+    xartv.addCommand('nominate',nominate,'use_rtv','#unrestricted').register(('say', 'console')) 
     global nomination_popup 
     nomination_popup = popuplib.easymenu('nomination_menu',None, nomination_result) 
     nomination_popup.settitle("Choose a map to nominate:") 

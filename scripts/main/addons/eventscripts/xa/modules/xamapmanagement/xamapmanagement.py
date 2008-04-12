@@ -21,7 +21,7 @@ def load():
     xamapmainmenu.addoption('changemap',xalanguage['change map'])
     xamapmainmenu.addoption('setnextmap',xalanguage['set map'])
     xamapmanagement.addMenu('xamapmainmenu',xalanguage['map management'],'xamapmainmenu','manage_maps','#admin')
-    xamapmanagement.addCommand('nextmap',show_nextmap,'nextmap','#all').register(('console', 'say'))
+    xamapmanagement.addCommand('nextmap',show_nextmap,'use_nextmap','#all').register(('console', 'say'))
     xamapmanagement.addCommand('xa_setnextmap',set_nextmap,'manage_maps','#admin').register(('server','console'))
     map_menu()
     map_cycle()

@@ -19,7 +19,7 @@ menulist = []
 
 def load():
     global menulist,mainmenu
-    xacmd = xaconfig.addCommand('xaconfig', _sendmain, 'xaconfig', '#root')
+    xacmd = xaconfig.addCommand('xa_config', _sendmain, 'change_config', '#root')
     xacmd.register('say')  
 
     auth.registerCapability("setconfig", auth.ROOT)  

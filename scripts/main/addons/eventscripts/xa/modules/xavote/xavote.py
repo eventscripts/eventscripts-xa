@@ -72,7 +72,7 @@ def load():
         for line in xavotelist: 
             _get_question_votelist(xaquestionvote, line) 
     
-    mymodule.addMenu("xavotemenu", xalanguage["vote"], "xavotemenu", "vote_type", "#admin") 
+    mymodule.addMenu("xavotemenu", xalanguage["vote"], "xavotemenu", "start_vote", "#admin") 
     mymodule.addCommand("xa_set_title", _xa_set_title, "set_a_title", "#all").register("console") 
     mymodule.addCommand("xa_set_options", _xa_set_options, "set_vote_option", "#all").register("console") 
     mymodule.logging.log('xavote loaded') 

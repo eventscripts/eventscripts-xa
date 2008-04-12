@@ -8,13 +8,14 @@ es.dbgmsg(0, "[eXtensible Admin] Begin loading...")
 
 #import custom stuff
 import os
-import imp
+import hotshot
 import services
 import playerlib
 import popuplib
 import keymenulib
 import settinglib
 import keyvalues
+from hotshot import stats
 from os import getcwd
 
 import configparser
@@ -50,6 +51,12 @@ gVersion.makepublic()
 ## is server logging enabled?
 gLog = es.ServerVar("xa_log", 0, "Activates the module logging")
 gCoreVariables.append(gLog)
+## is XA debugging enabled?
+gDebug = es.ServerVar("xa_debug", 0, "Activates the module/library debugging")
+gCoreVariables.append(gDebug)
+## is XA profiling enabled?
+gDebugProfile = es.ServerVar("xa_debugprofile", 0, "Activates the module/library profiling")
+gCoreVariables.append(gDebugProfile)
 ## is Mani compatibility enabled?
 gManiMode = es.ServerVar("xa_manimode", 0, "Is Mani compatibility mode active?")
 gCoreVariables.append(gManiMode)
@@ -78,29 +85,66 @@ selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
 ## Library API
 # Admin_libfunc is a 'fake' method class used for the lib API
 class Admin_libfunc(object):
-    def __init__(self, gFunc, gModule):
+    def __init__(self, gLib, gFunc, gModule):
+        self._xalib = gLib
         self._xalibfunc = gFunc
+        self._xalibfunccalls = 0
+        self._xalibfuncstats = {'calls':0, 'times':0}
         self._xamod = gModule
     def __call__(self, *args, **kw):
-        return self._xalibfunc(self._xamod, *args, **kw)
+        self._xalibfunccalls += 1
+        if int(gDebug) >= 1 or int(gDebugProfile) > 0: #check debug here to be faster
+            fn = '%s/xa.prof' % es.getAddonPath('xa')
+            pr = hotshot.Profile(fn)
+            re = pr.runcall(self._xalibfunc, *(self._xamod,)+args, **kw)
+            pr.close()
+            st = stats.load(fn)
+            st.strip_dirs()
+            st.sort_stats('time', 'calls')
+            if int(gDebug) >= 2:
+                es.dbgmsg(0, '--------------------')
+                es.dbgmsg(0, ('Admin_libfunc %d: __call__(%s.%s [%s], %s, %s)' % (self._xalibfunccalls, str(self._xalib.__name__), str(self._xalibfunc.__name__), str(self._xamod), args, kw)))
+                es.dbgmsg(0, ('Admin_libfunc %d: Profile Statistics' % (self._xalibfunccalls)))
+                st.print_stats(20)
+                es.dbgmsg(0, '--------------------')
+            elif int(gDebug) == 1:
+                es.dbgmsg(0, ('Admin_libfunc %d: __call__(%s.%s [%s], %s, %s)' % (self._xalibfunccalls, str(self._xalib.__name__), str(self._xalibfunc.__name__), str(self._xamod), args, kw)))
+                es.dbgmsg(0, ('Admin_libfunc %d: %d calls in %f CPU seconds' % (self._xalibfunccalls, st.total_calls, st.total_tt)))
+            if int(gDebugProfile) > 0:
+                self._xalibfuncstats['calls'] += st.total_calls
+                self._xalibfuncstats['times'] += st.total_tt
+            if os.path.exists(fn):
+                os.unlink(fn)
+            return re
+        else:
+            return self._xalibfunc(self._xamod, *args, **kw)
 
 # Admin_lib is a 'fake' library class used for the lib API
 class Admin_lib(object):
     def __init__(self, gLib, gModule):
         self._xalib = gLib
+        self._xalibcalls = 0
+        self._xalibfuncs = {}
         self._xamod = gModule
     def __getattr__(self, name):
+        self._xalibcalls += 1
+        if int(gDebug) >= 2: #check debug here to be faster
+            es.dbgmsg(0, ('Admin_lib %d: __getattr__(%s [%s], %s)' % (self._xalibcalls, str(self._xalib.__name__), str(self._xamod), name)))
         if self._xalib.__dict__.has_key(name) and not name.startswith('_'):
-            return Admin_libfunc(self._xalib.__dict__[name], self._xamod)
+            if not name in self._xalibfuncs:
+                self._xalibfuncs[name] = Admin_libfunc(self._xalib, self._xalib.__dict__[name], self._xamod)
+            return self._xalibfuncs[name]
         else:
             raise AttributeError
 
 ## Core
 # Admin_module is the module class
 class Admin_module(object):
+    # XA reference, lookup once, required in all instances:
+    _xa = None
+    # methods:
     def __init__(self, gModule):
         #initialization of the module
-        self._xa = None
         self._xamod = None
         self._xalibs = {}
         self.name = gModule
@@ -221,9 +265,21 @@ class Admin_module(object):
             es.dbgmsg(0, "  Requires:     "+str(len(self.requiredList)))
             for module in self.requiredList:
                 es.dbgmsg(0,"    "+module)
+            es.dbgmsg(0, "  ")
             es.dbgmsg(0, "  Variables:    "+str(len(self.variables)))
             for var in self.variables:
                 es.dbgmsg(0,"    "+var)
+        if listlevel >= 3:
+            es.dbgmsg(0, "  ")
+            es.dbgmsg(0, "  Libs & Funcs: "+str(len(self._xalibs)))
+            for lib in self._xalibs:
+                es.dbgmsg(0,"    "+lib+" ["+str(self._xalibs[lib]._xalibcalls)+" calls]")
+                for func in self._xalibs[lib]._xalibfuncs:
+                    if self._xalibs[lib]._xalibfuncs[func]._xalibfuncstats['calls'] > 0:
+                        es.dbgmsg(0,"        "+func+" ["+str(self._xalibs[lib]._xalibfuncs[func]._xalibfunccalls)+" calls, "+str(self._xalibs[lib]._xalibfuncs[func]._xalibfuncstats['calls'])+" subcalls, "+str(self._xalibs[lib]._xalibfuncs[func]._xalibfuncstats['times'])+" CPU seconds]")
+                    else:
+                        es.dbgmsg(0,"        "+func+" ["+str(self._xalibs[lib]._xalibfuncs[func]._xalibfunccalls)+" calls]")
+            es.dbgmsg(0, "  -------------")
 
 # Admin_command is the clientcmd class
 class Admin_command(object):
@@ -422,6 +478,10 @@ def xa_reload(pModuleid):
     
 def xa_exec(pModuleid):
     es.server.cmd("exec xa_"+pModuleid+".cfg")
+    
+def debug(dbglvl, message):
+    if int(gDebug) >= dbglvl:
+        es.dbgmsg(0, message)
 
 def register(pModuleid):
     #create new module
@@ -639,8 +699,45 @@ def consolecmd():
                 permissions.append([str(x.name), str(x.subMenus[menu].permission), str(x.subMenus[menu].permissionlevel), 'menu', str(x.subMenus[menu].name)])
         es.dbgmsg(0,"---------- List of permissions:")
         for perm in permissions:
-            es.dbgmsg(0,("%-*s"%(15, perm[0]))+" "+("%-*s"%(20, perm[1]))+" "+("%-*s"%(8, "["+perm[2]+"]"))+" "+("%-*s"%(10, perm[3]))+" "+perm[4])
+            es.dbgmsg(0,("%-*s"%(18, perm[0]))+" "+("%-*s"%(20, perm[1]))+" "+("%-*s"%(8, "["+perm[2]+"]"))+" "+("%-*s"%(10, perm[3]))+" "+perm[4])
         es.dbgmsg(0,"----------")
+    elif subcmd == "stats":
+        statistics = []
+        for module in sorted(gModules):
+            x = gModules[module]
+            xlibs = 0
+            xfuncs = 0
+            xcalls = 0
+            xsubcalls = 0
+            xseconds = 0
+            for lib in gModules[module]._xalibs:
+                xlibs += 1
+                for func in gModules[module]._xalibs[lib]._xalibfuncs:
+                    xfuncs += 1
+                    xcalls += gModules[module]._xalibs[lib]._xalibfuncs[func]._xalibfunccalls
+                    xsubcalls += gModules[module]._xalibs[lib]._xalibfuncs[func]._xalibfuncstats['calls']
+                    xseconds += gModules[module]._xalibs[lib]._xalibfuncs[func]._xalibfuncstats['times']
+            statistics.append([str(x.name), xlibs, xfuncs, xcalls, xsubcalls, xseconds])
+        es.dbgmsg(0,"---------- List of statistics:")
+        if seccmd.isdigit():
+            sortkey = int(seccmd)
+        else:
+            sortkey = 5
+        if int(gDebugProfile) > 0:
+            sortkey = min(5, sortkey)
+        else:
+            sortkey = min(3, sortkey)
+        sortkey = max(0, sortkey)
+        statistics = sorted(statistics, cmp=lambda x,y: cmp(x[sortkey], y[sortkey]))
+        statistics.append(['Module', 'Libraries', 'Functions', 'Calls', 'SubCalls', 'CPU seconds'])
+        if int(gDebugProfile) > 0:
+            for stat in reversed(statistics):
+                es.dbgmsg(0,("%-*s"%(18, stat[0]))+" "+("%-*s"%(10, str(stat[1])))+" "+("%-*s"%(10, str(stat[2])))+" "+("%-*s"%(10, str(stat[3])))+" "+("%-*s"%(10, str(stat[4])))+" "+str(stat[5]))
+        else:
+            for stat in reversed(statistics):
+                es.dbgmsg(0,("%-*s"%(18, stat[0]))+" "+("%-*s"%(10, str(stat[1])))+" "+("%-*s"%(10, str(stat[2])))+" "+str(stat[3]))
+        es.dbgmsg(0,"----------")
+        es.dbgmsg(0, "Syntax: xa stats [sort-column]")
     elif subcmd == "module":
         if seccmd == "register":
             if xname:
@@ -714,7 +811,7 @@ def consolecmd():
                 x.information(listlevel)
             if argc == 3:
                 es.dbgmsg(0, " ")
-                es.dbgmsg(0, "For more details, supply list level (0-2):")
+                es.dbgmsg(0, "For more details, supply list level (0-3):")
                 es.dbgmsg(0, "Syntax: xa module list [level]")
             es.dbgmsg(0,"----------")
         elif seccmd == "info":
