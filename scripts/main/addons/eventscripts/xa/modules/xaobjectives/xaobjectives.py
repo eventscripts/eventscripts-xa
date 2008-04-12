@@ -1,6 +1,5 @@
 import es
 from playerlib import getPlayerList
-import xa.setting
 from xa import xa
 
 info = es.AddonInfo()
@@ -9,18 +8,19 @@ info.version = "0.1"
 info.author = "Wonder"
 info.description = "Slays the team which fails to complete their objectives."
 
-def load():
-    global xaobjectives, slay, text
+xaobjectives = xa.register("xaobjectives")
 
-    xaobjectives = xa.register("xaobjectives")
-    slay = xa.setting.createVariable(xaobjectives, "css_objectives", "1", "If 1, losing team will be slain.")
-    text = xa.language.getLanguage("xaobjectives")
+def load():
+    global slay, text
+
+    slay = xaobjectives.setting.createVariable("css_objectives", "1", "If 1, losing team will be slain.")
+    text = xaobjectives.language.getLanguage()
 
     if es.getgame() != "Counter-Strike: Source":
         return False
 
 def unload():
-    xa.unregister("xaobjectives")
+    xa.unregister(xaobjectives)
 
 def round_end(eventVar):
     if int(slay):

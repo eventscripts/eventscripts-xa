@@ -3,9 +3,6 @@
 import es
 import playerlib
 import services
-import xa
-import xa.setting
-import xa.logging
 from xa import xa
 
 
@@ -23,12 +20,12 @@ mymodule = xa.register(mymodulename)
 # SERVER VARIABLES
 # The list of our server variables
 
-punish_strip = xa.setting.createVariable(mymodule, 'nadespam_punishment_strip', 0, '0 = do not strip weapons as punishment, 1 = strip weapons as punishment')
-punish_cash  = xa.setting.createVariable(mymodule, 'nadespam_punishment_cash', 0, '0 = do not remove cash as punishment, 1 = remove cash as punishment')
-punish_slay  = xa.setting.createVariable(mymodule, 'nadespam_punishment_slay', 0, '0 = do not slay as punishment, 1 = slay as punishment')
-punish_kick  = xa.setting.createVariable(mymodule, 'nadespam_punishment_kick', 0, '0 = do not kick as punishment, 1 = kick as punishment')
+punish_strip = mymodule.setting.createVariable('nadespam_punishment_strip', 0, '0 = do not strip weapons as punishment, 1 = strip weapons as punishment')
+punish_cash  = mymodule.setting.createVariable('nadespam_punishment_cash', 0, '0 = do not remove cash as punishment, 1 = remove cash as punishment')
+punish_slay  = mymodule.setting.createVariable('nadespam_punishment_slay', 0, '0 = do not slay as punishment, 1 = slay as punishment')
+punish_kick  = mymodule.setting.createVariable('nadespam_punishment_kick', 0, '0 = do not kick as punishment, 1 = kick as punishment')
 
-dict_grenade_limits = {'hegrenade':xa.setting.createVariable(mymodule, 'nadespam_limit_he', 1, 'Maximum number of HE grenades players may purchase per round'), 'flashbang':xa.setting.createVariable(mymodule, 'nadespam_limit_flashbang', 2, 'Maximum number of flashbangs players may purchase per round'), 'smokegrenade':xa.setting.createVariable(mymodule, 'nadespam_limit_smoke', 1, 'Maximum number of smoke grenades players may purchase per round')}
+dict_grenade_limits = {'hegrenade':mymodule.setting.createVariable('nadespam_limit_he', 1, 'Maximum number of HE grenades players may purchase per round'), 'flashbang':mymodule.setting.createVariable('nadespam_limit_flashbang', 2, 'Maximum number of flashbangs players may purchase per round'), 'smokegrenade':mymodule.setting.createVariable('nadespam_limit_smoke', 1, 'Maximum number of smoke grenades players may purchase per round')}
 
 
 #######################################
@@ -40,7 +37,7 @@ dict_grenade_names = {'he':'hegrenade', 'fb':'flashbang', 'sg':'smokegrenade'}
 auth_service = services.use('auth')
 
 # Localization helper:
-func_lang_text = xa.language.getLanguage(mymodulename)
+func_lang_text = mymodule.language.getLanguage(mymodulename)
 
 
 #######################################
@@ -48,16 +45,16 @@ func_lang_text = xa.language.getLanguage(mymodulename)
 # Formal system registration and unregistration
 def load():
     auth_service.registerCapability('nadespam_immune', auth_service.ADMIN)
-    xa.logging.log(mymodule, "XA module %s loaded." % mymodulename)
+    mymodule.logging.log("XA module %s loaded." % mymodulename)
 
 
 def unload():
     es.addons.unregisterClientCommandFilter(_cc_filter)
 
-    xa.logging.log(mymodule, "XA module %s is being unloaded." % mymodulename)
+    mymodule.logging.log("XA module %s is being unloaded." % mymodulename)
 
     # Unregister the module
-    xa.unregister(mymodulename)
+    xa.unregister(mymodule)
 
 
 #######################################
@@ -121,4 +118,5 @@ def _cc_filter(userid, args):
 
                 return False
     return True
+
 es.addons.registerClientCommandFilter(_cc_filter)

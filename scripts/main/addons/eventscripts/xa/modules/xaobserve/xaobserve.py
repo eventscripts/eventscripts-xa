@@ -10,9 +10,6 @@ import gamethread
 import playerlib
 import random
 import services
-import xa
-import xa.setting
-import xa.logging
 from xa import xa
 
 
@@ -32,8 +29,8 @@ mymodule = xa.register(mymodulename)
 # SERVER VARIABLES
 # The list of our server variables
 
-var_allow_chase = xa.setting.createVariable(mymodule, 'observe_allow_chase', 1, 'xaobserve: 0 = only allow first-person view for dead players, 1 = allow frist-person or chase-cam view for dead players')
-var_spec_delay = xa.setting.createVariable(mymodule, 'observe_spec_delay', 3, 'xaobserve: Number of seconds after death a player can be spectated')
+var_allow_chase = mymodule.setting.createVariable('observe_allow_chase', 1, 'xaobserve: 0 = only allow first-person view for dead players, 1 = allow frist-person or chase-cam view for dead players')
+var_spec_delay = mymodule.setting.createVariable('observe_spec_delay', 3, 'xaobserve: Number of seconds after death a player can be spectated')
 
 
 #######################################
@@ -58,7 +55,7 @@ def load():
     """
     global auth_service
 
-    xa.logging.log(mymodule, 'XA module %s loaded.' % mymodulename)
+    mymodule.logging.log('XA module %s loaded.' % mymodulename)
 
     auth_service = services.use('auth')
     auth_service.registerCapability('opponent_observe', auth_service.ADMIN)
@@ -71,10 +68,10 @@ def unload():
     Unregisters the module with XA
     Cancels outstanding delays and unregisters client command filter
     """
-    xa.logging.log(mymodule, 'XA module %s unloaded.' % mymodulename)
+    mymodule.logging.log('XA module %s unloaded.' % mymodulename)
 
     # Unregister the module
-    xa.unregister(mymodulename)
+    xa.unregister(mymodule)
 
     cancel_delays()
 
