@@ -1,11 +1,6 @@
 import es
 import os
 from es import server_var
-import xa
-import xa.language
-import xa.logging
-import xa.setting
-import xa.playerdata
 from xa.modules.xasettings import xasettings
 from xa import xa
 import services
@@ -34,22 +29,22 @@ else:
 xaskins                 = xa.register('xaskins')
 xaskins.addRequirement('xasettings')
 # Load strings.ini from the module folder
-xalanguage              = xa.language.getLanguage(xaskins)
+xalanguage              = xaskins.language.getLanguage()
 # Register the settings
-xaplayerdata_exists         = xa.playerdata.createUserSetting(xaskins, "exists")
-xaplayerdata_admin_t        = xa.playerdata.createUserSetting(xaskins, "admin_t")
-xaplayerdata_admin_ct       = xa.playerdata.createUserSetting(xaskins, "admin_ct")
-xaplayerdata_reserved_t     = xa.playerdata.createUserSetting(xaskins, "reserved_t")
-xaplayerdata_reserved_ct    = xa.playerdata.createUserSetting(xaskins, "reserved_ct")
-xaplayerdata_public_t       = xa.playerdata.createUserSetting(xaskins, "public_t")
-xaplayerdata_public_ct      = xa.playerdata.createUserSetting(xaskins, "public_ct")
+xaplayerdata_exists         = xaskins.playerdata.createUserSetting("exists")
+xaplayerdata_admin_t        = xaskins.playerdata.createUserSetting("admin_t")
+xaplayerdata_admin_ct       = xaskins.playerdata.createUserSetting("admin_ct")
+xaplayerdata_reserved_t     = xaskins.playerdata.createUserSetting("reserved_t")
+xaplayerdata_reserved_ct    = xaskins.playerdata.createUserSetting("reserved_ct")
+xaplayerdata_public_t       = xaskins.playerdata.createUserSetting("public_t")
+xaplayerdata_public_ct      = xaskins.playerdata.createUserSetting("public_ct")
 
-xaplayerdata_admin_t_skin        = xa.playerdata.createUserSetting(xaskins, "admin_t_skin")
-xaplayerdata_admin_ct_skin       = xa.playerdata.createUserSetting(xaskins, "admin_ct_skin")
-xaplayerdata_reserved_t_skin     = xa.playerdata.createUserSetting(xaskins, "reserved_t_skin")
-xaplayerdata_reserved_ct_skin    = xa.playerdata.createUserSetting(xaskins, "reserved_ct_skin")
-xaplayerdata_public_t_skin       = xa.playerdata.createUserSetting(xaskins, "public_t_skin")
-xaplayerdata_public_ct_skin      = xa.playerdata.createUserSetting(xaskins, "public_ct_skin")
+xaplayerdata_admin_t_skin        = xaskins.playerdata.createUserSetting("admin_t_skin")
+xaplayerdata_admin_ct_skin       = xaskins.playerdata.createUserSetting("admin_ct_skin")
+xaplayerdata_reserved_t_skin     = xaskins.playerdata.createUserSetting("reserved_t_skin")
+xaplayerdata_reserved_ct_skin    = xaskins.playerdata.createUserSetting("reserved_ct_skin")
+xaplayerdata_public_t_skin       = xaskins.playerdata.createUserSetting("public_t_skin")
+xaplayerdata_public_ct_skin      = xaskins.playerdata.createUserSetting("public_ct_skin")
 
 def load():
 # This function is called when the script is es_load-ed
@@ -93,7 +88,7 @@ def player_spawn(event_var):
                 team = 't'
             elif event_var['es_userteam'] == "3":
                 team = 'ct'
-            xaplayerdata_skin = xa.playerdata.getUserSetting(xaskins, level + '_' + team + '_skin')
+            xaplayerdata_skin = xaskins.playerdata.getUserSetting(level + '_' + team + '_skin')
             model = xaplayerdata_skin.get(int(event_var['userid']))
             if model != "None" and model != None:
                 myPlayer = playerlib.getPlayer(event_var['userid'])
@@ -115,7 +110,7 @@ def create_record(event_var):
         xaplayerdata_reserved_ct_skin.set(userid, "None")
         xaplayerdata_public_t_skin.set(userid, "None")
         xaplayerdata_public_ct_skin.set(userid, "None")
-        xa.playerdata.saveKeyValues()
+        xaskins.playerdata.saveKeyValues()
     
 def _sendmenu(playerid = False):
 # This function handles the console and client command.  Probably need to modify for use with XA
@@ -131,7 +126,7 @@ def _sendmenu(playerid = False):
     auth = services.use("auth")
     for i in skinmenu:
         if (i != "Misc") and ((auth.isUseridAuthorized(playerid, "skin_admin") and ("admin" == skinnames[j][0:5])) or (auth.isUseridAuthorized(playerid, "skin_reserved") and ("reserved" == skinnames[j][0:8])) or ("public" == skinnames[j][0:6])):
-            xaplayerdata = xa.playerdata.getUserSetting(xaskins, skinnames[j])
+            xaplayerdata = xaskins.playerdata.getUserSetting(skinnames[j])
             myskin = xaplayerdata.get(playerid)
             page.addoption(skinnames[j], i + " - " + myskin)
         j+=1
@@ -154,11 +149,11 @@ def _selectsubmenu(userid, choice, name):
 # In this function we need to set the model path into the player's settings
     levelset = playermenu[userid]
     mynewskin = skinlist[levelset][choice]
-    xaplayerdata = xa.playerdata.getUserSetting(xaskins, levelset)
-    xaplayerdata_skin = xa.playerdata.getUserSetting(xaskins, levelset + '_skin')
+    xaplayerdata = xaskins.playerdata.getUserSetting(levelset)
+    xaplayerdata_skin = xaskins.playerdata.getUserSetting(levelset + '_skin')
     xaplayerdata.set(userid, choice)
     xaplayerdata_skin.set(userid, mynewskin)
-    xa.playerdata.saveKeyValues()
+    xaskins.playerdata.saveKeyValues()
     
 def add_skin_files(i):
 # This function reads in the 7 main skin files and parses each one

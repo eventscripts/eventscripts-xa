@@ -1,9 +1,4 @@
 import es
-import xa
-import xa.language
-import xa.logging
-import xa.setting
-import xa.playerdata
 import playerlib
 import popuplib
 from xa import xa
@@ -20,7 +15,7 @@ info.tags           = "admin settings players"
 setting_object = {}
 
 xasettings                  = xa.register('xasettings')
-xalanguage                  = xa.language.getLanguage(xasettings)
+xalanguage                  = xasettings.language.getLanguage()
 
 def load():
     #Load Function for Player Settings for XA.    
@@ -32,7 +27,7 @@ def load():
 
 def unload():
     popuplib.delete("xasettingmenu")
-    xa.unRegister(xasettings)
+    xa.unregister(xasettings)
     
 def _send_menu():
     userid = es.getcmduserid()

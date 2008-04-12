@@ -1,11 +1,7 @@
 import es
 import services
 import playerlib
-
-import xa.setting
-import xa.logging
-import xa as _xa
-xa = _xa.__dict__['xa']
+from xa import xa
 
 
 #######################################
@@ -31,8 +27,8 @@ mymodule = xa.register(mymodulename)
 #######################################
 # SERVER VARIABLES
 # The list of our my server variables
-say_admin_prefix = xa.setting.createVariable(mymodule, 'say_admin_prefix', '@', "Prefix for admin chat")
-say_admin_soundfile = xa.setting.createVariable(mymodule, 'say_admin_soundfile', 'ui/buttonclick.wav', "Determines the sound played with an admin say.")
+say_admin_prefix = mymodule.setting.createVariable('say_admin_prefix', '@', "Prefix for admin chat")
+say_admin_soundfile = mymodule.setting.createVariable('say_admin_soundfile', 'ui/buttonclick.wav', "Determines the sound played with an admin say.")
 # normal admin say
 # normal
 
@@ -40,7 +36,7 @@ say_admin_soundfile = xa.setting.createVariable(mymodule, 'say_admin_soundfile',
 # GLOBALS
 # Initialize our general global data here.
 # Localization helper:
-text = xa.language.getLanguage(mymodulename)
+text = mymodule.language.getLanguage(mymodulename)
 tree = None
 auth = None
 
@@ -58,13 +54,13 @@ def load():
     registerSayPrefix(str(say_admin_prefix), _admin_say, "admin_say", auth.ADMIN)
     # ..
     # ..
-    xa.logging.log(mymodule, "XA module %s loaded." % mymodulename)
+    mymodule.logging.log("XA module %s loaded." % mymodulename)
 
 
 def unload():
-    xa.logging.log(mymodule, "XA module is %s being unloaded." % mymodulename)
+    mymodule.logging.log("XA module is %s being unloaded." % mymodulename)
     # Unregister the module
-    xa.unregister(mymodulename)
+    xa.unregister(mymodule)
     if saywatcher in es.addons.SayListeners:
         es.addons.unregisterSayFilter(saywatcher)
     playerlib.unregisterPlayerListFilter("#admin_say")

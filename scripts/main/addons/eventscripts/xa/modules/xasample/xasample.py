@@ -1,7 +1,4 @@
 import es
-import xa
-import xa.setting
-import xa.logging
 from xa import xa
 
 #######################################
@@ -30,29 +27,29 @@ mymodule = xa.register(mymodulename)
 # SERVER VARIABLES
 # The list of our server variables
 # TODO: Add your own variables              -- TODO
-myvariable = xa.setting.createVariable(mymodule, 'some_variable', 1, "Some variable (1=on, 0=off)")
+myvariable = mymodule.setting.createVariable('some_variable', 1, "Some variable (1=on, 0=off)")
 
 
 #######################################
 # GLOBALS
 # Initialize our general global data here.
 # Localization helper:
-text = xa.language.getLanguage(mymodulename)
+text = mymodule.language.getLanguage(mymodulename)
 
 
 #######################################
 # LOAD AND UNLOAD
 # Formal system registration and unregistration
 def load():
-    xa.logging.log(mymodule, "XA module %s loaded." % mymodulename)
+    mymodule.logging.log("XA module %s loaded." % mymodulename)
     # TODO: Register menu, say, client, or console commands.
     #                                       -- TODO
 
 
 def unload():
-    xa.logging.log(mymodule, "XA module %s is being unloaded." % mymodulename)
+    mymodule.logging.log("XA module %s is being unloaded." % mymodulename)
     # Unregister the module
-    xa.unregister(mymodulename)
+    xa.unregister(mymodule)
 
 
 #######################################

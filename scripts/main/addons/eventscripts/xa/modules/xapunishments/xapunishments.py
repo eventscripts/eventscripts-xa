@@ -1,8 +1,4 @@
 import es
-import xa
-import xa.language
-import xa.logging
-import xa.setting
 import playerlib
 import popuplib
 import services
@@ -26,12 +22,12 @@ punishment_argc = {}
 punishment_cross_ref = {}
 
 xapunishments               = xa.register('xapunishments')
-xalanguage                  = xa.language.getLanguage(xapunishments)
-xa_adminburn_anonymous      = xa.setting.createVariable(xapunishments, 'adminburn_anonymous', 0)
-xa_adminslap_anonymous      = xa.setting.createVariable(xapunishments, 'adminslap_anonymous', 0)
-xa_adminslay_anonymous      = xa.setting.createVariable(xapunishments, 'adminslay_anonymous', 0)
-xa_admin_burn_time          = xa.setting.createVariable(xapunishments, 'admin_burn_time', 20)
-xa_slap_to_damage           = xa.setting.createVariable(xapunishments, 'slap_to_damage', 10)
+xalanguage                  = xapunishments.language.getLanguage()
+xa_adminburn_anonymous      = xapunishments.setting.createVariable('adminburn_anonymous', 0)
+xa_adminslap_anonymous      = xapunishments.setting.createVariable('adminslap_anonymous', 0)
+xa_adminslay_anonymous      = xapunishments.setting.createVariable('adminslay_anonymous', 0)
+xa_admin_burn_time          = xapunishments.setting.createVariable('admin_burn_time', 20)
+xa_slap_to_damage           = xapunishments.setting.createVariable('slap_to_damage', 10)
 
 def load():
     #Load Function for Player Settings for XA.
@@ -57,7 +53,7 @@ def unload():
     popuplib.delete("xapunishtargetmenu")
     for page in punishment_pmenus:
         page.delete()
-    xa.unRegister(xapunishments)
+    xa.unregister(xapunishments)
     
 def _select_punishment(userid, choice, name):
     punishment_choice[userid] = choice
@@ -113,7 +109,7 @@ def _punish_player(userid, punishment, adminid, args = []):
     auth = services.use("auth")
     if (adminid == 0) or auth.isUseridAuthorized(adminid, punishment+"_player"):
         if callable(punishment_method[punishment]):
-            xa.logging.log(xapunishments, "Admin "+str(adminid)+ " used punishment "+str(punishment)+" on player "+str(userid))
+            xapunishments.logging.log("Admin "+str(adminid)+ " used punishment "+str(punishment)+" on player "+str(userid))
             punishment_method[punishment](userid, adminid, args)
         else:
             es.dbgmsg(0, "xapunishments.py: Cannot find method '"+str(punishment_method[punishment])+"'!")

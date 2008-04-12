@@ -1,31 +1,27 @@
 import es 
 import playerlib 
-import usermsg 
-import xa 
-import xa.logging 
-import xa.setting 
+import usermsg
 from xa import xa 
 
-def load(): 
-    """ """ 
-    global mymodule 
-    ####################################### 
-    # MODULE NAME 
-    # This is the name of the module. 
-    mymodulename = "xarates" 
-    # Register the module 
-    # this is a global reference to your module 
-    mymodule = xa.register(mymodulename) 
-    xa.logging.log(mymodule, 'xarates loaded') 
+####################################### 
+# MODULE NAME 
+# This is the name of the module. 
+mymodulename = "xarates" 
+# Register the module 
+# this is a global reference to your module 
+mymodule = xa.register(mymodulename) 
+
+def load():
+    mymodule.logging.log('xarates loaded') 
     mymodule.addCommand('xa_rates', xarates_cmd, 'display_rates', '#all').register(('console')) 
 
 def unload(): 
-    xa.logging.log(mymodule, 'xarates unloaded') 
-    xa.unRegister('xarates') 
+    mymodule.logging.log('xarates unloaded') 
+    xa.unregister('xarates') 
 
 def xarates_cmd(): 
     int_userid = es.getcmduserid() 
-    xa.logging.log(mymodule, 'xarates request by %s (%s)' % (es.getplayersteamid(int_userid), es.getplayername(int_userid))) 
+    mymodule.logging.log('xarates request by %s (%s)' % (es.getplayersteamid(int_userid), es.getplayername(int_userid))) 
     dict_rates = {} 
     longest_name = 4 
     longest_rate = 4 

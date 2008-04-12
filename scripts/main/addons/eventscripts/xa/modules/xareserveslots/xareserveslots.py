@@ -1,15 +1,9 @@
 import es
-import xa
-import xa.language
-import xa.logging
-import xa.playerdata
-import xa.setting
-import xa.configparser
 import services
-from xa import xa
 import playerlib
 import gamethread
 import os
+from xa import xa
 
 #plugin information
 info = es.AddonInfo()
@@ -54,17 +48,20 @@ However currently this feature does NOT support the redirect option. IF a server
 
 '''
 
+# Register the module
+xareserveslots = xa.register("xareserveslots")
+
 # set the gamedir as a constant
 gameDir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
 
 # Get the lang file
-text = xa.language.getLanguage('xareserveslots')
+text = xareserveslots.language.getLanguage('xareserveslots')
 
 # load the list of reserved players
 if xa.isManiMode():
     # woot mani mode is on so lets check the mani file
-    maniReservedList = xa.configparser.getList("cfg/mani_admin_plugin/reserveslots.txt", True)
-xaReservedList = xa.configparser.getList("xareserveslots", "reserved_slots_list.txt")  
+    maniReservedList = xareserveslots.configparser.getList("cfg/mani_admin_plugin/reserveslots.txt", True)
+xaReservedList = xareserveslots.configparser.getList("reserved_slots_list.txt")  
 
 try:
     # load the auth service
@@ -117,7 +114,7 @@ def cfg_vars():
     "reserve_slots_allow_slot_fill":{"val":"0", "desc":"Allow reserved slots to fill on the server [0=do not let them fill, 1=allow them to fill]"},
     }
     for x in vars:
-        xa.setting.createVariable("xareserveslots", x, vars[x]["val"], vars[x]["desc"])   
+        xareserveslots.setting.createVariable(x, vars[x]["val"], vars[x]["desc"])   
         
 def check_player(userid):
     '''
@@ -125,14 +122,14 @@ def check_player(userid):
     '''
     maxplayers = es.getmaxplayercount()
     pdiff = maxplayers - es.getplayercount()
-    if pdiff <= int(xa.setting.getVariable("xareserveslots", "reserve_slots_number_of_slots")):
+    if pdiff <= int(xareserveslots.setting.getVariable("reserve_slots_number_of_slots")):
         # ok so there we are into the reserved slots...
         if returnUnreserved(userid):
             # The player is NOT allowed in a reserved slot so we kick them
             kickPlayer(playerlib.getPlayer(userid))
         else:
             # they are on the res list - so kick someone else??
-            if int(xa.setting.getVariable("xareserveslots", "reserve_slots_allow_slot_fill")) == 0:
+            if int(xareserveslots.setting.getVariable("reserve_slots_allow_slot_fill")) == 0:
                 #  we are not allowing the slots to fill so lets kick someone
                 kickPlayer(chooseKick())
                
@@ -142,7 +139,7 @@ def kickPlayer(ulib):
      - If an IP is set in the cfg then it tries to soft redirect them
     '''
     uid = int(ulib) # we seemto need the uid alot so lets grab it here
-    ip = str(xa.setting.getVariable("xareserveslots", "reserve_slots_redirect"))
+    ip = str(xareserveslots.setting.getVariable("reserve_slots_redirect"))
     if ip != "0":
         # send them a dialogue box...
         msglib.VguiDialog(title=ip, time=15, mode=msglib.VguiMode.ASKCONNECT).send(uid)
@@ -150,11 +147,11 @@ def kickPlayer(ulib):
         kick_delays.append(uid)
         gamethread.delayedname(15, 'res_redirect_%s' % uid, ulib.kick, (text("ip_kick_message",{"ip":ip},ulib.get("lang"))))
     else:
-        if str(xa.setting.getVariable("xareserveslots", "reserve_slots_kick_message")) == "0":
+        if str(xareserveslots.setting.getVariable("reserve_slots_kick_message")) == "0":
             # PLEASE use langlib :)
             msg = text("kick_message",None,ulib.get("lang"))
         else:
-            msg = str(xa.setting.getVariable("xareserveslots", "reserve_slots_kick_message"))
+            msg = str(xareserveslots.setting.getVariable("reserve_slots_kick_message"))
         ulib.kick(msg)
 
     
@@ -188,7 +185,7 @@ def choosePlayer():
     Used by chooseKick() to determine a player to kick
     '''
     kicklist = playerlib.getPlayerList("#res")
-    if int(xa.setting.getVariable("xareserveslots", "reserve_slots_kick_method")) == 1:
+    if int(xareserveslots.setting.getVariable("reserve_slots_kick_method")) == 1:
         timelowest = 1000000000000
         for id in kicklist:
             time = id.attributes["timeconnected"]   
@@ -209,19 +206,16 @@ def choosePlayer():
 Events
 '''
 def load():
-    global xareserveslots
     #rslots = reservedSlots()
-    # Register the module
-    xareserveslots = xa.register("xareserveslots")
     # run the configuration variables
     cfg_vars()
     # register the playerlib player filter we have..
     playerlib.registerPlayerListFilter("#res", returnReservedStatus)
     # And say were loaded!
-    xa.logging.log(xareserveslots, "Loaded Reserve slots (mani clone) %s" % str(info.version))
+    xareserveslots.logging.log(xareserveslots, "Loaded Reserve slots (mani clone) %s" % str(info.version))
  
 def unload():
-    xa.unregister("xareserveslots")
+    xa.unregister(xareserveslots)
    
 def es_map_start(event_var):
     '''
@@ -231,11 +225,11 @@ def es_map_start(event_var):
     # load the list of reserved players
     if xa.isManiMode():
         # woot manit mode is on so lets check the mani file
-        maniReservedList = xa.configparser.getList("cfg/mani_admin_plugin/reserveslots.txt", True)
-    xaReservedList = xa.configparser.getList("xareserveslots", "reserved_slots_list.txt")
+        maniReservedList = xareserveslots.configparser.getList("cfg/mani_admin_plugin/reserveslots.txt", True)
+    xaReservedList = xareserveslots.configparser.getList("reserved_slots_list.txt")
  
 def player_activate(event_var):
-    if xa.setting.getVariable("xareserveslots", "reserve_slots"):
+    if xareserveslots.setting.getVariable("reserve_slots"):
         check_player(event_var["userid"])
 
 def player_disconnect(event_var):

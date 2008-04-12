@@ -2,9 +2,6 @@
 
 import es
 import os
-import xa
-import xa.setting
-import xa.logging
 from xa import xa
 
 """
@@ -19,7 +16,7 @@ mymodulename = 'xaprefixexec'
 
 # Register the module
 # this is a global reference to our module
-mymodule = xa.register(mymodulename)
+mymodule = xa.register(mymodule)
 
 
 #######################################
@@ -39,7 +36,7 @@ def load():
     Loads the path to the .cfg directory in str_dir
     """
     global str_dir
-    xa.logging.log(mymodule, 'XA module %s loaded.' % mymodulename)
+    mymodule.logging.log('XA module %s loaded.' % mymodulename)
 
     # Ensures .cfg directories exist
     str_dir = es.ServerVar('eventscripts_gamedir') + '/cfg/xa'
@@ -49,10 +46,10 @@ def load():
 
 
 def unload():
-    xa.logging.log(mymodule, 'XA module %s is being unloaded.' % mymodulename)
+    mymodule.logging.log('XA module %s is being unloaded.' % mymodulename)
 
     # Unregister the module
-    xa.unregister(mymodulename)
+    xa.unregister(mymodule)
 
 
 #######################################

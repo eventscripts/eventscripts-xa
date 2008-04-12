@@ -26,16 +26,16 @@ mymodule     = xa.register(mymodulename)
 # SERVER VARIABLES
 # The list of our server variables
 
-repickup      = xa.setting.createVariable(mymodule, 'restrict_restrict_repickup', '2', 'Number of seconds a weapon will be unavaible for pickup after a restricted player attempts to pick the weapon up')
-removebanned  = xa.setting.createVariable(mymodule, 'restrict_restrict_removebanned', 1, '0 = no change, 1 = when a player picks up a weapon both team are restricted from the weapon is removed')
-cvar_announce = xa.setting.createVariable(mymodule, 'restrict_announce', 0, '0 = no change, 1 = players receive a console message when they try to pick up a restricted weapon, 2 = players receive a chat area message when they try to pick up a restricted weapon')
+repickup      = mymodule.setting.createVariable('restrict_restrict_repickup', '2', 'Number of seconds a weapon will be unavaible for pickup after a restricted player attempts to pick the weapon up')
+removebanned  = mymodule.setting.createVariable('restrict_restrict_removebanned', 1, '0 = no change, 1 = when a player picks up a weapon both team are restricted from the weapon is removed')
+cvar_announce = mymodule.setting.createVariable('restrict_announce', 0, '0 = no change, 1 = players receive a console message when they try to pick up a restricted weapon, 2 = players receive a chat area message when they try to pick up a restricted weapon')
 
 
 #######################################
 # GLOBALS
 # Initialize our general global data here.
 # Localization helper:
-lang_text = xa.language.getLanguage(mymodulename)
+lang_text = mymodule.language.getLanguage()
 
 
 ###
@@ -361,7 +361,7 @@ def getWeaponList(weapons):
 
 
 def load():
-   xa.logging.log(mymodule, "XA module %s loaded." % mymodulename)
+   mymodule.logging.log("XA module %s loaded." % mymodulename)
 
 
 def es_map_start(event_var):
@@ -396,8 +396,8 @@ def unload():
 
    es.addons.unregisterClientCommandFilter(_buy_restrict)
 
-   xa.logging.log(mymodule, "XA module %s is being unloaded." % mymodulename)
-   xa.unregister(mymodulename)
+   mymodule.logging.log("XA module %s is being unloaded." % mymodulename)
+   xa.unregister(mymodule)
 
 
 ###
