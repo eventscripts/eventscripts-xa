@@ -4,10 +4,6 @@ import popuplib
 import playerlib
 import langlib
 import services
-import xa
-import xa.configparser
-import xa.setting
-import xa.playerdata
 from xa.modules.xasettings import xasettings
 from xa import xa
 
@@ -23,18 +19,18 @@ info.description    = "Clone of Mani Sounds feature for XA"
 info.tags           = "admin quake sounds XA"
 
 xasounds                            = xa.register('xasounds')
-xalanguage                          = xa.language.getLanguage('xasounds')
-xaplayerdata_sounds                 = xa.playerdata.createUserSetting(xasounds, 'sounds')
+xalanguage                          = xasounds.language.getLanguage()
+xaplayerdata_sounds                 = xasounds.playerdata.createUserSetting('sounds')
 
 if xa.isManiMode():
-    xasoundslist                    = xa.configparser.getAliasList('xasounds', 'cfg/mani_admin_plugin/soundlist.txt', True)
+    xasoundslist                    = xasounds.configparser.getAliasList('cfg/mani_admin_plugin/soundlist.txt', True)
 else:
-    xasoundslist                    = xa.configparser.getAliasList('xasounds', 'soundlist.txt')
+    xasoundslist                    = xasounds.configparser.getAliasList('soundlist.txt')
 
-sounds_per_round                    = xa.setting.createVariable('xasounds', 'sounds_per_round', '0', 'Number of sounds a regulary player can play in the course of a round')
-sounds_filter_if_dead               = xa.setting.createVariable('xasounds', 'sounds_filter_if_dead', '0', '1 = If a player is dead then only other dead players will hear it')
-sounds_download                     = xa.setting.createVariable('xasounds', 'sounds_auto_download', '0', '0 = Don\'t auto download files to client, 1 = automatically download files to client')
-sounds_settings                     = xa.setting.createVariable('xasounds', 'player_settings_sounds', '1', '0 = player settings default to off, 1 = player settings default to on')
+sounds_per_round                    = xasounds.setting.createVariable('sounds_per_round', '0', 'Number of sounds a regulary player can play in the course of a round')
+sounds_filter_if_dead               = xasounds.setting.createVariable('sounds_filter_if_dead', '0', '1 = If a player is dead then only other dead players will hear it')
+sounds_download                     = xasounds.setting.createVariable('sounds_auto_download', '0', '0 = Don\'t auto download files to client, 1 = automatically download files to client')
+sounds_settings                     = xasounds.setting.createVariable('player_settings_sounds', '1', '0 = player settings default to off, 1 = player settings default to on')
 
 def load():
     global mainmenu

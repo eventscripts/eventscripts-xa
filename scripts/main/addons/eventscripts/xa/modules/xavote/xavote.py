@@ -6,9 +6,6 @@ import playerlib
 import gamethread 
 
 # Import XA 
-import xa 
-import xa.setting 
-import xa.logging 
 from xa import xa 
 
 vote_admins = {} 
@@ -32,25 +29,25 @@ mymodule = xa.register(mymodulename)
 
 ####################################### 
 # SERVER VARIABLES 
-vote_timer = xa.setting.createVariable(mymodule, 'vote_timer', 30, "How long in seconds that a vote will last for.") 
-vote_start_sound = xa.setting.createVariable(mymodule, "vote_start_sound","ambient/machines/teleport4.wav","The sound that will be played when a vote is started") 
-vote_end_sound = xa.setting.createVariable(mymodule,"vote_end_sound","ambient/alarms/warningbell1.wav","The sound that will be played when a vote is ended") 
+vote_timer = mymodule.setting.createVariable('vote_timer', 30, "How long in seconds that a vote will last for.") 
+vote_start_sound = mymodule.setting.createVariable("vote_start_sound","ambient/machines/teleport4.wav","The sound that will be played when a vote is started") 
+vote_end_sound = mymodule.setting.createVariable("vote_end_sound","ambient/alarms/warningbell1.wav","The sound that will be played when a vote is ended") 
 
 ####################################### 
 # GLOBALS 
 # Initialize our general global data here. 
 # Localization helper: 
-xalanguage = xa.language.getLanguage(mymodulename) 
+xalanguage = mymodule.language.getLanguage(mymodulename) 
 
 if xa.isManiMode(): 
-    xavotelist = xa.configparser.getList(mymodule, 'cfg/mani_admin_plugin/votequestionlist.txt', True) 
+    xavotelist = mymodule.configparser.getList('cfg/mani_admin_plugin/votequestionlist.txt', True) 
 else: 
-    xavotelist = xa.configparser.getList(mymodule, 'questionvotelist.txt') 
+    xavotelist = mymodule.configparser.getList('questionvotelist.txt') 
     
 if xa.isManiMode(): 
-    xavoterconlist = xa.configparser.getList(mymodule, 'cfg/mani_admin_plugin/voterconlist.txt', True) 
+    xavoterconlist = mymodule.configparser.getList('cfg/mani_admin_plugin/voterconlist.txt', True) 
 else: 
-    xavoterconlist = xa.configparser.getList(mymodule, 'rconvotelist.txt') 
+    xavoterconlist = mymodule.configparser.getList('rconvotelist.txt') 
 
 ####################################### 
 # LOAD AND UNLOAD 
@@ -78,13 +75,13 @@ def load():
     mymodule.addMenu("xavotemenu", xalanguage["vote"], "xavotemenu", "vote_type", "#admin") 
     mymodule.addCommand("xa_set_title", _xa_set_title, "set_a_title", "#all").register("console") 
     mymodule.addCommand("xa_set_options", _xa_set_options, "set_vote_option", "#all").register("console") 
-    xa.logging.log(mymodule, 'xavote loaded') 
+    mymodule.logging.log('xavote loaded') 
     _vote_active = 0 
     
 def unload(): 
     popuplib.delete("xavotemenu") 
-    xa.logging.log(mymodule, 'xavote unloaded') 
-    xa.unRegister('xavote') 
+    mymodule.logging.log('xavote unloaded') 
+    xa.unregister(mymodule) 
     
 ####################################### 
 # Events 
@@ -157,12 +154,12 @@ def _xa_set_options():
         _vote_index += 1 
     vote_admins[str(adminid)]['options'] = _vote_options 
     _vote_options = _vote_options.split(",") 
-    xa.logging.log(mymodule, 'Admin ' + es.getplayername(adminid) + ' has started a vote:') 
-    xa.logging.log(mymodule, 'Title: ' + _vote_title) 
+    mymodule.logging.log('Admin ' + es.getplayername(adminid) + ' has started a vote:') 
+    mymodule.logging.log('Title: ' + _vote_title) 
     index = 0 
     for a in _vote_options: 
         index += 1 
-        xa.logging.log(mymodule, 'Vote option ' + str(index) + ': ' + a) 
+        mymodule.logging.log('Vote option ' + str(index) + ': ' + a) 
     # The vote title now equals _vote_title 
     # The vote options now equla _vote_options 
     _vote_menu = votelib.create(str(adminid),_vote_win,_vote_message) 
