@@ -36,7 +36,7 @@ say_admin_soundfile = mymodule.setting.createVariable('say_admin_soundfile', 'ui
 # GLOBALS
 # Initialize our general global data here.
 # Localization helper:
-text = mymodule.language.getLanguage(mymodulename)
+text = mymodule.language.getLanguage()
 tree = None
 auth = None
 

@@ -16,7 +16,7 @@ mymodulename = 'xaprefixexec'
 
 # Register the module
 # this is a global reference to our module
-mymodule = xa.register(mymodule)
+mymodule = xa.register(mymodulename)
 
 
 #######################################

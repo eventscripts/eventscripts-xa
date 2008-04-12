@@ -37,7 +37,7 @@ vote_end_sound = mymodule.setting.createVariable("vote_end_sound","ambient/alarm
 # GLOBALS 
 # Initialize our general global data here. 
 # Localization helper: 
-xalanguage = mymodule.language.getLanguage(mymodulename) 
+xalanguage = mymodule.language.getLanguage() 
 
 if xa.isManiMode(): 
     xavotelist = mymodule.configparser.getList('cfg/mani_admin_plugin/votequestionlist.txt', True) 

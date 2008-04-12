@@ -37,7 +37,7 @@ dict_grenade_names = {'he':'hegrenade', 'fb':'flashbang', 'sg':'smokegrenade'}
 auth_service = services.use('auth')
 
 # Localization helper:
-func_lang_text = mymodule.language.getLanguage(mymodulename)
+func_lang_text = mymodule.language.getLanguage()
 
 
 #######################################

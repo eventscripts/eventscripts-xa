@@ -55,7 +55,7 @@ xareserveslots = xa.register("xareserveslots")
 gameDir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
 
 # Get the lang file
-text = xareserveslots.language.getLanguage('xareserveslots')
+text = xareserveslots.language.getLanguage()
 
 # load the list of reserved players
 if xa.isManiMode():

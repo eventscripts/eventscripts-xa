@@ -36,7 +36,7 @@ var_count = mymodule.setting.createVariable('redirect_count', 0, 'Number of conn
 # Initialize our general global data here.
 
 # Localization helper:
-func_lang_text = mymodule.language.getLanguage(mymodulename)
+func_lang_text = mymodule.language.getLanguage()
 
 # Outstanding kick delays:
 list_delays = []
