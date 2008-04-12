@@ -1,7 +1,5 @@
 import es
 import repeat
-import xa
-import xa.setting
 import playerlib
 from xa import xa
 
@@ -19,17 +17,17 @@ gInfo = {}
 xahighpingkick = xa.register('xahighpingkick')
 
 # Localization helper:
-text = xa.language.getLanguage('xahighpingkick')
+text = xahighpingkick.language.getLanguage()
 
 # make config vars
-maxping       = xa.setting.createVariable(xahighpingkick,'ping_maxping', 300, 'Maximum ping of a player before they are kicked')
-check         = xa.setting.createVariable(xahighpingkick,'ping_check', 10, 'How many total times to check the players ping over a period of time before they are kicked')
-interval      = xa.setting.createVariable(xahighpingkick,'ping_interval', 5, 'How often the players ping is checked, in seconds')
-exceedlimit   = xa.setting.createVariable(xahighpingkick,'ping_exceedlimit', 3, 'If the players ping is above the max when checked this many times, player will be kicked')
+maxping       = xahighpingkick.setting.createVariable('ping_maxping', 300, 'Maximum ping of a player before they are kicked')
+check         = xahighpingkick.setting.createVariable('ping_check', 10, 'How many total times to check the players ping over a period of time before they are kicked')
+interval      = xahighpingkick.setting.createVariable('ping_interval', 5, 'How often the players ping is checked, in seconds')
+exceedlimit   = xahighpingkick.setting.createVariable('ping_exceedlimit', 3, 'If the players ping is above the max when checked this many times, player will be kicked')
 
 
 def unload(): 
-    xa.unregister('xahighpingkick') 
+    xa.unregister(xahighpingkick) 
 
 def player_activate(event_var):
     userid = event_var['userid']

@@ -4,10 +4,6 @@ import playerlib
 import repeat
 import usermsg
 # xa imports
-import xa
-import xa.language
-import xa.logging
-import xa.setting
 from xa import xa 
 
 #plugin information
@@ -49,8 +45,11 @@ blinded = {}
 # same idea but for spectators
 spec_blinded = {}
 
+# Register the module
+ghosting = xa.register("xaipghosting") 
+
 # Grab the languages file using the XA langlib wrapper
-text = xa.language.getLanguage('xaipghosting')
+text = ghosting.language.getLanguage()
 
 # Public variable for version
 #es.ServerVar("xa_blind_ip_ghosters_ver",str(info.version), "Blind IP Ghosters, version").makepublic()
@@ -110,7 +109,7 @@ def blindplayer(uid):
     # tell them
     blinded[uid].tell_blinded()
     # log that they were blinded
-    xa.logging.log(ghosting, "Blinded player %s (%s)" % (str(uid), es.getplayersteamid(uid)))
+    ghosting.logging.log("Blinded player %s (%s)" % (str(uid), es.getplayersteamid(uid)))
                 
 def blindplayer_spec(uid):
     '''
@@ -126,7 +125,7 @@ def blindplayer_spec(uid):
     # tell them
     spec_blinded[uid].tell_blinded()
     # log that they were blinded
-    xa.logging.log(ghosting, "Blinded player %s (%s)" % (str(uid), es.getplayersteamid(uid)))
+    ghosting.logging.log("Blinded player %s (%s)" % (str(uid), es.getplayersteamid(uid)))
     
 
 def checkplayer(uid):
@@ -163,11 +162,11 @@ def blind_con_com():
         admin = playerlib.getPlayer(es.getcmduserid())
         if id > 0:
             target = playerlib.getPlayer(id)
-            if xa.setting.getVariable(ghosting, 'blind_ghosters') == "0":
+            if ghosting.setting.getVariable('blind_ghosters') == "0":
                 # can only use this if auto blinding is OFF
                 if checkplayer(int(target)):
                     es.msg("#green %s blinded %s till the end of the round for ghosting" % (admin.attributes["name"], target.attributes["name"]))
-                    xa.logging.log(ghosting, "Admin (%s) blinded player %s for ghosting " % (admin.attributes["name"], target.attributes["name"]))
+                    ghosting.logging.log("Admin (%s) blinded player %s for ghosting " % (admin.attributes["name"], target.attributes["name"]))
                     blindplayer(str(target))
                 else:
                     es.tell(int(admin), "#green %s was not IP ghosting" % (target.attributes["name"]))
@@ -181,24 +180,21 @@ def blind_con_com():
 Events
 '''
 def load():
-    global ghosting
-    # Register the module
-    ghosting = xa.register("xaipghosting") 
     # sort the variable registration
-    xa.setting.createVariable(ghosting, 'blind_ghosters', '1', "Blind IP Ghosters when they die (1=On, 0=Off)") 
+    ghosting.setting.createVariable('blind_ghosters', '1', "Blind IP Ghosters when they die (1=On, 0=Off)") 
     # Option to blind people who are speccing
-    xa.setting.createVariable(ghosting, 'blind_ghosters_when_spectating', '1', "Blind IP Ghosters when they are spectating (1=On, 0=Off)") 
+    ghosting.setting.createVariable('blind_ghosters_when_spectating', '1', "Blind IP Ghosters when they are spectating (1=On, 0=Off)") 
     # create the console command
     ghosting.addCommand('xa_blind_ghoster',blind_con_com,'blind_ghoster','#admin').register(('console','say'))
     # log what happened
-    xa.logging.log(ghosting, "Loaded IP Ghosting (mani clone) V%s" % (info.version))
+    ghosting.logging.log("Loaded IP Ghosting (mani clone) V%s" % (info.version))
 
 def player_death(event_var):
     global blinded
     '''
     If player is IP ghosting add them to the list! And if the repeat is not fired yet then do that too!
     '''
-    if xa.setting.getVariable(ghosting, 'blind_ghosters') != "0" and checkplayer(event_var['userid']):
+    if ghosting.setting.getVariable('blind_ghosters') != "0" and checkplayer(event_var['userid']):
         blindplayer(event_var['userid'])
         
 
@@ -218,7 +214,7 @@ def player_team(event_var):
     Blinds a ghoster when they switch to Spec.. and removes them again when they go back to playing.
     '''
     if not int(event_var['disconnect']):
-        if xa.setting.getVariable(ghosting, 'blind_ghosters_when_spectator') != "0" and checkplayer(event_var['userid']) and int(vent_var['team']) == 1:
+        if ghosting.setting.getVariable('blind_ghosters_when_spectator') != "0" and checkplayer(event_var['userid']) and int(vent_var['team']) == 1:
             blindplayer_spec(event_var['userid'])
         if int(event_var['team']) > 1 and  event_var["userid"] in spec_blinded:
             # check they are not on the list and remove them
@@ -236,6 +232,6 @@ def player_disconnect(event_var):
         remove_from_spec(event_var['userid'])
             
 def unload():
-    xa.logging.log(ghosting, "XA module xaipghosting is being unloaded.")
+    ghosting.logging.log("XA module xaipghosting is being unloaded.")
     # Unregister the module
-    xa.unregister("xaipghosting")
+    xa.unregister(ghosting)

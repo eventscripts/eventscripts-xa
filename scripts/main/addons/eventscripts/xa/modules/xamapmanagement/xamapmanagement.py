@@ -1,9 +1,8 @@
 import es
 import popuplib
-import xa.language
-from xa import xa
 import os.path
 import string
+from xa import xa
 
 gActions = {}
 gMapCycle = []
@@ -11,7 +10,7 @@ gCurrentMap = None
 gDefaultMaps = ('cs_assault','cs_compound','cs_havana','cs_italy','cs_militia','cs_office','de_aztec','de_cbble','de_chateau','de_dust','de_dust2','de_inferno','de_nuke','de_piranesi','de_port','de_prodigy','de_tides','de_train')
 
 xamapmanagement = xa.register('xamapmanagement')
-xalanguage = xa.language.getLanguage(xamapmanagement)
+xalanguage = xamapmanagement.language.getLanguage()
 
 nextmapvar = es.ServerVar('eventscripts_nextmapoverride')
 gamedir = str(es.ServerVar('eventscripts_gamedir'))
@@ -28,7 +27,7 @@ def load():
     map_cycle()
 
 def unload():
-    xa.unregister("xamapmanagement")
+    xa.unregister(xamapmanagement)
 
 def es_map_start(event_var):
     global gCurrentMap
