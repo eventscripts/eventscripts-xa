@@ -88,7 +88,7 @@ def _command_player():
     adminid = es.getcmduserid()
     if adminid > 0:
         admin = playerlib.getPlayer(adminid)
-    cmd = es.getargv(0).replace('ma_', 'xa_')
+    cmd = es.getargv(0).replace(str(es.ServerVar('xa_sayprefix')), 'xa_', 1).replace('ma_', 'xa_', 1)
     if cmd in punishment_cross_ref:
         punishment = punishment_cross_ref[cmd]
         if punishment in punishment_argc:

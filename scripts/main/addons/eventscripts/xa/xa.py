@@ -46,7 +46,7 @@ gCoreVariables = []
 ## language strings
 gLanguage = language.getLanguage()
 ## Version variable
-gVersion = es.ServerVar("eventscripts_xa", "0.7.0.239", "eXtensible Admin Version")
+gVersion = es.ServerVar("eventscripts_xa", "0.7.0.250", "eXtensible Admin Version")
 gVersion.makepublic()
 ## is server logging enabled?
 gLog = es.ServerVar("xa_log", 0, "Activates the module logging")
@@ -334,8 +334,7 @@ class Admin_command(object):
         if "say" in cmdlist and self.say == False:
             if self.name.startswith('xa_'):
                 es.regsaycmd(str(gSayPrefix)+self.name[3:], "xa/incoming_say", "eXtensible Admin command")
-            else:
-                es.regsaycmd(self.name, "xa/incoming_say", "eXtensible Admin command")
+            es.regsaycmd(self.name, "xa/incoming_say", "eXtensible Admin command")
             self.say = True
     def unregister(self, gList):
         if isinstance(gList, str):
@@ -350,8 +349,7 @@ class Admin_command(object):
         if "say" in cmdlist and self.say == True:
             if self.name.startswith('xa_'):
                 es.unregsaycmd(str(gSayPrefix)+self.name[3:])
-            else:
-                es.unregsaycmd(self.name)
+            es.unregsaycmd(self.name)
             self.say = False
     def unRegister(self, gList):
         self.unregister(gList)
@@ -987,6 +985,8 @@ def consolecmd():
 
 def incoming_server():
     command = es.getargv(0)
+    if command.startswith('ma_'):
+        command = 'xa_'+command[3:]
     if command in gCommandsPerm:
         block = gCommandsBlock[command]
         if callable(block):
@@ -997,6 +997,8 @@ def incoming_server():
 def incoming_console():
     userid = es.getcmduserid()
     command = es.getargv(0)
+    if command.startswith('ma_'):
+        command = 'xa_'+command[3:]
     if command in gCommandsPerm:
         if gCommandsPerm[command]:
             perm = gCommandsPerm[command]
@@ -1011,6 +1013,10 @@ def incoming_console():
 def incoming_say():
     userid = es.getcmduserid()
     command = es.getargv(0)
+    if command.startswith('ma_'):
+        command = 'xa_'+command[3:]
+    elif command.startswith(str(gSayPrefix)):
+        command = 'xa_'+command[len(str(gSayPrefix)):]
     if command in gCommandsPerm:
         if gCommandsPerm[command]:
             perm = gCommandsPerm[command]

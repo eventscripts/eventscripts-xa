@@ -34,7 +34,7 @@ myvariable = mymodule.setting.createVariable('some_variable', 1, "Some variable 
 # GLOBALS
 # Initialize our general global data here.
 # Localization helper:
-text = mymodule.language.getLanguage(mymodulename)
+text = mymodule.language.getLanguage()
 
 
 #######################################
