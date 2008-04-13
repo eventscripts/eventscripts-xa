@@ -32,20 +32,20 @@ quake_sounds                        = xamodule.setting.createVariable('quake_sou
 quake_sounds_download               = xamodule.setting.createVariable('quake_auto_download', '0', '0 = Don\'t auto download files to client, 1 = automatically download files to client')
 quake_sounds_settings               = xamodule.setting.createVariable('player_settings_quake', '1', '0 = player settings default to off, 1 = player settings default to on')
 quake_kill_streak_mode              = xamodule.setting.createVariable('quake_kill_streak_mode', '0', 'Reset kill streaks per round 1 = per round/death, 0 = per death')
-quake_humiliation_mode              = xamodule.setting.createVariable('quake_humiliation_mode', '0', '0 = off, 1 = all players hear it, 2 = players involved hear it, 3 = attacker hears it, 4 = victim hears it')
+quake_humiliation_mode              = xamodule.setting.createVariable('quake_humiliation_mode', '1', '0 = off, 1 = all players hear it, 2 = players involved hear it, 3 = attacker hears it, 4 = victim hears it')
 quake_humiliation_visual_mode       = xamodule.setting.createVariable('quake_humiliation_visual_mode', '1', '0 = off, 1 = all players see it, 2 = players involved see it, 3 = attacker sees it, 4 = victim sees it')
 quake_humiliation_weapon            = xamodule.setting.createVariable('quake_humiliation_weapon', 'knife', 'Weapon that triggers the humiliation sound')
 quake_humiliation_weapon2           = xamodule.setting.createVariable('quake_humiliation_weapon2', '', 'Second weapon that triggers the humiliation sound')
-quake_firstblood_mode               = xamodule.setting.createVariable('quake_firstblood_mode', '0', '0 = off, 1 = all players hear it, 2 = players involved hear it, 3 = attacker hears it, 4 = victim hears it')
+quake_firstblood_mode               = xamodule.setting.createVariable('quake_firstblood_mode', '1', '0 = off, 1 = all players hear it, 2 = players involved hear it, 3 = attacker hears it, 4 = victim hears it')
 quake_firstblood_visual_mode        = xamodule.setting.createVariable('quake_firstblood_visual_mode', '1', '0 = off, 1 = all players see it, 2 = players involved see it, 3 = attacker sees it, 4 = victim sees it')
 quake_firstblood_reset_per_round    = xamodule.setting.createVariable('quake_firstblood_reset_per_round', '1', 'CSS Only, 1 = reset per round, 0 = per map')
-quake_headshot_mode                 = xamodule.setting.createVariable('quake_headshot_mode', '0', '0 = off, 1 = all players hear it, 2 = players involved hear it, 3 = attacker hears it, 4 = victim hears it')
+quake_headshot_mode                 = xamodule.setting.createVariable('quake_headshot_mode', '1', '0 = off, 1 = all players hear it, 2 = players involved hear it, 3 = attacker hears it, 4 = victim hears it')
 quake_headshot_visual_mode          = xamodule.setting.createVariable('quake_headshot_visual_mode', '3', '0 = off, 1 = all players see it, 2 = players involved see it, 3 = attacker sees it, 4 = victim sees it')
 quake_prepare_to_fight_mode         = xamodule.setting.createVariable('quake_prepare_to_fight_mode', '0', '0 = off, 1 = all players hear it, 2 = players involved hear it, 3 = attacker hears it, 4 = victim hears it')
 quake_prepare_to_fight_visual_mode  = xamodule.setting.createVariable('quake_prepare_to_fight_visual_mode', '1', '0 = off, 1 = all players see it, 2 = players involved see it, 3 = attacker sees it, 4 = victim sees it')
 quake_multi_kill_mode               = xamodule.setting.createVariable('quake_multi_kill_mode', '0', '0 = off, 1 = all players hear it, 2 = players involved hear it, 3 = attacker hears it, 4 = victim hears it')
 quake_multi_kill_visual_mode        = xamodule.setting.createVariable('quake_multi_kill_visual_mode', '1', '0 = off, 1 = all players see it, 2 = players involved see it, 3 = attacker sees it, 4 = victim sees it')
-quake_team_killer_mode              = xamodule.setting.createVariable('quake_team_killer_mode', '0', '0 = off, 1 = all players hear it, 2 = players involved hear it, 3 = attacker hears it, 4 = victim hears it')
+quake_team_killer_mode              = xamodule.setting.createVariable('quake_team_killer_mode', '1', '0 = off, 1 = all players hear it, 2 = players involved hear it, 3 = attacker hears it, 4 = victim hears it')
 quake_team_killer_visual_mode       = xamodule.setting.createVariable('quake_team_killer_visual_mode', '1', '0 = off, 1 = all players see it, 2 = players involved see it, 3 = attacker sees it, 4 = victim sees it')
 
 xaquakekills = {}
@@ -189,7 +189,7 @@ def player_death(event_var):
                 _play_quakesound(xaquakesoundslist['humiliation'], 'humiliation', userid, attackerid, int(quake_humiliation_mode), int(quake_humiliation_visual_mode))
             elif firstblood == True:
                 firstblood = False
-                if int(quake_firstblood_mode) == 1:
+                if int(quake_firstblood_mode) >= 1:
                     _play_quakesound(xaquakesoundslist['firstblood'], 'firstblood', userid, attackerid, int(quake_firstblood_mode), int(quake_firstblood_visual_mode))
             elif playerheads[userid] == True:
                 playerheads[userid] = False
