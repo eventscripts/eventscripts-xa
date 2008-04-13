@@ -76,7 +76,7 @@ def player_disconnect(ev):
     userid = int(ev['userid']) 
     if players.has_key(userid): 
         del players[userid] 
-    
+
 def round_end(ev): 
     for userid in es.getUseridList(): 
         if not es.getplayerprop(userid, 'CBasePlayer.pl.deadflag'): 
@@ -91,8 +91,9 @@ def round_end(ev):
             gamethread.cancelDelayed('timebomb_%s'%userid) 
             gamethread.cancelDelayed('freezebomb_%s'%userid) 
             gamethread.cancelDelayed('firebomb_%s'%userid) 
-            es.setplayerprop(userid, "CBaseEntity.movetype", 2) 
-        
+            es.setplayerprop(userid, "CBaseEntity.movetype", 2)
+            es.setplayerprop(userid, 'CBasePlayer.m_iDefaultFOV', 165)
+
 def player_death(ev): 
     userid = int(ev['userid']) 
     players[userid]['timebombed']   = 0 
@@ -106,8 +107,9 @@ def player_death(ev):
     gamethread.cancelDelayed('timebomb_%s'%userid) 
     gamethread.cancelDelayed('freezebomb_%s'%userid) 
     gamethread.cancelDelayed('firebomb_%s'%userid) 
-    es.setplayerprop(userid, "CBaseEntity.movetype", 2) 
-    
+    es.setplayerprop(userid, "CBaseEntity.movetype", 2)
+    es.setplayerprop(userid, 'CBasePlayer.m_iDefaultFOV', 165)
+
 def _blind(userid, adminid, args): 
     blind = players[userid]['blind'] 
     if str(xa_admingimp_anonymous) == "0": 

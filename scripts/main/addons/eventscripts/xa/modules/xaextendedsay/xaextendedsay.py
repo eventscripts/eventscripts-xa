@@ -34,7 +34,7 @@ def _admin_say_tell(adminid, message, teamonly):
             es.centertell(adminid, xalanguage('admin center to player', tokens, playerlib.getPlayer(adminid).get("lang"))) 
     else: 
         tokens['userid'] = userid 
-        es.tell(adminid, '#multi', xalanguage('no player found', tokens, playerlib.getPlayer(userid).get("lang"))) 
+        es.tell(adminid, '#multi', xalanguage('no player found', tokens, playerlib.getPlayer(adminid).get("lang"))) 
     return (0,'',0) 
     
 def _admin_say_center(userid, message, teamonly): 
