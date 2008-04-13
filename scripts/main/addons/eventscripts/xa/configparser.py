@@ -29,6 +29,7 @@ def getList(module, filename, modfolder = False):
             try:
                 for line in f:
                     if (len(line) > 0) and (line[0:2] != '//') and (line != '\n'):
+                        line = line.replace("\r", "")
                         line = line.replace("\n", "")
                         line = line.replace("\t", " ")
                         line = line.replace("  ", " ")
@@ -54,6 +55,7 @@ def getAliasList(module, filename, modfolder = False):
             try:
                 for line in f:
                     if (len(line) > 0) and (line[0:2] != '//') and (line != '\n'):
+                        line = line.replace("\r", "")
                         line = line.replace("\n", "")
                         line = line.replace("\t", " ")
                         line = line.replace("  ", " ")
