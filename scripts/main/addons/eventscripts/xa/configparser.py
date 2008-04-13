@@ -25,7 +25,7 @@ def getList(module, filename, modfolder = False):
         filename = filename.replace("\\", "/")
         if os.path.exists(filename):
             lines = []
-            f = open(filename, "r")
+            f = open(filename, "rU")
             try:
                 for line in f:
                     if (len(line) > 0) and (line[0:2] != '//') and (line != '\n'):
@@ -51,7 +51,7 @@ def getAliasList(module, filename, modfolder = False):
         filename = filename.replace("\\", "/")
         if os.path.exists(filename):
             lines = {}
-            f = open(filename, "r")
+            f = open(filename, "rU")
             try:
                 for line in f:
                     if (len(line) > 0) and (line[0:2] != '//') and (line != '\n'):
