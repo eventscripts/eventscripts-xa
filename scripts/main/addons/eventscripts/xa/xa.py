@@ -1,7 +1,5 @@
 #import EventScripts
 import es
-import gamethread
-from es import server_var
 
 #load and import the core
 es.dbgmsg(0, "[eXtensible Admin] Begin loading...")
@@ -10,6 +8,7 @@ es.dbgmsg(0, "[eXtensible Admin] Begin loading...")
 import os
 import hotshot
 import services
+import gamethread
 import playerlib
 import popuplib
 import keymenulib
@@ -46,7 +45,7 @@ gCoreVariables = []
 ## language strings
 gLanguage = language.getLanguage()
 ## Version variable
-gVersion = es.ServerVar("eventscripts_xa", "0.7.0.250", "eXtensible Admin Version")
+gVersion = es.ServerVar("eventscripts_xa", "0.7.0.263", "eXtensible Admin Version")
 gVersion.makepublic()
 ## is server logging enabled?
 gLog = es.ServerVar("xa_log", 0, "Activates the module logging")
@@ -221,8 +220,9 @@ class Admin_module(object):
     def delCommand(self, command):
         #delete a menu
         if (command in self.subCommands):
-            self.subCommands[command].unRegister(['server','console','say'])
-            self.subCommands[command] = None
+            if self.subCommands[command]:
+                self.subCommands[command].unregister(['server','console','say'])
+                self.subCommands[command] = None
         else:
             es.dbgmsg(0,"Xa.py: Cannot delete menu \""+menu+"\", it does not exist")
     def isCommand(self, command):
@@ -240,8 +240,9 @@ class Admin_module(object):
     def delMenu(self, menu):
         #delete a menu
         if (menu in self.subMenus):
-            self.subMenus[menu].unRegister()
-            self.subMenus[menu] = None
+            if self.subMenus[menu]:
+                self.subMenus[menu].unregister()
+                self.subMenus[menu] = None
         else:
             es.dbgmsg(0,"Xa.py: Cannot delete menu \""+menu+"\", it does not exist")
     def isMenu(self, menu):
