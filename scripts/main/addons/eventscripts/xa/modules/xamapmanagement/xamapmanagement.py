@@ -88,7 +88,7 @@ def show_nextmap():
         nextmap = str(nextmapvar)
     else:
         nextmap = gMapCycle[gCurrentMap+1]
-    es.tell(userid,'#multi','#green[XA] #default',xalanguage('new next map',{'mapname':nextmap},playerlib.getPlayer(userid).get('lang')))
+    es.tell(userid,'#multi','#green[XA] #default',xalanguage('show next map',{'mapname':nextmap},playerlib.getPlayer(userid).get('lang')))
 
 def xamapmainmenu_handler(userid,choice,popupname):
     gActions[userid] = choice
