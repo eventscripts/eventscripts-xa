@@ -22,6 +22,7 @@ def getList(module, filename, modfolder = False):
             filename = "%s/cfg/xa/%s/%s" % (selfmoddir, str(module), filename)
         else:
             filename = "%s/%s" % (selfmoddir, filename)
+        filename = filename.replace("\\", "/")
         if os.path.exists(filename):
             lines = []
             f = open(filename, "r")
@@ -46,6 +47,7 @@ def getAliasList(module, filename, modfolder = False):
             filename = "%s/cfg/xa/%s/%s" % (selfmoddir, str(module), filename)
         else:
             filename = "%s/%s" % (selfmoddir, filename)
+        filename = filename.replace("\\", "/")
         if os.path.exists(filename):
             lines = {}
             f = open(filename, "r")
@@ -72,6 +74,7 @@ def getKeyList(module, filename, modfolder = False):
             filename = "%s/cfg/xa/%s/%s" % (selfmoddir, str(module), filename)
         else:
             filename = "%s/%s" % (selfmoddir, filename)
+        filename = filename.replace("\\", "/")
         if os.path.exists(filename):
             kv = keyvalues.KeyValues(name=basename(filename))
             kv.load(filename)
