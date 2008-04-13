@@ -1,5 +1,6 @@
 import es
 import popuplib
+import playerlib
 import os.path
 import string
 from xa import xa
@@ -11,16 +12,17 @@ gDefaultMaps = ('cs_assault','cs_compound','cs_havana','cs_italy','cs_militia','
 
 xamapmanagement = xa.register('xamapmanagement')
 xalanguage = xamapmanagement.language.getLanguage()
+xa_announce_setnextmap = xamapmanagement.setting.createVariable('announce_setnextmap', 1)
 
 nextmapvar = es.ServerVar('eventscripts_nextmapoverride')
 gamedir = str(es.ServerVar('eventscripts_gamedir'))
 
 def load():
     xamapmainmenu = popuplib.easymenu('xamapmainmenu',None,xamapmainmenu_handler)
-    xamapmainmenu.settitle(xalanguage['map management'])
-    xamapmainmenu.addoption('changemap',xalanguage['change map'])
-    xamapmainmenu.addoption('setnextmap',xalanguage['set map'])
-    xamapmanagement.addMenu('xamapmainmenu',xalanguage['map management'],'xamapmainmenu','manage_maps','#admin')
+    xamapmainmenu.settitle(xalanguage('map management'))
+    xamapmainmenu.addoption('changemap',xalanguage('change map'))
+    xamapmainmenu.addoption('setnextmap',xalanguage('set map'))
+    xamapmanagement.addMenu('xamapmainmenu',xalanguage('map management'),'xamapmainmenu','manage_maps','#admin')
     xamapmanagement.addCommand('nextmap',show_nextmap,'use_nextmap','#all').register(('console', 'say'))
     xamapmanagement.addCommand('xa_setnextmap',set_nextmap,'manage_maps','#admin').register(('server','console'))
     map_menu()
@@ -86,7 +88,7 @@ def show_nextmap():
         nextmap = str(nextmapvar)
     else:
         nextmap = gMapCycle[gCurrentMap+1]
-    es.tell(userid,'Next map: '+nextmap)
+    es.tell(userid,'#multi','#green[XA] #default',xalanguage('new next map',{'mapname':nextmap},playerlib.getPlayer(userid).get('lang')))
 
 def xamapmainmenu_handler(userid,choice,popupname):
     gActions[userid] = choice
@@ -97,16 +99,22 @@ def mapmenu_handler(userid,choice,popupname):
         es.server.cmd('changelevel '+choice)
     elif gActions[userid] == 'setnextmap':
         nextmapvar.set(choice)
+        if str(xa_announce_setnextmap) == '1':
+            for player in playerlib.getPlayerList():
+                es.tell(player.userid, xalanguage('new next map', {'mapname':choice}, player.get('lang')))
     del gActions[userid]
 
 def set_nextmap():
     mapname = es.getargv(1)
     if map_check(mapname):
         nextmapvar.set(mapname)
+        if str(xa_announce_setnextmap) == '1':
+            for player in playerlib.getPlayerList():
+                es.tell(player.userid, xalanguage('new next map', {'mapname':mapname}, player.get('lang')))
     else:
         userid = int(es.getcmduserid())
         if userid:
-            es.tell(userid,'#multi','#green[XA] #default',xalanguage['map management',{'mapname':mapname}])
+            es.tell(userid,'#multi','#green[XA] #default',xalanguage('invalid map',{'mapname':mapname},playerlib.getPlayer(userid).get('lang')))
 
             
 
