@@ -92,7 +92,7 @@ def round_end(ev):
             gamethread.cancelDelayed('freezebomb_%s'%userid) 
             gamethread.cancelDelayed('firebomb_%s'%userid) 
             es.setplayerprop(userid, "CBaseEntity.movetype", 2)
-            es.setplayerprop(userid, 'CBasePlayer.m_iDefaultFOV', 165)
+            es.setplayerprop(userid, 'CBasePlayer.m_iDefaultFOV', 90)
 
 def player_death(ev): 
     userid = int(ev['userid']) 
@@ -108,7 +108,7 @@ def player_death(ev):
     gamethread.cancelDelayed('freezebomb_%s'%userid) 
     gamethread.cancelDelayed('firebomb_%s'%userid) 
     es.setplayerprop(userid, "CBaseEntity.movetype", 2)
-    es.setplayerprop(userid, 'CBasePlayer.m_iDefaultFOV', 165)
+    es.setplayerprop(userid, 'CBasePlayer.m_iDefaultFOV', 90)
 
 def _blind(userid, adminid, args): 
     blind = players[userid]['blind'] 
