@@ -13,7 +13,7 @@ from sqlite3 import dbapi2 as sqlite
 
 info = es.AddonInfo()
 info.name        = "AuthManage"
-info.version     = "0.2"
+info.version     = "0.3"
 info.author      = "HTP"
 info.url         = "http://forums.mattie.info/cs/forums/index.php"
 info.description = "Popup interface for Authorization Management"
@@ -327,6 +327,8 @@ def _update_badmins(steamid,name=None,master=None,suspend=None):
 
 def _set_playergroup(userid,choice,popupid):
     es.dbgmsg(1,'*****_set_playergroup')
+    steamid = es.getplayersteamid(es.getuserid(choice[1]))
+    es.server.queuecmd('gauth user create %s %s' % (choice[1], steamid))
     es.server.queuecmd('gauth user join %s %s' %(choice[1], choice[0]))
   
   #========= gauthmain groups use ================
@@ -346,9 +348,10 @@ def _groupsmain_select(userid,choice,popupid):
                 groupslist = popuplib.easymenu('groupslist', None, _remove_group)
                 groupslist.settitle(lang['select remove group'])
             for group in groups:
-                es.dbgmsg(0,'*****group=%s' %group)
-                group = utfcode(group)
-                groupslist.addoption(group[0], utfcode(group[0]))
+                es.dbgmsg(1,'*****group=%s' %group)
+                group = utfcode(group[0])
+                #groupslist.addoption(group[0], utfcode(group[0]))
+                groupslist.addoption(group,group)
             groupslist.send(userid)
         else:
             es.tell(userid, '#multi', prefix + lang('no groups'))    
@@ -410,6 +413,8 @@ def inputbox_handle():
         level = es.getargv(2)
         level = level.lower()        
         if level in ('root','admin','poweruser','known','all'):
+            if level == 'root': 
+                level = 0
             if level == 'admin': 
                 level = 1
             if level == 'poweruser': 
@@ -429,7 +434,7 @@ def inputbox_handle():
   #============= gauthmain users use =================
 def _userslist(userid):
     es.dbgmsg(1,'*****_userslist')
-    users = db.query("SELECT Name FROM Players")
+    users = db.query("SELECT Name FROM Players WHERE Name!='UNKNOWN'")
     if users:
         global usersmenu
         usersmenu = popuplib.easymenu('usersmenu', None, _usersmenu_select)
@@ -537,12 +542,13 @@ def _capmain_select(userid,choice,popupid):
             action = 'revoke'  
         else:
             es.tell(userid,'#multi',prefix + '#lightgreen' + capname + '#default' + lang('not in groups'))
+    es.dbgmsg(0,'*****groups=%s' %groups)
     if groups:
         for group in groups:	
             capgroups.addoption((action,capname,group[0]),utfcode(group[0]))
         capgroups.send(userid)
-    else:
-        capmain.send(userid)
+    #else:
+    #    capmain.send(userid)
 
 def _capgroup_set(userid,choice,popupid):
     es.dbgmsg(1,'*****_capgroup_set')
