@@ -150,6 +150,7 @@ class Admin_module(object):
         self.allowAutoUnload = True
         self.subCommands = {}
         self.subMenus = {}
+        self.customPermissions = {}
         self.requiredFrom = []
         self.requiredList = []
         self.variables = {}
@@ -253,6 +254,10 @@ class Admin_module(object):
         if (menu in self.subMenus):
             return self.subMenus[menu]
         return None
+    def registerCapability(self, perm, permlvl, permtype='admin'):
+        auth = services.use("auth")
+        auth.registerCapability(perm, permlvl)
+        self.customPermissions[perm] = {'level':permlvl, 'type':str(permtype).lower()}
     def information(self, listlevel):
         if listlevel >= 1:
             es.dbgmsg(0, " ")
@@ -581,7 +586,7 @@ class Admin_mani(object):
     def loadModules(self):
         filename = "%s/%s" % (es.getAddonPath('xa'), 'static/manimodule.txt')
         if os.path.exists(filename):
-            f = open(filename, "r")
+            f = open(filename, "rU")
             try:
                 for line in f:
                     linelist = line.strip().split("|", 3)
@@ -600,7 +605,7 @@ class Admin_mani(object):
     def loadVariables(self):
         filename = "%s/%s" % (es.getAddonPath('xa'), 'static/maniconfig.txt')
         if os.path.exists(filename):
-            f = open(filename, "r")
+            f = open(filename, "rU")
             try:
                 for line in f:
                     linelist = line.strip().split("|", 2)
@@ -610,6 +615,123 @@ class Admin_mani(object):
             return True
         else:
             raise IOError, "Could not find xa/static/maniconfig.txt!"
+            
+    def convertClients(self):
+        auth = services.use('auth')
+        if not auth.name in ('group_auth', 'basic_auth'):
+            # Unsupported Auth Provider
+            return False
+
+        filename = "%s/%s" % (es.getAddonPath('xa'), 'static/manipermission.txt')
+        if os.path.exists(filename):
+            permissions = keyvalues.KeyValues(name="manipermission.txt")
+            permissions.load(filename)
+        else:
+            raise IOError, "Could not find xa/static/manipermission.txt!"
+
+        filename = "%s/%s" % (selfmoddir, 'cfg/mani_admin_plugin/clients.txt')
+        if os.path.exists(filename):
+            clients = keyvalues.KeyValues(name="clients.txt")
+            clients.load(filename)
+        else:
+            # Could not find cfg/mani_admin_plugin/clients.txt!
+            return False
+
+        if not "players" in clients:
+            clients["players"] = keyvalues.KeyValues(name="players")
+        if not "admingroups" in clients:
+            clients["admingroups"] = keyvalues.KeyValues(name="admingroups")
+        if not "immunitygroups" in clients:
+            clients["immunitygroups"] = keyvalues.KeyValues(name="immunitygroups")
+
+        if auth.name == 'basic_auth':
+            es.dbgmsg(0, "[eXtensible Admin] Converting clients.txt to Basic Auth")
+            adminlist = str(es.ServerVar('BASIC_AUTH_ADMIN_LIST'))
+            for client in clients["players"]:
+                if 'steam' in clients["players"][str(client)]:
+                    if not clients["players"][str(client)]['steam'] in adminlist.split(';'):
+                        adminlist += ';' + str(clients["players"][str(client)]['steam'])
+                        es.dbgmsg(0, ("[eXtensible Admin] Added Admin: %s [%s]" % (str(client), str(clients["players"][str(client)]['steam']))))
+            es.dbgmsg(0, "[eXtensible Admin] Finished Mani setup for Basic Auth")        
+        elif auth.name == 'group_auth':
+            es.dbgmsg(0, "[eXtensible Admin] Converting clients.txt to Group Auth")
+            permcache = []
+            commandqueue = []
+            adminflags = {}
+            immunityflags = {}
+            if int(es.ServerVar('mani_reverse_admin_flags')):
+                for module in sorted(gModules):
+                    x = gModules[module]
+                    for command in sorted(x.subCommands):
+                        adminflags[str(x.subCommands[command].permission)] = 'ADMIN'
+                    for menu in x.subMenus:
+                        adminflags[str(x.subMenus[menu].permission)] = 'ADMIN'
+                    for custom in x.customPermissions:
+                        if x.customPermissions[str(custom)]['type'] == 'admin':
+                            adminflags[str(custom)] = 'ADMIN'
+            if int(es.ServerVar('mani_reverse_immunity_flags')):
+                for module in sorted(gModules):
+                    x = gModules[module]
+                    for custom in x.customPermissions:
+                        if x.customPermissions[str(custom)]['type'] == 'immunity':
+                            immunityflags[str(custom)] = 'ADMIN'
+            for perm in permissions['adminflags']:
+                if not str(perm) in adminflags:
+                    adminflags[str(perm)] = permissions['adminflags'][str(perm)]
+            for perm in permissions['immunityflags']:
+                if not str(perm) in immunityflags:
+                    immunityflags[str(perm)] = permissions['immunityflags'][str(perm)]
+            for group in clients["admingroups"]:
+                if 'ADMIN' in clients["admingroups"][str(group)].upper().split(' '):
+                    commandqueue.append('gauth group create "%s" %d' % (str(group).replace(' ', '_'), int(es.ServerVar('AUTHSERVICE_ADMIN'))))
+                else:
+                    commandqueue.append('gauth group create "%s" %d' % (str(group).replace(' ', '_'), int(es.ServerVar('AUTHSERVICE_UNRESTRICTED'))))
+                if int(es.ServerVar('mani_reverse_admin_flags')):
+                    for perm in adminflags:
+                        if (adminflags[str(perm)] in clients["admingroups"][str(group)].split(' ')) or (str(adminflags[str(perm)]).upper() == 'ADMIN'):
+                            if not str(perm) in permcache:
+                                permcache.append(str(perm))
+                                commandqueue.append('gauth power create "%s" %s' % (str(perm), str(es.ServerVar('AUTHSERVICE_ADMIN'))))
+                            commandqueue.append('gauth power give "%s" "%s"' % (str(perm), str(group).replace(' ', '_')))
+                else:
+                    for perm in adminflags:
+                        if (not adminflags[str(perm)] in clients["admingroups"][str(group)].split(' ')) or (str(adminflags[str(perm)]).upper() == 'ADMIN'):
+                            if not str(perm) in permcache:
+                                permcache.append(str(perm))
+                                commandqueue.append('gauth power create "%s" %s' % (str(perm), str(es.ServerVar('AUTHSERVICE_ADMIN'))))
+                            commandqueue.append('gauth power give "%s" "%s"' % (str(perm), str(group).replace(' ', '_')))
+            for group in clients["immunitygroups"]:
+                if 'IMMUNITY' in clients["immunitygroups"][str(group)].upper().split(' '):
+                    commandqueue.append('gauth group create "%s" %d' % (str(group).replace(' ', '_'), int(es.ServerVar('AUTHSERVICE_ADMIN'))))
+                else:
+                    commandqueue.append('gauth group create "%s" %d' % (str(group).replace(' ', '_'), int(es.ServerVar('AUTHSERVICE_UNRESTRICTED'))))
+                if int(es.ServerVar('mani_reverse_immunity_flags')):
+                    for perm in immunityflags:
+                        if (immunityflags[str(perm)] in clients["immunitygroups"][str(group)].split(' ')) or (str(immunityflags[str(perm)]).upper() == 'IMMUNITY'):
+                            if not str(perm) in permcache:
+                                permcache.append(str(perm))
+                                commandqueue.append('gauth power create "%s" %s' % (str(perm), str(es.ServerVar('AUTHSERVICE_ADMIN'))))
+                            commandqueue.append('gauth power give "%s" "%s"' % (str(perm), str(group).replace(' ', '_')))
+                else:
+                    for perm in immunityflags:
+                        if (not immunityflags[str(perm)] in clients["immunitygroups"][str(group)].split(' ')) or (str(immunityflags[str(perm)]).upper() == 'IMMUNITY'):
+                            if not str(perm) in permcache:
+                                permcache.append(str(perm))
+                                commandqueue.append('gauth power create "%s" %s' % (str(perm), str(es.ServerVar('AUTHSERVICE_ADMIN'))))
+                            commandqueue.append('gauth power give "%s" "%s"' % (str(perm), str(group).replace(' ', '_')))
+            for client in clients["players"]:
+                if 'steam' in clients["players"][str(client)]:
+                    commandqueue.append('gauth user create "%s" "%s"' % (str(client), str(clients["players"][str(client)]['steam'])))
+                    es.dbgmsg(0, ("[eXtensible Admin] Added Client: %s [%s]" % (str(client), str(clients["players"][str(client)]['steam']))))
+                    if 'admingroups' in clients["players"][str(client)]:
+                        for group in clients["players"][str(client)]["admingroups"].split(';'):
+                            commandqueue.append('gauth user join "%s" "%s"' % (str(client), str(group).replace(' ', '_')))
+                    if 'immunitygroups' in clients["players"][str(client)]:
+                        for group in clients["players"][str(client)]["immunitygroups"].split(';'):
+                            commandqueue.append('gauth user join "%s" "%s"' % (str(client), str(group).replace(' ', '_')))
+            for cmd in commandqueue:
+                es.server.cmd(cmd)
+            es.dbgmsg(0, "[eXtensible Admin] Finished Mani setup for Group Auth")
 
 ###########################################
 #EventScripts events and blocks start here#
@@ -632,6 +754,7 @@ def load():
         ma.loadVariables() #setup basic mani variables
         es.server.cmd("exec mani_server.cfg")
         ma.loadModules()   #load the mani modules if needed
+        ma.convertClients()
     es.dbgmsg(0, "[eXtensible Admin] Executing xamodules.cfg...")
     es.server.cmd('exec xamodules.cfg')
     es.dbgmsg(0, "[eXtensible Admin] Updating xamodules.cfg...")
@@ -696,6 +819,8 @@ def consolecmd():
                 permissions.append([str(x.name), str(x.subCommands[command].permission), str(x.subCommands[command].permissionlevel), 'command', str(x.subCommands[command].name)])
             for menu in x.subMenus:
                 permissions.append([str(x.name), str(x.subMenus[menu].permission), str(x.subMenus[menu].permissionlevel), 'menu', str(x.subMenus[menu].name)])
+            for custom in x.customPermissions:
+                permissions.append([str(x.name), str(custom), str(x.customPermissions[custom]['level']), 'custom', str(x.customPermissions[custom]['type'])])
         es.dbgmsg(0,"---------- List of permissions:")
         for perm in permissions:
             es.dbgmsg(0,("%-*s"%(18, perm[0]))+" "+("%-*s"%(20, perm[1]))+" "+("%-*s"%(8, "["+perm[2]+"]"))+" "+("%-*s"%(10, perm[3]))+" "+perm[4])

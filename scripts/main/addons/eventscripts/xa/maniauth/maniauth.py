@@ -7,6 +7,11 @@ import keyvalues
 import psyco
 psyco.full()
 
+##################################
+# THIS AUTH PROVIDER IS OBSOLETE #
+#    IT IS HERE FOR REFERENCE    # 
+##################################
+
 #plugin information
 info = es.AddonInfo()
 info.name = "Mani clients.txt Auth Provider"
@@ -14,10 +19,9 @@ info.version = "0.1"
 info.author = "Hunter"
 info.url = "http://forums.mattie.info/"
 info.description = "Auth Provider that uses Mani's clients.txt"
-info.tags = "admin clients XA"
 
 selfaddondir = str(es.server_var["eventscripts_addondir"]).replace("\\", "/")
-selfmoddir = str(selfaddondir).rsplit("/", 2)[0] + '/'
+selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
 
 def load():
   mani_auth = ManiAuthService()
@@ -64,8 +68,8 @@ class ManiAuthService(services.auth.AuthorizationService):
     if auth_identifier is None:
       return False
 
-    if auth_capability in self.aliaslevels:
-        auth_flag = self.aliaslevels[auth_capability]
+    if auth_capability in self.aliaslevels['adminflags']:
+        auth_flag = self.aliaslevels['adminflags'][auth_capability]
     else:
         auth_flag = auth_capability
 
