@@ -254,7 +254,7 @@ class Admin_module(object):
         if (menu in self.subMenus):
             return self.subMenus[menu]
         return None
-    def getCapability(self, permlvl):
+    def getLevel(self, permlvl):
         try:
             level = int(permlvl)
         except ValueError:
@@ -273,7 +273,7 @@ class Admin_module(object):
                 level = None
         return level
     def registerCapability(self, perm, permlvl, permtype='admin'):
-        permlvl = self.getCapability(permlvl)
+        permlvl = self.getLevel(permlvl)
         auth = services.use("auth")
         auth.registerCapability(perm, permlvl)
         self.customPermissions[perm] = {'level':permlvl, 'type':str(permtype).lower()}
