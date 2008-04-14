@@ -706,52 +706,50 @@ class Admin_mani(object):
                     immunityflags[str(perm)] = permissions['immunityflags'][str(perm)]
             for group in clients["admingroups"]:
                 if 'ADMIN' in clients["admingroups"][str(group)].upper().split(' '):
-                    commandqueue.append('gauth group create "%s" %d' % (str(group).replace(' ', '_'), int(es.ServerVar('AUTHSERVICE_ADMIN'))))
-                else:
-                    commandqueue.append('gauth group create "%s" %d' % (str(group).replace(' ', '_'), int(es.ServerVar('AUTHSERVICE_UNRESTRICTED'))))
-                if int(es.ServerVar('mani_reverse_admin_flags')):
-                    for perm in adminflags:
-                        if (adminflags[str(perm)] in clients["admingroups"][str(group)].split(' ')) or (str(adminflags[str(perm)]).upper() == 'ADMIN'):
-                            if not str(perm) in permcache:
-                                permcache.append(str(perm))
-                                commandqueue.append('gauth power create "%s" %s' % (str(perm), str(es.ServerVar('AUTHSERVICE_ADMIN'))))
-                            commandqueue.append('gauth power give "%s" "%s"' % (str(perm), str(group).replace(' ', '_')))
-                else:
-                    for perm in adminflags:
-                        if (not adminflags[str(perm)] in clients["admingroups"][str(group)].split(' ')) or (str(adminflags[str(perm)]).upper() == 'ADMIN'):
-                            if not str(perm) in permcache:
-                                permcache.append(str(perm))
-                                commandqueue.append('gauth power create "%s" %s' % (str(perm), str(es.ServerVar('AUTHSERVICE_ADMIN'))))
-                            commandqueue.append('gauth power give "%s" "%s"' % (str(perm), str(group).replace(' ', '_')))
+                    commandqueue.append('gauth group delete "Mani_%s"' % (str(group).replace(' ', '_')))
+                    commandqueue.append('gauth group create "Mani_%s" %d' % (str(group).replace(' ', '_'), int(es.ServerVar('AUTHSERVICE_UNRESTRICTED'))))
+                    if int(es.ServerVar('mani_reverse_admin_flags')):
+                        for perm in adminflags:
+                            if (adminflags[str(perm)] in clients["admingroups"][str(group)].split(' ')) or (str(adminflags[str(perm)]).upper() == 'ADMIN'):
+                                if not str(perm) in permcache:
+                                    permcache.append(str(perm))
+                                    commandqueue.append('gauth power create "%s" %s' % (str(perm), str(es.ServerVar('AUTHSERVICE_ADMIN'))))
+                                commandqueue.append('gauth power give "%s" "Mani_%s"' % (str(perm), str(group).replace(' ', '_')))
+                    else:
+                        for perm in adminflags:
+                            if (not adminflags[str(perm)] in clients["admingroups"][str(group)].split(' ')) or (str(adminflags[str(perm)]).upper() == 'ADMIN'):
+                                if not str(perm) in permcache:
+                                    permcache.append(str(perm))
+                                    commandqueue.append('gauth power create "%s" %s' % (str(perm), str(es.ServerVar('AUTHSERVICE_ADMIN'))))
+                                commandqueue.append('gauth power give "%s" "Mani_%s"' % (str(perm), str(group).replace(' ', '_')))
             for group in clients["immunitygroups"]:
                 if 'IMMUNITY' in clients["immunitygroups"][str(group)].upper().split(' '):
-                    commandqueue.append('gauth group create "%s" %d' % (str(group).replace(' ', '_'), int(es.ServerVar('AUTHSERVICE_ADMIN'))))
-                else:
-                    commandqueue.append('gauth group create "%s" %d' % (str(group).replace(' ', '_'), int(es.ServerVar('AUTHSERVICE_UNRESTRICTED'))))
-                if int(es.ServerVar('mani_reverse_immunity_flags')):
-                    for perm in immunityflags:
-                        if (immunityflags[str(perm)] in clients["immunitygroups"][str(group)].split(' ')) or (str(immunityflags[str(perm)]).upper() == 'IMMUNITY'):
-                            if not str(perm) in permcache:
-                                permcache.append(str(perm))
-                                commandqueue.append('gauth power create "%s" %s' % (str(perm), str(es.ServerVar('AUTHSERVICE_ADMIN'))))
-                            commandqueue.append('gauth power give "%s" "%s"' % (str(perm), str(group).replace(' ', '_')))
-                else:
-                    for perm in immunityflags:
-                        if (not immunityflags[str(perm)] in clients["immunitygroups"][str(group)].split(' ')) or (str(immunityflags[str(perm)]).upper() == 'IMMUNITY'):
-                            if not str(perm) in permcache:
-                                permcache.append(str(perm))
-                                commandqueue.append('gauth power create "%s" %s' % (str(perm), str(es.ServerVar('AUTHSERVICE_ADMIN'))))
-                            commandqueue.append('gauth power give "%s" "%s"' % (str(perm), str(group).replace(' ', '_')))
+                    commandqueue.append('gauth group delete "Mani_%s"' % (str(group).replace(' ', '_')))
+                    commandqueue.append('gauth group create "Mani_%s" %d' % (str(group).replace(' ', '_'), int(es.ServerVar('AUTHSERVICE_UNRESTRICTED'))))
+                    if int(es.ServerVar('mani_reverse_immunity_flags')):
+                        for perm in immunityflags:
+                            if (immunityflags[str(perm)] in clients["immunitygroups"][str(group)].split(' ')) or (str(immunityflags[str(perm)]).upper() == 'IMMUNITY'):
+                                if not str(perm) in permcache:
+                                    permcache.append(str(perm))
+                                    commandqueue.append('gauth power create "%s" %s' % (str(perm), str(es.ServerVar('AUTHSERVICE_ADMIN'))))
+                                commandqueue.append('gauth power give "%s" "Mani_%s"' % (str(perm), str(group).replace(' ', '_')))
+                    else:
+                        for perm in immunityflags:
+                            if (not immunityflags[str(perm)] in clients["immunitygroups"][str(group)].split(' ')) or (str(immunityflags[str(perm)]).upper() == 'IMMUNITY'):
+                                if not str(perm) in permcache:
+                                    permcache.append(str(perm))
+                                    commandqueue.append('gauth power create "%s" %s' % (str(perm), str(es.ServerVar('AUTHSERVICE_ADMIN'))))
+                                commandqueue.append('gauth power give "%s" "Mani_%s"' % (str(perm), str(group).replace(' ', '_')))
             for client in clients["players"]:
                 if 'steam' in clients["players"][str(client)]:
                     commandqueue.append('gauth user create "%s" "%s"' % (str(client), str(clients["players"][str(client)]['steam'])))
                     es.dbgmsg(0, ("[eXtensible Admin] Added Client: %s [%s]" % (str(client), str(clients["players"][str(client)]['steam']))))
                     if 'admingroups' in clients["players"][str(client)]:
                         for group in clients["players"][str(client)]["admingroups"].split(';'):
-                            commandqueue.append('gauth user join "%s" "%s"' % (str(client), str(group).replace(' ', '_')))
+                            commandqueue.append('gauth user join "%s" "Mani_%s"' % (str(client), str(group).replace(' ', '_')))
                     if 'immunitygroups' in clients["players"][str(client)]:
                         for group in clients["players"][str(client)]["immunitygroups"].split(';'):
-                            commandqueue.append('gauth user join "%s" "%s"' % (str(client), str(group).replace(' ', '_')))
+                            commandqueue.append('gauth user join "%s" "Mani_%s"' % (str(client), str(group).replace(' ', '_')))
             for cmd in commandqueue:
                 es.server.cmd(cmd)
             es.dbgmsg(0, "[eXtensible Admin] Finished Mani setup for Group Auth")
@@ -867,6 +865,8 @@ def consolecmd():
                         granted = 'Yes'
                     else:
                         granted = 'No'
+                else:
+                    granted = perm[5]
                 es.dbgmsg(0,("%-*s"%(18, perm[0]))+" "+("%-*s"%(20, perm[1]))+" "+("%-*s"%(8, "["+perm[2]+"]"))+" "+("%-*s"%(10, perm[3]))+" "+("%-*s"%(15, perm[4]))+" "+granted)
             else:
                 es.dbgmsg(0,("%-*s"%(18, perm[0]))+" "+("%-*s"%(20, perm[1]))+" "+("%-*s"%(8, "["+perm[2]+"]"))+" "+("%-*s"%(10, perm[3]))+" "+perm[4])
