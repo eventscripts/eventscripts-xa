@@ -55,7 +55,7 @@ def load():
         global db,gauthmain,groupsmain,newgroup,usermenu,capmain
         db = connection(es.getAddonPath('examples/auth/group_auth') + '/es_group_auth.sqldb')
  
-        xaauthmanage.registerCapability("newgroup", auth.ADMIN)  
+        xaauthmanage.registerCapability("manage_auth", auth.ADMIN)  
         if not int(es.exists('clientcommand','newgroup')):
             es.regclientcmd('newgroup','xa/modules/xaauthmanage/inputbox_handle', 'Add group')  
 		
@@ -401,7 +401,7 @@ def _remove_group(userid,choice,popupid):
 
 def _newgroup_handle(userid,choice,popupid):
     es.dbgmsg(1,'*****_newgroup_handle')
-    if auth.isUseridAuthorized(userid, 'newgroup'):
+    if auth.isUseridAuthorized(userid, 'manage_auth'):
         es.escinputbox(30,userid,'Add a group:\n <groupname- no spaces>, <grouptype>\n -Accepted types (in order of most powerful to least)\n- admin \n  poweruser \n  known \n  all','<groupname> <access level>','newgroup')
 
 def inputbox_handle():

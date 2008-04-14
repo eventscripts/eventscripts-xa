@@ -94,12 +94,12 @@ def _mainmenu_select(userid,choice,popupid):
         _play_sound(xasoundslist[choice], choice, userid)
 
 def _play_sound(soundfile, soundname, userid):
+    player = playerlib.getPlayer(userid)
     if userid in playerlimit:
         playerlimit[userid] = playerlimit[userid] + 1
     else:
         playerlimit[userid] = 1
     if (playerlimit[userid] < int(sounds_per_round)) or (auth.isUseridAuthorized(userid, "play_adminsound") == True):
-        player = playerlib.getPlayer(userid)
         if (int(sounds_filter_if_dead) == 1) and int(player.get('isdead')) == 1:
             useridlist_sound = playerlib.getUseridList('#dead')
         else:

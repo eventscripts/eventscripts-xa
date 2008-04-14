@@ -254,10 +254,33 @@ class Admin_module(object):
         if (menu in self.subMenus):
             return self.subMenus[menu]
         return None
+    def getCapability(self, permlvl):
+        try:
+            level = int(permlvl)
+        except ValueError:
+            auth = services.use("auth")
+            if permlvl.upper() == '#ROOT':
+                level = auth.ROOT
+            elif permlvl.upper() == '#ADMIN':
+                level = auth.ADMIN
+            elif permlvl.upper() == '#POWERUSER':
+                level = auth.POWERUSER
+            elif permlvl.upper() == '#IDENTIFIED':
+                level = auth.IDENTIFIED
+            elif permlvl.upper() == '#UNRESTRICTED':
+                level = auth.UNRESTRICTED
+            else:
+                level = None
+        return level
     def registerCapability(self, perm, permlvl, permtype='admin'):
+        permlvl = self.getCapability(permlvl)
         auth = services.use("auth")
         auth.registerCapability(perm, permlvl)
         self.customPermissions[perm] = {'level':permlvl, 'type':str(permtype).lower()}
+        return None
+    def isUseridAuthorized(self, userid, perm):
+        auth = services.use("auth")
+        return auth.isUseridAuthorized(userid, perm)
     def information(self, listlevel):
         if listlevel >= 1:
             es.dbgmsg(0, " ")
@@ -812,19 +835,43 @@ def consolecmd():
             es.dbgmsg(0,"Syntax: xa send <userid>")
     elif subcmd == "permissions":
         permissions = []
-        permissions.append(['Module', 'Permission', 'Level', 'Type', 'Name'])
+        if seccmd:
+            userid = int(es.getuserid(seccmd))
+        else:
+            userid = None
+        if userid:
+            permissions.append(['Module', 'Permission', 'Level', 'Type', 'Name', 'Granted'])
+        else:
+            permissions.append(['Module', 'Permission', 'Level', 'Type', 'Name'])
         for module in sorted(gModules):
             x = gModules[module]
-            for command in sorted(x.subCommands):
-                permissions.append([str(x.name), str(x.subCommands[command].permission), str(x.subCommands[command].permissionlevel), 'command', str(x.subCommands[command].name)])
-            for menu in x.subMenus:
-                permissions.append([str(x.name), str(x.subMenus[menu].permission), str(x.subMenus[menu].permissionlevel), 'menu', str(x.subMenus[menu].name)])
-            for custom in x.customPermissions:
-                permissions.append([str(x.name), str(custom), str(x.customPermissions[custom]['level']), 'custom', str(x.customPermissions[custom]['type'])])
+            if userid:
+                for command in sorted(x.subCommands):
+                    permissions.append([str(x.name), str(x.subCommands[command].permission), str(x.subCommands[command].permissionlevel), 'command', str(x.subCommands[command].name), x.isUseridAuthorized(userid, str(x.subCommands[command].permission))])
+                for menu in x.subMenus:
+                    permissions.append([str(x.name), str(x.subMenus[menu].permission), str(x.subMenus[menu].permissionlevel), 'menu', str(x.subMenus[menu].name), x.isUseridAuthorized(userid, str(x.subMenus[menu].permission))])
+                for custom in x.customPermissions:
+                    permissions.append([str(x.name), str(custom), str(x.customPermissions[custom]['level']), 'custom', str(x.customPermissions[custom]['type']), x.isUseridAuthorized(userid, str(custom))])
+            else:
+                for command in sorted(x.subCommands):
+                    permissions.append([str(x.name), str(x.subCommands[command].permission), str(x.subCommands[command].permissionlevel), 'command', str(x.subCommands[command].name)])
+                for menu in x.subMenus:
+                    permissions.append([str(x.name), str(x.subMenus[menu].permission), str(x.subMenus[menu].permissionlevel), 'menu', str(x.subMenus[menu].name)])
+                for custom in x.customPermissions:
+                    permissions.append([str(x.name), str(custom), str(x.customPermissions[custom]['level']), 'custom', str(x.customPermissions[custom]['type'])])
         es.dbgmsg(0,"---------- List of permissions:")
         for perm in permissions:
-            es.dbgmsg(0,("%-*s"%(18, perm[0]))+" "+("%-*s"%(20, perm[1]))+" "+("%-*s"%(8, "["+perm[2]+"]"))+" "+("%-*s"%(10, perm[3]))+" "+perm[4])
+            if userid:
+                if not perm[5] == 'Granted':
+                    if perm[5]:
+                        granted = 'Yes'
+                    else:
+                        granted = 'No'
+                es.dbgmsg(0,("%-*s"%(18, perm[0]))+" "+("%-*s"%(20, perm[1]))+" "+("%-*s"%(8, "["+perm[2]+"]"))+" "+("%-*s"%(10, perm[3]))+" "+("%-*s"%(15, perm[4]))+" "+granted)
+            else:
+                es.dbgmsg(0,("%-*s"%(18, perm[0]))+" "+("%-*s"%(20, perm[1]))+" "+("%-*s"%(8, "["+perm[2]+"]"))+" "+("%-*s"%(10, perm[3]))+" "+perm[4])
         es.dbgmsg(0,"----------")
+        es.dbgmsg(0, "Syntax: xa permissions [user]")
     elif subcmd == "stats":
         statistics = []
         for module in sorted(gModules):
