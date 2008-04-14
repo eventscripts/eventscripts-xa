@@ -22,7 +22,7 @@ def load():
     xacmd = xaconfig.addCommand('xa_config', _sendmain, 'change_config', '#root')
     xacmd.register('say')  
 
-    auth.registerCapability("setconfig", auth.ROOT)  
+    xacmd.registerCapability("change_config", auth.ROOT)  
     if not int(es.exists('clientcommand','setconfig')):
         es.regclientcmd('setconfig','xa/modules/xaconfig/inputbox_handle', 'Set config')  
 	
@@ -134,7 +134,7 @@ def _variableEditMenu(userid, module, variable, parent):
 
 def _sendmain():
     userid = es.getcmduserid()
-    if auth.isUseridAuthorized(userid, 'xaconfig'):
+    if auth.isUseridAuthorized(userid, 'change_config'):
         mainmenu.send(userid)
         
 def _mainmenu_select(userid,choice,popupid):
@@ -229,7 +229,7 @@ def _changesetting_select(userid,choice,popupid):
         newparent.send(userid)
     
 def _setconfig_handle(userid, module, var, parent):
-    if auth.isUseridAuthorized(userid, 'setconfig'):
+    if auth.isUseridAuthorized(userid, 'change_config'):
         es.escinputbox(30,userid,"Change '"+str(var.getName())+"' setting"+'\n \nCurrent value: '+str(var)+'\nDefault value: '+str(var._def)+'\n \n'+str(var._descr),'Type in the new value:','setconfig '+str(parent)+' '+str(module)+' '+str(var.getName()))
 
 def inputbox_handle():

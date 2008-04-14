@@ -44,7 +44,7 @@ func_lang_text = mymodule.language.getLanguage()
 # LOAD AND UNLOAD
 # Formal system registration and unregistration
 def load():
-    auth_service.registerCapability('nadespam_immune', auth_service.ADMIN)
+    mymodule.registerCapability('immune_nadespam', auth_service.ADMIN, 'immunity')
     mymodule.logging.log("XA module %s loaded." % mymodulename)
 
 
@@ -97,7 +97,7 @@ def _cc_filter(userid, args):
         item = args[1].lower().replace('weapon_', '')
         if dict_grenade_limits.has_key(item):
             count = dict_players[userid][item] = dict_players[userid][item] + 1
-            if count > dict_grenade_limits[item] and not auth_service.isUseridAuthorized(userid, 'nadespam_immune'):
+            if count > dict_grenade_limits[item] and not auth_service.isUseridAuthorized(userid, 'immune_nadespam'):
                 player = playerlib.getPlayer(userid)
                 player_lang = player.get('lang')
                 es.tell(userid, func_lang_text('limit %s' % item, {}, player_lang))

@@ -114,7 +114,7 @@ def registerSayPrefix(prefix, command, capability=None, defaultlevel=None):
   that capability with the auth service.
   '''
   if defaultlevel and capability:
-    auth.registerCapability(capability, defaultlevel)
+    mymodule.registerCapability(capability, defaultlevel)
   tree.insert(prefix, command, capability)
 
 # player filter for those with the permissions for admin_say

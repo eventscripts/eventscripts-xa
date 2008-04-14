@@ -40,10 +40,8 @@ def load():
         for sound in xasoundslist:
             for ll in langlib.getLanguages():
                 mainmenu.addoption(str(sound), str(sound),1,langlib.getLangAbbreviation(ll))
-                
-    auth = services.use("auth")
-    auth.registerCapability('play_adminsound', auth.ADMIN)
 
+    xasounds.registerCapability('play_adminsound', auth.ADMIN)
     xasounds.addMenu('xamainsoundmenu',xalanguage['sounds'],'xamainsoundmenu','play_sound','#all')
     xasettings.registerMethod(xasounds, _switch_setting, xalanguage["sounds"])
 

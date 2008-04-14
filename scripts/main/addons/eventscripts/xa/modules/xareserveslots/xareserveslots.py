@@ -67,7 +67,7 @@ try:
     # load the auth service
     auth = services.use("auth")
     # register the capapbility
-    auth.registerCapability("reserve_slot", auth.ADMIN)
+    xareserveslots.registerCapability("use_slot", auth.ADMIN)
 except KeyError:
     auth = None
 
@@ -97,7 +97,7 @@ def returnReservedStatus(x):
             if auth.isUseridAuthorized(int(x), "n", "immunity"):
                 return False
         # and finally check that they are not on the reserved list
-        if auth.isUseridAuthorized(int(x), "reserve_slot"):
+        if auth.isUseridAuthorized(int(x), "use_slot"):
             return False
     return True
         

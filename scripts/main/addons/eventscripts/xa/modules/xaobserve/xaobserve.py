@@ -41,7 +41,7 @@ var_spec_delay = mymodule.setting.createVariable('observe_spec_delay', 3, 'xaobs
 list_delays = []
 dict_dead_players = {}
 dict_team_handles = {2:[], 3:[]}
-auth_service = None
+auth_service = services.use('auth')
 
 
 #######################################
@@ -51,15 +51,11 @@ auth_service = None
 def load():
     """
     Logs the module load with XA
-    Registers the "opponent_observe" ability with the authorization service
+    Registers the "observe_opponent" ability with the authorization service
     """
-    global auth_service
-
+    mymodule.registerCapability('observe_opponent', auth_service.ADMIN)
     mymodule.logging.log('XA module %s loaded.' % mymodulename)
-
-    auth_service = services.use('auth')
-    auth_service.registerCapability('opponent_observe', auth_service.ADMIN)
-
+    
     round_start({})
 
 
@@ -119,7 +115,7 @@ def player_death(event_var):
         if int_handle in dict_team_handles[int_team]:
             dict_team_handles[int_team].remove(int_handle)
 
-    if not auth_service.isUseridAuthorized(int_userid, 'opponent_observe') and event_var['es_steamid'] <> 'BOT':
+    if not auth_service.isUseridAuthorized(int_userid, 'observe_opponent') and event_var['es_steamid'] <> 'BOT':
         if not dict_dead_players:
             es.addons.registerClientCommandFilter(client_command_filter)
 
