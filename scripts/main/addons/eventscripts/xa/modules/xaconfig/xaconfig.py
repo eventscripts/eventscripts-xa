@@ -22,7 +22,7 @@ def load():
     xacmd = xaconfig.addCommand('xa_config', _sendmain, 'change_config', '#root')
     xacmd.register('say')  
 
-    xacmd.registerCapability("change_config", auth.ROOT)  
+    xaconfig.registerCapability("change_config", auth.ROOT)
     if not int(es.exists('clientcommand','setconfig')):
         es.regclientcmd('setconfig','xa/modules/xaconfig/inputbox_handle', 'Set config')  
 	

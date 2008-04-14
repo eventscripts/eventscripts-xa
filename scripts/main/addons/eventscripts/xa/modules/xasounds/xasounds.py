@@ -32,10 +32,13 @@ sounds_filter_if_dead               = xasounds.setting.createVariable('sounds_fi
 sounds_download                     = xasounds.setting.createVariable('sounds_auto_download', '0', '0 = Don\'t auto download files to client, 1 = automatically download files to client')
 sounds_settings                     = xasounds.setting.createVariable('player_settings_sounds', '1', '0 = player settings default to off, 1 = player settings default to on')
 
+auth = services.use("auth")
+
 def load():
     global mainmenu
     mainmenu = popuplib.easymenu('xamainsoundmenu',None,_mainmenu_select)
     mainmenu.settitle(xalanguage['sounds'])
+    
     if xasoundslist:
         for sound in xasoundslist:
             for ll in langlib.getLanguages():
@@ -91,7 +94,6 @@ def _mainmenu_select(userid,choice,popupid):
         _play_sound(xasoundslist[choice], choice, userid)
 
 def _play_sound(soundfile, soundname, userid):
-    auth = services.use("auth")
     if userid in playerlimit:
         playerlimit[userid] = playerlimit[userid] + 1
     else:

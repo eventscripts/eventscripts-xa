@@ -55,7 +55,7 @@ def load():
         global db,gauthmain,groupsmain,newgroup,usermenu,capmain
         db = connection(es.getAddonPath('examples/auth/group_auth') + '/es_group_auth.sqldb')
  
-        auth.registerCapability("newgroup", auth.ADMIN)  
+        xaauthmanage.registerCapability("newgroup", auth.ADMIN)  
         if not int(es.exists('clientcommand','newgroup')):
             es.regclientcmd('newgroup','xa/modules/xaauthmanage/inputbox_handle', 'Add group')  
 		
