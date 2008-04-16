@@ -108,13 +108,20 @@ def _command_player():
 def _punish_player(userid, punishment, adminid, args = []):
     auth = services.use("auth")
     if (adminid == 0) or auth.isUseridAuthorized(adminid, punishment+"_player"):
-        if callable(punishment_method[punishment]):
-            xapunishments.logging.log("Admin "+str(adminid)+ " used punishment "+str(punishment)+" on player "+str(userid))
-            punishment_method[punishment](userid, adminid, args)
+        if not auth.isUseridAuthorized(userid, "immune_"+punishment):
+            if callable(punishment_method[punishment]):
+                xapunishments.logging.log("Admin "+str(adminid)+ " used punishment "+str(punishment)+" on player "+str(userid))
+                punishment_method[punishment](userid, adminid, args)
+                return True
+            else:
+                es.dbgmsg(0, "xapunishments.py: Cannot find method '"+str(punishment_method[punishment])+"'!")
+                return False
         else:
-            es.dbgmsg(0, "xapunishments.py: Cannot find method '"+str(punishment_method[punishment])+"'!")
+            es.tell(adminid, xalanguage("immune", (), playerlib.getPlayer(adminid).get("lang")))
+            return False
     else:
         es.tell(adminid, xalanguage("not allowed", (), playerlib.getPlayer(adminid).get("lang")))
+        return False
 
 def registerPunishment(punishment, name, method, argc = 0):
     if not punishment in punishment_method:
@@ -124,6 +131,7 @@ def registerPunishment(punishment, name, method, argc = 0):
         punishment_cross_ref['xa_'+punishment] = punishment
         xapunishmentmenu = popuplib.find("xapunishmentmenu")
         xapunishmentmenu.addoption(punishment, name, 1)
+        xapunishments.registerCapability("immune_"+punishment, "#admin", "immunity")
         if punishment_argc[punishment] > 0:
             xapunishments.addCommand('xa_'+punishment, _command_player, punishment+"_player", "#admin").register(('say', 'console','server'))
         return True
@@ -144,8 +152,7 @@ def unRegisterPunishment(punishment):
         
 def punishPlayer(punishment, userid, adminid):
     if punishment in punishment_method:
-        _punish_player(userid, punishment, adminid)
-        return True
+        return _punish_player(userid, punishment, adminid)
     else:
         return False
 
