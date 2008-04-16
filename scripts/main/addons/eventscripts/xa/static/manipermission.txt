@@ -30,6 +30,18 @@
 	}
 	"immunityflags"
 	{
+		"immune_ban" "b"
 		"immune_kick" "k"
+		"immune_slay" "m"
+		"immune_beacon" "u"
+		"immune_burn" "e"
+		"immune_gimp" "j"
+		"immune_slap" "l"
+		"immune_timebomb" "q"
+		"immune_freeze" "f"
+		"immune_drug" "d"
+		"immune_firebomb" "r"
+		"immune_freezebomb" "s"
+		"immune_blind" "i"
 	}
 }
