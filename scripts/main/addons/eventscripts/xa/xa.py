@@ -29,9 +29,9 @@ psyco.full()
 #plugin information
 info = es.AddonInfo()
 info.name = "eXtensible Admin EventScripts Python addon"
-info.version = "0.7.0"
+info.version = "0.7.0.263"
 info.author = "EventScripts Developers"
-info.url = "http://forums.mattie.info/cs/forums/viewforum.php?f=93"
+info.url = "http://forums.mattie.info/cs/forums/viewforum.php?f=97"
 info.description = "eXtensible Admin EventScripts Python addon"
 info.basename = "xa"
 
@@ -45,7 +45,7 @@ gCoreVariables = []
 ## language strings
 gLanguage = language.getLanguage()
 ## Version variable
-gVersion = es.ServerVar("eventscripts_xa", "0.7.0.263", "eXtensible Admin Version")
+gVersion = es.ServerVar("eventscripts_xa", str(info.version), "eXtensible Admin Version")
 gVersion.makepublic()
 ## is server logging enabled?
 gLog = es.ServerVar("xa_log", 0, "Activates the module logging")
