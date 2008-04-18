@@ -119,13 +119,14 @@ def nominate():
     else: 
         es.tell(userid,'#multi',lang('no_nominate',lang=playerlib.getPlayer(userid).get('lang'))) 
 
-def nomination_result(userid, choice, popupname): 
+def nomination_result(userid, choice, popupname):
+    steamid = es.getplayersteamid(userid)
     players[steamid][1] = True 
     if not nominations.has_key(choice): 
-        nominations[choice] = 1 
+        nominations[choice] = 1
     else: 
         # I might add support for "most" nominations later 
-        nominations[choice] += 1 
+        nominations[choice] += 1
     name = es.getplayername(userid) 
     for userid in es.getUseridList(): 
         es.tell(userid,'#multi',lang('nominated',{'player': name,'mapname': choice},playerlib.getPlayer(userid).get('lang'))) 
@@ -137,7 +138,7 @@ def rtv():
     steamid = es.getplayersteamid(userid) 
     entry(steamid) 
     if not players[steamid][0]: 
-        players[steamid][0] = True 
+        players[steamid][0] = True
         global votes_in,vote_req_total 
         if (time.time() - map_start_time) < vote_req_time: 
             es.tell(userid,'#multi',lang('map_time',{'time': (120 - int((time.time() - map_start_time)))},playerlib.getPlayer(userid).get('lang'))) 
@@ -146,9 +147,9 @@ def rtv():
                 if not votes_in: 
                     vote_req_total = int(vote_req_p * 0.01 * len(es.getUseridList())) 
                     name = es.getplayername(userid) 
-                    for userid in es.getUseridList(): 
-                        es.tell(userid,'#multi',lang('player_started',{'player': name},playerlib.getPlayer(userid).get('lang'))) 
-                        nomination_popup.unsend(userid) 
+                    for user in es.getUseridList(): 
+                        es.tell(user,'#multi',lang('player_started',{'player': name},playerlib.getPlayer(user).get('lang'))) 
+                        nomination_popup.unsend(user) 
                 votes_in += 1 
                 # Checks for percentage and for the amount of minium votes required 
                 if votes_in >= vote_req_min: 
@@ -156,12 +157,12 @@ def rtv():
                         rtv_init() 
                     else: 
                         name = es.getplayername(userid) 
-                        for userid in es.getUseridList(): 
-                            es.tell(userid,'#multi',lang('req',{'player': name,'votes': (vote_req_total - votes_in)},playerlib.getPlayer(userid).get('lang'))) 
+                        for user in es.getUseridList(): 
+                            es.tell(user,'#multi',lang('req',{'player': name,'votes': (vote_req_total - votes_in)},playerlib.getPlayer(user).get('lang'))) 
                 else: 
                     name = es.getplayername(userid) 
-                    for userid in es.getUseridList(): 
-                        es.tell(userid,'#multi',lang('req',{'player': name,'votes': (vote_req_min - votes_in)},playerlib.getPlayer(userid).get('lang'))) 
+                    for user in es.getUseridList(): 
+                        es.tell(user,'#multi',lang('req',{'player': name,'votes': (vote_req_min - votes_in)},playerlib.getPlayer(user).get('lang'))) 
             else: 
                 es.tell(userid,'#multi',lang('started',lang=playerlib.getPlayer(userid).get('lang'))) 
     else: 
@@ -212,8 +213,8 @@ class random_map:
         return self.results 
 
 def rtv_submit(userid, votename, choice, choicename): 
-    for userid in es.getUseridList(): 
-        es.tell(userid,'#multi',lang('voted',{'player': es.getplayername(userid),'mapname': choicename},playerlib.getPlayer(userid).get('lang'))) 
+    for user in es.getUseridList(): 
+        es.tell(user,'#multi',lang('voted',{'player': es.getplayername(userid),'mapname': choicename},playerlib.getPlayer(user).get('lang'))) 
 
 def rtv_finish(votename, win, winname, winvotes, winpercent, total, tie, cancelled): 
     # Deletes vote so it can be re-created 
@@ -258,3 +259,5 @@ def es_map_start(ev):
         votelib.stop('rockthevote') 
     if votelib.exists('rockthevote'): 
         votelib.delete('rockthevote')
+    for steamid in players:
+        players[steamid] = [False,False]
