@@ -23,6 +23,21 @@ def getLanguage(module = None, file = None):
     else:
         filename = "%s/languages/strings.ini" % es.getAddonPath('xa')
     if os.path.exists(filename):
-        return langlib.Strings(filename)
+        full = langlib.getLanguages()
+        defl = langlib.getDefaultLang()
+        lang = langlib.Strings(filename)
+        ####################################################################
+        ## ADD LANGUAGE PLACEHOLDERS FOR EASYMENUS -- BAD WAY -> OVERHEAD ##
+        ####################################################################
+        for k in lang:
+            for l in full:
+                i = full[l]["id"]
+                if not i in lang[k]:
+                    if defl in lang[k]:
+                        lang[k][i] = lang[k][defl]
+                    elif "en" in lang[k]:
+                        lang[k][i] = lang[k]["en"]
+        ####################################################################
+        return lang
     else:
         raise IOError, "Could not find %s!" % filename
