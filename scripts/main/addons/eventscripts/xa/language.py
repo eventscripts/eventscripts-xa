@@ -21,7 +21,10 @@ def getLanguage(module = None, file = None):
         else:
             filename = "%s/modules/%s/strings.ini" % (es.getAddonPath('xa'), module)
     else:
-        filename = "%s/languages/strings.ini" % es.getAddonPath('xa')
+        if file:
+            filename = "%s/languages/%s.ini" % (es.getAddonPath('xa'), file)
+        else:
+            filename = "%s/languages/strings.ini" % (es.getAddonPath('xa'))
     if os.path.exists(filename):
         full = langlib.getLanguages()
         defl = langlib.getDefaultLang()
