@@ -46,7 +46,7 @@ else:
 players = {} 
 
 def load(): 
-    # xapunishments.registerPunishment("punishment", xalanguage["punishment"], _callback_function) 
+    xaextendedpunishments.addRequirement("xapunishments")
     xapunishments.registerPunishment("blind",      xalanguage["blind"]     , _blind      , 1) 
     xapunishments.registerPunishment("freeze",     xalanguage["freeze"]    , _freeze     , 1) 
     xapunishments.registerPunishment("gimp",       xalanguage["gimp"]      , _gimp       , 1) 
@@ -163,9 +163,13 @@ def _say_filter(userid, text, team):
     if players[userid]['gimped']: 
         return(userid, getGimpPhrase(), team) 
     return(userid, text, team) 
-es.addons.registerSayFilter(_say_filter) 
-def unload(): 
-    es.addons.unregisterSayFilter(_say_filter) 
+
+es.addons.registerSayFilter(_say_filter)
+
+def unload():
+    es.addons.unregisterSayFilter(_say_filter)
+    xaextendedpunishments.delRequirement("xapunishments")
+    xaextendedpunishments.unregister()
     
 def getGimpPhrase(): 
     if os.path.isfile(gimpPath): 

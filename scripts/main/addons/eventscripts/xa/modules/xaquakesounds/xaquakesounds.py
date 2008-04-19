@@ -91,10 +91,12 @@ xaquakekills['holyshit']['visual_mode']       = xamodule.setting.createVariable(
 xaquakekills['holyshit']['trigger_count']     = xamodule.setting.createVariable('quake_holy_shit_trigger_count', '24', 'Kills streak required to trigger sound')
 
 def load():
+    xamodule.addRequirement("xasettings")
     xasettings.registerMethod(xamodule, _switch_setting, xalanguage["quake sounds"])
 
 def unload():
-    xa.unregister(xamodule)
+    xamodule.delRequirement("xasettings")
+    xamodule.unregister()
 
 def es_map_start(event_var):
     global firstblood, quake_sounds

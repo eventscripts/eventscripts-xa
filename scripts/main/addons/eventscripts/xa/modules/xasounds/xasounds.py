@@ -44,11 +44,13 @@ def load():
             for ll in langlib.getLanguages():
                 mainmenu.addoption(str(sound), str(sound),1,langlib.getLangAbbreviation(ll))
 
+    xasounds.addRequirement("xasettings")
     xasounds.registerCapability('play_adminsound', auth.ADMIN)
     xasounds.addMenu('xamainsoundmenu',xalanguage['sounds'],'xamainsoundmenu','play_sound','#all')
     xasettings.registerMethod(xasounds, _switch_setting, xalanguage["sounds"])
 
 def unload():
+    xasounds.delRequirement("xasettings")
     xa.unregister(xasounds)
 
 def es_map_start(event_var):

@@ -15,9 +15,14 @@ info.tags           = "admin say players"
 xaextendedsay = xa.register('xaextendedsay') 
 xalanguage    = xaextendedsay.language.getLanguage() 
 
-def load(): 
+def load():
+    xaextendedsay.addRequirement("xasay")
     xasay.registerSayPrefix("@@" , _admin_say_tell) 
-    xasay.registerSayPrefix("@@@", _admin_say_center) 
+    xasay.registerSayPrefix("@@@", _admin_say_center)
+
+def unload():
+    xaextendedsay.delRequirement("xasay")
+    xaextendedsay.unregister() 
     
 def _admin_say_tell(adminid, message, teamonly): 
     tokens = {} 

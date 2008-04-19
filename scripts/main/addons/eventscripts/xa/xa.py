@@ -204,7 +204,7 @@ class Admin_module(object):
         else:
             modules = list(gModuleList)
         for module in modules:
-            if module in self.requiredList:
+            if (module in self.requiredList) and (module in gModules):
                 m = gModules[module]
                 m.requiredFrom.remove(self.name)
                 self.requiredList.remove(m.name)
@@ -523,12 +523,14 @@ def unregister(pModuleid):
     pModuleid = str(pModuleid)
     if (pModuleid in gModules):
         if len(gModules[pModuleid].requiredFrom) > 0:
+            es.dbgmsg(0, "[eXtensible Admin] ***********************************")
             es.dbgmsg(0, "[eXtensible Admin] WARNING! Module \""+gModules[pModuleid].name+"\" is required by "+str(len(gModules[pModuleid].requiredFrom)))
             for module in gModules[pModuleid].requiredFrom:
                 if module in gModules:
-                    es.dbgmsg(0, "[eXtensible Admin]  \""+module+"\"")
+                    es.dbgmsg(0, "[eXtensible Admin] Required by \""+module+"\"")
                 else:
                     gModules[pModuleid].requiredFrom.remove(module)
+            es.dbgmsg(0, "[eXtensible Admin] ***********************************")
         for module in gModules[pModuleid].requiredList:
             if module in gModules:
                 gModules[module].requiredFrom.remove(gModules[pModuleid].name)
