@@ -1,330 +1,403 @@
-# Import ES and other modules 
 import es 
 import votelib 
 import popuplib 
 import playerlib 
 import gamethread 
-
-# Import XA 
+import time
+import os
+import random
 from xa import xa 
 
-vote_admins = {} 
-vote_counter = {} 
-vote_players = {} 
+vote_list      = {}
+vote_admins    = {}
+vote_players   = {}
+multi_map      = []
+change_map     = None
+amount_of_maps = None
 
-####################################### 
-# ADDON INFORMATION 
-# This describes the XA module 
-info = es.AddonInfo() 
+info                = es.AddonInfo() 
 info.name           = "Vote" 
-info.version        = "0.1" 
+info.version        = "0.2" 
 info.author         = "freddukes" 
 info.url            = "http://forums.mattie.info/" 
-info.description    = "Vote Module for eXtensible Admin" 
+info.description    = "Vote Module for eXtensible Admin"
 
-####################################### 
-# MODULE NAME 
 mymodulename = "xavote" 
-mymodule = xa.register(mymodulename) 
+mymodule     = xa.register(mymodulename)
 
-####################################### 
-# SERVER VARIABLES 
-vote_timer = mymodule.setting.createVariable('vote_timer', 30, "How long in seconds that a vote will last for.") 
-vote_start_sound = mymodule.setting.createVariable("vote_start_sound","ambient/machines/teleport4.wav","The sound that will be played when a vote is started") 
-vote_end_sound = mymodule.setting.createVariable("vote_end_sound","ambient/alarms/warningbell1.wav","The sound that will be played when a vote is ended") 
+vote_timer       = mymodule.setting.createVariable('vote_timer',       30,                                "How long in seconds that a vote will last for."      ) 
+vote_start_sound = mymodule.setting.createVariable("vote_start_sound", "ambient/machines/teleport4.wav",  "The sound that will be played when a vote is started") 
+vote_end_sound   = mymodule.setting.createVariable("vote_end_sound",   "ambient/alarms/warningbell1.wav", "The sound that will be played when a vote is ended"  )
+vote_map_file    = mymodule.setting.createVariable("vote_map_file" ,   "maplist.txt",                     "The map file for all of your votes from ../<directory>/\n// e.g, from ../cstrike/"  )
 
-####################################### 
-# GLOBALS 
-# Initialize our general global data here. 
-# Localization helper: 
-xalanguage = mymodule.language.getLanguage() 
+xalanguage = mymodule.language.getLanguage()
 
 if xa.isManiMode(): 
-    xavotelist = mymodule.configparser.getList('cfg/mani_admin_plugin/votequestionlist.txt', True) 
+    xavotelist     = mymodule.configparser.getList('cfg/mani_admin_plugin/votequestionlist.txt', True)
+    xavoterconlist = mymodule.configparser.getList('cfg/mani_admin_plugin/voterconlist.txt',     True) 
 else: 
-    xavotelist = mymodule.configparser.getList('questionvotelist.txt') 
+    xavotelist     = mymodule.configparser.getList('questionvotelist.txt')
+    xavoterconlist = mymodule.configparser.getList('rconvotelist.txt')
     
-if xa.isManiMode(): 
-    xavoterconlist = mymodule.configparser.getList('cfg/mani_admin_plugin/voterconlist.txt', True) 
-else: 
-    xavoterconlist = mymodule.configparser.getList('rconvotelist.txt') 
-
-####################################### 
-# LOAD AND UNLOAD 
-# Formal system registration and unregistration 
-def load(): 
-    global _vote_active 
-    xavotemenu = popuplib.easymenu("xavotemenu", "_vote_type", _vote_option) 
-    xavotemenu.settitle(xalanguage["select vote"]) 
-    xavotemenu.addoption("createvote",xalanguage["create vote"]) 
-    xavotemenu.addoption("rconvote",xalanguage["rcon vote"]) 
-    xavotemenu.addoption("questionvote",xalanguage["question vote"]) 
-    xarconvote = popuplib.easymenu("xarconvote", "_rcon_vote", _rcon_vote) 
-    xarconvote.settitle(xalanguage("rcon vote")) 
-    xaquestionvote = popuplib.easymenu("xaquestionvote", "_question_vote", _question_vote) 
-    xaquestionvote.settitle(xalanguage("question vote")) 
+def load():
+    global vote_list
+    xavotemenu = popuplib.easymenu("xavotemenu", "_vote_type", voteOption)
+    xavotemenu.settitle(xalanguage["select vote"])
+    mymodule.addMenu("xavotemenu", xalanguage["vote"], "xavotemenu", "start_vote", "#admin")
     
+    registerVoteMenu("create"  , xalanguage["create vote"]  , customVote,)
+    mymodule.addCommand("xa_set_title",   customVoteTitle,     "set_a_title",     "#admin").register("console") 
+    mymodule.addCommand("xa_set_options", customVoteQuestions, "set_vote_option", "#admin").register("console")
+    
+    submenus = []
     if xavoterconlist:
         for line in xavoterconlist: 
-            _get_rcon_votelist(xarconvote, line) 
+            if not line.startswith('//') and line != '': 
+                line = line.split('"')
+                title = line[1]
+                question = line[3]
+                command = line[4]
+                command = command.split('//')
+                command = command[0]
+                vote_list[title] = {}
+                vote_list[title]['question'] = question
+                vote_list[title]['command']  = command
+                vote_list[title]['type']     = 'rcon'
+                submenus.append(title)
+    registerVoteMenu("rcon"    , xalanguage["rcon vote"]    , rconVote  , submenus)
     
+    submenus = []
     if xavotelist:
-        for line in xavotelist: 
-            _get_question_votelist(xaquestionvote, line) 
+        for line in xavotelist:
+            if not line.startswith('//') and line != '' : 
+                line = line.split('"') 
+                title = line[1] 
+                question = line[3]
+                vote_list[title] = {}
+                vote_list[title]['question'] = question
+                vote_list[title]['type']     = 'question'
+                submenus.append(title)
+    registerVoteMenu("question", xalanguage["question vote"], questionVote, submenus)
     
-    mymodule.addMenu("xavotemenu", xalanguage["vote"], "xavotemenu", "start_vote", "#admin") 
-    mymodule.addCommand("xa_set_title", _xa_set_title, "set_a_title", "#all").register("console") 
-    mymodule.addCommand("xa_set_options", _xa_set_options, "set_vote_option", "#all").register("console") 
-    mymodule.logging.log('xavote loaded') 
-    _vote_active = 0 
+    mypopup = popuplib.create("multimapaccept")
+    a = mypopup.addline
+    a('Would you like to start the map')
+    a('        vote now?              ')
+    a('-------------------------------')
+    a('->1. No, add more maps')
+    a('->2. Yes, start the vote now')
+    a('-------------------------------')
+    a('0. Cancel')
+    mypopup.menuselect = MultiMapConfirm
+    registerVoteMenu("multimap", xalanguage["build multi map"], MultiMap)
     
-def unload(): 
-    popuplib.delete("xavotemenu") 
-    mymodule.logging.log('xavote unloaded') 
-    xa.unregister(mymodule) 
+    registerVoteMenu("randommap", xalanguage["random map vote"], RandomMapVote)
     
-####################################### 
-# Events 
-# 
+#################################
+# EVENTS
 def player_connect(event_var): 
     vote_players[event_var['userid']] = {'stopped':0,'reason':None} 
 
 def player_disconnect(event_var): 
-    del vote_players[event_var['userid']] 
-    if vote_admins.has_key(event_var['userid']): 
-        del vote_admins[event_var['userid']] 
-    
-####################################### 
-# MODULE FUNCTIONS 
-# Register your functions here 
-def _get_question_votelist(popup, line): 
-    if not line.startswith('//') or line != '' : 
-        line = line.split('"') 
-        title = line[1] 
-        question = line[3] 
-        popup.addoption(question,title) 
-
-def _get_rcon_votelist(popup, line): 
-    if not line.startswith('//') or line != '': 
-        line = line.split('"') 
-        title = line[1] 
-        question = line[3] 
-        command = line[4] 
-        command = command.split('//') 
-        command = command[0] 
-        popup.addoption(question + '^^^' + command,title) 
-
-def _vote_option(adminid, vote_type, name): 
-    if vote_type == "createvote": 
-        _create_vote_title(adminid) 
-    elif vote_type == "rconvote": 
-        popuplib.send("xarconvote",adminid) 
-    elif vote_type == "questionvote": 
-        popuplib.send("xaquestionvote",adminid) 
+    if vote_players.has_key(event_var['userid']):
+        del vote_players[event_var['userid']] 
         
-def _create_vote_title(adminid): 
-    if not _vote_active: 
-        _select_vote_title = xalanguage("select vote title") 
-        es.escinputbox(30, adminid, _select_vote_title, _select_vote_title, 'xa_set_title') 
-        es.tell(adminid,'#green',xalanguage("escape prompt")) 
-    else: 
-        es.tell(adminid,'#green',xalanguage("already active")) 
+def round_end(ev):
+    if change_map == 2:
+        EndMap()
+#
+#################################
     
-def _xa_set_title(): 
-    adminid = es.getcmduserid() 
-    _vote_title = '' 
-    _vote_index = 1 
-    while _vote_index <= es.getargc(): 
-        _vote_title = _vote_title + ' ' + str(es.getargv(_vote_index)) 
-        _vote_index += 1 
-    if vote_admins.has_key(str(adminid)): 
-        vote_admins[str(adminid)]['title'] = _vote_title 
-    else: 
-        vote_admins[str(adminid)] = {'title':_vote_title} 
-    es.escinputbox(30, adminid, xalanguage("vote options"), xalanguage("select vote options"), 'xa_set_options') 
+def registerVoteMenu(shortName, displayName, returnFunction, submenus=[]):
+    if not vote_list.has_key(shortName):
+        vote_list[shortName]             = {}
+        vote_list[shortName]['display']  = displayName
+        vote_list[shortName]['function'] = returnFunction
+        vote_list[shortName]['type']     = 'mainmenu'
+        votemenu = popuplib.find("xavotemenu")
+        votemenu.addoption(shortName, displayName)
+        if submenus:
+            vote_list[shortName]['type'] = 'submenu'
+            myPopup = popuplib.easymenu(shortName, 'vote_choice', returnMenu)
+            for submenu in submenus:
+                vote_list[submenu]['function'] = returnFunction
+                myPopup.addoption(submenu, submenu)
+            myPopup.settitle(displayName)
+            myPopup.submenu(10, "xavotemenu")
+        
+def voteOption(userid, choice, popupid):
+    if not vote_list.has_key(choice): return
+    if vote_list[choice]['type'] == 'submenu':
+        if popuplib.exists(choice):
+            popuplib.send(choice, userid)
+    elif callable(vote_list[choice]['function']):
+            vote_list[choice]['function'](userid, choice)
+        
+def returnMenu(userid, choice, popupid):
+    function = vote_list[choice]['function']
+    if callable(function):
+        mymodule.logging.log("Admin "+ es.getplayername(userid)+ " selected vote " + str(choice))
+        function(userid, choice)
+    else:
+        es.dbgmsg(0, "xavote.py: Cannot find method '"+str(function)+"'!")
+        
+def customVote(userid, choice):
+    lang = playerlib.getPlayer(userid).get("lang")
+    es.escinputbox(30, userid, xalanguage("select vote title", lang=lang), xalanguage("select vote title", lang=lang), 'xa_set_title') 
+    es.tell(userid, '#green',  xalanguage("escape prompt", lang=lang)) 
     
-def _xa_set_options(): 
-    global _vote_active 
-    adminid = es.getcmduserid() 
-    _vote_title = vote_admins[str(adminid)]['title'] 
-    _vote_options = '' 
-    _vote_index = 1 
-    while _vote_index <= es.getargc(): 
-        _vote_options = _vote_options + ' ' + str(es.getargv(_vote_index)) 
-        _vote_index += 1 
-    vote_admins[str(adminid)]['options'] = _vote_options 
-    _vote_options = _vote_options.split(",") 
-    mymodule.logging.log('Admin ' + es.getplayername(adminid) + ' has started a vote:') 
-    mymodule.logging.log('Title: ' + _vote_title) 
-    index = 0 
-    for a in _vote_options: 
-        index += 1 
-        mymodule.logging.log('Vote option ' + str(index) + ': ' + a) 
-    # The vote title now equals _vote_title 
-    # The vote options now equla _vote_options 
-    _vote_menu = votelib.create(str(adminid),_vote_win,_vote_message) 
-    _vote_menu.showmenu = False 
-    _vote_menu.setquestion(_vote_title) 
-    vote_counter.clear() 
-    for a in _vote_options: 
-        _vote_menu.addoption(a) 
-        vote_counter[a] = 0 
-    _vote_menu.start(vote_timer) 
-    for a in vote_players: 
-        if not vote_players[a]['stopped']: 
-            popuplib.send("_vote_"+str(adminid),a) 
-        elif vote_players[a]['reason']: 
-            tokens = {} 
-            tokens['reason'] = vote_players[a]['reason'] 
-            es.tell(a,'#green',xalanguage("stopped vote",tokens)) 
-    es.cexec_all('playgamesound',vote_start_sound) 
-    gamethread.delayedname(1,'update_hint',UpdateHudHint, vote_counter) 
-    _vote_active = 1 
+def customVoteTitle():
+    userid = es.getcmduserid()
+    title  = es.getargs()
+    lang   = playerlib.getPlayer(userid).get("lang")
+    es.escinputbox(30, userid, xalanguage("vote options", lang=lang), xalanguage("select vote options", lang=lang), 'xa_set_options %s ^^^'%title) 
+    
+def customVoteQuestions():
+    userid    = es.getcmduserid()
+    title     = str(es.getargs()).split('^^^')[0].strip()
+    questions = str(es.getargs()).split('^^^')[1].split(',')
+    myvote = Vote()
+    myvote.CreateVote(str(userid), title)
+    for question in questions:
+        myvote.AddOption(question.strip())
+    myvote.StartVote()
+    
+def rconVote(userid, vote):
+    myvote = Vote()
+    myvote.CreateVote(vote, vote_list[vote]['question'], vote_list[vote]['command'])
+    myvote.AddOption("Yes", True)
+    myvote.AddOption("No")
+    myvote.StartVote()
+        
+def questionVote(userid, vote):
+    myvote = Vote()
+    myvote.CreateVote(vote, vote_list[vote]['question'])
+    myvote.AddOption("Yes")
+    myvote.AddOption("No")
+    myvote.StartVote()
+        
+def MultiMap(userid, vote):
+    ReBuildMultiMapMenu()
+    popuplib.send("multimap", userid)
+        
+def ReBuildMultiMapMenu():
+    submenus = []
+    for x,y,z in os.walk(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maps'):
+        for mymap in filter(lambda x: x.endswith('.bsp'), z): 
+            mymap = mymap.replace('.bsp','')
+            submenus.append(mymap)    
+    vote_list["multimap"]['type'] = 'submenu'
+    myPopup = popuplib.easymenu("multimap", 'vote_choice', MultiMapSubmit)
+    for submenu in submenus:
+        if submenu not in multi_map:
+            myPopup.addoption(submenu, submenu)
+        else:
+            myPopup.addoption(submenu, '+ ' + submenu)
+    myPopup.settitle(xalanguage["build multi map"])
+    myPopup.submenu(10, "xavotemenu")
+        
+def MultiMapSubmit(userid, vote, popupid):
+    if vote not in multi_map:
+        multi_map.append(vote)
+    else:
+        multi_map.remove(vote)
+    popuplib.send("multimapaccept", userid)
+        
+def MultiMapConfirm(userid, choice, popupid):
+    if choice == 1:
+        ReBuildMultiMapMenu()
+        popuplib.send("multimap", userid)
+    elif choice == 2:
+        ChangeMapBuild(StartMultiMap, userid)        
 
-def UpdateHudHint(vote_counter): 
-    _sorted_vote_list = sorted(vote_counter, _sort_votes) 
-    es.usermsg("create", "hudhint", "HintText") 
-    es.usermsg("write","short","hudhint",-1) 
-    format = "Vote Counter:\n-----------------------\n" 
-    for index in range(min(2, len(_sorted_vote_list))): 
-        _option = _sorted_vote_list[index] 
-        format = format + _option + " - Votes: " + str(vote_counter[_option]) + "\n" 
-    es.usermsg("write","string","hudhint",format) 
-    for player in es.getUseridList(): 
-        es.usermsg("send","hudhint",player,0) 
-    es.usermsg("delete","hudhint") 
-    gamethread.delayedname(5,'update_hint',UpdateHudHint,vote_counter) 
+def StartMultiMap(userid, choice, popupid):
+    global change_map
+    global multi_map
+    change_map = int(choice)
+    myvote = Vote()
+    myvote.CreateVote("multimap", "Please select a map", MultiMapWin)
+    for mymap in multi_map:
+        myvote.AddOption(mymap, True)
+    multi_map = []
+    myvote.StartVote()
+        
+def MultiMapWin(args):
+    winner = args['winner']
+    es.set('eventscripts_nextmapoverride', winner)
+    if change_map == 1:
+        chattime = int(es.ServerVar('mp_chattime'))
+        gamethread.delayed(chattime, EndMap)
+    
+def RandomMapVote(userid, vote):
+    ChangeMapBuild(StartRandomMapVote, userid)
 
-def _sort_votes(vote_1, vote_2): 
-    if vote_counter[vote_1] >  vote_counter[vote_2]: return -1 
-    if vote_counter[vote_1] == vote_counter[vote_2]: return 0 
-    return 1 
+def StartRandomMapVote(userid, choice, popupid):
+    global change_map
+    change_map = int(choice)
+    mypopup  = popuplib.easymenu("randmapamount", "_popup_choice", RandomMapVoteAmountSelection)
+    submenus = []
+    temp_index = 1
+    amount = len(filter(lambda x: False if x == '' or x.startswith('//') else os.path.isfile(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maps/%s.bsp'%x), map(lambda x: x.replace('\n',''), open(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maplist.txt', 'r').readlines())))
+    while temp_index <= amount:
+        mypopup.addoption(temp_index, '[%s]'%temp_index)
+        temp_index += 1
+    mypopup.settitle("Select the amount of maps you want")
+    mypopup.send(userid)
     
-def _vote_message(userid, votename, optionid, option): 
-    tokens = {} 
-    tokens['username'] = es.getplayername(userid) 
-    tokens['option'] = str(option) 
-    for player in es.getUseridList(): 
-        es.tell(player,'#multi',xalanguage("vote message",tokens)) 
-    if vote_counter.has_key(option): 
-        vote_counter[option] += 1 
-    else: 
-        vote_counter[option] = 0 
-    gamethread.cancelDelayed('update_hint') 
-    UpdateHudHint(vote_counter) 
+def RandomMapVoteAmountSelection(userid, choice, popupid):
+    vote = Vote()
+    vote.CreateVote("randommap", "Please select a map", RandomMapWin)
+    map_list = filter(lambda x: False if x == '' or x.startswith('//') else os.path.isfile(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maps/%s.bsp'%x), map(lambda x: x.replace('\n',''), open(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maplist.txt', 'r').readlines()))
+    random_list = []
+    while choice:
+        choice -= 1
+        random_map = random.choice(map_list)
+        map_list.remove(random_map)
+        random_list.append(random_map)
+    random_list.sort()
+    for random_map in random_list:
+        vote.AddOption(random_map, True)
+    vote.StartVote()
     
-def _vote_win(popupid, optionid, choice, winner_votes, winner_percent, total_votes, was_tied, was_canceled): 
-    global _vote_active 
-    gamethread.cancelDelayed('update_hint') 
-    _vote_active = 0 
-    es.cexec_all('playgamesound',vote_end_sound) 
-    tokens = {} 
-    if not was_tied or was_canceled: 
-        tokens['winner'] = choice 
-        tokens['votes'] = winner_votes 
-        tokens['totalvotes'] = total_votes 
-        tokens['percent'] = winner_percent 
-        for player in es.getUseridList(): 
-            es.tell(player,'#multi',xalanguage("vote win",tokens)) 
-    elif was_tied and not was_canceled: 
-        for player in es.getUseridList(): 
-            es.tell(player,'#green',xalanguage("vote tie")) 
-        _sorted_vote_list = sorted(vote_counter, _sort_votes) 
-        _vote_option_1 = _sorted_vote_list[0] 
-        _vote_option_2 = _sorted_vote_list[1] 
-        _vote_choice = random.choice[_vote_option_1,_vote_option_2] 
-        tokens = {} 
-        tokens['winner'] = choice 
-        for player in es.getUseridList(): 
-            es.tell(player,'#multi',xalanguage("random win", tokens)) 
-    else: 
-        for player in es.getUseridList(): 
-            es.tell(player,'#green',xalanguage("vote canceled")) 
-            
-def _rcon_vote(adminid, _vote, name): 
-    global _vote_active 
-    global _rcon_command 
-    if not _vote_active: 
-        _vote_active = 1 
-        vote_counter.clear() 
-        _vote = _vote.split('^^^') 
-        _vote_question = _vote[0] 
-        _rcon_command = _vote[1] 
-        _vote_menu = votelib.create(str(adminid),_rcon_win,_vote_message) 
-        _vote_menu.showmenu = False 
-        _vote_menu.setquestion(_vote_question) 
-        _vote_menu.addoption(xalanguage("yes")) 
-        _vote_menu.addoption(xalanguage("no")) 
-        vote_counter["Yes"] = 0 
-        vote_counter["No"] = 0 
-        _vote_menu.start(vote_timer) 
-        for a in vote_players: 
-            if not vote_players[a]['stopped']: 
-                popuplib.send("_vote_"+str(adminid),a) 
-            elif vote_players[a]['reason']: 
+def RandomMapWin(args):
+    winner = args['winner']
+    es.set('eventscripts_nextmapoverride', winner)
+    if change_map == 1:
+        chattime = int(es.ServerVar('mp_chattime'))
+        gamethread.delayed(chattime, EndMap)
+    
+def EndMap():
+    winner = es.ServerVar('eventscripts_nextmapoverride')
+    userid = es.getuserid()
+    if not userid:
+        return
+    es.server.queuecmd('nextlevel %s'%winner)
+    es.server.queuecmd('es_give %s game_end'%userid)
+    es.server.queuecmd('es_fire %s game_end EndGame'%userid)
+       
+def ChangeMapBuild(function, userid):
+    mypopup = popuplib.create("mapchange")
+    a = mypopup.addline
+    a('When should the map change?')
+    a('-------------------------------')
+    a('->1. Immediately')
+    a('->2. End of the round')
+    a('->3. End of the map')
+    a('-------------------------------')
+    a('0. Cancel')
+    mypopup.menuselect = function
+    mypopup.send(userid)
+        
+class Vote:
+    def __init__(self):
+        self.options = {}
+        self.display = None
+        self.vote = None
+        self.option = None
+        
+    def CreateVote(self, shortName, question, command=None):
+        self.shortName = shortName
+        self.vote      = votelib.create(self.shortName, self.Win, self.Message)
+        self.option    = command
+        self.vote.setquestion(question)
+        
+    def AddOption(self, option, winner = False):
+        self.vote.addoption(option)
+        self.options[option] = {'votes':0,'winner':winner}
+        
+    def StartVote(self):
+        self.vote.showmenu = False
+        self.vote.start(vote_timer)
+        self.display = HudHint(self.options, self.shortName)
+        for player in vote_players:
+            if not vote_players[player]['stopped']: 
+                popuplib.send("_vote_" + self.shortName , player) 
+            elif vote_players[player]['reason']: 
                 tokens = {} 
-                tokens['reason'] = vote_players[a]['reason'] 
-                es.tell(a,'#green',xalanguage("stopped vote",tokens)) 
-        es.cexec_all('playgamesound',vote_start_sound) 
-        gamethread.delayedname(1,'update_hint',UpdateHudHint, vote_counter) 
-    else: 
-        es.tell(adminid,'#green',xalanguage("already active")) 
-            
-def _rcon_win(popupid, optionid, choice, winner_votes, winner_percent, total_votes, was_tied, was_canceled): 
-    global _vote_active 
-    global _rcon_command 
-    _vote_active = 0 
-    es.cexec_all('playgamesound',vote_end_sound) 
-    gamethread.cancelDelayed('update_hint') 
-    if not was_tied or was_canceled: 
-        if choice == "Yes": 
-            es.server.cmd(_rcon_command) 
-        _rcon_command = None 
+                tokens['reason'] = vote_players[player]['reason'] 
+                es.tell(player, '#green', xalanguage("stopped vote", tokens, playerlib.getPlayer(player).get("lang"))) 
+        es.cexec_all('playgamesound ' + vote_start_sound)
+        self.display.Start()
+        
+    def Message(self, userid, votename, optionid, option):
         tokens = {} 
-        tokens['winner'] = choice 
-        tokens['votes'] = winner_votes 
-        tokens['totalvotes'] = total_votes 
-        tokens['percent'] = winner_percent 
-        for player in es.getUseridList(): 
-            es.tell(player,'#multi',xalanguage("vote win",tokens)) 
-    elif was_tied and not was_canceled: 
-        for player in es.getUseridList(): 
-            es.tell(player,'#green',xalanguage("vote tie")) 
-        winner = random.choice["yes","no"] 
-        tokens = {} 
-        tokens['winner'] = xalanguage(winner) 
-        for player in es.getUseridList(): 
-            es.tell(player,'#multi',xalanguage("random win", tokens)) 
-    else: 
-        for player in es.getUseridList(): 
-            es.tell(player,'#green',xalanguage("vote canceled")) 
-            
-def _question_vote(adminid, _vote, name): 
-    global _vote_active 
-    if not _vote_active: 
-        _vote_active = 1 
-        vote_counter.clear() 
-        _vote_menu = votelib.create(str(adminid),_vote_win,_vote_message) 
-        _vote_menu.showmenu = False 
-        _vote_menu.setquestion(_vote) 
-        _vote_menu.addoption(xalanguage("yes")) 
-        _vote_menu.addoption(xalanguage("no")) 
-        vote_counter["Yes"] = 0 
-        vote_counter["No"] = 0 
-        _vote_menu.start(vote_timer) 
-        for a in vote_players: 
-            if not vote_players[a]['stopped']: 
-                popuplib.send("_vote_"+str(adminid),a) 
-            elif vote_players[a]['reason']: 
-                tokens = {} 
-                tokens['reason'] = vote_players[a]['reason'] 
-                es.tell(a,'#green',xalanguage("stopped vote",tokens)) 
-        es.cexec_all('playgamesound',vote_start_sound) 
-        gamethread.delayedname(1,'update_hint',UpdateHudHint, vote_counter) 
-    else: 
-        es.tell(adminid,'#green',xalanguage("already active")) 
+        tokens['username'] = es.getplayername(userid) 
+        tokens['option']   = str(option) 
+        for player in playerlib.getPlayerList(): 
+            es.tell(int(player),'#multi', xalanguage("vote message", tokens, player.get("lang")))
+        self.display.ChangeDict(option, 1)
+        
+    def Win(self, popupid, optionid, choice, winner_votes, winner_percent, total_votes, was_tied, was_canceled):
+        self.display.Stop()
+        es.cexec_all('playgamesound',vote_end_sound)
+        if not was_tied or was_canceled: 
+            if self.option and self.options[choice]['winner']:
+                if isinstance(self.option, str):
+                    es.server.cmd(self.option)
+                elif callable(self.option):
+                    self.params = {}
+                    self.params['winner'] = choice
+                    self.params['votes'] = winner_votes
+                    self.params['percent'] = winner_percent
+                    self.params['total votes'] = total_votes
+                    self.option(self.params)
+            tokens = {}
+            tokens['winner']     = choice 
+            tokens['votes']      = winner_votes 
+            tokens['totalvotes'] = total_votes
+            tokens['percent']    = winner_percent 
+            for player in playerlib.getPlayerList(): 
+                es.tell(int(player),'#multi',xalanguage("vote win",tokens, player.get("lang"))) 
+        elif was_tied and not was_canceled:
+            for player in playerlib.getPlayerList(): 
+                es.tell(int(player),'#green',xalanguage("vote tie", player.get("lang"))) 
+            winner = random.choice["yes","no"]
+            tokens = {}
+            tokens['winner'] = xalanguage(winner)
+            for player in playerlib.getPlayerList(): 
+                es.tell(int(player),'#multi',xalanguage("random win", player.get("lang")))  
+        else: 
+            for player in playerlib.getPlayerList(): 
+                es.tell(int(player),'#green',xalanguage("vote canceled", player.get("lang"))) 
 
-def stopVoting(userid,reason=''): 
-    vote_players[userid]['stopped'] = 1 
-    if reason: 
-        vote_players[userid]['reason'] = reason
+class HudHint:
+    def __init__(self, votes, uniquename):
+        self.running = False
+        self.votes = votes
+        self.name = uniquename
+        
+    def Start(self):
+        self.starttime = time.time()
+        if not self.running:
+            self.running = True
+            self.Loop()
+        
+    def Loop(self):
+        time_left = int(self.starttime - time.time() + vote_timer)
+        if time_left < 0:
+            time_left = 0
+        SortedVotes = self.SortDict()
+        es.usermsg("create", self.name, "HintText") 
+        es.usermsg("write" , "short"  , self.name, -1) 
+        format = "Vote Counter: (%ss)\n-----------------------\n"%time_left
+        for index in range(min(2, len(SortedVotes))): 
+            option = SortedVotes[index] 
+            format = format + option + " - Votes: " + str(self.votes[option]['votes']) + "\n" 
+        es.usermsg("write", "string", self.name, format)
+        for player in es.getUseridList(): 
+            es.usermsg("send", self.name, player, 0) 
+        es.usermsg("delete", self.name)
+        gamethread.delayedname(1, self.name, self.Loop) 
+        
+    def SortDict(self):
+        return sorted(self.votes, lambda x,y : -1 if self.votes[x]['votes'] > self.votes[y]['votes'] else 0 if self.votes[x] == self.votes[y] else 1)
+        
+    def ChangeDict(self, vote, amount):
+        self.votes[vote]['votes'] += amount
+        gamethread.cancelDelayed(self.name)
+        self.Loop()
+    
+    def Stop(self):
+        if self.running:
+            self.running = False
+            gamethread.cancelDelayed(self.name)
