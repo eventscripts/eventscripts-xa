@@ -29,7 +29,7 @@ psyco.full()
 #plugin information
 info = es.AddonInfo()
 info.name = "eXtensible Admin EventScripts Python addon"
-info.version = "0.7.0.263"
+info.version = "0.7.0.286"
 info.author = "EventScripts Developers"
 info.url = "http://forums.mattie.info/cs/forums/viewforum.php?f=97"
 info.description = "eXtensible Admin EventScripts Python addon"
