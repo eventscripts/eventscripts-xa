@@ -176,7 +176,7 @@ def player_death(event_var):
                 playertimes[attackerid] = int(time.time())
             else:
                 playertimes[attackerid] = int(time.time())
-        if (userid > 0) and (attackerid > 0):
+        if (userid > 0) and (attackerid > 0) and (userid != attackerid):
             userteam = int(event_var['es_userteam'])
             attackerteam = int(event_var['es_attackerteam'])
             weapon = str(event_var['weapon'])
@@ -185,7 +185,7 @@ def player_death(event_var):
                     playerheads[userid] = True
             except:
                 pass
-            if (userteam == attackerteam) and (userid != attackerid):
+            if (userteam == attackerteam):
                 _play_quakesound(xaquakesoundslist['teamkiller'], 'teamkiller', userid, attackerid, int(quake_team_killer_mode), int(quake_team_killer_visual_mode))
             elif (weapon == str(quake_humiliation_weapon)) or (weapon == str(quake_humiliation_weapon2)):
                 _play_quakesound(xaquakesoundslist['humiliation'], 'humiliation', userid, attackerid, int(quake_humiliation_mode), int(quake_humiliation_visual_mode))
