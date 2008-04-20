@@ -45,7 +45,7 @@ def load():
     xavotemenu.settitle(xalanguage["select vote"])
     mymodule.addMenu("xavotemenu", xalanguage["vote"], "xavotemenu", "start_vote", "#admin")
     
-    registerVoteMenu("create"  , xalanguage["create vote"]  , customVote,)
+    registerVoteMenu("create"  , xalanguage["create vote"]  , customVote, serverCmdFunction = customVoteCommand)
     mymodule.addCommand("xa_set_title",   customVoteTitle,     "set_a_title",     "#admin").register("console") 
     mymodule.addCommand("xa_set_options", customVoteQuestions, "set_vote_option", "#admin").register("console")
     
@@ -64,7 +64,7 @@ def load():
                 vote_list[title]['command']  = command
                 vote_list[title]['type']     = 'rcon'
                 submenus.append(title)
-    registerVoteMenu("rcon"    , xalanguage["rcon vote"]    , rconVote  , submenus)
+    registerVoteMenu("rcon"    , xalanguage["rcon vote"]    , rconVote  , submenus, rconCommand)
     
     submenus = []
     if xavotelist:
@@ -77,7 +77,7 @@ def load():
                 vote_list[title]['question'] = question
                 vote_list[title]['type']     = 'question'
                 submenus.append(title)
-    registerVoteMenu("question", xalanguage["question vote"], questionVote, submenus)
+    registerVoteMenu("question", xalanguage["question vote"], questionVote, submenus, questionCommand)
     
     mypopup = popuplib.create("multimapaccept")
     a = mypopup.addline
@@ -89,9 +89,9 @@ def load():
     a('-------------------------------')
     a('0. Cancel')
     mypopup.menuselect = MultiMapConfirm
-    registerVoteMenu("multimap", xalanguage["build multi map"], MultiMap)
+    registerVoteMenu("multimap", xalanguage["build multi map"], MultiMap, serverCmdFunction= MultiMapCommand)
     
-    registerVoteMenu("randommap", xalanguage["random map vote"], RandomMapVote)
+    registerVoteMenu("random", xalanguage["random map vote"], RandomMapVote, serverCmdFunction= RandomCommand)
     
 #################################
 # EVENTS
@@ -108,9 +108,29 @@ def round_end(ev):
 #
 #################################
     
-def registerVoteMenu(shortName, displayName, returnFunction, submenus=[]):
+def voteCmd():
+    command   = es.getargv(0).replace('xa_','').replace('vote','')
+    args      = []
+    argLength = es.getargc()
+    tempCount = 0
+    while tempCount < argLength:
+        tempCount += 1
+        args.append(es.getargv(tempCount))
+    if '' in args:
+        args.remove('')
+    commandFunction = vote_list[command]['commandFunction']
+    if callable(commandFunction):
+        if args:
+            commandFunction(args)
+        else:
+            commandFunction()
+    
+def registerVoteMenu(shortName, displayName, returnFunction, submenus=[], serverCmdFunction=None, permission='#admin'):
     if not vote_list.has_key(shortName):
-        vote_list[shortName]             = {}
+        vote_list[shortName] = {}
+        if serverCmdFunction:
+            vote_list[shortName]['commandFunction'] = serverCmdFunction 
+            mymodule.addCommand('xa_' + shortName + 'vote', voteCmd, 'vote_commands', permission).register(('server', 'console'))
         vote_list[shortName]['display']  = displayName
         vote_list[shortName]['function'] = returnFunction
         vote_list[shortName]['type']     = 'mainmenu'
@@ -162,9 +182,27 @@ def customVoteQuestions():
         myvote.AddOption(question.strip())
     myvote.StartVote()
     
+def customVoteCommand(args):
+    title     = args[0].strip()
+    questions = args[1].split(',')
+    myvote = Vote()
+    myvote.CreateVote(title, title)
+    for question in questions:
+        myvote.AddOption(question.strip())
+    myvote.StartVote()
+    
 def rconVote(userid, vote):
     myvote = Vote()
     myvote.CreateVote(vote, vote_list[vote]['question'], vote_list[vote]['command'])
+    myvote.AddOption("Yes", True)
+    myvote.AddOption("No")
+    myvote.StartVote()
+    
+def rconCommand(args):
+    question = args[0]
+    command  = args[1]
+    myvote = Vote()
+    myvote.CreateVote(question, question, command)
     myvote.AddOption("Yes", True)
     myvote.AddOption("No")
     myvote.StartVote()
@@ -172,6 +210,14 @@ def rconVote(userid, vote):
 def questionVote(userid, vote):
     myvote = Vote()
     myvote.CreateVote(vote, vote_list[vote]['question'])
+    myvote.AddOption("Yes")
+    myvote.AddOption("No")
+    myvote.StartVote()
+    
+def questionCommand(args):
+    question = args[0]
+    myvote = Vote()
+    myvote.CreateVote(question, question)
     myvote.AddOption("Yes")
     myvote.AddOption("No")
     myvote.StartVote()
@@ -228,6 +274,17 @@ def MultiMapWin(args):
         chattime = int(es.ServerVar('mp_chattime'))
         gamethread.delayed(chattime, EndMap)
     
+def MultiMapCommand(args):
+    global change_map
+    global multi_map
+    multi_map = args[0].split(',')
+    change_map = int(args[1].replace('immediately','1').replace('round_end','2').replace('map_end','3'))
+    myvote = Vote()
+    myvote.CreateVote("multimap", "Please select a map", MultiMapWin)
+    for mymap in multi_map:
+        myvote.AddOption(mymap.strip(), True)
+    myvote.StartVote()
+    
 def RandomMapVote(userid, vote):
     ChangeMapBuild(StartRandomMapVote, userid)
 
@@ -265,6 +322,24 @@ def RandomMapWin(args):
     if change_map == 1:
         chattime = int(es.ServerVar('mp_chattime'))
         gamethread.delayed(chattime, EndMap)
+    
+def RandomCommand(args):
+    global change_map
+    vote = Vote()
+    vote.CreateVote("randommap", "Please select a map", RandomMapWin)
+    map_list = filter(lambda x: False if x == '' or x.startswith('//') else os.path.isfile(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maps/%s.bsp'%x), map(lambda x: x.replace('\n',''), open(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maplist.txt', 'r').readlines()))
+    random_list = []
+    choice = int(args[0])
+    change_map = int(args[1].replace('immediately','1').replace('round_end','2').replace('map_end','3'))
+    while choice:
+        choice -= 1
+        random_map = random.choice(map_list)
+        map_list.remove(random_map)
+        random_list.append(random_map)
+    random_list.sort()
+    for random_map in random_list:
+        vote.AddOption(random_map, True)
+    vote.StartVote()
     
 def EndMap():
     winner = es.ServerVar('eventscripts_nextmapoverride')
