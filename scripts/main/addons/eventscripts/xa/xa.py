@@ -70,6 +70,7 @@ gModules = {}
 ## gCommandsPerm/Block holds all the permission/block names of commands
 gCommandsPerm = {}
 gCommandsBlock = {}
+gCommandsChat = {}
 ## gMenusPerm/Page holds all the permission/page names of menus
 gMenusPerm = {}
 gMenusPage = {}
@@ -323,6 +324,7 @@ class Admin_command(object):
         self.server = False
         self.console = False
         self.say = False
+        self.chat = False
         auth = services.use("auth")
         if isinstance(gPermLevel, str):
             gPermLevel = gPermLevel.lower()
@@ -342,6 +344,7 @@ class Admin_command(object):
             es.dbgmsg(0, "[eXtensible Admin] Invalid default permission \""+str(gPermLevel)+"\"")
         gCommandsPerm[self.name] = self.permission
         gCommandsBlock[self.name] = self.block
+        gCommandsChat[self.name] = self.chat
         auth.registerCapability(self.permission, self.permissionlevel)
     def __str__(self):
         return self.name
@@ -365,6 +368,9 @@ class Admin_command(object):
                 es.regsaycmd(str(gSayPrefix)+self.name[3:], "xa/incoming_say", "eXtensible Admin command")
             es.regsaycmd(self.name, "xa/incoming_say", "eXtensible Admin command")
             self.say = True
+        if "chat" in cmdlist and self.chat == False:
+            gCommandsChat[self.name] = True
+            self.chat = True
     def unregister(self, gList):
         if isinstance(gList, str):
             cmdlist = [gList]
@@ -380,6 +386,9 @@ class Admin_command(object):
                 es.unregsaycmd(str(gSayPrefix)+self.name[3:])
             es.unregsaycmd(self.name)
             self.say = False
+        if "chat" in cmdlist and self.chat == True:
+            gCommandsChat[self.name] = False
+            self.chat = False
     def unRegister(self, gList):
         self.unregister(gList)
     def information(self, listlevel):
@@ -391,6 +400,7 @@ class Admin_command(object):
             es.dbgmsg(0, "  Server cmd:   "+str(self.server))
             es.dbgmsg(0, "  Console cmd:  "+str(self.console))
             es.dbgmsg(0, "  Say cmd:      "+str(self.say))
+            es.dbgmsg(0, "  Chat cmd:     "+str(self.chat))
             es.dbgmsg(0, "  Target:       "+str(self.target))
             es.dbgmsg(0, "  Mani comp:    "+str(self.manicomp))
             es.dbgmsg(0, "  Permission:   "+str(self.permission))
@@ -765,6 +775,8 @@ def load():
     es.dbgmsg(0, "[eXtensible Admin] Second loading part...")
     if not es.exists("command", "xa"):
         es.regcmd("xa", "xa/consolecmd", "eXtensible Admin")
+    if not incoming_chat in es.addons.SayListeners:
+        es.addons.registerSayFilter(incoming_chat)
     gMainCommand = Admin_command("xa", sendMenu, "xa_menu", "#all")
     gMainCommand.register(["console","say"])
     es.dbgmsg(0, "[eXtensible Admin] Executing xa.cfg...")
@@ -800,6 +812,8 @@ def unload():
             menu.delete()
     gMainCommand.unRegister(["console","say"])
     del gMainCommand
+    if incoming_chat in es.addons.SayListeners:
+        es.addons.unregisterSayFilter(incoming_chat)
     es.dbgmsg(0, "[eXtensible Admin] Finished unloading sequence")
     es.dbgmsg(0, "[eXtensible Admin] Modules will now unregister themself...")
 
@@ -1165,7 +1179,10 @@ def incoming_server():
     if command in gCommandsPerm:
         block = gCommandsBlock[command]
         if callable(block):
-            block()
+            try:
+                block()
+            except:
+                pass
         else:
             es.doblock(block)
 
@@ -1181,7 +1198,10 @@ def incoming_console():
             if auth.isUseridAuthorized(userid, perm):
                 block = gCommandsBlock[command]
                 if callable(block):
-                    block()
+                    try:
+                        block()
+                    except:
+                        pass
                 else:
                     es.doblock(block)
 
@@ -1199,9 +1219,36 @@ def incoming_say():
             if auth.isUseridAuthorized(userid, perm):
                 block = gCommandsBlock[command]
                 if callable(block):
-                    block()
+                    try:
+                        block()
+                    except:
+                        pass
                 else:
                     es.doblock(block)
+                    
+def incoming_chat(userid, message, teamonly):
+    output = message
+    if output[0] == output[-1:] == '"':
+        output = output[1:-1]
+    command = output.split(' ')[0]
+    if command.startswith('ma_'):
+        command = 'xa_'+command[3:]
+    elif command.startswith(str(gSayPrefix)):
+        command = 'xa_'+command[len(str(gSayPrefix)):]
+    if command in gCommandsChat:
+        if gCommandsChat[command] and gCommandsPerm[command]:
+            perm = gCommandsPerm[command]
+            auth = services.use("auth")
+            if auth.isUseridAuthorized(userid, perm):
+                block = gCommandsBlock[command]
+                if callable(block):
+                    try:
+                        block()
+                    except:
+                        pass
+                else:
+                    es.doblock(block)
+    return (userid, message, teamonly)
 
 def incoming_menu(userid, choice, name):
     if choice in gMenusPerm:
