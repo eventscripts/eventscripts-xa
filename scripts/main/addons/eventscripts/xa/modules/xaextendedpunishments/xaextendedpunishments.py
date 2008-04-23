@@ -36,17 +36,20 @@ xa_admintimebomb_anonymous     = xaextendedpunishments.setting.createVariable('a
 xa_admintimebomb_countdown     = xaextendedpunishments.setting.createVariable('admintimebomb_countdown',   10                 , "The countdown of the fuse (in seconds)") 
 xa_adminfirebomb_anonymous     = xaextendedpunishments.setting.createVariable('adminfirebomb_anonymous',   0                  , "When an admin fire bombs a player, will a message be sent? 1 = yes, 0 = no") 
 xa_adminfirebomb_countdown     = xaextendedpunishments.setting.createVariable('adminfirebomb_countdown',   10                 , "The countdown of the fuse (in seconds)") 
-xa_adminfirebomb_duration      = xaextendedpunishments.setting.createVariable('adminfirebomb_duration',    15                 , "How long the players will stay on fire for after a fire bomb (in seconds)") 
+xa_adminfirebomb_duration      = xaextendedpunishments.setting.createVariable('adminfirebomb_duration',    15                 , "How long the players will stay on fire for after a fire bomb (in seconds)")
+xa_adminmute_anonymous         = xaextendedpunishments.setting.createVariable('adminmute_anonymous',       0                  , "When an admin mutes a player, will a message be sent? 1 = yes, 0 = no")
+xa_adminmute_deletetime        = xaextendedpunishments.setting.createVariable('xa_adminmute_deletetime',   600                , "How long after a person disconnects from the server that they will be able to reconnect and be unmuted (in seconds)\n // E.G If it was 600, then 10 minutes after they left, they'd be able to rejoin unmuted again.\n // If they joined before the 10 minutes were up, they'd still be muted")
 
 if xa.isManiMode(): 
     gimpPath = str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/cfg/mani_admin_plugin/gimpphrase.txt' 
 else: 
     gimpPath = str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/cfg/xa/xaextendedpunishments/gimplist.txt' 
 
-players = {} 
+players = {}
+muted   = []
 
 def load(): 
-    xaextendedpunishments.addRequirement("xapunishments")
+    # xapunishments.registerPunishment("punishment", xalanguage["punishment"], _callback_function) 
     xapunishments.registerPunishment("blind",      xalanguage["blind"]     , _blind      , 1) 
     xapunishments.registerPunishment("freeze",     xalanguage["freeze"]    , _freeze     , 1) 
     xapunishments.registerPunishment("gimp",       xalanguage["gimp"]      , _gimp       , 1) 
@@ -55,7 +58,8 @@ def load():
     xapunishments.registerPunishment("noclip",     xalanguage["noclip"]    , _noclip     , 1) 
     xapunishments.registerPunishment("freezebomb", xalanguage["freezebomb"], _freeze_bomb, 1) 
     xapunishments.registerPunishment("timebomb",   xalanguage["timebomb"]  , _time_bomb  , 1) 
-    xapunishments.registerPunishment("firebomb",   xalanguage["firebomb"]  , _fire_bomb  , 1) 
+    xapunishments.registerPunishment("firebomb",   xalanguage["firebomb"]  , _fire_bomb  , 1)
+    xapunishments.registerPunishment("mute",       xalanguage["mute"]      , _mute       , 1) 
     gamethread.delayed(1, _blind_loop) 
         
 def player_activate(ev): 
@@ -70,12 +74,15 @@ def player_activate(ev):
     players[userid]['freezebombed'] = 0 
     players[userid]['timebombed']   = 0 
     players[userid]['beaconed']     = 0 
-    players[userid]['noclipped']    = 0 
+    players[userid]['noclipped']    = 0
+    gamethread.cancelDelayed('unmute_%s'%ev['es_steamid'])
         
 def player_disconnect(ev): 
     userid = int(ev['userid']) 
     if players.has_key(userid): 
-        del players[userid] 
+        del players[userid]
+    if ev['networkid'] in muted:
+        gamethread.delayedname(int(xa_adminmute_deletetime), 'unmute_%s'%ev['networkid'], _unmute, ev['networkid'])
 
 def round_end(ev): 
     for userid in es.getUseridList(): 
@@ -161,15 +168,17 @@ def _gimp(userid, adminid, args):
     
 def _say_filter(userid, text, team): 
     if players[userid]['gimped']: 
-        return(userid, getGimpPhrase(), team) 
-    return(userid, text, team) 
-
+        return(userid, getGimpPhrase(), team)
+    if es.getplayersteamid(userid) in muted:
+        es.tell(userid,'#multi', xalanguage("you are muted", lang=playerlib.getPlayer(userid).get("lang")))
+        return (0, None, 0) 
+    return(userid, text, team)
 es.addons.registerSayFilter(_say_filter)
-
+ 
 def unload():
+    es.addons.unregisterTickListener(tick)
     es.addons.unregisterSayFilter(_say_filter)
-    xaextendedpunishments.delRequirement("xapunishments")
-    xaextendedpunishments.unregister()
+    xa.unregister('xaextendedpunishments') 
     
 def getGimpPhrase(): 
     if os.path.isfile(gimpPath): 
@@ -323,3 +332,31 @@ def _extinguish(userid):
         if string == handle: 
             es.setindexprop(flame_entity, 'CEntityFlame.m_flLifetime', 0) 
             break
+
+def _mute(userid, adminid, args):
+    steamid = es.getplayersteamid(userid)
+    if steamid in muted:
+        muted.remove(steamid)
+        status = 'unmuted'
+    else:
+        muted.append(steamid)
+        status = 'muted'
+    if str(xa_adminmute_anonymous) == '0':
+        tokens = {}
+        tokens['admin']  = es.getplayername(adminid)
+        tokens['user']   = es.getplayername(userid)
+        for player in playerlib.getPlayerList('#human'):
+            tokens['state'] = xalanguage(status, lang=player.get("lang"))
+            es.tell(int(player), '#multi', xalanguage('admin state', tokens, player.get("lang")))
+    
+def _unmute(steamid):
+    if steamid in muted:
+        muted.remove(steamid)
+        
+def tick():
+    playerlist = es.getUseridList()
+    for player in filter(lambda x: es.getplayersteamid(x) in muted, playerlist):
+        for listener in playerlist:
+            if es.voicechat('islistening', listener, player):
+                es.voicechat('nolisten', listener, player)
+es.addons.registerTickListener(tick)
