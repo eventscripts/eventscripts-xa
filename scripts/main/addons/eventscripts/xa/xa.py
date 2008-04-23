@@ -217,7 +217,7 @@ class Admin_module(object):
             return True
     def addCommand(self, command, block, perm, permlvl, target=False, mani=False):
         #create new menu
-        self.subCommands[command] = Admin_command(command, block, perm, permlvl, target, mani)
+        self.subCommands[command] = Admin_command(command, block, perm, self.getLevel(permlvl), target, mani)
         return self.subCommands[command]
     def delCommand(self, command):
         #delete a menu
@@ -237,7 +237,7 @@ class Admin_module(object):
         return None
     def addMenu(self, menu, display, menuname, perm, permlvl):
         #create new menu
-        self.subMenus[menu] = Admin_menu(menu, display, menuname, perm, permlvl)
+        self.subMenus[menu] = Admin_menu(menu, display, menuname, perm, self.getLevel(permlvl))
         return self.subMenus[menu]
     def delMenu(self, menu):
         #delete a menu
@@ -266,9 +266,9 @@ class Admin_module(object):
                 level = auth.ADMIN
             elif permlvl.upper() == '#POWERUSER':
                 level = auth.POWERUSER
-            elif permlvl.upper() == '#IDENTIFIED':
+            elif permlvl.upper() == '#IDENTIFIED' or permlvl.upper() == "#KNOWN":
                 level = auth.IDENTIFIED
-            elif permlvl.upper() == '#UNRESTRICTED':
+            elif permlvl.upper() == '#UNRESTRICTED' or permlvl.upper() == "#ALL":
                 level = auth.UNRESTRICTED
             else:
                 level = None
@@ -325,27 +325,12 @@ class Admin_command(object):
         self.console = False
         self.say = False
         self.chat = False
-        auth = services.use("auth")
-        if isinstance(gPermLevel, str):
-            gPermLevel = gPermLevel.lower()
-            if gPermLevel == "#root":
-                self.permissionlevel = auth.ROOT
-            elif gPermLevel == "#admin":
-                self.permissionlevel = auth.ADMIN
-            elif gPermLevel == "#poweruser":
-                self.permissionlevel = auth.POWERUSER
-            elif (gPermLevel == "#identified") or (gPermLevel == "#known"):
-                self.permissionlevel = auth.IDENTIFIED
-            elif (gPermLevel == "#unrestricted") or (gPermLevel == "#all"):
-                self.permissionlevel = auth.UNRESTRICTED
-        else:
-            self.permissionlevel = int(gPermLevel)
         if not isinstance(self.permissionlevel, int):
             es.dbgmsg(0, "[eXtensible Admin] Invalid default permission \""+str(gPermLevel)+"\"")
         gCommandsPerm[self.name] = self.permission
         gCommandsBlock[self.name] = self.block
         gCommandsChat[self.name] = self.chat
-        auth.registerCapability(self.permission, self.permissionlevel)
+        services.use("auth").registerCapability(self.permission, self.permissionlevel)
     def __str__(self):
         return self.name
     def register(self, gList):
@@ -417,7 +402,6 @@ class Admin_menu(object):
         self.menuobj = None
         self.permission = gPerm
         self.permissionlevel = gPermLevel
-        auth = services.use("auth")
         if popuplib.exists(self.menu):
             self.menutype = "popup"
             self.menuobj = popuplib.find(self.menu)
@@ -428,25 +412,11 @@ class Admin_menu(object):
             self.menutype = "setting"
             self.menuobj = settinglib.find(self.menu)
         gMenusText[self.name] = self.display
-        if isinstance(gPermLevel, str):
-            gPermLevel = gPermLevel.lower()
-            if gPermLevel == "#root":
-                self.permissionlevel = auth.ROOT
-            elif gPermLevel == "#admin":
-                self.permissionlevel = auth.ADMIN
-            elif gPermLevel == "#poweruser":
-                self.permissionlevel = auth.POWERUSER
-            elif (gPermLevel == "#identified") or (gPermLevel == "#known"):
-                self.permissionlevel = auth.IDENTIFIED
-            elif (gPermLevel == "#unrestricted") or (gPermLevel == "#all"):
-                self.permissionlevel = auth.UNRESTRICTED
-        else:
-            self.permissionlevel = int(gPermLevel)
         if not isinstance(self.permissionlevel, int):
             es.dbgmsg(0, "[eXtensible Admin] Invalid default permission \""+str(gPermLevel)+"\"")
         gMenusPerm[self.name] = self.permission
         gMenusPage[self.name] = self.menuobj
-        auth.registerCapability(self.permission, self.permissionlevel)
+        services.use("auth").registerCapability(self.permission, self.permissionlevel)
     def __str__(self):
         return self.name
     def unregister(self):
@@ -777,7 +747,7 @@ def load():
         es.regcmd("xa", "xa/consolecmd", "eXtensible Admin")
     if not incoming_chat in es.addons.SayListeners:
         es.addons.registerSayFilter(incoming_chat)
-    gMainCommand = Admin_command("xa", sendMenu, "xa_menu", "#all")
+    gMainCommand = Admin_command("xa", sendMenu, "xa_menu", services.use("auth").UNRESTRICTED)
     gMainCommand.register(["console","say"])
     es.dbgmsg(0, "[eXtensible Admin] Executing xa.cfg...")
     es.server.cmd('exec xa.cfg')
@@ -786,10 +756,10 @@ def load():
     if isManiMode():
         ma = Admin_mani()
         es.dbgmsg(0, "[eXtensible Admin] Executing mani_server.cfg...")
-        ma.loadVariables() #setup basic mani variables
+        ma.loadVariables()  #setup basic mani variables
         es.server.cmd("exec mani_server.cfg")
-        ma.loadModules()   #load the mani modules if needed
-        ma.convertClients()
+        ma.loadModules()    #load the mani modules if needed
+        ma.convertClients() #convert the clients.txt
     es.dbgmsg(0, "[eXtensible Admin] Executing xamodules.cfg...")
     es.server.cmd('exec xamodules.cfg')
     es.dbgmsg(0, "[eXtensible Admin] Updating xamodules.cfg...")
