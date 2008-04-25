@@ -9,7 +9,7 @@ from xa import xa
 
 info                = es.AddonInfo() 
 info.name           = "Extended Punishments" 
-info.version        = "0.1" 
+info.version        = "0.3" 
 info.author         = "freddukes" 
 info.url            = "http://forums.mattie.info" 
 info.description    = "More options for the Punishments feature for XA" 
@@ -37,8 +37,8 @@ xa_admintimebomb_countdown     = xaextendedpunishments.setting.createVariable('a
 xa_adminfirebomb_anonymous     = xaextendedpunishments.setting.createVariable('adminfirebomb_anonymous',   0                  , "When an admin fire bombs a player, will a message be sent? 1 = yes, 0 = no") 
 xa_adminfirebomb_countdown     = xaextendedpunishments.setting.createVariable('adminfirebomb_countdown',   10                 , "The countdown of the fuse (in seconds)") 
 xa_adminfirebomb_duration      = xaextendedpunishments.setting.createVariable('adminfirebomb_duration',    15                 , "How long the players will stay on fire for after a fire bomb (in seconds)")
-xa_adminmute_anonymous         = xaextendedpunishments.setting.createVariable('adminmute_anonymous',       0                  , "When an admin mutes a player, will a message be sent? 1 = yes, 0 = no")
-xa_adminmute_deletetime        = xaextendedpunishments.setting.createVariable('xa_adminmute_deletetime',   600                , "How long after a person disconnects from the server that they will be able to reconnect and be unmuted (in seconds)\n // E.G If it was 600, then 10 minutes after they left, they'd be able to rejoin unmuted again.\n // If they joined before the 10 minutes were up, they'd still be muted")
+#xa_adminmute_anonymous         = xaextendedpunishments.setting.createVariable('adminmute_anonymous',       0                  , "When an admin mutes a player, will a message be sent? 1 = yes, 0 = no")
+#xa_adminmute_deletetime        = xaextendedpunishments.setting.createVariable('xa_adminmute_deletetime',   600                , "How long after a person disconnects from the server that they will be able to reconnect and be unmuted (in seconds)\n // E.G If it was 600, then 10 minutes after they left, they'd be able to rejoin unmuted again.\n // If they joined before the 10 minutes were up, they'd still be muted")
 
 if xa.isManiMode(): 
     gimpPath = str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/cfg/mani_admin_plugin/gimpphrase.txt' 
@@ -46,7 +46,7 @@ else:
     gimpPath = str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/cfg/xa/xaextendedpunishments/gimplist.txt' 
 
 players = {}
-muted   = []
+#muted   = []
 
 def load(): 
     # xapunishments.registerPunishment("punishment", xalanguage["punishment"], _callback_function) 
@@ -59,7 +59,7 @@ def load():
     xapunishments.registerPunishment("freezebomb", xalanguage["freezebomb"], _freeze_bomb, 1) 
     xapunishments.registerPunishment("timebomb",   xalanguage["timebomb"]  , _time_bomb  , 1) 
     xapunishments.registerPunishment("firebomb",   xalanguage["firebomb"]  , _fire_bomb  , 1)
-    xapunishments.registerPunishment("mute",       xalanguage["mute"]      , _mute       , 1) 
+    #xapunishments.registerPunishment("mute",       xalanguage["mute"]      , _mute       , 1) 
     gamethread.delayed(1, _blind_loop) 
         
 def player_activate(ev): 
@@ -173,10 +173,8 @@ def _say_filter(userid, text, team):
         es.tell(userid,'#multi', xalanguage("you are muted", lang=playerlib.getPlayer(userid).get("lang")))
         return (0, None, 0) 
     return(userid, text, team)
-es.addons.registerSayFilter(_say_filter)
- 
-def unload():
-    es.addons.unregisterTickListener(tick)
+es.addons.registerSayFilter(_say_filter) 
+def unload(): 
     es.addons.unregisterSayFilter(_say_filter)
     xa.unregister('xaextendedpunishments') 
     
@@ -332,7 +330,7 @@ def _extinguish(userid):
         if string == handle: 
             es.setindexprop(flame_entity, 'CEntityFlame.m_flLifetime', 0) 
             break
-
+'''
 def _mute(userid, adminid, args):
     steamid = es.getplayersteamid(userid)
     if steamid in muted:
@@ -360,3 +358,4 @@ def tick():
             if es.voicechat('islistening', listener, player):
                 es.voicechat('nolisten', listener, player)
 es.addons.registerTickListener(tick)
+'''
