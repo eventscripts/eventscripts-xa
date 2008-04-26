@@ -7,7 +7,7 @@ from xa import xa
 #plugin information 
 info = es.AddonInfo() 
 info.name     = 'XA Spawn & Team Kill/Attack Protection' 
-info.version  = '1.0.0' 
+info.version  = '1.0.1' 
 info.url      = 'http://forums.mattie.info/cs/forums/viewtopic.php?t=19690' 
 info.basename = 'xaprotect' 
 info.author   = 'Errant' 
@@ -15,7 +15,9 @@ info.author   = 'Errant'
 ''' 
 Provides basic spawn protection and damage reflection
 
-== V1.0.0 ==
+== 1.0.1 ==
+ - [FIX] Problem where the player_team code tried to re-add players that had disconnected
+== 1.0.0 ==
  - Released publicly
  - Name change to XAProtect
  - [+] Team kill protection
@@ -119,7 +121,7 @@ def unload():
     xa.unregister('xateamwound')
     
 def player_team(event_var): 
-    if int(event_var["userid"]) not in plist.players: 
+    if int(event_var["userid"]) not in plist.players and event_var["disconnect"] == "0": 
         plist.addPlayer(event_var["userid"]) 
     
     
