@@ -15,6 +15,8 @@ info.author   = 'Errant'
 ''' 
 Provides basic spawn protection and damage reflection
 
+== 1.0.2 ==
+ - [FIX] bug fixes (module was still registering as xateamwound)
 == 1.0.1 ==
  - [FIX] Problem where the player_team code tried to re-add players that had disconnected
 == 1.0.0 ==
@@ -118,7 +120,7 @@ module.setting.createVariable('protect_teamattack_slay', 0, 'Slay team attackers
 plist = twPHandler()  
   
 def unload(): 
-    xa.unregister('xateamwound')
+    xa.unregister('xaprotect')
     
 def player_team(event_var): 
     if int(event_var["userid"]) not in plist.players and event_var["disconnect"] == "0": 
@@ -185,5 +187,4 @@ def player_spawn(event_var):
 def player_disconnect(event_var): 
     plist.removePlayer(event_var["userid"]) 
 
-def load(): 
-    xa.register('xateamwound')
+
