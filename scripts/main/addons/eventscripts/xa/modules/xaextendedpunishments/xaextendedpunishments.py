@@ -81,8 +81,10 @@ def player_disconnect(ev):
     userid = int(ev['userid']) 
     if players.has_key(userid): 
         del players[userid]
+    '''
     if ev['networkid'] in muted:
         gamethread.delayedname(int(xa_adminmute_deletetime), 'unmute_%s'%ev['networkid'], _unmute, ev['networkid'])
+    '''
 
 def round_end(ev): 
     for userid in es.getUseridList(): 
@@ -169,9 +171,11 @@ def _gimp(userid, adminid, args):
 def _say_filter(userid, text, team): 
     if players[userid]['gimped']: 
         return(userid, getGimpPhrase(), team)
+    '''
     if es.getplayersteamid(userid) in muted:
         es.tell(userid,'#multi', xalanguage("you are muted", lang=playerlib.getPlayer(userid).get("lang")))
-        return (0, None, 0) 
+        return (0, None, 0)
+    ''' 
     return(userid, text, team)
 es.addons.registerSayFilter(_say_filter) 
 def unload(): 
