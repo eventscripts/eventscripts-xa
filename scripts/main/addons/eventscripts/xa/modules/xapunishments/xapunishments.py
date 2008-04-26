@@ -108,7 +108,7 @@ def _command_player():
 def _punish_player(userid, punishment, adminid, args = []):
     auth = services.use("auth")
     if (adminid == 0) or auth.isUseridAuthorized(adminid, punishment+"_player"):
-        if not auth.isUseridAuthorized(userid, "immune_"+punishment):
+        if (not auth.isUseridAuthorized(userid, "immune_"+punishment)) or (userid == adminid):
             if callable(punishment_method[punishment]):
                 xapunishments.logging.log("Admin "+str(adminid)+ " used punishment "+str(punishment)+" on player "+str(userid))
                 punishment_method[punishment](userid, adminid, args)
