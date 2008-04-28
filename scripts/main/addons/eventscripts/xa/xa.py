@@ -782,8 +782,9 @@ def unload():
     for menu in gMainMenu:
         if popuplib.exists(str(menu)):
             menu.delete()
-    gMainCommand.unRegister(["console","say"])
-    del gMainCommand
+    if gMainCommand:
+        gMainCommand.unregister(["console","say"])
+        del gMainCommand
     if incoming_chat in es.addons.SayListeners:
         es.addons.unregisterSayFilter(incoming_chat)
     es.dbgmsg(0, "[eXtensible Admin] Finished unloading sequence")
