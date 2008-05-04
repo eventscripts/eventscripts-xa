@@ -13,8 +13,8 @@ from sqlite3 import dbapi2 as sqlite
 
 info = es.AddonInfo()
 info.name        = "AuthManage"
-info.version     = "0.3"
-info.author      = "HTP"
+info.version     = "0.5"
+info.author      = "HTP w/ thx to freddukes"
 info.url         = "http://forums.mattie.info/cs/forums/index.php"
 info.description = "Popup interface for Authorization Management"
 
@@ -126,7 +126,7 @@ def load():
         b_admins = {}
         b_admins_path = es.getAddonPath('xa/modules/xaauthmanage') + '/admins'
         basicadmins_default = str(es.ServerVar('BASIC_AUTH_ADMIN_LIST'))
-        es.dbgmsg(0,'basicadmins_default=%s' %basicadmins_default)
+        es.dbgmsg(1,'basicadmins_default=%s' %basicadmins_default)
         basicadmins = basicadmins_default.split(';')
         _basic_auth_convar()
         adminlevel = 0        
@@ -235,9 +235,9 @@ def _adminlist(userid,choice=None,popupid=None):
     global adminlist
     b_admins = shelve.open(b_admins_path)
     adminlist = popuplib.easymenu('adminlistmenu', None, _adminlist_select)
-    adminlist.settitle(lang['admin list'])
     for admin in b_admins:
         adminlist.addoption((admin,b_admins[admin]), b_admins[admin][0])
+    adminlist.settitle(lang['admin list'])
     adminlist.send(userid)
     b_admins.close
         
@@ -293,7 +293,9 @@ def _admin_remove(userid,choice,popupid):
 def _basic_auth_convar():
     es.dbgmsg(1,'*****_basic_auth_convar')       
     b_admins = shelve.open(b_admins_path)
-    for admin in basicadmins:
+    es.dbgmsg(1,'*****b_admins=%s' %b_admins)
+    for admin in basicadmins_default.split(';'):
+        es.dbgmsg(1,'*****admin=%s' %admin)
         if admin:                
             if not b_admins.has_key(admin):
                 b_admins[admin] = ('-new-', '1', '0')
@@ -340,18 +342,25 @@ def _groupsmain_select(userid,choice,popupid):
         if groups:
             if choice == 1:
                 groupslist = popuplib.easymenu('groupslist', None, _groupusers_list)
+                for group in groups:
+                    es.dbgmsg(1,'*****group=%s' %group)
+                    group = utfcode(group[0])
+                    groupslist.addoption(group,group)
                 groupslist.settitle(lang['select for users'])   
             if choice == 2:
                 groupslist = popuplib.easymenu('groupslist', None, _groupcaps_list)
+                for group in groups:
+                    es.dbgmsg(1,'*****group=%s' %group)
+                    group = utfcode(group[0])
+                    groupslist.addoption(group,group)
                 groupslist.settitle(lang['select for caps'])
             if choice == 4:
                 groupslist = popuplib.easymenu('groupslist', None, _remove_group)
+                for group in groups:
+                    es.dbgmsg(1,'*****group=%s' %group)
+                    group = utfcode(group[0])
+                    groupslist.addoption(group,group)
                 groupslist.settitle(lang['select remove group'])
-            for group in groups:
-                es.dbgmsg(1,'*****group=%s' %group)
-                group = utfcode(group[0])
-                #groupslist.addoption(group[0], utfcode(group[0]))
-                groupslist.addoption(group,group)
             groupslist.send(userid)
         else:
             es.tell(userid, '#multi', prefix + lang('no groups'))    
@@ -363,9 +372,9 @@ def _groupusers_list(userid,choice,popupid):
     users = db.query("SELECT ALL Name FROM vwPlayersGroups WHERE GroupName='%s'" %choice)
     if users:
         groupusers = popuplib.easymenu('groupusers', None, _groupuser_remove)
-        groupusers.settitle(choice + ' ' + lang('users') + '\n ' + lang('select to remove'))
         for user in users:
-            groupusers.addoption((user[0],choice), utfcode(user[0])) 
+            groupusers.addoption((user[0],choice), utfcode(user[0]))
+        groupusers.settitle(choice + ' ' + lang('users') + '\n ' + lang('select to remove'))
         groupusers.send(userid)   
     else:
         es.tell(userid, '#multi', prefix + lang('no users in group') + ' ' + choice)
@@ -383,9 +392,9 @@ def _groupcaps_list(userid,choice,popupid=None):
     caps = db.query("SELECT ALL CName FROM vwCapsGroups WHERE GroupName='%s'" %choice)
     if caps:
         groupcaps = popuplib.easymenu('groupcaps', None, _groupcap_remove)
-        groupcaps.settitle(choice + ' ' + lang('capabilities') + '\n ' + lang('select to remove'))
         for cap in caps:
             groupcaps.addoption((cap[0],choice), utfcode(cap[0]))
+        groupcaps.settitle(choice + ' ' + lang('capabilities') + '\n ' + lang('select to remove'))
         groupcaps.send(userid)
     else:
         es.tell(userid, '#multi', prefix + lang('no caps in group') + ' ' + choice)       
@@ -438,9 +447,9 @@ def _userslist(userid):
     if users:
         global usersmenu
         usersmenu = popuplib.easymenu('usersmenu', None, _usersmenu_select)
-        usersmenu.settitle(lang('all users'))
         for user in users:
             usersmenu.addoption(user,utfcode(user[0]))
+        usersmenu.settitle(lang('all users'))
         usersmenu.send(userid)    	
     else:
         es.dbgmsg(0,'*****no users')
@@ -462,6 +471,8 @@ def _user_groups(userid,choice,popupid):
         groups = db.query("SELECT GroupName FROM vwPlayersGroups  WHERE Name='%s'" %guser)
         if groups:
             usergroups = popuplib.easymenu('usergroups', None, _groupuser_remove)
+            for group in groups:
+                usergroups.addoption((guser,group[0]), group[0])
             usergroups.settitle(lang('drop user from group'))
         else:
             es.tell(userid,'#multi',prefix + '#lightgreen' + guser + '#default' + lang('not in groups'))
@@ -470,12 +481,12 @@ def _user_groups(userid,choice,popupid):
         groups = db.query("SELECT GroupName FROM Groups WHERE GId NOT IN (SELECT GId FROM PlayersGroups WHERE UId=(SELECT Uid FROM Players WHERE Name='%s') AND (SELECT GId FROM Groups WHERE GId IN (SELECT GId FROM PlayersGroups))) AND GroupName!='UnidentifiedPlayers' AND GroupName!='IdentifiedPlayers'" %guser)
         if groups:
             usergroups = popuplib.easymenu('usergroups', None, _groupuser_add)
+            for group in groups:
+                usergroups.addoption((guser,group[0]), group[0])
             usergroups.settitle(lang('add user to group'))
         else:
             es.tell(userid,'#multi',prefix + '#lightgreen' + guser + '#default' + lang('in all groups'))
     if groups:
-        for group in groups:
-            usergroups.addoption((guser,group[0]), group[0])
         usergroups.send(userid)
 
 def _groupuser_add(userid,choice,popupid):
@@ -496,9 +507,9 @@ def _capslist(userid):
     caps = db.query("SELECT ALL CName FROM Caps")
     if caps:
         capsmenu = popuplib.easymenu('capsmenu', None, _capsmenu_select)
-        capsmenu.settitle(lang('capabilities'))
         for cap in caps:
             capsmenu.addoption(cap[0],cap[0])
+        capsmenu.settitle(lang('capabilities'))
         capsmenu.send(userid)
     else:
         es.tell(userid,'#multi',prefix + '#lightgreen' + guser + '#default' + lang('no registered capabilities'))
@@ -521,6 +532,8 @@ def _capmain_select(userid,choice,popupid):
         groups = db.query("SELECT GroupName FROM Groups WHERE GId IN (SELECT GId FROM GroupCaps WHERE GroupCaps.CId=(SELECT CId FROM Caps WHERE CName='%s'))" %capname)
         if groups:
             capgroups = popuplib.easymenu('capgroups',None,_capgroup_set)
+            for group in groups:	
+                capgroups.addoption((action,capname,group[0]),utfcode(group[0]))
             capgroups.settitle(lang('cap groups'))
             action = 'go'        
         else:
@@ -530,6 +543,8 @@ def _capmain_select(userid,choice,popupid):
         groups = db.query("SELECT GroupName FROM Groups WHERE GId NOT IN (SELECT GId FROM GroupCaps WHERE GroupCaps.CId=(SELECT CId FROM Caps WHERE CName='%s'))" %capname)
         if groups:
             capgroups = popuplib.easymenu('capgroups',None,_capgroup_set)
+            for group in groups:	
+                capgroups.addoption((action,capname,group[0]),utfcode(group[0]))
             capgroups.settitle(lang('add cap to group'))
             action = 'give'  
         else:
@@ -538,18 +553,17 @@ def _capmain_select(userid,choice,popupid):
         groups = db.query("SELECT GroupName FROM Groups WHERE GId IN (SELECT GId FROM GroupCaps WHERE GroupCaps.CId=(SELECT CId FROM Caps WHERE CName='%s'))" %capname)
         if groups:
             capgroups = popuplib.easymenu('capgroups',None,_capgroup_set)
+            for group in groups:	
+                capgroups.addoption((action,capname,group[0]),utfcode(group[0]))
             capgroups.settitle(lang('remove cap from group'))
             action = 'revoke'  
         else:
             es.tell(userid,'#multi',prefix + '#lightgreen' + capname + '#default' + lang('not in groups'))
-    es.dbgmsg(0,'*****groups=%s' %groups)
+    es.dbgmsg(1,'*****groups=%s' %groups)
     if groups:
-        for group in groups:	
-            capgroups.addoption((action,capname,group[0]),utfcode(group[0]))
         capgroups.send(userid)
     #else:
     #    capmain.send(userid)
-
 def _capgroup_set(userid,choice,popupid):
     es.dbgmsg(1,'*****_capgroup_set')
     if choice[0] == 'go':
@@ -599,10 +613,10 @@ def _playerlist(userid):
     players = playerlib.getPlayerList('#human')
     #players = playerlib.getPlayerList('#all')
     playermenu = popuplib.easymenu('playermenu',None,_manage_player)
-    playermenu.settitle(lang['current players'])
     for player in players:
         name = player.get('name')
         playermenu.addoption(name,utfcode(name))
+    playermenu.settitle(lang['current players'])
     playermenu.send(userid)
     
 def _manage_player(userid,choice,popupid):
@@ -612,10 +626,10 @@ def _manage_player(userid,choice,popupid):
         if popuplib.exists('groupsmenu'):
             popuplib.delete('groupsmenu')
         groupsmenu = popuplib.easymenu('groupsmenu', None, _set_playergroup)
-        groupsmenu.settitle(choice + '\n-' + lang('add player to group'))
         for group in groups:
             group = utfcode(group)
             groupsmenu.addoption((group[0],choice), utfcode(group[0]))
+        groupsmenu.settitle(choice + '\n-' + lang('add player to group'))
         groupsmenu.send(userid)
     else:
         global addadmin
