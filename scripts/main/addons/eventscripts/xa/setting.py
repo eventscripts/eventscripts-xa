@@ -7,12 +7,11 @@ import xa
 import psyco
 psyco.full()
 
-selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
-selfsettingfile = "%s/data/setting.txt" % es.getAddonPath('xa')
-selfmoduleconfig = "%s/cfg/xamodules.cfg" % selfmoddir
-selfkeyvalues = keyvalues.KeyValues(name="setting.txt")
-if os.path.exists(selfsettingfile):
-    selfkeyvalues.load(selfsettingfile)
+gSettingFile = "%s/data/setting.txt" % es.getAddonPath('xa')
+gModuleConfig = "%s/cfg/xamodules.cfg" % xa.gGameDir
+gKeyValues = keyvalues.KeyValues(name="setting.txt")
+if os.path.exists(gSettingFile):
+    gKeyValues.load(gSettingFile)
 
 ###########################
 #Module methods start here#
@@ -22,38 +21,40 @@ if os.path.exists(selfsettingfile):
 ########################################################
 def createVariable(module, variable, defaultvalue=0, description=""):
     if str(module) in xa.gModules:
+        x = xa.gModules[str(module)]
         if es.exists("variable", "mani_"+variable):
             variable = "mani_"+variable
         else:
             variable = "xa_"+variable
-        var = es.ServerVar(variable, defaultvalue, description) 
-        xa.gModules[str(module)].variables[variable] = var
-        xa.gModules[str(module)].variables[variable]._def = defaultvalue
-        xa.gModules[str(module)].variables[variable]._descr = description
-        return var
+        x.variables[variable] = es.ServerVar(variable, defaultvalue, description)
+        x.variables[variable]._def = defaultvalue
+        x.variables[variable]._descr = description
+        return x.variables[variable]
     else:
         return None
         
 def deleteVariable(module, variable):
     if str(module) in xa.gModules:
+        x = xa.gModules[str(module)]
         if es.exists("variable", "mani_"+variable):
             variable = "mani_"+variable
         else:
             variable = "xa_"+variable
-        if variable in xa.gModules[str(module)].variables:
-            del xa.gModules[str(module)].variables[variable]
+        if variable in x.variables:
+            del x.variables[variable]
             var = es.ServerVar(variable, defaultvalue, description) 
             var.set(0)
     return None
 
 def getVariable(module, variable):
     if str(module) in xa.gModules:
+        x = xa.gModules[str(module)]
         if es.exists("variable", "mani_"+variable):
             variable = "mani_"+variable
         else:
             variable = "xa_"+variable
-        if variable in xa.gModules[str(module)].variables:
-            return xa.gModules[str(module)].variables[variable]
+        if variable in x.variables:
+            return x.variables[variable]
         else:
             return None
     else:
@@ -71,33 +72,28 @@ def getVariableName(variable = None, module = None):
     
 def getVariables(module = None):
     varlist = []
-    if module:
-        for variable in sorted(xa.gModules[str(module)].variables):
-            varlist.append(xa.gModules[str(module)].variables[str(variable)])
+    if str(module) in xa.gModules:
+        x = xa.gModules[str(module)]
+        for variable in sorted(x.variables):
+            varlist.append(x.variables[variable])
     else:    
         for module in sorted(xa.gModules):
-            for variable in sorted(xa.gModules[str(module)].variables):
-                varlist.append(xa.gModules[str(module)].variables[str(variable)])
+            x = xa.gModules[module]
+            for variable in sorted(x.variables):
+                varlist.append(x.variables[variable])
     return varlist
     
 def addVariables(module = None):
     writeaddstamp = True
-    varlist = []
-    if module:
-        for variable in sorted(xa.gModules[str(module)].variables):
-            varlist.append(xa.gModules[str(module)].variables[str(variable)])
-    else:
-        for module in sorted(xa.gModules):
-            for variable in sorted(xa.gModules[str(module)].variables):
-                varlist.append(xa.gModules[str(module)].variables[str(variable)])
-    if not os.path.isfile(selfmoduleconfig):
+    varlist = getVariables(module)
+    if not os.path.isfile(gModuleConfig):
         writeaddstamp = False
-        f = open(selfmoduleconfig, 'w+')
-        f.write('// XA Module configuration\n')
+        f = open(gModuleConfig, 'w')
+        f.write('// XA Module Configuration\n')
         f.write('// Written on '+time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())+'\n')
         f.write('// \n\n')
     else:
-        f = open(selfmoduleconfig, 'r')
+        f = open(gModuleConfig, 'rU')
         for line in f:
             line = line.strip('\n')
             line = line.strip('\r')
@@ -107,7 +103,7 @@ def addVariables(module = None):
                     if var.getName() == data[0]:
                         varlist.remove(var)
         f.close()
-        f = open(selfmoduleconfig, 'a')
+        f = open(gModuleConfig, 'a')
     if writeaddstamp and varlist:
         f.write('// Added on '+time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())+'\n')
         f.write('// \n\n')
@@ -123,12 +119,9 @@ def addVariables(module = None):
     f.close()
 
 def saveVariables(module = None):
-    varlist = []
-    for module in sorted(xa.gModules):
-        for variable in sorted(xa.gModules[str(module)].variables):
-            varlist.append(xa.gModules[str(module)].variables[str(variable)])
-    f = open(selfmoduleconfig, 'w+')
-    f.write('// XA Module configuration\n')
+    varlist = getVariables()
+    f = open(gModuleConfig, 'w')
+    f.write('// XA Module Configuration\n')
     f.write('// Written on '+time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())+'\n')
     f.write('// \n\n')
     for var in varlist:
@@ -144,16 +137,16 @@ def saveVariables(module = None):
 
 def createKeyValues(module):
     return useKeyValues(module)
-    
+
 def useKeyValues(module):
     if str(module) in xa.gModules:
-        if str(module) in selfkeyvalues:
-            return selfkeyvalues[str(module)]
+        if str(module) in gKeyValues:
+            return gKeyValues[str(module)]
         else:
-            selfkeyvalues[str(module)] = keyvalues.KeyValues(name=str(module))
-            return selfkeyvalues[str(module)]
+            gKeyValues[str(module)] = keyvalues.KeyValues(name=str(module))
+            return gKeyValues[str(module)]
     else:
         return None
 
 def saveKeyValues(module = None):
-    selfkeyvalues.save(selfsettingfile)
+    gKeyValues.save(gSettingFile)

@@ -1,14 +1,10 @@
 import es
 import os
 import keyvalues
-
 import xa
 
 import psyco
 psyco.full()
-
-selfaddondir = str(es.server_var["eventscripts_addondir"]).replace("\\", "/")
-selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
 
 ###########################
 #Module methods start here#
@@ -19,9 +15,9 @@ selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
 def getList(module, filename, modfolder = False):
     if str(module) in xa.gModules:
         if modfolder == False:
-            filename = "%s/cfg/xa/%s/%s" % (selfmoddir, str(module), filename)
+            filename = "%s/cfg/xa/%s/%s" % (xa.gGameDir, str(module), filename)
         else:
-            filename = "%s/%s" % (selfmoddir, filename)
+            filename = "%s/%s" % (xa.gGameDir, filename)
         filename = filename.replace("\\", "/")
         if os.path.exists(filename):
             lines = []
@@ -45,9 +41,9 @@ def getList(module, filename, modfolder = False):
 def getAliasList(module, filename, modfolder = False):
     if str(module) in xa.gModules:
         if modfolder == False:
-            filename = "%s/cfg/xa/%s/%s" % (selfmoddir, str(module), filename)
+            filename = "%s/cfg/xa/%s/%s" % (xa.gGameDir, str(module), filename)
         else:
-            filename = "%s/%s" % (selfmoddir, filename)
+            filename = "%s/%s" % (xa.gGameDir, filename)
         filename = filename.replace("\\", "/")
         if os.path.exists(filename):
             lines = {}
@@ -73,9 +69,9 @@ def getAliasList(module, filename, modfolder = False):
 def getKeyList(module, filename, modfolder = False):
     if str(module) in xa.gModules:
         if modfolder == False:
-            filename = "%s/cfg/xa/%s/%s" % (selfmoddir, str(module), filename)
+            filename = "%s/cfg/xa/%s/%s" % (xa.gGameDir, str(module), filename)
         else:
-            filename = "%s/%s" % (selfmoddir, filename)
+            filename = "%s/%s" % (xa.gGameDir, filename)
         filename = filename.replace("\\", "/")
         if os.path.exists(filename):
             kv = keyvalues.KeyValues(name=basename(filename))

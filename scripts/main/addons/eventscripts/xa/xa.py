@@ -1,7 +1,7 @@
 #import EventScripts
 import es
 
-#load and import the core
+#begin loading
 es.dbgmsg(0, "[eXtensible Admin] Begin loading...")
 
 #import custom stuff
@@ -16,6 +16,10 @@ import settinglib
 import keyvalues
 from hotshot import stats
 from os import getcwd
+
+#helper variables
+gAddonDir = str(es.server_var["eventscripts_addondir"]).replace("\\", "/")
+gGameDir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
 
 #import libraries
 import configparser
@@ -69,17 +73,16 @@ gMainMenu = {}
 gMainCommand = None
 ## gModules holds all the modules
 gModules = {}
-## gCommandsPerm/Block holds all the permission/block names of commands
-gCommandsPerm = {}
-gCommandsBlock = {}
-gCommandsChat = {}
-## gMenusPerm/Page holds all the permission/page names of menus
-gMenusPerm = {}
-gMenusPage = {}
-gMenusText = {}
-## helper variables
-selfaddondir = str(es.server_var["eventscripts_addondir"]).replace("\\", "/")
-selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
+## gCommands holds all the information for commands
+gCommands = {}
+gCommands['perm'] = {}
+gCommands['block'] = {}
+gCommands['chat'] = {}
+## gMenus holds all the information for menus
+gMenus = {}
+gMenus['perm'] = {}
+gMenus['page'] = {}
+gMenus['text'] = {}
 
 #################### ######################################################
 #Core Class Section# # PLEASE KEEP IN MIND THAT THOSE CLASSES ARE PRIVATE #
@@ -330,9 +333,9 @@ class Admin_command(object):
         self.chat = False
         if not isinstance(self.permissionlevel, int):
             es.dbgmsg(0, "[eXtensible Admin] Invalid default permission \""+str(gPermLevel)+"\"")
-        gCommandsPerm[self.name] = self.permission
-        gCommandsBlock[self.name] = self.block
-        gCommandsChat[self.name] = self.chat
+        gCommands['perm'][self.name] = self.permission
+        gCommands['block'][self.name] = self.block
+        gCommands['chat'][self.name] = self.chat
         services.use("auth").registerCapability(self.permission, self.permissionlevel)
     def __str__(self):
         return self.name
@@ -357,7 +360,7 @@ class Admin_command(object):
             es.regsaycmd(self.name, "xa/incoming_say", self.descr)
             self.say = True
         if "chat" in cmdlist and self.chat == False:
-            gCommandsChat[self.name] = True
+            gCommands['chat'][self.name] = True
             self.chat = True
     def unregister(self, gList):
         if isinstance(gList, str):
@@ -375,7 +378,7 @@ class Admin_command(object):
             es.unregsaycmd(self.name)
             self.say = False
         if "chat" in cmdlist and self.chat == True:
-            gCommandsChat[self.name] = False
+            gCommands['chat'][self.name] = False
             self.chat = False
     def unRegister(self, gList):
         self.unregister(gList)
@@ -414,43 +417,43 @@ class Admin_menu(object):
         elif settinglib.exists(self.menu):
             self.menutype = "setting"
             self.menuobj = settinglib.find(self.menu)
-        gMenusText[self.name] = self.display
+        gMenus['text'][self.name] = self.display
         if not isinstance(self.permissionlevel, int):
             es.dbgmsg(0, "[eXtensible Admin] Invalid default permission \""+str(gPermLevel)+"\"")
-        gMenusPerm[self.name] = self.permission
-        gMenusPage[self.name] = self.menuobj
+        gMenus['perm'][self.name] = self.permission
+        gMenus['page'][self.name] = self.menuobj
         services.use("auth").registerCapability(self.permission, self.permissionlevel)
     def __str__(self):
         return self.name
     def unregister(self):
-        if self.name in gMenusPage:
-            del gMenusPerm[self.name]
-            del gMenusPage[self.name]
-            del gMenusText[self.name]
+        if self.name in gMenus['page']:
+            del gMenus['perm'][self.name]
+            del gMenus['page'][self.name]
+            del gMenus['text'][self.name]
     def unRegister(self):
         self.unregister()
     def setDisplay(self, display):
         self.display = display
-        gMenusText[self.name] = self.display
+        gMenus['text'][self.name] = self.display
         return True
     def setMenu(self, menu):
         if popuplib.exists(menu):
             self.menu = menu
             self.menutype = "popup"
             self.menuobj = popuplib.find(self.menu)
-            gMenusPage[self.name] = self.menuobj
+            gMenus['page'][self.name] = self.menuobj
             return True
         elif keymenulib.exists(menu):
             self.menu = menu
             self.menutype = "keymenu"
             self.menuobj = keymenulib.find(self.menu)
-            gMenusPage[self.name] = self.menuobj
+            gMenus['page'][self.name] = self.menuobj
             return True
         elif settinglib.exists(menu):
             self.menu = menu
             self.menutype = "setting"
             self.menuobj = settinglib.find(self.menu)
-            gMenusPage[self.name] = self.menuobj
+            gMenus['page'][self.name] = self.menuobj
             return True
         return False
     def information(self, listlevel):
@@ -463,15 +466,6 @@ class Admin_menu(object):
             es.dbgmsg(0, "  Menutype:     "+str(self.menutype))
             es.dbgmsg(0, "  Permission:   "+str(self.permission))
             es.dbgmsg(0, "  Perm-level:   "+str(self.permissionlevel))
-
-#basic commands begin here
-#usage from other Python scripts for example:
-#
-# TODO:
-# - Add all the module and command wrappers for the classes
-# - The "incoming" functions for clientcmd's and servercmd's needs to be done (see the Admin_command class)
-#
-# The classes are hidden to the outer world. All other python modules use functions that are specified below!
 
 ###########################
 #Module methods start here#
@@ -486,8 +480,11 @@ def xa_reload(pModuleid):
     xa_unload(pModuleid)
     gamethread.delayed(0.1, xa_load, (pModuleid,))
     
-def xa_exec(pModuleid):
-    es.server.cmd("exec xa_"+pModuleid+".cfg")
+def xa_runconfig():
+    es.server.cmd("exec xamodules.cfg")
+    
+def xa_exec(pModuleid = None): # be backwards compatible, but just execute general module config
+    xa_runconfig()
     
 def debug(dbglvl, message):
     if int(gDebug) >= dbglvl:
@@ -583,11 +580,11 @@ def sendMenu(userid=None):
             gMainMenu[userid].delete()
         gMainMenu[userid] = popuplib.easymenu("_xa_mainmenu_"+str(userid), None, incoming_menu)
         gMainMenu[userid].settitle(gLanguage["eXtensible Admin"])
-        for page in gMenusText:
-            if gMenusPerm[page]:
-                perm = gMenusPerm[page]
+        for page in gMenus['text']:
+            if gMenus['perm'][page]:
+                perm = gMenus['perm'][page]
                 if auth.isUseridAuthorized(userid, perm):
-                    gMainMenu[userid].addoption(page, gMenusText[page], 1)
+                    gMainMenu[userid].addoption(page, gMenus['text'][page], 1)
         gMainMenu[userid].send(userid)
 
 ##############################################
@@ -640,7 +637,7 @@ class Admin_mani(object):
         else:
             raise IOError, "Could not find xa/static/manipermission.txt!"
 
-        filename = "%s/%s" % (selfmoddir, 'cfg/mani_admin_plugin/clients.txt')
+        filename = "%s/%s" % (gGameDir, 'cfg/mani_admin_plugin/clients.txt')
         if os.path.exists(filename):
             clients = keyvalues.KeyValues(name="clients.txt")
             clients.load(filename)
@@ -1167,7 +1164,7 @@ def consolecmd():
             es.dbgmsg(0,"[eXtensible Admin] The module \""+xname+"\" is not registered")
             es.dbgmsg(0,"Syntax: xa menu <module-name> <subcommand>")
     else:
-        es.dbgmsg(0,"Invalid xa subcommand, see http://www.eventscripts.com/pages/Xa/ for help")
+        es.dbgmsg(0,"Invalid xa subcommand, see http://python.eventscripts.com/pages/XA for help")
 
 #############################################
 #EventScripts command/menu blocks start here#
@@ -1177,8 +1174,8 @@ def incoming_server():
     command = es.getargv(0)
     if command.startswith('ma_'):
         command = 'xa_'+command[3:]
-    if command in gCommandsPerm:
-        block = gCommandsBlock[command]
+    if command in gCommands['perm']:
+        block = gCommands['block'][command]
         if callable(block):
             try:
                 block()
@@ -1192,12 +1189,12 @@ def incoming_console():
     command = es.getargv(0)
     if command.startswith('ma_'):
         command = 'xa_'+command[3:]
-    if command in gCommandsPerm:
-        if gCommandsPerm[command]:
-            perm = gCommandsPerm[command]
+    if command in gCommands['perm']:
+        if gCommands['perm'][command]:
+            perm = gCommands['perm'][command]
             auth = services.use("auth")
             if auth.isUseridAuthorized(userid, perm):
-                block = gCommandsBlock[command]
+                block = gCommands['block'][command]
                 if callable(block):
                     try:
                         block()
@@ -1213,12 +1210,12 @@ def incoming_say():
         command = 'xa_'+command[3:]
     elif command.startswith(str(gSayPrefix)):
         command = 'xa_'+command[len(str(gSayPrefix)):]
-    if command in gCommandsPerm:
-        if gCommandsPerm[command]:
-            perm = gCommandsPerm[command]
+    if command in gCommands['perm']:
+        if gCommands['perm'][command]:
+            perm = gCommands['perm'][command]
             auth = services.use("auth")
             if auth.isUseridAuthorized(userid, perm):
-                block = gCommandsBlock[command]
+                block = gCommands['block'][command]
                 if callable(block):
                     try:
                         block()
@@ -1236,12 +1233,12 @@ def incoming_chat(userid, message, teamonly):
         command = 'xa_'+command[3:]
     elif command.startswith(str(gSayPrefix)):
         command = 'xa_'+command[len(str(gSayPrefix)):]
-    if command in gCommandsChat:
-        if gCommandsChat[command] and gCommandsPerm[command]:
-            perm = gCommandsPerm[command]
+    if command in gCommands['chat']:
+        if gCommands['chat'][command] and gCommands['perm'][command]:
+            perm = gCommands['perm'][command]
             auth = services.use("auth")
             if auth.isUseridAuthorized(userid, perm):
-                block = gCommandsBlock[command]
+                block = gCommands['block'][command]
                 if callable(block):
                     try:
                         block()
@@ -1252,10 +1249,10 @@ def incoming_chat(userid, message, teamonly):
     return (userid, message, teamonly)
 
 def incoming_menu(userid, choice, name):
-    if choice in gMenusPerm:
-        if gMenusPerm[choice]:
-            perm = gMenusPerm[choice]
+    if choice in gMenus['perm']:
+        if gMenus['perm'][choice]:
+            perm = gMenus['perm'][choice]
             auth = services.use("auth")
             if auth.isUseridAuthorized(userid, perm):
-                page = gMenusPage[choice]
+                page = gMenus['page'][choice]
                 page.send(userid)

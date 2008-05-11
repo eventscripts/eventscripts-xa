@@ -5,9 +5,6 @@ import langlib
 import psyco
 psyco.full()
 
-selfaddondir = str(es.server_var["eventscripts_addondir"]).replace("\\", "/")
-selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
-
 ###########################
 #Module methods start here#
 ########################################################
