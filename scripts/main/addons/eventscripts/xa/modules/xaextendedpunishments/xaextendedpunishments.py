@@ -214,12 +214,15 @@ def _beacon(userid, adminid, args):
         players[userid]['beaconed'] = 0 
         gamethread.cancelDelayed('beacon_%s'%userid) 
         
-def _beacon_loop(userid): 
-    es.emitsound('player', userid, xa_adminbeacon_sound, '1.0', '0.7') 
-    r, g, b, a = str(xa_adminbeacon_color).split() 
-    location = es.getplayerlocation(userid) 
-    effectlib.drawCircle(location, 150, steps=50, model="materials/sprites/laser.vmt", seconds=0.2, width=20, endwidth=10, red=r, green=g, blue=b, brightness = a, speed=70) 
-    gamethread.delayedname(0.8, 'beacon_%s'%userid, _beacon_loop, userid) 
+def _beacon_loop(userid):
+    if userid in playerlib.getUseridList("#alive"):
+        es.emitsound('player', userid, xa_adminbeacon_sound, '1.0', '0.7') 
+        r, g, b, a = str(xa_adminbeacon_color).split() 
+        location = es.getplayerlocation(userid) 
+        effectlib.drawCircle(location, 150, steps=50, model="materials/sprites/laser.vmt", seconds=0.2, width=20, endwidth=10, red=r, green=g, blue=b, brightness = a, speed=70) 
+        gamethread.delayedname(0.8, 'beacon_%s'%userid, _beacon_loop, userid)
+    else:
+        players[userid]['beaconed'] = 0 
 
 def _noclip(userid, adminid, args): 
     noclipped = players[userid]['noclipped'] 
