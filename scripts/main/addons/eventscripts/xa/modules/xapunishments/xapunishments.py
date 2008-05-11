@@ -1,13 +1,14 @@
 import es
 import playerlib
 import popuplib
+import gamethread
 import services
 from xa import xa
 
 #plugin information
 info = es.AddonInfo()
 info.name           = "Punishments"
-info.version        = "0.1"
+info.version        = "0.2"
 info.author         = "Hunter"
 info.url            = "http://forums.mattie.info"
 info.description    = "Clone of Mani Player Punishments feature for XA"
@@ -43,6 +44,7 @@ def load():
     xapunishtargetmenu.addoption("all", xalanguage["all players"])
     
     registerPunishment("burn", xalanguage["burn"], _punishment_burn, 1)
+    registerPunishment("extinguish", xalanguage["extinguish"], _punishment_extinguish, 1)
     registerPunishment("slap", xalanguage["slap"], _punishment_slap, 1)
     registerPunishment("slay", xalanguage["slay"], _punishment_slay, 1)
 
@@ -111,7 +113,10 @@ def _punish_player(userid, punishment, adminid, args = [], force = False):
         if (not auth.isUseridAuthorized(userid, "immune_"+punishment)) or (userid == adminid) or force:
             if callable(punishment_method[punishment]):
                 xapunishments.logging.log("Player "+es.getplayername(adminid)+ " used punishment "+str(punishment)+" on player "+es.getplayername(userid))
-                punishment_method[punishment](userid, adminid, args)
+                try:
+                    punishment_method[punishment](userid, adminid, args, force)
+                except:
+                    punishment_method[punishment](userid, adminid, args)
                 return True
             else:
                 es.dbgmsg(0, "xapunishments.py: Cannot find method '"+str(punishment_method[punishment])+"'!")
@@ -162,22 +167,43 @@ def sendPunishmentMenu(userid, victimid):
         xapunishmentmenu.send(user)
 
 # The default punishments that ship with the module
-def _punishment_burn(userid, adminid, args):
-    if str(xa_adminburn_anonymous) == '0':
+def _punishment_burn(userid, adminid, args, force):
+    if len(args) > 1:
+        burntime = args[1]
+    else:
+        burntime = xa_admin_burn_time
+    if str(xa_adminburn_anonymous) == '0' and not force:
         tokens = {}
         tokens['admin']   = es.getplayername(adminid)
         tokens['user']    = es.getplayername(userid)
         for user in playerlib.getPlayerList():
             es.tell(user, xalanguage("admin burn", tokens, user.get("lang")))
-    # TODO: need to add burn time
-    es.server.cmd("es_xfire "+str(userid)+" !self Ignite")
+    es.server.cmd("es_xfire "+str(userid)+" !self ignite")
+    if int(burntime) > 0:
+        gamethread.delayed(int(burntime), _punishment_extinguish, (userid, adminid, (), True))
 
-def _punishment_slap(userid, adminid, args):
+def _punishment_extinguish(userid, adminid, args, force):
+    if str(xa_adminburn_anonymous) == '0' and not force:
+        tokens = {}
+        tokens['admin']   = es.getplayername(adminid)
+        tokens['user']    = es.getplayername(userid)
+        for user in playerlib.getPlayerList():
+            es.tell(user, xalanguage("admin extinguish", tokens, user.get("lang")))
+    # Copied from un-released playerlib
+    flamelist = es.createentitylist("entityflame") 
+    handle = es.getplayerhandle(userid) 
+    for flame_entity in flamelist: 
+        string = es.getindexprop(flame_entity, 'CEntityFlame.m_hEntAttached') 
+        if string == handle: 
+            es.setindexprop(flame_entity, 'CEntityFlame.m_flLifetime', 0) 
+            break
+
+def _punishment_slap(userid, adminid, args, force):
     if len(args) > 1:
         health = args[1]
     else:
         health = xa_slap_to_damage
-    if str(xa_adminslap_anonymous) == '0':
+    if str(xa_adminslap_anonymous) == '0' and not force:
         tokens = {}
         tokens['admin']   = es.getplayername(adminid)
         tokens['user']    = es.getplayername(userid)
@@ -187,8 +213,8 @@ def _punishment_slap(userid, adminid, args):
     player = playerlib.getPlayer(userid)
     player.set("health", int(health))
 
-def _punishment_slay(userid, adminid, args):
-    if str(xa_adminslay_anonymous) == '0':
+def _punishment_slay(userid, adminid, args, force):
+    if str(xa_adminslay_anonymous) == '0' and not force:
         tokens = {}
         tokens['admin']   = es.getplayername(adminid)
         tokens['user']    = es.getplayername(userid)

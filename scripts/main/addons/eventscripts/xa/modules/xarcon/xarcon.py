@@ -30,9 +30,9 @@ def load():
     """Registers the xarcon commands"""
     mymodule.logging.log('XA module %s loaded.' % mymodulename)
 
-    mymodule.addCommand('xa_rcon', rcon_cmd, 'use_rcon', '#root').register(('say', 'console'))
-    mymodule.addCommand('xa_rcon_round', rcon_round_cmd, 'use_rcon', '#root').register(('say', 'console'))
-    mymodule.addCommand('xa_rcon_map', rcon_map_cmd, 'use_rcon', '#root').register(('say', 'console'))
+    mymodule.addCommand('xa_rcon', rcon_cmd, 'use_rcon', '#root', descr="Appends the command to the end of the queue of server commands to execute").register(('say', 'console'))
+    mymodule.addCommand('xa_rcon_round', rcon_round_cmd, 'use_rcon', '#root', descr="Appends the command to the end of the queue of server commands to execute next round").register(('say', 'console'))
+    mymodule.addCommand('xa_rcon_map', rcon_map_cmd, 'use_rcon', '#root', descr="Appends the command to the end of the queue of server commands to execute next map").register(('say', 'console'))
 
 
 def unload():

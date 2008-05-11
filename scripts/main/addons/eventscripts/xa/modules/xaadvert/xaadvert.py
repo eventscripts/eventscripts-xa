@@ -33,8 +33,8 @@ def load():
    adverts_chat_area    = xaadvert.setting.createVariable('adverts_chat_area', 1, 'Allow adverts in chat area of screen') 
    adverts_top_left     = xaadvert.setting.createVariable('adverts_top_left', 1, 'Allow adverts in top left corner of screen') 
    advert_col_red       = xaadvert.setting.createVariable('advert_col_red', 0, 'Red component colour of adverts (255 = max)') 
-   advert_col_green     = xaadvert.setting.createVariable('advert_col_green', 0, ' Green component colour of adverts (255 = max)') 
-   advert_col_blue      = xaadvert.setting.createVariable('advert_col_blue', 255, ' Blue component colour of adverts (255 = max)') 
+   advert_col_green     = xaadvert.setting.createVariable('advert_col_green', 0, 'Green component colour of adverts (255 = max)') 
+   advert_col_blue      = xaadvert.setting.createVariable('advert_col_blue', 255, 'Blue component colour of adverts (255 = max)') 
    advert_dead_only     = xaadvert.setting.createVariable('advert_dead_only', 0, 'Specify if all players or only dead players can see adverts') 
    adverts_bottom_area  = xaadvert.setting.createVariable('adverts_bottom_area', 0, 'Show adverts in the hint text area') 
     

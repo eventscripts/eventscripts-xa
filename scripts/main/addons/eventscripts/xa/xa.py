@@ -217,9 +217,9 @@ class Admin_module(object):
             return False
         else:
             return True
-    def addCommand(self, command, block, perm, permlvl, target=False, mani=False):
+    def addCommand(self, command, block, perm, permlvl, target=False, mani=False, descr="eXtensible Admin command"):
         #create new menu
-        self.subCommands[command] = Admin_command(command, block, perm, self.getLevel(permlvl), target, mani)
+        self.subCommands[command] = Admin_command(command, block, perm, self.getLevel(permlvl), target, mani, descr)
         return self.subCommands[command]
     def delCommand(self, command):
         #delete a menu
@@ -315,7 +315,7 @@ class Admin_module(object):
 
 # Admin_command is the clientcmd class
 class Admin_command(object):
-    def __init__(self, gCommand, gBlock, gPerm, gPermLevel, gTarget=False, gManiComp=False):
+    def __init__(self, gCommand, gBlock, gPerm, gPermLevel, gTarget=False, gManiComp=False, gDescription="eXtensible Admin command"):
         #initialization of the module
         self.name = gCommand
         self.block = gBlock
@@ -323,6 +323,7 @@ class Admin_command(object):
         self.permissionlevel = gPermLevel
         self.target = gTarget
         self.manicomp = gManiComp
+        self.descr = gDescription
         self.server = False
         self.console = False
         self.say = False
@@ -341,19 +342,19 @@ class Admin_command(object):
         else:
             cmdlist = list(gList)
         if "server" in cmdlist and self.server == False:
-            es.regcmd(self.name, "xa/incoming_server", "eXtensible Admin command")
+            es.regcmd(self.name, "xa/incoming_server", self.descr)
             if self.manicomp and isManiMode() and self.name.startswith('xa_'):
-                es.regcmd('ma_'+self.name[3:], "xa/incoming_server", "eXtensible Admin command")
+                es.regcmd('ma_'+self.name[3:], "xa/incoming_server", self.descr)
             self.server = True
         if "console" in cmdlist and self.console == False:
-            es.regclientcmd(self.name, "xa/incoming_console", "eXtensible Admin command")
+            es.regclientcmd(self.name, "xa/incoming_console", self.descr)
             if self.manicomp and isManiMode() and self.name.startswith('xa_'):
-                es.regclientcmd('ma_'+self.name[3:], "xa/incoming_console", "eXtensible Admin command")
+                es.regclientcmd('ma_'+self.name[3:], "xa/incoming_console", self.descr)
             self.console = True
         if "say" in cmdlist and self.say == False:
             if self.name.startswith('xa_'):
-                es.regsaycmd(str(gSayPrefix)+self.name[3:], "xa/incoming_say", "eXtensible Admin command")
-            es.regsaycmd(self.name, "xa/incoming_say", "eXtensible Admin command")
+                es.regsaycmd(str(gSayPrefix)+self.name[3:], "xa/incoming_say", self.descr)
+            es.regsaycmd(self.name, "xa/incoming_say", self.descr)
             self.say = True
         if "chat" in cmdlist and self.chat == False:
             gCommandsChat[self.name] = True
@@ -568,20 +569,23 @@ def isManiMode():
 
 def sendMenu(userid=None):
     #send the XA main menu to a player
+    auth = services.use("auth")
     if userid:
         userid = int(userid)
     elif es.getcmduserid():
         userid = int(es.getcmduserid())
     if userid and (es.exists("userid", userid)):
-        auth = services.use("auth")
         if userid in gMainMenu:
+            try:
+                gMainMenu[userid].unsend(userid) # popuplib buffer overflow fix
+            except:
+                pass # menu was not in user queue
             gMainMenu[userid].delete()
-        gMainMenu[userid] = popuplib.easymenu("xamainmenu_"+str(userid), None, incoming_menu)
+        gMainMenu[userid] = popuplib.easymenu("_xa_mainmenu_"+str(userid), None, incoming_menu)
         gMainMenu[userid].settitle(gLanguage["eXtensible Admin"])
         for page in gMenusText:
             if gMenusPerm[page]:
                 perm = gMenusPerm[page]
-                auth = services.use("auth")
                 if auth.isUseridAuthorized(userid, perm):
                     gMainMenu[userid].addoption(page, gMenusText[page], 1)
         gMainMenu[userid].send(userid)
@@ -746,7 +750,7 @@ def load():
     global gMainMenu, gMainCommand
     es.dbgmsg(0, "[eXtensible Admin] Second loading part...")
     if not es.exists("command", "xa"):
-        es.regcmd("xa", "xa/consolecmd", "eXtensible Admin")
+        es.regcmd("xa", "xa/consolecmd", "Open the eXtensible Admin menu")
     if not incoming_chat in es.addons.SayListeners:
         es.addons.registerSayFilter(incoming_chat)
     gMainCommand = Admin_command("xa", sendMenu, "xa_menu", services.use("auth").UNRESTRICTED)
@@ -820,6 +824,30 @@ def consolecmd():
             sendMenu(es.getargv(2))
         else:
             es.dbgmsg(0,"Syntax: xa send <userid>")
+    elif subcmd == "help":
+        helplist = {}
+        if seccmd and (str(seccmd) in gModules):
+            x = gModules[str(seccmd)]
+            for command in sorted(x.subCommands):
+                helplist[str(command)] = ["cmd", str(x.subCommands[command].permission), str(x.subCommands[command].descr)]
+            for variable in sorted(x.variables):
+                helplist[str(variable)] = ["var", str(x.variables[variable]), str(x.variables[variable]._def), str(x.variables[variable]._descr)]
+        else:
+            for module in sorted(gModules):
+                x = gModules[module]
+                for command in sorted(x.subCommands):
+                    helplist[str(command)] = ["cmd", str(x.subCommands[command].permission), str(x.subCommands[command].descr)]
+                for variable in sorted(x.variables):
+                    helplist[str(variable)] = ["var", str(x.variables[variable]), str(x.variables[variable]._def), str(x.variables[variable]._descr)]
+        es.dbgmsg(0,"---------- List of commands and variables:")
+        for helpindex in sorted(helplist):
+            helpline = helplist[helpindex]
+            if helpline[0] == "cmd":
+                es.dbgmsg(0,("%-*s"%(40, helpindex))+" : "+("%-*s"%(8, "cmd"))+" : "+("%-*s"%(16, helpline[1]))+" : "+helpline[2])
+            elif helpline[0] == "var":
+                es.dbgmsg(0,("%-*s"%(40, helpindex))+" : "+("%-*s"%(8, helpline[1]))+" : "+("%-*s"%(16, helpline[2]))+" : "+helpline[3])
+        es.dbgmsg(0,"----------")
+        es.dbgmsg(0, "Syntax: xa help [module]")
     elif subcmd == "permissions":
         permissions = []
         if seccmd:

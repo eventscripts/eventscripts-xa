@@ -14,6 +14,24 @@ selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
 # All methods that should be able to be called through #
 # the API need to have "module" as first parameter     #
 ########################################################
+def createLanguageString(module = None, string = None):
+    if not string:
+        string = module
+    if string:
+        full = langlib.getLanguages()
+        lang = {}
+        ####################################################################
+        ## ADD LANGUAGE PLACEHOLDERS FOR EASYMENUS -- BAD WAY -> OVERHEAD ##
+        ####################################################################
+        for l in full:
+            i = full[l]["id"]
+            if not i in lang:
+                lang[i] = str(string)
+        ####################################################################
+        return lang
+    else:
+        return False
+
 def getLanguage(module = None, file = None):
     if module:
         if file:
