@@ -566,26 +566,22 @@ def isManiMode():
 
 def sendMenu(userid=None):
     #send the XA main menu to a player
-    auth = services.use("auth")
     if userid:
         userid = int(userid)
     elif es.getcmduserid():
         userid = int(es.getcmduserid())
     if userid and (es.exists("userid", userid)):
-        if userid in gMainMenu:
-            try:
-                gMainMenu[userid].unsend(userid) # popuplib buffer overflow fix
-            except:
-                pass # menu was not in user queue
-            gMainMenu[userid].delete()
         gMainMenu[userid] = popuplib.easymenu("_xa_mainmenu_"+str(userid), None, incoming_menu)
         gMainMenu[userid].settitle(gLanguage["eXtensible Admin"])
         for page in gMenus['text']:
             if gMenus['perm'][page]:
                 perm = gMenus['perm'][page]
-                if auth.isUseridAuthorized(userid, perm):
+                if services.use("auth").isUseridAuthorized(userid, perm):
                     gMainMenu[userid].addoption(page, gMenus['text'][page], 1)
-        gMainMenu[userid].send(userid)
+        if popuplib.isqueued(gMainMenu[userid].name, userid):
+            gMainMenu[userid].update(userid)
+        else:
+            gMainMenu[userid].send(userid)
 
 ##############################################
 #Mani compatibility helper methods start here#
