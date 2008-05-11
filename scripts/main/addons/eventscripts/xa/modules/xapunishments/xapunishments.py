@@ -115,8 +115,11 @@ def _punish_player(userid, punishment, adminid, args = [], force = False):
                 xapunishments.logging.log("Player "+es.getplayername(adminid)+ " used punishment "+str(punishment)+" on player "+es.getplayername(userid))
                 try:
                     punishment_method[punishment](userid, adminid, args, force)
-                except:
-                    punishment_method[punishment](userid, adminid, args)
+                except TypeError:
+                    try:
+                        punishment_method[punishment](userid, adminid, args)
+                    except TypeError:
+                        punishment_method[punishment](userid, adminid)
                 return True
             else:
                 es.dbgmsg(0, "xapunishments.py: Cannot find method '"+str(punishment_method[punishment])+"'!")

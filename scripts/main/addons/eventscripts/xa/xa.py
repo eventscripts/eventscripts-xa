@@ -68,9 +68,10 @@ gCoreVariables.append(gManiMode)
 ## whats the say command prefix?
 gSayPrefix = es.ServerVar("xa_sayprefix", "!", "Say command prefix")
 gCoreVariables.append(gSayPrefix)
-## gMainMenu/gMainCommand holds XAs main menu/main command
+## gMainMenu/gMainCommand/gMainCommandAlternative holds XAs main menu/main command
 gMainMenu = {}
 gMainCommand = None
+gMainCommandAlternative = None
 ## gModules holds all the modules
 gModules = {}
 ## gCommands holds all the information for commands
@@ -740,14 +741,16 @@ class Admin_mani(object):
 ###########################################
 
 def load():
-    global gMainMenu, gMainCommand
+    global gMainMenu, gMainCommand, gMainCommandAlternative
     es.dbgmsg(0, "[eXtensible Admin] Second loading part...")
     if not es.exists("command", "xa"):
         es.regcmd("xa", "xa/consolecmd", "Open the eXtensible Admin menu")
     if not incoming_chat in es.addons.SayListeners:
         es.addons.registerSayFilter(incoming_chat)
     gMainCommand = Admin_command("xa", sendMenu, "xa_menu", services.use("auth").UNRESTRICTED)
-    gMainCommand.register(["console","say"])
+    gMainCommand.register(["console", "say"])
+    gMainCommandAlternative = Admin_command("admin", sendMenu, "xa_menu", services.use("auth").UNRESTRICTED)
+    gMainCommandAlternative.register(["console"])
     es.dbgmsg(0, "[eXtensible Admin] Executing xa.cfg...")
     es.server.cmd('exec xa.cfg')
     #Mani compatibility
@@ -766,7 +769,7 @@ def load():
     es.dbgmsg(0, "[eXtensible Admin] Finished loading")
 
 def unload():
-    global gMainMenu, gMainCommand
+    global gMainMenu, gMainCommand, gMainCommandAlternative
     es.dbgmsg(0, "[eXtensible Admin] Begin unloading...")
     for module in gModules:
         if gModules[module].allowAutoUnload == True:
@@ -782,6 +785,9 @@ def unload():
     if gMainCommand:
         gMainCommand.unregister(["console","say"])
         del gMainCommand
+    if gMainCommandAlternative:
+        gMainCommandAlternative.unregister(["console"])
+        del gMainCommandAlternative
     if incoming_chat in es.addons.SayListeners:
         es.addons.unregisterSayFilter(incoming_chat)
     es.dbgmsg(0, "[eXtensible Admin] Finished unloading sequence")
