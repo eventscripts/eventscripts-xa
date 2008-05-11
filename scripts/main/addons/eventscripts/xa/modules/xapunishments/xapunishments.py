@@ -111,21 +111,25 @@ def _punish_player(userid, punishment, adminid, args = [], force = False):
     auth = services.use("auth")
     if (adminid == 0) or auth.isUseridAuthorized(adminid, punishment+"_player") or force:
         if (not auth.isUseridAuthorized(userid, "immune_"+punishment)) or (userid == adminid) or force:
-            if callable(punishment_method[punishment]):
-                xapunishments.logging.log("Player "+es.getplayername(adminid)+ " used punishment "+str(punishment)+" on player "+es.getplayername(userid))
-                try:
-                    punishment_method[punishment](userid, adminid, args, force)
-                except TypeError:
+            if userid in playerlib.getUseridList("#alive"):
+                if callable(punishment_method[punishment]):
+                    xapunishments.logging.log("Player "+es.getplayername(adminid)+ " used punishment "+str(punishment)+" on player "+es.getplayername(userid))
                     try:
-                        punishment_method[punishment](userid, adminid, args)
+                        punishment_method[punishment](userid, adminid, args, force)
                     except TypeError:
-                        punishment_method[punishment](userid, adminid)
-                return True
+                        try:
+                            punishment_method[punishment](userid, adminid, args)
+                        except TypeError:
+                            punishment_method[punishment](userid, adminid)
+                    return True
+                else:
+                    es.dbgmsg(0, "xapunishments.py: Cannot find method '"+str(punishment_method[punishment])+"'!")
+                    return False
             else:
-                es.dbgmsg(0, "xapunishments.py: Cannot find method '"+str(punishment_method[punishment])+"'!")
+                es.tell(adminid, xalanguage("dead", {'username':es.getplayername(userid)}, playerlib.getPlayer(adminid).get("lang")))
                 return False
         else:
-            es.tell(adminid, xalanguage("immune", (), playerlib.getPlayer(adminid).get("lang")))
+            es.tell(adminid, xalanguage("immune", {'username':es.getplayername(userid)}, playerlib.getPlayer(adminid).get("lang")))
             return False
     else:
         es.tell(adminid, xalanguage("not allowed", (), playerlib.getPlayer(adminid).get("lang")))
