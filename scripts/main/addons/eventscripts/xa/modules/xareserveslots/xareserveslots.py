@@ -8,7 +8,7 @@ from xa import xa
 #plugin information
 info = es.AddonInfo()
 info.name = "Reserve Slots"
-info.version = "1.1.1"
+info.version = "1.2.1"
 info.author = "Errant"
 info.url = ""
 info.description = "Clone of Mani's reserve slot feature for XA"
@@ -22,6 +22,11 @@ Reserved slots - a full port of manis reserved slots (horrible though it is Smil
 This module uses all the Mani configuration straight from the box.
 However currently this feature does NOT support the redirect option. IF a server IP is set this is added to the kick message.
 
+ -- 1.2.1 --
+ * Fixed small syntax error in logging.log()
+ * Fixed call to an old method (in check_player) which changed name in 1.1.0 
+ -- 1.2.0 --
+ * [Nato]Hunter converted this module to use the new api for xa methods
  -- 1.1.1 -- 
  * Mani file now loaded with xa.configparser (Yay Hunter)
  -- 1.1.0 --
@@ -124,7 +129,8 @@ def check_player(userid):
     pdiff = maxplayers - es.getplayercount()
     if pdiff <= int(xareserveslots.setting.getVariable("reserve_slots_number_of_slots")):
         # ok so there we are into the reserved slots...
-        if returnUnreserved(userid):
+        if returnReservedStatus(userid):
+            # remember that ^^ returns true IF they do not have a reserve slot
             # The player is NOT allowed in a reserved slot so we kick them
             kickPlayer(playerlib.getPlayer(userid))
         else:
@@ -212,7 +218,7 @@ def load():
     # register the playerlib player filter we have..
     playerlib.registerPlayerListFilter("#res", returnReservedStatus)
     # And say were loaded!
-    xareserveslots.logging.log(xareserveslots, "Loaded Reserve slots (mani clone) %s" % str(info.version))
+    xareserveslots.logging.log("Loaded Reserve slots (mani clone) %s" % str(info.version))
  
 def unload():
     xa.unregister(xareserveslots)
