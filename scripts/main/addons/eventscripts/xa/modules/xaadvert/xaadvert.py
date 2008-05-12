@@ -10,7 +10,7 @@ from xa import xa
 #plugin information
 info = es.AddonInfo() 
 info.name     = 'Advert' 
-info.version  = 'oy1' 
+info.version  = 'oy1b' 
 info.url      = 'http://mattie.info/cs' 
 info.basename = 'xaadvert' 
 info.author   = 'Rio'
@@ -101,7 +101,7 @@ def display_advert():
       advert_text = advert_text.replace('{SERVERHOST}', 'UNKNOWN') 
 
       # send top text  
-      if adverts_top_left: 
+      if int(adverts_top_left):
          if int(advert_dead_only) == 1: 
             xaadvert_playerlist = playerlib.getPlayerList('#human,#dead') 
          else: 
@@ -109,12 +109,12 @@ def display_advert():
             
          toptext = msglib.VguiDialog(title=advert_text, level=5, time=25, mode=msglib.VguiMode.MSG) 
          toptext['color'] = color 
-            
+
          for k in xaadvert_playerlist: 
             toptext.send(k.userid) 
             
       # send chat text  
-      if adverts_chat_area: 
+      if int(adverts_chat_area):
          if int(advert_dead_only) == 1: 
             es.msg('test') 
             xaadvert_playerlist = playerlib.getPlayerList('#human,#dead') 
@@ -124,7 +124,7 @@ def display_advert():
             es.msg('#lightgreen', advert_text) 
       
       # send bottom text 
-      if adverts_bottom_area: 
+      if int(adverts_bottom_area):
          if int(advert_dead_only) == 1: 
             xaadvert_playerlist = playerlib.getPlayerList('#human,#dead') 
          else: 
