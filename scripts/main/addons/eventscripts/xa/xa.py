@@ -221,9 +221,9 @@ class Admin_module(object):
             return False
         else:
             return True
-    def addCommand(self, command, block, perm, permlvl, target=False, mani=False, descr="eXtensible Admin command"):
+    def addCommand(self, command, block, perm, permlvl, descr="eXtensible Admin command", mani=False):
         #create new menu
-        self.subCommands[command] = Admin_command(command, block, perm, self.getLevel(permlvl), target, mani, descr)
+        self.subCommands[command] = Admin_command(command, block, perm, self.getLevel(permlvl), descr, mani)
         return self.subCommands[command]
     def delCommand(self, command):
         #delete a menu
@@ -319,13 +319,12 @@ class Admin_module(object):
 
 # Admin_command is the clientcmd class
 class Admin_command(object):
-    def __init__(self, gCommand, gBlock, gPerm, gPermLevel, gTarget=False, gManiComp=False, gDescription="eXtensible Admin command"):
+    def __init__(self, gCommand, gBlock, gPerm, gPermLevel, gDescription="eXtensible Admin command", gManiComp=False):
         #initialization of the module
         self.name = gCommand
         self.block = gBlock
         self.permission = gPerm
         self.permissionlevel = gPermLevel
-        self.target = gTarget
         self.manicomp = gManiComp
         self.descr = gDescription
         self.server = False
@@ -393,10 +392,10 @@ class Admin_command(object):
             es.dbgmsg(0, "  Console cmd:  "+str(self.console))
             es.dbgmsg(0, "  Say cmd:      "+str(self.say))
             es.dbgmsg(0, "  Chat cmd:     "+str(self.chat))
-            es.dbgmsg(0, "  Target:       "+str(self.target))
-            es.dbgmsg(0, "  Mani comp:    "+str(self.manicomp))
+            es.dbgmsg(0, "  Mani cmd:     "+str(self.manicomp))
             es.dbgmsg(0, "  Permission:   "+str(self.permission))
             es.dbgmsg(0, "  Perm-level:   "+str(self.permissionlevel))
+            es.dbgmsg(0, "  Description:  "+str(self.descr))
 
 # Admin_menu is the clientcmd class
 class Admin_menu(object):
@@ -594,14 +593,17 @@ class Admin_mani(object):
             f = open(filename, "rU")
             try:
                 for line in f:
-                    linelist = line.strip().split("|", 3)
-                    variable = es.ServerVar(str(linelist[0]), 0)
-                    if str(linelist[2]) == str(variable):
-                        if not es.exists("script", "xa/modules/"+linelist[2]):
-                            xa_load(str(linelist[1]))
-                    elif str(linelist[3]) != str(variable):
-                        if not es.exists("script", "xa/modules/"+linelist[2]):
-                            xa_load(str(linelist[1]))
+                    linelist = map(str, line.strip().split("|", 3))
+                    if linelist[0] == "*":
+                        xa_load(linelist[1])
+                    else:
+                        variable = es.ServerVar(linelist[0], 0)
+                        if linelist[2] == str(variable) or linelist[2] == "*":
+                            if not es.exists("script", "xa/modules/"+linelist[2]):
+                                xa_load(linelist[1])
+                        elif linelist[3] != str(variable) or linelist[3] == "*":
+                            if not es.exists("script", "xa/modules/"+linelist[2]):
+                                xa_load(linelist[1])
             finally:
                 f.close()
         else:
@@ -613,8 +615,8 @@ class Admin_mani(object):
             f = open(filename, "rU")
             try:
                 for line in f:
-                    linelist = line.strip().split("|", 2)
-                    es.ServerVar(str(linelist[0]), str(linelist[1]), str(linelist[2]))
+                    linelist = map(str, line.strip().split("|", 2))
+                    es.ServerVar(linelist[0], linelist[1], linelist[2])
             finally:
                 f.close()
             return True
@@ -1023,11 +1025,11 @@ def consolecmd():
                         block = str(es.getargv(5))
                         perm = str(es.getargv(6))
                         permlvl = str(es.getargv(7))
-                        target = bool(es.getargv(8))
-                        manicomp = bool(es.getargv(9))
-                        x.addCommand(command, block, perm, permlvl, target, manicomp)
+                        descr = str(es.getargv(8))
+                        mani = bool(es.getargv(9))
+                        x.addCommand(command, block, perm, permlvl, descr, mani)
                 else:
-                    es.dbgmsg(0,"Syntax: xa command create <module-name> <command-name> <block> <permission> <permission-level> [target 0/1] [mani compatible 0/1]")
+                    es.dbgmsg(0,"Syntax: xa command create <module-name> <command-name> <block> <permission> <permission-level> [description] [mani compatible 0/1]")
             elif seccmd == "delete":
                 if argc >= 5:
                     if xcommand:

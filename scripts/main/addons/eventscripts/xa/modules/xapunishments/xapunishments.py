@@ -145,7 +145,7 @@ def registerPunishment(punishment, name, method, argc = 0):
         xapunishmentmenu.addoption(punishment, name, 1)
         xapunishments.registerCapability("immune_"+punishment, "#admin", "immunity")
         if punishment_argc[punishment] > 0:
-            xapunishments.addCommand('xa_'+punishment, _command_player, punishment+"_player", "#admin").register(('say', 'console','server'))
+            xapunishments.addCommand('xa_'+punishment, _command_player, punishment+"_player", "#admin", name["en"]+" punishment", True).register(('say', 'console','server'))
         return True
     else:
         return False
