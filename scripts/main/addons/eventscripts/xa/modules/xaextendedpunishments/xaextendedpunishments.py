@@ -104,7 +104,10 @@ def round_end(ev):
             es.setplayerprop(userid, 'CBasePlayer.m_iDefaultFOV', 90)
 
 def player_death(ev): 
-    userid = int(ev['userid']) 
+    userid = int(ev['userid'])
+    if not userid in players:
+        players[userid] = {}
+        players[userid]['gimped']   = 0 
     players[userid]['timebombed']   = 0 
     players[userid]['freezebombed'] = 0 
     players[userid]['firebombed']   = 0 
@@ -168,16 +171,18 @@ def _gimp(userid, adminid, args):
             tokens['state'] = xalanguage("gimped", lang=player.get("lang")) if not gimped else xalanguage("ungimped", lang=player.get("lang")) 
             es.tell(int(player), xalanguage("admin state", tokens, player.get("lang"))) 
     
-def _say_filter(userid, text, team): 
-    if players[userid]['gimped']: 
-        return(userid, getGimpPhrase(), team)
-    '''
-    if es.getplayersteamid(userid) in muted:
-        es.tell(userid,'#multi', xalanguage("you are muted", lang=playerlib.getPlayer(userid).get("lang")))
-        return (0, None, 0)
-    ''' 
+def _say_filter(userid, text, team):
+    if userid in players:
+        if players[userid]['gimped']: 
+            return(userid, getGimpPhrase(), team)
+        '''
+        if es.getplayersteamid(userid) in muted:
+            es.tell(userid,'#multi', xalanguage("you are muted", lang=playerlib.getPlayer(userid).get("lang")))
+            return (0, None, 0)
+        '''
     return(userid, text, team)
-es.addons.registerSayFilter(_say_filter) 
+es.addons.registerSayFilter(_say_filter)
+
 def unload(): 
     es.addons.unregisterSayFilter(_say_filter)
     xa.unregister('xaextendedpunishments') 
