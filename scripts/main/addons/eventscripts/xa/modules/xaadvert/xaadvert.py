@@ -116,7 +116,6 @@ def display_advert():
       # send chat text  
       if int(adverts_chat_area):
          if int(advert_dead_only) == 1: 
-            es.msg('test') 
             xaadvert_playerlist = playerlib.getPlayerList('#human,#dead') 
             for k in xaadvert_playerlist: 
                es.tell(k.userid, '#lightgreen', advert_text) 

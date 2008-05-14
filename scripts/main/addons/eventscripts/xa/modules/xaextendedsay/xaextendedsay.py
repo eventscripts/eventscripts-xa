@@ -16,9 +16,10 @@ xaextendedsay = xa.register('xaextendedsay')
 xalanguage    = xaextendedsay.language.getLanguage() 
 
 def load():
+    auth = services.use("auth")
     xaextendedsay.addRequirement("xasay")
-    xasay.registerSayPrefix("@@" , _admin_say_tell) 
-    xasay.registerSayPrefix("@@@", _admin_say_center)
+    xasay.registerSayPrefix("@@" , _admin_say_tell, "admin_tell", auth.ADMIN)
+    xasay.registerSayPrefix("@@@", _admin_say_center, "admin_say", auth.ADMIN)
 
 def unload():
     xaextendedsay.delRequirement("xasay")
