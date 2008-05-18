@@ -63,7 +63,7 @@ def map_menu():
             maplist.remove('test_speakers')
         if 'test_hardware' in maplist:
             maplist.remove('test_hardware')
-        maplist.sort()
+        maplist = sorted(maplist, key=lambda x: str(x).lower())
     else:
         maplist = gDefaultMaps
     xamapmenu = popuplib.easymenu('xamapmenu',None,mapmenu_handler)
@@ -115,7 +115,3 @@ def set_nextmap():
         userid = int(es.getcmduserid())
         if userid:
             es.tell(userid,'#multi','#green[XA] #default',xalanguage('invalid map',{'mapname':mapname},playerlib.getPlayer(userid).get('lang')))
-
-            
-
-
