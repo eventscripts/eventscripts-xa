@@ -15,6 +15,10 @@ multi_map      = []
 change_map     = None
 amount_of_maps = None
 
+map_file       = open(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maplist.txt', 'r')
+map_list       = filter(lambda x: False if x == '' or x.startswith('//') else os.path.isfile(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maps/%s.bsp'%x), map(lambda x: x.replace('\n',''), map_file.readlines()))
+map_file.close()
+
 info                = es.AddonInfo() 
 info.name           = "Vote" 
 info.version        = "0.2" 
@@ -294,7 +298,7 @@ def StartRandomMapVote(userid, choice, popupid):
     mypopup  = popuplib.easymenu("randmapamount", "_popup_choice", RandomMapVoteAmountSelection)
     submenus = []
     temp_index = 1
-    amount = len(filter(lambda x: False if x == '' or x.startswith('//') else os.path.isfile(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maps/%s.bsp'%x), map(lambda x: x.replace('\n',''), open(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maplist.txt', 'r').readlines())))
+    amount = len(map_list)
     while temp_index <= amount:
         mypopup.addoption(temp_index, '[%s]'%temp_index)
         temp_index += 1
@@ -304,7 +308,6 @@ def StartRandomMapVote(userid, choice, popupid):
 def RandomMapVoteAmountSelection(userid, choice, popupid):
     vote = Vote()
     vote.CreateVote("randommap", "Please select a map", RandomMapWin)
-    map_list = filter(lambda x: False if x == '' or x.startswith('//') else os.path.isfile(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maps/%s.bsp'%x), map(lambda x: x.replace('\n',''), open(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maplist.txt', 'r').readlines()))
     random_list = []
     while choice:
         choice -= 1
@@ -327,13 +330,13 @@ def RandomCommand(args):
     global change_map
     vote = Vote()
     vote.CreateVote("randommap", "Please select a map", RandomMapWin)
-    map_list = filter(lambda x: False if x == '' or x.startswith('//') else os.path.isfile(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maps/%s.bsp'%x), map(lambda x: x.replace('\n',''), open(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maplist.txt', 'r').readlines()))
+    maplist = filter(lambda x: False if x in args else True, map_list)
     random_list = []
     choice = int(args[0])
     change_map = int(args[1].replace('immediately','1').replace('round_end','2').replace('map_end','3'))
     while choice:
         choice -= 1
-        random_map = random.choice(map_list)
+        random_map = random.choice(maplist)
         map_list.remove(random_map)
         random_list.append(random_map)
     random_list.sort()
