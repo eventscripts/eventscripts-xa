@@ -99,8 +99,8 @@ def load():
     
 #################################
 # EVENTS
-def player_connect(event_var): 
-    vote_players[event_var['userid']] = {'stopped':0,'reason':None} 
+def player_activate(event_var): 
+    vote_players[event_var['userid']] = {'stopped':0, 'reason':None} 
 
 def player_disconnect(event_var): 
     if vote_players.has_key(event_var['userid']):
@@ -150,7 +150,8 @@ def registerVoteMenu(shortName, displayName, returnFunction, submenus=[], server
             myPopup.submenu(10, "xavotemenu")
         
 def voteOption(userid, choice, popupid):
-    if not vote_list.has_key(choice): return
+    if not vote_list.has_key(choice): 
+        return
     if vote_list[choice]['type'] == 'submenu':
         if popuplib.exists(choice):
             popuplib.send(choice, userid)
