@@ -18,6 +18,7 @@ punishment_choice = {}
 punishment_method = {}
 punishment_display = {}
 punishment_target = {}
+punishment_targetlist = {}
 punishment_pmenus = {}
 punishment_argc = {}
 punishment_cross_ref = {}
@@ -42,7 +43,14 @@ def load():
     xapunishtargetmenu.addoption("team3", xalanguage["counter terrorists"])
     xapunishtargetmenu.addoption("team2", xalanguage["terrorists"])
     xapunishtargetmenu.addoption("all", xalanguage["all players"])
+    xapunishtargetmenu.submenu(10, xapunishmentmenu)
     
+    xapunishsuremenu = popuplib.easymenu("xapunishsuremenu", "_tempcore", _select_sure)
+    xapunishsuremenu.settitle(xalanguage["are you sure"])
+    xapunishsuremenu.addoption(True, xalanguage["yes"])
+    xapunishsuremenu.addoption(False, xalanguage["no"])
+    xapunishsuremenu.submenu(10, xapunishtargetmenu)
+
     registerPunishment("burn", xalanguage["burn"], _punishment_burn, 1)
     registerPunishment("extinguish", xalanguage["extinguish"], _punishment_extinguish, 1)
     registerPunishment("slap", xalanguage["slap"], _punishment_slap, 1)
@@ -53,6 +61,7 @@ def unload():
         unRegisterPunishment(punishment)
     popuplib.delete("xapunishmentmenu")
     popuplib.delete("xapunishtargetmenu")
+    popuplib.delete("xapunishsuremenu")
     for page in punishment_pmenus:
         page.delete()
     xa.unregister(xapunishments)
@@ -72,6 +81,7 @@ def _select_target(userid, choice, name):
         punishment_pmenus[userid] = popuplib.construct("xapunishplayermenu"+str(userid), "players", "#alive")
         punishment_pmenus[userid].settitle(xalanguage["choose player"])
         punishment_pmenus[userid].menuselectfb = _select_player
+        punishment_pmenus[userid].submenu(10, "xapunishtargetmenu")
         punishment_pmenus[userid].send(userid)
     else:
         if choice == "team3":
@@ -80,9 +90,19 @@ def _select_target(userid, choice, name):
             playerlist = playerlib.getUseridList("#t")
         elif choice == "all":
             playerlist = es.getUseridList()
-        for player in playerlist:
+        if playerlist:
+            punishment_targetlist[userid] = playerlist
+            popuplib.send("xapunishsuremenu", userid)
+        else:
+            popuplib.send("xapunishtargetmenu", userid)
+
+def _select_sure(userid, choice, name):
+    if choice and punishment_targetlist[userid] and punishment_choice[userid]:
+        for player in punishment_targetlist[userid]:
             _punish_player(player, punishment_choice[userid], userid)
-            
+    else:
+        popuplib.send("xapunishtargetmenu", userid)
+
 def _select_player(userid, choice, name):
     _punish_player(choice, punishment_choice[userid], userid)
     

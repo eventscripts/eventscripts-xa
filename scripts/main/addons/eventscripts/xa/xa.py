@@ -423,6 +423,7 @@ class Admin_menu(object):
         gMenus['perm'][self.name] = self.permission
         gMenus['page'][self.name] = self.menuobj
         services.use("auth").registerCapability(self.permission, self.permissionlevel)
+        self.addBackButton()
     def __str__(self):
         return self.name
     def unregister(self):
@@ -442,20 +443,30 @@ class Admin_menu(object):
             self.menutype = "popup"
             self.menuobj = popuplib.find(self.menu)
             gMenus['page'][self.name] = self.menuobj
-            return True
         elif keymenulib.exists(menu):
             self.menu = menu
             self.menutype = "keymenu"
             self.menuobj = keymenulib.find(self.menu)
             gMenus['page'][self.name] = self.menuobj
-            return True
         elif settinglib.exists(menu):
             self.menu = menu
             self.menutype = "setting"
             self.menuobj = settinglib.find(self.menu)
             gMenus['page'][self.name] = self.menuobj
-            return True
-        return False
+        else:
+            return False
+        return self.addBackButton()
+    def addBackButton(self):
+        if isinstance(self.menuobj, popuplib.Popup_easymenu):
+            self.menuobj.menuselect = sendMenu
+            self.menuobj.c_exitformat = '0. Back'
+        elif isinstance(self.menuobj, keymenulib.Keymenu_keymenu):
+            try:
+                self.menuobj.popup.menuselect = sendMenu
+                self.menuobj.popup.c_exitformat = '0. Back'
+            except:
+                return False ## keymenulib was probably changed, don't worry, no back button then
+        return True
     def information(self, listlevel):
         if listlevel >= 1:
             es.dbgmsg(0, " ")
@@ -564,8 +575,10 @@ def isManiMode():
     else:
         return True
 
-def sendMenu(userid=None):
+def sendMenu(userid=None, choice=10, name=None):
     #send the XA main menu to a player
+    if choice != 10:
+        return None
     if userid:
         userid = int(userid)
     elif es.getcmduserid():
