@@ -1,14 +1,17 @@
 import es
+import langlib
 import os
+import playerlib
 import time
+import xa
+import xa.setting
 from xa import xa
 
-global timer
 timer = {}
 
 #plugin information
 info = es.AddonInfo()
-info.name = "Flood Control"
+info.name = "XA:Flood Control"
 info.version = "0.1"
 info.author = "Venjax"
 info.url = "http://forums.mattie.info"
@@ -16,36 +19,34 @@ info.description = "Clone of Mani Flood Control feature for XA"
 info.tags = "admin flood control XA"
 
 xafloodcontrol = xa.register('xafloodcontrol')
-chat_flood_time = xafloodcontrol.setting.createVariable('chat_flood_time', '1.5')
-chat_flood_message = xafloodcontrol.setting.createVariable('chat_flood_message', 'Stop Spaming the server!')
+chat_flood_time = xa.setting.createVariable('xafloodcontrol', 'chat_flood_time', '1.5')
+lang_text = None
 
 def floodcontrol(userid, message, teamonly):
     #floodcontrol function. Eats spam according to time set in config options.
     global timer
     try:
-        if not xafloodcontrol.isUseridAuthorized(userid, 'immune_flood'):
-            if not userid in timer.keys():
-                timer[userid] = time.time()
-                return userid, message, teamonly
-            else:
-                if time.time() - float(chat_flood_time) < timer[userid]:
-                    es.tell(userid, chat_flood_message)
-                    timer[userid] = time.time()
-                    return 0, message, teamonly
-                else:
-                    timer[userid] = time.time()
-                    return userid, message, teamonly
+        if not userid in timer.keys():
+         timer[userid] = time.time()
+         return userid, message, teamonly
         else:
-            return userid, message, teamonly
+         if time.time() - float(chat_flood_time) < timer[userid]:
+             es.tell(userid, lang_text('chat flood', {}, playerlib.getPlayer(userid).get('lang')))
+             timer[userid] = time.time()
+             return 0, message, teamonly
+         else:
+             timer[userid] = time.time()
+             return userid, message, teamonly
     except Exception, inst:
          es.dbgmsg(0, "Error: ", inst)
          return userid, message, teamonly
-           
-def load():
-    #Load Function for Chat Flood Control for XA.
-    xafloodcontrol.registerCapability('immune_flood', '#admin')
 
-    #Register the say filter
+def load():
+    global lang_text
+    #Load language .ini for flood message
+    lang_text = langlib.Strings(es.getAddonPath('xa') + '/languages/strings.ini')
+
+    #Load Function for Chat Flood Control for XA.
     if chat_flood_time != '0':
         if not floodcontrol in es.addons.SayListeners:
             es.addons.registerSayFilter(floodcontrol)
@@ -53,7 +54,7 @@ def load():
             es.dbgmsg(0, 'chat_flood_time set to 0, exiting...')
 
 def server_cvar(event_var):
-    if event_var['cvarname'] == xafloodcontrol.setting.getVariableName('chat_flood_time'):
+    if event_var['cvarname'] == xa.setting.getVariableName('chat_flood_time'):
         if event_var['cvarvalue'] == '0':
             if floodcontrol in es.addons.SayListeners:
                 es.addons.unregisterSayFilter(floodcontrol)
@@ -67,5 +68,5 @@ def unload():
     if floodcontrol in es.addons.SayListeners:
         es.addons.unregisterSayFilter(floodcontrol)
 
-def es_map_load():
+def es_map_start():
     timer.clear()
