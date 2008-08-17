@@ -39,7 +39,7 @@ def player_disconnect(event_var):
     if repeat.status('hpk_track_' + userid) != 0:
         repeat.find('hpk_track_' + userid).delete()
 
-def tracker(userid,info):
+def tracker(userid, info = None):
     if es.exists('userid',userid):
         ping = es.createplayerlist(userid)[int(userid)]['ping']
         if ping >= maxping:
@@ -47,5 +47,5 @@ def tracker(userid,info):
         if gInfo[userid] >= exceedlimit:
             slowguy = playerlib.getPlayer(userid)
             slowguy.kick(reason=text('kick', {}, slowguy.get('lang')))
-    else:
+    elif info is not None:
         info[0].delete()
