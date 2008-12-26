@@ -505,7 +505,7 @@ def unregister(pModuleid):
         for menu in module.subMenus:
             module.delMenu(menu)
         es.dbgmsg(0, "[eXtensible Admin] Unregistered module \""+module.name+"\"")
-        del gModules[pModuleid]
+        del gModules[module.name]
     else:
         es.dbgmsg(0,"Xa.py: Cannot unregister module \""+pModuleid+"\", it is not registered")
 
