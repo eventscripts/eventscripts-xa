@@ -21,6 +21,7 @@ def createVariable(module, variable, defaultvalue=0, description=""):
             module.variables[variable]._def = defaultvalue
             module.variables[variable]._descr = description
             return module.variables[variable]
+    return False
 
 def deleteVariable(module, variable):
     if xa.exists(module):
@@ -36,6 +37,7 @@ def getVariable(module, variable):
         variable = getVariableName(module, variable)
         if variable in module.variables:
             return module.variables[variable]
+    return False
 
 def getVariableName(module, variable = None):
     variable = variable.replace("xa_", "")
