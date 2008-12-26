@@ -27,6 +27,10 @@ exceedlimit   = xahighpingkick.setting.createVariable('ping_exceedlimit', 3, 'If
 
 
 def unload(): 
+    for userid in es.getUseridList():
+        loop = repeat.find('hpk_track_' + userid)
+        if loop:
+            loop.delete()
     xa.unregister(xahighpingkick) 
 
 def player_activate(event_var):

@@ -75,8 +75,8 @@ def player_activate(ev):
     players[userid]['timebombed']   = 0 
     players[userid]['beaconed']     = 0 
     players[userid]['noclipped']    = 0
-    gamethread.cancelDelayed('unmute_%s'%ev['es_steamid'])
-        
+    gamethread.cancelDelayed('unmute_%s'%es.getplayersteamid(userid))
+
 def player_disconnect(ev): 
     userid = int(ev['userid']) 
     if players.has_key(userid): 
