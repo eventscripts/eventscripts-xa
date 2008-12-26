@@ -30,6 +30,26 @@ Provides basic spawn protection and damage reflection
  - [+] Added reflect damage ability against team wounders
 ''' 
 
+# register module with XA 
+module = xa.register('xaprotect') 
+
+# Localization helper: 
+#text = module.language.getLanguage('xaprotect') 
+
+# make config vars 
+protect_wound                     = module.setting.createVariable('protect_wound', 1, '1 = ON, 0 = OFF') 
+protect_spawn_protection_time     = module.setting.createVariable('protect_spawn_protection_time', 3, 'The number of seconds to make people invulnerable at spawn (0 = OFF)') 
+protect_spawn_protection_mode     = module.setting.createVariable('protect_spawn_protection_mode', 0, '(1 = Anytime players spawn, 0 = Only at round start)') 
+protect_reflect_damage            = module.setting.createVariable('protect_reflect_damage', 0, '(0 = OFF, 1 = Reflect all damage, 2 = reflect some damage)') 
+protect_reflect_damage_percentage = module.setting.createVariable('protect_reflect_damage_percentage', 10, '(0 to 10: the percentage of damage to reflect)') 
+protect_spawn_slay                = module.setting.createVariable('protect_spawn_slay', 0, 'Slay spawn attackers(0=OFF, 1=ON)') 
+protect_spawn_slay_time           = module.setting.createVariable('protect_spawn_slay_time', 3, '# of seconds after spawning an attacker is slayed for team attacking')    
+protect_teamkill_slay             = module.setting.createVariable('protect_teamkill_slay', 0, 'Slay team killers(0=OFF, 1=ON)') 
+protect_teamattack_slay           = module.setting.createVariable('protect_teamattack_slay', 0, 'Slay team attackers(0=OFF, 1=ON)') 
+
+# init player handler      
+plist = twPHandler()  
+
 class twPlayer(object): 
     def __init__(self, userid): 
         # set up a player instance of playlib 
@@ -87,7 +107,10 @@ class twPHandler(object):
         attacker = self.grab(a) 
         victim = self.grab(v) 
         if attacker.get("team") == victim.get("team"): 
-            multiplier = int(module.setting.getVariable('protect_reflect_damage_percentage')) 
+            if protect_reflect_damage_percentage:
+                multiplier = int(protect_reflect_damage_percentage)
+            else:
+                multiplier = 3
             if multiplier > 10: 
                 multiplier = 10 
             elif multiplier < 0: 
@@ -98,26 +121,7 @@ class twPHandler(object):
         victim = self.grab(v) 
         if attacker.get("team") == victim.get("team"):
             attacker.kill()
-            
-# register module with XA 
-module = xa.register('xaprotect') 
-
-# Localization helper: 
-#text = module.language.getLanguage('xaprotect') 
-
-# make config vars 
-module.setting.createVariable('protect_wound', 1, '1 = ON, 0 = OFF') 
-module.setting.createVariable('protect_spawn_protection_time', 3, 'The number of seconds to make people invulnerable at spawn (0 = OFF)') 
-module.setting.createVariable('protect_spawn_protection_mode', 0, '(1 = Anytime players spawn, 0 = Only at round start)') 
-module.setting.createVariable('protect_reflect_damage', 0, '(0 = OFF, 1 = Reflect all damage, 2 = reflect some damage)') 
-module.setting.createVariable('protect_reflect_damage_percentage', 10, '(0 to 10: the percentage of damage to reflect)') 
-module.setting.createVariable('protect_spawn_slay', 0, 'Slay spawn attackers(0=OFF, 1=ON)') 
-module.setting.createVariable('protect_spawn_slay_time', 3, '# of seconds after spawning an attacker is slayed for team attacking')    
-module.setting.createVariable('protect_teamkill_slay', 0, 'Slay team killers(0=OFF, 1=ON)') 
-module.setting.createVariable('protect_teamattack_slay', 0, 'Slay team attackers(0=OFF, 1=ON)') 
-
-# init player handler      
-plist = twPHandler()  
+  
   
 def unload(): 
     xa.unregister('xaprotect')
@@ -132,9 +136,9 @@ def player_spawn(event_var):
      = OY1 = 
      [+] Spawn protection (raises health for set # of seconds) 
     ''' 
-    prtime = int(module.setting.getVariable('protect_spawn_protection_time'))
-    prmode = int(module.setting.getVariable('protect_spawn_protection_mode'))
-    if prtime > 0: 
+    prtime = int(protect_spawn_protection_time)
+    prmode = int(protect_spawn_protection_mode)
+    if prtime and prtime > 0: 
         # initiate spawn protection 
         if prmode == 0 and roundstatus == 0: 
             # protect the player 
@@ -153,15 +157,15 @@ def player_hurt(event_var):
      [+] Added reflect damage 
      [+] Spawn slay protection 
     ''' 
-    if int(module.setting.getVariable('protect_reflect_damage')): 
+    if protect_reflect_damage and int(protect_reflect_damage): 
         # were reflecting damage 
         plist.reflect(event_var["es_attackerid"], event_var["userid"], event_var["damage"]) 
-    if int(module.setting.getVariable('protect_spawn_slay')): 
-        timelimit = plist.getspawntime(event_var["userid"]) + int(module.setting.getVariable('protect_spawn_slay_time')) 
+    if protect_spawn_slay and protect_spawn_slay_time and int(protect_spawn_slay): 
+        timelimit = plist.getspawntime(event_var["userid"]) + int(protect_spawn_slay_time) 
         if time.time() < timelimit: 
             # oops! kill them 
             plist.grab(event_var["attackerid"]).kill() 
-    if int(module.setting.getVariable('protect_teamattack_slay')): 
+    if protect_teamattack_slay and int(protect_teamattack_slay): 
         plist.team_killattack(event_var["es_attackerid"], event_var["userid"])
        
 def player_death(event_var):
@@ -169,7 +173,7 @@ def player_death(event_var):
     == 1.0.0 ==
      [+] Team kill protect
     '''
-    if int(module.setting.getVariable('protect_teamkill_slay')) and not int(module.setting.getVariable('protect_teamattack_slay')): 
+    if protect_teamkill_slay and int(protect_teamkill_slay) and protect_teamattack_slay and not int(protect_teamattack_slay): 
         plist.team_killattack(event_var["es_attackerid"], event_var["userid"])
     
 def round_start(event_var):  
