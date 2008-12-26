@@ -1,5 +1,4 @@
 import es
-import os
 import playerlib
 import keyvalues
 import xa
@@ -9,8 +8,7 @@ psyco.full()
 
 gSettingFile = "%s/data/playerdata.txt" % es.getAddonPath('xa')
 gKeyValues = keyvalues.KeyValues(name="playerdata.txt")
-if os.path.exists(gSettingFile):
-    gKeyValues.load(gSettingFile)
+gKeyValues.load(gSettingFile)
 
 ###########################
 #Module methods start here#
@@ -18,7 +16,7 @@ if os.path.exists(gSettingFile):
 # All methods that should be able to be called through #
 # the API need to have "module" as first parameter     #
 ########################################################
-class UserSetting(object):
+class user_setting(object):
     def __init__(self, module, pref):
         self.module = str(module)
         self.name = str(pref)
@@ -59,12 +57,9 @@ class UserSetting(object):
                 return False
         else:
             return False
-            
-def createUserSetting(module, pref):
-    return UserSetting(module, pref)
-    
-def getUserSetting(module, pref):
-    return createUserSetting(module, pref)
 
-def saveKeyValues(module = None):
+def createUserSetting(module, pref):
+    return user_setting(module, pref)
+
+def saveUserSetting(module = None):
     gKeyValues.save(gSettingFile)

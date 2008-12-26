@@ -1,7 +1,7 @@
-import es
 import os
 import copy
 import langlib
+import xa
 
 import psyco
 psyco.full()
@@ -84,7 +84,7 @@ class LanguageDict(dict):
         else:
             raise TypeError
 
-def createLanguageString(module = None, text = None):
+def createLanguageString(module, text = None):
     if not text:
         text = module
     if text:
@@ -92,17 +92,11 @@ def createLanguageString(module = None, text = None):
     else:
         return False
 
-def getLanguage(module = None, file = None):
-    if module:
-        if file:
-            filename = "%s/modules/%s/%s.ini" % (es.getAddonPath('xa'), module, file)
-        else:
-            filename = "%s/modules/%s/strings.ini" % (es.getAddonPath('xa'), module)
+def getLanguage(module, file = None):
+    if file:
+        filename = "%s/modules/%s/%s.ini" % (xa.coredir(), module, file)
     else:
-        if file:
-            filename = "%s/languages/%s.ini" % (es.getAddonPath('xa'), file)
-        else:
-            filename = "%s/languages/strings.ini" % (es.getAddonPath('xa'))
+        filename = "%s/modules/%s/strings.ini" % (xa.coredir(), module)
     if os.path.exists(filename):
         langobj = langlib.Strings(filename)
         for key in langobj:

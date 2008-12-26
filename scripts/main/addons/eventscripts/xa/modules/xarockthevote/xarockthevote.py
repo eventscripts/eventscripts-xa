@@ -5,7 +5,6 @@ import popuplib
 import votelib
 import random
 import time
-import os
 from xa import xa 
 
 info = es.AddonInfo() 
@@ -75,10 +74,7 @@ players = {}
 # Structure of the dict: 
 # {'playersteamid': [voted?,nominated?]} 
 
-nominations = {} 
-
-selfaddondir = str(es.server_var["eventscripts_addondir"]).replace("\\", "/")
-selfmoddir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
+nominations = {}
 
 def load(): 
     xartv.logging.log("XA module %s loaded." % xartvname) 
@@ -237,19 +233,15 @@ def read_mapfile():
     # Read the mapcycle file 
     if vote_maplistfile == "votemaplist.txt":
         if xa.isManiMode():
-            mapfilename = '%s/cfg/mani_admin_plugin/%s' % (selfmoddir, vote_maplistfile)
+            maps = xartv.configparser.getList('cfg/mani_admin_plugin/%s' % vote_maplistfile, True)
         else:
-            mapfilename = '%s/cfg/xa/xarockthevote/%s' % (selfmoddir, vote_maplistfile)
+            maps = xartv.configparser.getList(vote_maplistfile)
     else:
-        mapfilename = '%s/%s' % (selfmoddir, vote_maplistfile)
-    maps = []
-    if os.path.exists(mapfilename):
-        mapfile = open(mapfilename)
-        if mapfile:
-            maps = mapfile.read().replace(' ','').split('\n') 
-            mapfile.close() 
-    return maps 
-# Events    
+        maps = xartv.configparser.getList(vote_maplistfile, True)
+    if not maps:
+        maps = []
+    return maps
+# Events
 
 def es_map_start(ev): 
     global map_start_time 

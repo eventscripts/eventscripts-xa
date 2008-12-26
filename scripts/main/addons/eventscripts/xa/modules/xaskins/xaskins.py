@@ -23,7 +23,7 @@ skins_downloadable      = 1
 if xa.isManiMode():
     xaskins_skinfiles_path  = server_var['eventscripts_gamedir'] + "/cfg/mani_admin_plugin/skins/"
 else:
-    xaskins_skinfiles_path  = server_var['eventscripts_gamedir'] + "/cfg/xa/xaskins/"
+    xaskins_skinfiles_path  = server_var['eventscripts_gamedir'] + "/cfg/xa/skins/"
 
 # Register XASkins as a xa module
 xaskins                 = xa.register('xaskins')

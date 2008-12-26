@@ -1,34 +1,27 @@
 import es
+import os
 import time
 import xa
 
 import psyco
 psyco.full()
 
-gLogDir = "%s/logs/" % es.getAddonPath('xa')
-
-xa_log = es.ServerVar("xa_log", 0, "Activates the module logging")
-
 ###########################
 #Module methods start here#
 ###########################
 def log(module, text, userid=0, admin=False):
-    if str(xa_log) != '0':
-        if str(module) in xa.gModules:
-            if (int(userid) > 0) and es.exists('userid', int(userid)):
-                if admin == True:
-                    logtext = str(module) + ': Admin ' + es.getplayername(userid) + ' [' + es.getplayersteamid(userid) + ']: ' + str(text)
-                else:
-                    logtext = str(module) + ': User ' + es.getplayername(userid) + ' [' + es.getplayersteamid(userid) + ']: ' + str(text)
+    if bool(int(xa.gLog)) and xa.exists(module):
+        if (int(userid) > 0) and es.exists('userid', int(userid)):
+            if admin:
+                logtext = str(module) + ': Admin ' + es.getplayername(userid) + ' [' + es.getplayersteamid(userid) + ']: ' + str(text)
             else:
-                logtext = str(module) + ': ' + str(text)
-            logname = "%sl%s" % (gLogDir, time.strftime('%m%d000.log'))
-            logfile = open(logname, 'a+')
-            logfile.write(time.strftime('L %m/%d/%Y - %H:%M:%S: ') + logtext + '\n')
-            logfile.close()
-            es.log(logtext)
-            return True
+                logtext = str(module) + ': User ' + es.getplayername(userid) + ' [' + es.getplayersteamid(userid) + ']: ' + str(text)
         else:
-            return False
-    else:
-        return False
+            logtext = str(module) + ': ' + str(text)
+        logname = '%s/logs/l%s' % (xa.coredir(), time.strftime('%m%d000.log'))
+        logfile = open(logname, 'a+')
+        logfile.write(time.strftime('L %m/%d/%Y - %H:%M:%S: ') + logtext + '\n')
+        logfile.close()
+        es.log(logtext)
+        return True
+    return False

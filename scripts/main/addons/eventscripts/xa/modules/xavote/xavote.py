@@ -40,8 +40,8 @@ if xa.isManiMode():
     xavotelist     = mymodule.configparser.getList('cfg/mani_admin_plugin/votequestionlist.txt', True)
     xavoterconlist = mymodule.configparser.getList('cfg/mani_admin_plugin/voterconlist.txt',     True) 
 else: 
-    xavotelist     = mymodule.configparser.getList('questionvotelist.txt')
-    xavoterconlist = mymodule.configparser.getList('rconvotelist.txt')
+    xavotelist     = mymodule.configparser.getList('votequestionlist.txt')
+    xavoterconlist = mymodule.configparser.getList('voterconlist.txt')
     
 def load():
     global vote_list

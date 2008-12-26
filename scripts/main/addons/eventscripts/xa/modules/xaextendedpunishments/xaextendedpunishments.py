@@ -41,9 +41,9 @@ xa_adminfirebomb_duration      = xaextendedpunishments.setting.createVariable('a
 #xa_adminmute_deletetime        = xaextendedpunishments.setting.createVariable('xa_adminmute_deletetime',   600                , "How long after a person disconnects from the server that they will be able to reconnect and be unmuted (in seconds)\n // E.G If it was 600, then 10 minutes after they left, they'd be able to rejoin unmuted again.\n // If they joined before the 10 minutes were up, they'd still be muted")
 
 if xa.isManiMode(): 
-    gimpPath = str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/cfg/mani_admin_plugin/gimpphrase.txt' 
+    gimpphrases = xaextendedpunishments.configparser.getList('cfg/mani_admin_plugin/gimpphrase.txt', True)
 else: 
-    gimpPath = str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/cfg/xa/xaextendedpunishments/gimplist.txt' 
+    gimpphrases = xaextendedpunishments.configparser.getList('gimpphrase.txt')
 
 players = {}
 #muted   = []
@@ -188,9 +188,9 @@ def unload():
     xa.unregister('xaextendedpunishments') 
     
 def getGimpPhrase(): 
-    if os.path.isfile(gimpPath): 
-        return random.choice(filter(lambda x: False if x == '' or x.startswith('//') else True, map(lambda x: x.replace('\n',''), open(gimpPath, 'r').readlines()))) 
-        
+    if gimpphrases: 
+        return random.choice(filter(lambda x: False if x == '' or x.startswith('//') else True, gimpphrases))
+
 def _drug(userid, adminid, args): 
     drugged = players[userid]['drugged'] 
     players[userid]['drugged'] = (1 if not drugged else 0) 
