@@ -47,9 +47,6 @@ protect_spawn_slay_time           = module.setting.createVariable('protect_spawn
 protect_teamkill_slay             = module.setting.createVariable('protect_teamkill_slay', 0, 'Slay team killers(0=OFF, 1=ON)') 
 protect_teamattack_slay           = module.setting.createVariable('protect_teamattack_slay', 0, 'Slay team attackers(0=OFF, 1=ON)') 
 
-# init player handler      
-plist = twPHandler()  
-
 class twPlayer(object): 
     def __init__(self, userid): 
         # set up a player instance of playlib 
@@ -59,8 +56,6 @@ class twPlayer(object):
         self.steamid = es.getplayersteamid(self.uid) 
         # get some initial data 
         self.spawntime = False 
-    
-
 
 class twPHandler(object): 
     def __init__(self): 
@@ -121,8 +116,10 @@ class twPHandler(object):
         victim = self.grab(v) 
         if attacker.get("team") == victim.get("team"):
             attacker.kill()
-  
-  
+            
+# init player handler      
+plist = twPHandler()
+
 def unload(): 
     xa.unregister('xaprotect')
     
