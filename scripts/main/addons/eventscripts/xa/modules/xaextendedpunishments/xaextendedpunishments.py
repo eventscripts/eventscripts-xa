@@ -88,7 +88,9 @@ def player_disconnect(ev):
 
 def round_end(ev): 
     for userid in es.getUseridList(): 
-        if not es.getplayerprop(userid, 'CBasePlayer.pl.deadflag'): 
+        if not es.getplayerprop(userid, 'CBasePlayer.pl.deadflag'):
+            if not players.has_key(userid):
+                player_activate({'userid':userid})
             players[userid]['timebombed']   = 0 
             players[userid]['freezebombed'] = 0 
             players[userid]['firebombed']   = 0 
