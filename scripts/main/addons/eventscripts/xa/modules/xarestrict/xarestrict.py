@@ -174,7 +174,7 @@ class RestrictedPlayer:
       for index in es.createentitylist(longname):
          if es.getindexprop(x, 'CBaseEntity.m_hOwnerEntity') <> self.handle: continue
 
-         gamethread.delayed(0.2, saferemove, index)
+         gamethread.delayedname(0.2, 'saferemove_%s'%index, saferemove, index)
 
          if (getTeam(2).isRestricted(weapon) and getTeam(3).isRestricted(weapon)) if int(removebanned) else False:
             lastgive = -1

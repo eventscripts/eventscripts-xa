@@ -120,7 +120,9 @@ class twPHandler(object):
 # init player handler      
 plist = twPHandler()
 
-def unload(): 
+def unload():
+    for userid in es.getUseridList(): 
+        gamethread.cancelDelayed('unprotect_%s'%userid) 
     xa.unregister('xaprotect')
     
 def player_team(event_var): 
@@ -141,12 +143,12 @@ def player_spawn(event_var):
             # protect the player 
             plist.protect(event_var['userid']) 
             # after the set delay remove the "protection" 
-            gamethread.delayed(prtime, plist.unprotect, (event_var['userid'])) 
+            gamethread.delayedname(prtime, 'unprotect_%s'%event_var['userid'], plist.unprotect, (event_var['userid'])) 
         elif prmode == 0: 
             # protect the player 
             plist.protect(event_var['userid']) 
             # after the set delay remove the "protection" 
-            gamethread.delayed(prtime, plist.unprotect, (event_var['userid'])) 
+            gamethread.delayedname(prtime, 'unprotect_%s'%event_var['userid'], plist.unprotect, (event_var['userid'])) 
 
 def player_hurt(event_var): 
     ''' 

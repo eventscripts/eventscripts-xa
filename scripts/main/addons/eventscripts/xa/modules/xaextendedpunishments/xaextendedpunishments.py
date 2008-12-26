@@ -60,7 +60,7 @@ def load():
     xapunishments.registerPunishment("timebomb",   xalanguage["timebomb"]  , _time_bomb  , 1) 
     xapunishments.registerPunishment("firebomb",   xalanguage["firebomb"]  , _fire_bomb  , 1)
     #xapunishments.registerPunishment("mute",       xalanguage["mute"]      , _mute       , 1) 
-    gamethread.delayed(1, _blind_loop) 
+    gamethread.delayedname(1, 'blind_loop', _blind_loop) 
         
 def player_activate(ev): 
     userid = int(ev['userid']) 
@@ -148,7 +148,7 @@ def _blind_loop():
             es.usermsg('write','byte','admin_fade', 255)    # alpha 
             es.usermsg('send','admin_fade',player) 
             es.usermsg('delete','admin_fade') 
-    gamethread.delayed(1, _blind_loop) 
+    gamethread.delayedname(1, 'blind_loop', _blind_loop) 
             
 def _freeze(userid, adminid, args): 
     player = playerlib.getPlayer(userid) 
@@ -187,9 +187,20 @@ def _say_filter(userid, text, team):
     return(userid, text, team)
 es.addons.registerSayFilter(_say_filter)
 
-def unload(): 
+def unload():
+    for userid in es.getUseridList(): 
+        if players.has_key(userid):
+            gamethread.cancelDelayed('beacon_%s'%userid) 
+            gamethread.cancelDelayed('timebomb_%s'%userid) 
+            gamethread.cancelDelayed('freezebomb_%s'%userid) 
+            gamethread.cancelDelayed('firebomb_%s'%userid)
+            gamethread.cancelDelayed('unmute_%s'%es.getplayersteamid(userid))
+            es.setplayerprop(userid, "CBaseEntity.movetype", 2)
+            es.setplayerprop(userid, 'CBasePlayer.m_iDefaultFOV', 90)
+    gamethread.cancelDelayed('remove_fire')
+    gamethread.cancelDelayed('blind_loop')
     es.addons.unregisterSayFilter(_say_filter)
-    xa.unregister('xaextendedpunishments') 
+    xa.unregister('xaextendedpunishments')
     
 def getGimpPhrase(): 
     if gimpphrases: 

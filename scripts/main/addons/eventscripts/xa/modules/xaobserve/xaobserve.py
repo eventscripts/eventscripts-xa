@@ -111,6 +111,8 @@ def player_death(event_var):
         for int_loop_userid in dict_dead_players:
             if dict_dead_players[int_loop_userid] == int_handle:
                 gamethread.delayedname(float(var_spec_delay), 'xaobserve_%s' % int_loop_userid, end_spec_delay, int_loop_userid)
+                if int_loop_userid not in list_delays:
+                    list_delays.append(int_loop_userid)
 
         if int_handle in dict_team_handles[int_team]:
             dict_team_handles[int_team].remove(int_handle)

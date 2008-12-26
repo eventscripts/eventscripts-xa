@@ -57,6 +57,8 @@ def load():
     registerPunishment("slay", xalanguage["slay"], _punishment_slay, 1)
 
 def unload():
+    for userid in es.getUseridList():
+        gamethread.cancelDelayed('burn_%s'%userid)
     for punishment in punishment_method:
         unRegisterPunishment(punishment)
     popuplib.delete("xapunishmentmenu")
@@ -207,7 +209,7 @@ def _punishment_burn(userid, adminid, args, force):
             es.tell(user, xalanguage("admin burn", tokens, user.get("lang")))
     es.server.cmd("es_xfire "+str(userid)+" !self ignite")
     if int(burntime) > 0:
-        gamethread.delayed(int(burntime), _punishment_extinguish, (userid, adminid, (), True))
+        gamethread.delayedname(int(burntime), 'burn_%s'%userid, _punishment_extinguish, (userid, adminid, (), True))
 
 def _punishment_extinguish(userid, adminid, args, force):
     if str(xa_adminburn_anonymous) == '0' and not force:

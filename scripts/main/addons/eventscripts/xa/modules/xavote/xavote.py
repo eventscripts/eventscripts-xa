@@ -96,7 +96,11 @@ def load():
     registerVoteMenu("multimap", xalanguage["build multi map"], MultiMap, serverCmdFunction= MultiMapCommand)
     
     registerVoteMenu("random", xalanguage["random map vote"], RandomMapVote, serverCmdFunction= RandomCommand)
-    
+
+def unload():
+    gamethread.cancelDelayed('vote_endmap')
+    xa.unregister(mymodule)
+
 #################################
 # EVENTS
 def player_activate(event_var): 
@@ -277,7 +281,7 @@ def MultiMapWin(args):
     es.set('eventscripts_nextmapoverride', winner)
     if change_map == 1:
         chattime = int(es.ServerVar('mp_chattime'))
-        gamethread.delayed(chattime, EndMap)
+        gamethread.delayedname(chattime, 'vote_endmap', EndMap)
     
 def MultiMapCommand(args):
     global change_map
@@ -325,7 +329,7 @@ def RandomMapWin(args):
     es.set('eventscripts_nextmapoverride', winner)
     if change_map == 1:
         chattime = int(es.ServerVar('mp_chattime'))
-        gamethread.delayed(chattime, EndMap)
+        gamethread.delayedname(chattime, 'vote_endmap', EndMap)
     
 def RandomCommand(args):
     global change_map

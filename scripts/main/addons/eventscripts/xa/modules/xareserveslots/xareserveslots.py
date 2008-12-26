@@ -222,6 +222,8 @@ def load():
     xareserveslots.logging.log("Loaded Reserve slots (mani clone) %s" % str(info.version))
  
 def unload():
+    for userid in es.getUseridList():
+        gamethread.cancelDelayed('res_redirect_%s' % userid)
     xa.unregister(xareserveslots)
    
 def es_map_start(event_var):

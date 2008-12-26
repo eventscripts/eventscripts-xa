@@ -89,6 +89,7 @@ def load():
         nomination_popup.addoption(map,map) 
 
 def unload(): 
+    gamethread.cancelDelayed('rtv_mapchange')
     xartv.logging.log("XA module %s is being unloaded." % xartvname) 
     if votelib.isrunning('rockthevote'): 
         votelib.stop('rockthevote') 
@@ -218,7 +219,7 @@ def rtv_finish(votename, win, winname, winvotes, winpercent, total, tie, cancell
     if (float(total) / len(es.getUseridList())) >= (vote_req_setmap_p * 0.01): 
         for userid in es.getUseridList(): 
             es.tell(userid,'#multi',lang('success',{'mapname': winname,'time': vote_mapchange_time},playerlib.getPlayer(userid).get('lang'))) 
-        gamethread.delayed(vote_mapchange_time,rtv_map,winname) 
+        gamethread.delayedname(vote_mapchange_time,'rtv_mapchange',rtv_map,winname) 
     else: 
         for userid in es.getUseridList(): 
             es.tell(userid,'#multi',lang('fail',lang=playerlib.getPlayer(userid).get('lang'))) 
