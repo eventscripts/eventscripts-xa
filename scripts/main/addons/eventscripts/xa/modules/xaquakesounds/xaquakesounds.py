@@ -115,12 +115,12 @@ def es_map_start(event_var):
 
 def round_start(event_var):
     global firstblood
-    if int(quake_firstblood_reset_per_round) == 1:
+    if quake_firstblood_reset_per_round and int(quake_firstblood_reset_per_round) == 1:
         firstblood = True
     for userid in es.getUseridList():
         if (not userid in playerkills) or (int(quake_kill_streak_mode) == 1):
             playerkills[userid] = 0
-    if int(quake_sounds) == 1:
+    if quake_sounds and int(quake_sounds) == 1:
         _play_quakesound(xaquakesoundslist['prepare'], 'prepare', 0, 0, int(quake_prepare_to_fight_mode), int(quake_prepare_to_fight_visual_mode))
 
 def player_activate(event_var):
