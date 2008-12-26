@@ -161,8 +161,8 @@ def _freeze(userid, adminid, args):
             tokens['state']   = xalanguage("frozen", lang=player.get("lang")) if frozen != 0 else xalanguage("defrosted", lang=player.get("lang")) 
             es.tell(int(player), xalanguage("admin state", tokens, player.get("lang")))
     if frozen != 0:
-        es.server.cmd('es_xsetpos %s %s' % (userid, ' '.join(es.getplayerlocation(userid)))) # We don't want to hear footsteps
-    es.setplayerprop(userid,'CBaseEntity.movetype','%s'%('0' if frozen != 0 else '2'))
+        es.server.cmd('es_xsetpos %s %s' % (userid, ' '.join(list(es.getplayerlocation(userid))))) # We don't want to hear footsteps
+    gamethread.queue(es.setplayerprop, (userid,'CBaseEntity.movetype','%s'%('0' if frozen != 0 else '2')))
 
 def _gimp(userid, adminid, args): 
     gimped = players[userid]['gimped'] 
