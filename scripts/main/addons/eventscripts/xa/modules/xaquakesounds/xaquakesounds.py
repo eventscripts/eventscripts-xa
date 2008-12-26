@@ -159,7 +159,7 @@ def player_hurt(event_var):
 
 def player_death(event_var):
     global firstblood
-    if int(quake_sounds) == 1:
+    if quake_sounds and int(quake_sounds) == 1:
         userid = int(event_var['userid'])
         attackerid = int(event_var['attacker'])
         if userid > 0:
