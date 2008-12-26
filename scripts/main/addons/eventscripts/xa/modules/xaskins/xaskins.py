@@ -3,7 +3,6 @@ import os
 from es import server_var
 from xa.modules.xasettings import xasettings
 from xa import xa
-import services
 import popuplib
 import playerlib
 
@@ -49,6 +48,8 @@ xaplayerdata_public_ct_skin      = xaskins.playerdata.createUserSetting("public_
 def load():
 # This function is called when the script is es_load-ed
     # Register client console and server command
+    xaskins.registerCapability("skin_admin", "#admin")
+    xaskins.registerCapability("skin_reserved", "#poweruser")
     xaskincommand = xaskins.addCommand("xaskin", _sendmenu, "set_skin", "#all")
     xaskincommand.register(['console', 'server'])
     xasettings.registerMethod(xaskins, _sendmenu, xalanguage["player skins"])
@@ -77,10 +78,9 @@ def player_spawn(event_var):
 # then gets the team and then the model and sets it
     if event_var['es_steamid'] != "BOT":
         if event_var['es_userteam'] == "2" or event_var['es_userteam'] == "3":
-            auth = services.use("auth")
-            if auth.isUseridAuthorized(int(event_var['userid']), "skin_admin"):
+            if xaskins.isUseridAuthorized(int(event_var['userid']), "skin_admin"):
                 level = "admin"
-            elif auth.isUseridAuthorized(int(event_var['userid']), "skin_reserved"):
+            elif xaskins.isUseridAuthorized(int(event_var['userid']), "skin_reserved"):
                 level = "reserved"
             else:
                 level = "public"
@@ -123,9 +123,8 @@ def _sendmenu(playerid = False):
 #    page.cachemode = "user"
     page.settitle(xalanguage["choose skins"])
     j = 0
-    auth = services.use("auth")
     for i in skinmenu:
-        if (i != "Misc") and ((auth.isUseridAuthorized(playerid, "skin_admin") and ("admin" == skinnames[j][0:5])) or (auth.isUseridAuthorized(playerid, "skin_reserved") and ("reserved" == skinnames[j][0:8])) or ("public" == skinnames[j][0:6])):
+        if (i != "Misc") and ((xaskins.isUseridAuthorized(playerid, "skin_admin") and ("admin" == skinnames[j][0:5])) or (xaskins.isUseridAuthorized(playerid, "skin_reserved") and ("reserved" == skinnames[j][0:8])) or ("public" == skinnames[j][0:6])):
             xaplayerdata = xaskins.playerdata.getUserSetting(skinnames[j])
             myskin = xaplayerdata.get(playerid)
             page.addoption(skinnames[j], i + " - " + myskin)

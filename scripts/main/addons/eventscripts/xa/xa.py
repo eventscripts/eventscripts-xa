@@ -219,7 +219,6 @@ class Admin_module(object):
     def findCommand(self, command):
         if (command in self.subCommands):
             return self.subCommands[command]
-        return None
     def addMenu(self, menu, display, menuname, perm, permlvl):
         #create new menu
         self.subMenus[menu] = Admin_menu(menu, display, menuname, perm, self.getLevel(permlvl))
@@ -239,21 +238,20 @@ class Admin_module(object):
     def findMenu(self, menu):
         if (menu in self.subMenus):
             return self.subMenus[menu]
-        return None
     def getLevel(self, permlvl):
         try:
             level = int(permlvl)
         except ValueError:
             auth = services.use("auth")
-            if permlvl.upper() == '#ROOT':
+            if permlvl.lower() == '#root':
                 level = auth.ROOT
-            elif permlvl.upper() == '#ADMIN':
+            elif permlvl.lower() == '#admin':
                 level = auth.ADMIN
-            elif permlvl.upper() == '#POWERUSER':
+            elif permlvl.lower() == '#poweruser':
                 level = auth.POWERUSER
-            elif permlvl.upper() == '#IDENTIFIED' or permlvl.upper() == "#KNOWN":
+            elif permlvl.lower() == '#identified' or permlvl.lower() == "#known":
                 level = auth.IDENTIFIED
-            elif permlvl.upper() == '#UNRESTRICTED' or permlvl.upper() == "#ALL":
+            elif permlvl.lower() == '#unrestricted' or permlvl.lower() == "#all":
                 level = auth.UNRESTRICTED
             else:
                 level = None
@@ -263,7 +261,6 @@ class Admin_module(object):
         auth = services.use("auth")
         auth.registerCapability(perm, permlvl)
         self.customPermissions[perm] = {'level':permlvl, 'type':str(permtype).lower()}
-        return None
     def isUseridAuthorized(self, userid, perm):
         auth = services.use("auth")
         return auth.isUseridAuthorized(userid, perm)
