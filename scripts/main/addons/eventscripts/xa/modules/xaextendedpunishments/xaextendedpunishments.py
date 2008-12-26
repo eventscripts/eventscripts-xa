@@ -159,9 +159,11 @@ def _freeze(userid, adminid, args):
         tokens['user']    = es.getplayername(userid) 
         for player in playerlib.getPlayerList(): 
             tokens['state']   = xalanguage("frozen", lang=player.get("lang")) if frozen != 0 else xalanguage("defrosted", lang=player.get("lang")) 
-            es.tell(int(player), xalanguage("admin state", tokens, player.get("lang"))) 
-    es.setplayerprop(userid,'CBaseEntity.movetype','%s'%('0' if frozen != 0 else '2')) 
-    
+            es.tell(int(player), xalanguage("admin state", tokens, player.get("lang")))
+    if frozen != 0:
+        es.server.cmd('es_xsetpos %s %s' % (userid, ' '.join(es.getplayerlocation(userid)))) # We don't want to hear footsteps
+    es.setplayerprop(userid,'CBaseEntity.movetype','%s'%('0' if frozen != 0 else '2'))
+
 def _gimp(userid, adminid, args): 
     gimped = players[userid]['gimped'] 
     players[userid]['gimped'] = (1 if not gimped else 0) 
