@@ -16,7 +16,7 @@ gKeyValues.load(gSettingFile)
 # All methods that should be able to be called through #
 # the API need to have "module" as first parameter     #
 ########################################################
-class user_setting(object):
+class UserSetting(object):
     def __init__(self, module, pref):
         self.module = str(module)
         self.name = str(pref)
@@ -25,8 +25,6 @@ class user_setting(object):
                 gKeyValues[self.module] = keyvalues.KeyValues(name=self.module)
             if not self.name in gKeyValues[self.module]:
                 gKeyValues[self.module][self.name] = keyvalues.KeyValues(name=self.name)
-        else:
-            return None
     def __str__(self):
         return self.name        
     def exists(self, userid):
@@ -59,7 +57,7 @@ class user_setting(object):
             return False
 
 def createUserSetting(module, pref):
-    return user_setting(module, pref)
+    return UserSetting(module, pref)
 
 def saveUserSetting(module = None):
     gKeyValues.save(gSettingFile)
