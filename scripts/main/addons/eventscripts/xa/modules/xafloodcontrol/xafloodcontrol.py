@@ -64,7 +64,7 @@ def server_cvar(event_var):
 
 def unload():
     #Unloads XA Flood Control, and unregisteres saylisteners - if registered
-    xa.unRegister(xafloodcontrol)
+    xa.unregister(xafloodcontrol)
     if floodcontrol in es.addons.SayListeners:
         es.addons.unregisterSayFilter(floodcontrol)
 
