@@ -14,6 +14,7 @@ import popuplib
 import keymenulib
 import settinglib
 import keyvalues
+import cmdlib
 from hotshot import stats
 
 #import libraries
@@ -67,16 +68,6 @@ gMainCommand = None
 gMainCommandAlternative = None
 ## gModules holds all the modules
 gModules = {}
-## gCommands holds all the information for commands
-gCommands = {}
-gCommands['perm'] = {}
-gCommands['block'] = {}
-gCommands['chat'] = {}
-## gMenus holds all the information for menus
-gMenus = {}
-gMenus['perm'] = {}
-gMenus['page'] = {}
-gMenus['text'] = {}
 
 #################### ######################################################
 #Core Class Section# # PLEASE KEEP IN MIND THAT THOSE CLASSES ARE PRIVATE #
@@ -202,7 +193,7 @@ class Admin_module(object):
                 self.requiredList.remove(module.name)
     def addCommand(self, command, block, perm, permlvl, descr="eXtensible Admin command", mani=False):
         #create new menu
-        self.subCommands[command] = Admin_command(command, block, perm, self.getLevel(permlvl), descr, mani)
+        self.subCommands[command] = Admin_command(command, block, perm, permlvl, descr, mani)
         return self.subCommands[command]
     def delCommand(self, command):
         #delete a menu
@@ -221,7 +212,7 @@ class Admin_module(object):
             return self.subCommands[command]
     def addMenu(self, menu, display, menuname, perm, permlvl):
         #create new menu
-        self.subMenus[menu] = Admin_menu(menu, display, menuname, perm, self.getLevel(permlvl))
+        self.subMenus[menu] = Admin_menu(menu, display, menuname, perm, permlvl)
         return self.subMenus[menu]
     def delMenu(self, menu):
         #delete a menu
@@ -238,32 +229,11 @@ class Admin_module(object):
     def findMenu(self, menu):
         if (menu in self.subMenus):
             return self.subMenus[menu]
-    def getLevel(self, permlvl):
-        try:
-            level = int(permlvl)
-        except ValueError:
-            auth = services.use("auth")
-            if permlvl.lower() == '#root':
-                level = auth.ROOT
-            elif permlvl.lower() == '#admin':
-                level = auth.ADMIN
-            elif permlvl.lower() == '#poweruser':
-                level = auth.POWERUSER
-            elif permlvl.lower() == '#identified' or permlvl.lower() == "#known":
-                level = auth.IDENTIFIED
-            elif permlvl.lower() == '#unrestricted' or permlvl.lower() == "#all":
-                level = auth.UNRESTRICTED
-            else:
-                level = None
-        return level
     def registerCapability(self, perm, permlvl, permtype='admin'):
-        permlvl = self.getLevel(permlvl)
-        auth = services.use("auth")
-        auth.registerCapability(perm, permlvl)
-        self.customPermissions[perm] = {'level':permlvl, 'type':str(permtype).lower()}
+        self.customPermissions[perm] = {'level':getLevel(permlvl), 'type':str(permtype).lower()}
+        services.use("auth").registerCapability(perm, getLevel(permlvl))
     def isUseridAuthorized(self, userid, perm):
-        auth = services.use("auth")
-        return auth.isUseridAuthorized(userid, perm)
+        return services.use("auth").isUseridAuthorized(userid, perm)
     def information(self, listlevel):
         if listlevel >= 1:
             es.dbgmsg(0, " ")
@@ -307,12 +277,7 @@ class Admin_command(object):
         self.console = False
         self.say = False
         self.chat = False
-        if not isinstance(self.permissionlevel, int):
-            es.dbgmsg(0, "[eXtensible Admin] Invalid default permission \""+str(gPermLevel)+"\"")
-        gCommands['perm'][self.name] = self.permission
-        gCommands['block'][self.name] = self.block
-        gCommands['chat'][self.name] = self.chat
-        services.use("auth").registerCapability(self.permission, self.permissionlevel)
+        services.use("auth").registerCapability(self.permission, getLevel(self.permissionlevel))
     def __str__(self):
         return self.name
     def register(self, gList):
@@ -320,44 +285,79 @@ class Admin_command(object):
             cmdlist = [gList]
         else:
             cmdlist = list(gList)
-        if "server" in cmdlist and self.server == False:
-            es.regcmd(self.name, "xa/incoming_server", self.descr)
+        if "server" in cmdlist and not self.server:
             if self.manicomp and isManiMode() and self.name.startswith('xa_'):
-                es.regcmd('ma_'+self.name[3:], "xa/incoming_server", self.descr)
+                cmdlib.registerServerCommand('ma_'+self.name[3:], self.incomingServer, self.descr)
+            cmdlib.registerServerCommand(self.name, self.incomingServer, self.descr)
             self.server = True
-        if "console" in cmdlist and self.console == False:
-            es.regclientcmd(self.name, "xa/incoming_console", self.descr)
+        if "console" in cmdlist and not self.console:
             if self.manicomp and isManiMode() and self.name.startswith('xa_'):
-                es.regclientcmd('ma_'+self.name[3:], "xa/incoming_console", self.descr)
+                cmdlib.registerClientCommand('ma_'+self.name[3:], self.incomingConsole, self.descr, self.permission, self.permissionlevel.replace('#', '').upper().replace('KNOWN', 'IDENTIFIED').replace('ALL', 'UNRESTRICTED'))
+            cmdlib.registerClientCommand(self.name, self.incomingConsole, self.descr, self.permission, self.permissionlevel.replace('#', '').upper().replace('KNOWN', 'IDENTIFIED').replace('ALL', 'UNRESTRICTED'))
             self.console = True
-        if "say" in cmdlist and self.say == False:
+        if "say" in cmdlist and not self.say:
             if self.name.startswith('xa_'):
-                es.regsaycmd(str(gSayPrefix)+self.name[3:], "xa/incoming_say", self.descr)
-            es.regsaycmd(self.name, "xa/incoming_say", self.descr)
+                cmdlib.registerSayCommand(str(gSayPrefix)+self.name[3:], self.incomingSay, self.descr, self.permission, self.permissionlevel.replace('#', '').upper().replace('KNOWN', 'IDENTIFIED').replace('ALL', 'UNRESTRICTED'))
+            cmdlib.registerSayCommand(self.name, self.incomingSay, self.descr, self.permission, self.permissionlevel.replace('#', '').upper().replace('KNOWN', 'IDENTIFIED').replace('ALL', 'UNRESTRICTED'))
             self.say = True
-        if "chat" in cmdlist and self.chat == False:
-            gCommands['chat'][self.name] = True
+        if "chat" in cmdlist and not self.chat:
+            if not self.incomingChat in es.addons.SayListeners:
+                es.addons.registerSayFilter(self.incomingChat)
             self.chat = True
     def unregister(self, gList):
         if isinstance(gList, str):
             cmdlist = [gList]
         else:
             cmdlist = list(gList)
-        if "console" in cmdlist and self.console == True:
-            es.unregclientcmd(self.name)
-            if self.manicomp and es.exists('command', 'ma_'+self.name[3:]) and self.name.startswith('xa_'):
-                es.unregclientcmd('ma_'+self.name[3:])
-            self.console = False
-        if "say" in cmdlist and self.say == True:
+        if "server" in cmdlist and self.server:
             if self.name.startswith('xa_'):
-                es.unregsaycmd(str(gSayPrefix)+self.name[3:])
-            es.unregsaycmd(self.name)
+                cmdlib.unregisterServerCommand('ma_'+self.name[3:])
+            cmdlib.unregisterServerCommand(self.name)
+            self.server = False
+        if "console" in cmdlist and self.console:
+            if self.name.startswith('xa_'):
+                cmdlib.unregisterClientCommand('ma_'+self.name[3:])
+            cmdlib.unregisterClientCommand(self.name)
+            self.console = False
+        if "say" in cmdlist and self.say:
+            if self.name.startswith('xa_'):
+                cmdlib.unregisterClientCommand(str(gSayPrefix)+self.name[3:])
+            cmdlib.unregisterClientCommand(self.name)
             self.say = False
-        if "chat" in cmdlist and self.chat == True:
-            gCommands['chat'][self.name] = False
+        if "chat" in cmdlist and self.chat:
+            if self.incomingChat in es.addons.SayListeners:
+                es.addons.unregisterSayFilter(self.incomingChat)
             self.chat = False
-    def unRegister(self, gList):
-        self.unregister(gList)
+    def callBlock(self, args):
+        try:
+            self.block(args)
+        except TypeError:
+            try:
+                self.block()
+            except TypeError:
+                es.doblock(self.block)
+    def incomingServer(self, args):
+        if self.server:
+            self.callBlock(args)
+    def incomingConsole(self, args):
+        if self.console:
+            self.callBlock(args)
+    def incomingSay(self, args):
+        if self.say:
+            self.callBlock(args)
+    def incomingChat(self, userid, message, teamonly):
+        if self.chat:
+            output = message
+            if output[0] == output[-1:] == '"':
+                output = output[1:-1]
+            command = output.split(' ')[0]
+            if command.startswith('ma_'):
+                command = 'xa_'+command[3:]
+            elif command.startswith(str(gSayPrefix)):
+                command = 'xa_'+command[len(str(gSayPrefix)):]
+            if command == self.name and services.use("auth").isUseridAuthorized(userid, self.permission):
+                self.callBlock(cmdlib.cmd_manager.CMDArgs(output.split(' ')[1:] if len(output.split(' ')) > 1 else []))
+        return (userid, message, teamonly)
     def information(self, listlevel):
         if listlevel >= 1:
             es.dbgmsg(0, " ")
@@ -393,42 +393,27 @@ class Admin_menu(object):
         elif settinglib.exists(self.menu):
             self.menutype = "setting"
             self.menuobj = settinglib.find(self.menu)
-        gMenus['text'][self.name] = self.display
-        if not isinstance(self.permissionlevel, int):
-            es.dbgmsg(0, "[eXtensible Admin] Invalid default permission \""+str(gPermLevel)+"\"")
-        gMenus['perm'][self.name] = self.permission
-        gMenus['page'][self.name] = self.menuobj
-        services.use("auth").registerCapability(self.permission, self.permissionlevel)
+        services.use("auth").registerCapability(self.permission, getLevel(self.permissionlevel))
         self.addBackButton()
     def __str__(self):
         return self.name
     def unregister(self):
-        if self.name in gMenus['page']:
-            del gMenus['perm'][self.name]
-            del gMenus['page'][self.name]
-            del gMenus['text'][self.name]
-    def unRegister(self):
-        self.unregister()
+        self.menuobj = None
     def setDisplay(self, display):
         self.display = display
-        gMenus['text'][self.name] = self.display
-        return True
     def setMenu(self, menu):
         if popuplib.exists(menu):
             self.menu = menu
             self.menutype = "popup"
             self.menuobj = popuplib.find(self.menu)
-            gMenus['page'][self.name] = self.menuobj
         elif keymenulib.exists(menu):
             self.menu = menu
             self.menutype = "keymenu"
             self.menuobj = keymenulib.find(self.menu)
-            gMenus['page'][self.name] = self.menuobj
         elif settinglib.exists(menu):
             self.menu = menu
             self.menutype = "setting"
             self.menuobj = settinglib.find(self.menu)
-            gMenus['page'][self.name] = self.menuobj
         else:
             return False
         return self.addBackButton()
@@ -539,6 +524,16 @@ def isManiMode():
     """Checks if Mani mode is enabled"""
     return bool(int(gManiMode))
 
+def getLevel(permission):
+    """Returns the Auth Provider level by name"""
+    try:
+        return int(permission)
+    except ValueError:
+        try:
+            return services.use('auth').__getattribute__(permission.replace('#', '').upper().replace('KNOWN', 'IDENTIFIED').replace('ALL', 'UNRESTRICTED'))
+        except:
+            return services.use('auth').ROOT
+
 def sendMenu(userid=None, choice=10, name=None):
     """Shows the main menu to the specified player"""
     if choice != 10:
@@ -548,19 +543,26 @@ def sendMenu(userid=None, choice=10, name=None):
     elif es.getcmduserid():
         userid = int(es.getcmduserid())
     if userid and (es.exists("userid", userid)):
-        gMainMenu[userid] = popuplib.easymenu("_xa_mainmenu_"+str(userid), None, incoming_menu)
+        gMainMenu[userid] = popuplib.easymenu("_xa_mainmenu_"+str(userid), None, incomingMenu)
         gMainMenu[userid].settitle(language.createLanguageString("eXtensible Admin"))
         gMainMenu[userid].vguititle = "eXtensible Admin"
-        for page in gMenus['text']:
-            if gMenus['perm'][page]:
-                perm = gMenus['perm'][page]
-                if services.use("auth").isUseridAuthorized(userid, perm):
-                    gMainMenu[userid].addoption(page, gMenus['text'][page], 1)
+        for module in modules():
+            module = find(module)
+            for page in module.subMenus:
+                if module.subMenus[page] and services.use("auth").isUseridAuthorized(userid, module.subMenus[page].permission):
+                    gMainMenu[userid].addoption(page, module.subMenus[page].display, 1)
         if popuplib.isqueued(gMainMenu[userid].name, userid):
             gMainMenu[userid].update(userid)
         else:
             gMainMenu[userid].send(userid)
-            
+
+def incomingMenu(self, userid, choice, name):
+    for module in modules():
+        module = find(module)
+        if choice in module.subMenus:
+            if module.subMenus[choice] and services.use("auth").isUseridAuthorized(userid, module.subMenus[choice].permission):
+                module.subMenus[choice].menuobj.send(userid)
+
 def addondir():
     return str(es.ServerVar('eventscripts_addondir')).replace("\\", "/")
 
@@ -740,14 +742,14 @@ class Admin_mani(object):
 def load():
     global gMainMenu, gMainCommand
     es.dbgmsg(0, "[eXtensible Admin] Second loading part...")
-    if not es.exists("command", "xa"):
-        es.regcmd("xa", "xa/consolecmd", "Open the eXtensible Admin menu")
-    if not incoming_chat in es.addons.SayListeners:
-        es.addons.registerSayFilter(incoming_chat)
-    gMainCommand = Admin_command("xa", sendMenu, "xa_menu", services.use("auth").UNRESTRICTED)
-    gMainCommand.register(["console", "say"])
+    if not services.isRegistered('auth'):
+        es.dbgmsg(0, "[eXtensible Admin] WARNING! Auth Provider required!")
+        es.dbgmsg(0, "[eXtensible Admin] Loading Basic Auth...")
+        es.load('examples/auth/basic_auth')
+    gMainCommand = Admin_command("xa", command, "xa_menu", "#all")
+    gMainCommand.register(["server", "console", "say"])
     es.dbgmsg(0, "[eXtensible Admin] Executing xa.cfg...")
-    es.server.cmd('exec xa.cfg')
+    es.server.cmd('es_xmexec xa.cfg')
     es.dbgmsg(0, "[eXtensible Admin] Mani mode enabled = "+str(isManiMode()))
     if isManiMode():
         ma = Admin_mani()
@@ -778,20 +780,21 @@ def unload():
         if popuplib.exists(str(menu)):
             menu.delete()
     if gMainCommand:
-        gMainCommand.unregister(["console","say"])
+        gMainCommand.unregister(["server", "console", "say"])
         del gMainCommand
     if gMainCommandAlternative:
         gMainCommandAlternative.unregister(["console"])
         del gMainCommandAlternative
-    if incoming_chat in es.addons.SayListeners:
-        es.addons.unregisterSayFilter(incoming_chat)
     es.dbgmsg(0, "[eXtensible Admin] Finished unloading sequence")
     es.dbgmsg(0, "[eXtensible Admin] Modules will now unregister themself...")
 
-def consolecmd():
-    subcmd = es.getargv(1).lower()
-    seccmd = es.getargv(2)
-    argc = es.getargc()
+def command(args):
+    if es.getcmduserid():
+        return sendMenu()
+    else:
+        argc = len(args)
+        subcmd = (args[0].lower() if argc else None)
+        seccmd = (args[1] if argc > 1 else None)
     if subcmd == "load":
         if seccmd:
             xa_load(seccmd)
@@ -912,10 +915,10 @@ def consolecmd():
         es.dbgmsg(0, "Syntax: xa stats [sort-column]")
     elif subcmd == "list":
         es.dbgmsg(0,"---------- List of modules:")
-        if argc == 2:
-            listlevel = 0
+        if argc >= 2:
+            listlevel = int(seccmd)
         else:
-            listlevel = int(xname)
+            listlevel = 0
         for module in modules():
             module = find(module)
             module.information(listlevel)
@@ -925,9 +928,9 @@ def consolecmd():
             es.dbgmsg(0, "Syntax: xa module list [level]")
         es.dbgmsg(0,"----------")
     elif subcmd == "info":
-        if argc >= 3:
-            if argc == 4:
-                listlevel = int(es.getargv(3))
+        if argc >= 2:
+            if argc >= 3:
+                listlevel = int(args[2])
             else:
                 listlevel = 2
             if exists(seccmd):
@@ -937,94 +940,3 @@ def consolecmd():
             es.dbgmsg(0, "Syntax: xa module info <module-name> [level]")
     else:
         es.dbgmsg(0,"Invalid xa subcommand, see http://python.eventscripts.com/pages/XA for help")
-
-#############################################
-#EventScripts command/menu blocks start here#
-#############################################
-
-def incoming_server():
-    command = es.getargv(0)
-    if command.startswith('ma_'):
-        command = 'xa_'+command[3:]
-    if command in gCommands['perm']:
-        block = gCommands['block'][command]
-        if callable(block):
-            try:
-                block()
-            except:
-                pass
-        else:
-            es.doblock(block)
-
-def incoming_console():
-    userid = es.getcmduserid()
-    command = es.getargv(0)
-    if command.startswith('ma_'):
-        command = 'xa_'+command[3:]
-    if command in gCommands['perm']:
-        if gCommands['perm'][command]:
-            perm = gCommands['perm'][command]
-            auth = services.use("auth")
-            if auth.isUseridAuthorized(userid, perm):
-                block = gCommands['block'][command]
-                if callable(block):
-                    try:
-                        block()
-                    except:
-                        pass
-                else:
-                    es.doblock(block)
-
-def incoming_say():
-    userid = es.getcmduserid()
-    command = es.getargv(0)
-    if command.startswith('ma_'):
-        command = 'xa_'+command[3:]
-    elif command.startswith(str(gSayPrefix)):
-        command = 'xa_'+command[len(str(gSayPrefix)):]
-    if command in gCommands['perm']:
-        if gCommands['perm'][command]:
-            perm = gCommands['perm'][command]
-            auth = services.use("auth")
-            if auth.isUseridAuthorized(userid, perm):
-                block = gCommands['block'][command]
-                if callable(block):
-                    try:
-                        block()
-                    except:
-                        pass
-                else:
-                    es.doblock(block)
-                    
-def incoming_chat(userid, message, teamonly):
-    output = message
-    if output[0] == output[-1:] == '"':
-        output = output[1:-1]
-    command = output.split(' ')[0]
-    if command.startswith('ma_'):
-        command = 'xa_'+command[3:]
-    elif command.startswith(str(gSayPrefix)):
-        command = 'xa_'+command[len(str(gSayPrefix)):]
-    if command in gCommands['chat']:
-        if gCommands['chat'][command] and gCommands['perm'][command]:
-            perm = gCommands['perm'][command]
-            auth = services.use("auth")
-            if auth.isUseridAuthorized(userid, perm):
-                block = gCommands['block'][command]
-                if callable(block):
-                    try:
-                        block()
-                    except:
-                        pass
-                else:
-                    es.doblock(block)
-    return (userid, message, teamonly)
-
-def incoming_menu(userid, choice, name):
-    if choice in gMenus['perm']:
-        if gMenus['perm'][choice]:
-            perm = gMenus['perm'][choice]
-            auth = services.use("auth")
-            if auth.isUseridAuthorized(userid, perm):
-                page = gMenus['page'][choice]
-                page.send(userid)
