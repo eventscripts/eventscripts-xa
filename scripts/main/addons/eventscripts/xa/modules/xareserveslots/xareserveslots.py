@@ -64,9 +64,14 @@ text = xareserveslots.language.getLanguage()
 
 # load the list of reserved players
 if xa.isManiMode():
-    # woot mani mode is on so lets check the mani file
-    maniReservedList = xareserveslots.configparser.getList("cfg/mani_admin_plugin/reserveslots.txt", True)
-xaReservedList = xareserveslots.configparser.getList("reserved_slots_list.txt")  
+    xaReservedList = xareserveslots.configparser.getList("cfg/mani_admin_plugin/reserveslots.txt", True)
+else:
+    xaReservedList = None
+
+if not xaReservedList:
+    xaReservedList = xareserveslots.configparser.getList("reserved_slots_list.txt")
+else:
+    xaReservedList.extend(xareserveslots.configparser.getList("reserved_slots_list.txt"))
 
 try:
     # load the auth service
@@ -87,10 +92,6 @@ def returnReservedStatus(x):
     Checks via various methods if the player x has a reserved slot
      - RETURNS False if they do have one (For playerlib purposes)
     '''
-    if maniReservedList:
-        # if we have a list of reserved players then check x's steam id and return false if they are in the list
-        if x.attributes['steamid'] in maniReservedList:
-            return False
     if xaReservedList:
         # if we have a list of reserved players then check x's steam id and return false if they are in the list
         if x.attributes['steamid'] in xaReservedList:
@@ -105,7 +106,7 @@ def returnReservedStatus(x):
         if auth.isUseridAuthorized(int(x), "use_slot"):
             return False
     return True
-        
+
 def cfg_vars():
     '''
     Register the cfg variables with xa
@@ -227,12 +228,17 @@ def es_map_start(event_var):
     '''
     Reload the reserved lists on map start
     '''
-    global maniReservedList, xaReservedList
+    global xaReservedList
     # load the list of reserved players
     if xa.isManiMode():
-        # woot manit mode is on so lets check the mani file
-        maniReservedList = xareserveslots.configparser.getList("cfg/mani_admin_plugin/reserveslots.txt", True)
-    xaReservedList = xareserveslots.configparser.getList("reserved_slots_list.txt")
+        xaReservedList = xareserveslots.configparser.getList("cfg/mani_admin_plugin/reserveslots.txt", True)
+    else:
+        xaReservedList = None
+    
+    if not xaReservedList:
+        xaReservedList = xareserveslots.configparser.getList("reserved_slots_list.txt")
+    else:
+        xaReservedList.extend(xareserveslots.configparser.getList("reserved_slots_list.txt"))
  
 def player_activate(event_var):
     if xareserveslots.setting.getVariable("reserve_slots"):
