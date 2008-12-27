@@ -5,19 +5,15 @@ import time
 from xa import xa
 
 #######################################
-# MODULE NAME
-# This is the name of the module.
-mymodulename = "xatimeleft"
+# MODULE SETUP
 # Register the module
 # this is a global reference to your module
-mymodule = xa.register(mymodulename)
+xatimeleft = xa.register('xatimeleft')
 
 float_map_start_time = 0
 
 def load():
-    mymodule.logging.log('xatimeleft loaded')
-
-    mymodule.addCommand('timeleft', timeleft_cmd, 'display_timeleft', '#all').register(('console', 'say'))
+    xatimeleft.addCommand('timeleft', timeleft_cmd, 'display_timeleft', '#all').register(('console', 'say'))
 
 
 def es_map_start(event_var):
@@ -28,9 +24,7 @@ def es_map_start(event_var):
 
 def unload():
     """ """
-    mymodule.logging.log('xatimeleft unloaded')
-
-    xa.unregister(mymodule)
+    xatimeleft.unregister()
 
 
 def timeleft_cmd():
@@ -38,7 +32,7 @@ def timeleft_cmd():
       return # No saved time for this map, so return
 
    int_userid = es.getcmduserid()
-   mymodule.logging.log('xatimeleft request by %s (%s)' % (es.getplayersteamid(int_userid), es.getplayername(int_userid)))
+   xatimeleft.logging.log('xatimeleft request by %s (%s)' % (es.getplayersteamid(int_userid), es.getplayername(int_userid)))
 
    float_mp_timelimit = float(es.ServerVar('mp_timelimit')) * 60
    if float_mp_timelimit:

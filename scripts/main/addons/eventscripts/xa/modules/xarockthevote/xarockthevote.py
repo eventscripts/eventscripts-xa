@@ -11,8 +11,8 @@ info = es.AddonInfo()
 info.name       = "Rock the Vote" 
 info.version    = "0.01" 
 info.author     = "[#OMEGA] - K2" 
-info.url        = "http://forums.mattie.info/" 
-info.description    = "Rock the Vote Module for XA." 
+info.url        = "http://forums.mattie.info" 
+info.description    = "Rock the Vote Module for XA" 
 info.tags       = "rock the vote rtv rockthevote" 
 
 ''' 
@@ -40,8 +40,7 @@ Notes:
 
 ''' 
 
-xartvname = "xarockthevote" 
-xartv = xa.register(xartvname) 
+xartv = xa.register('xarockthevote') 
 
 vote_req_setmap_p   = xartv.setting.createVariable('vote_rock_the_vote_percent_required', 60, "Defines the vote percentage required to set map (0 min, 100max)") 
 vote_req_time       = xartv.setting.createVariable('vote_time_before_rock_the_vote', 1, "Time before rockthevote can be started after a new map starts in seconds") #120 
@@ -77,26 +76,24 @@ players = {}
 nominations = {}
 
 def load(): 
-    xartv.logging.log("XA module %s loaded." % xartvname) 
     xartv.addCommand('rtv',rtv,'use_rtv','#unrestricted').register(('say', 'console')) 
     xartv.addCommand('rockthevote',rtv,'use_rtv','#unrestricted').register(('say', 'console')) 
     xartv.addCommand('nominate',nominate,'use_rtv','#unrestricted').register(('say', 'console')) 
     global nomination_popup 
     nomination_popup = popuplib.easymenu('nomination_menu',None, nomination_result) 
-    nomination_popup.settitle("Choose a map to nominate:") 
+    nomination_popup.settitle(lang['choose_map']) 
     maps = read_mapfile() 
     for map in maps: 
-        nomination_popup.addoption(map,map) 
+        nomination_popup.addoption(map,xartv.language.createLanguageString(map)) 
 
 def unload(): 
     gamethread.cancelDelayed('rtv_mapchange')
-    xartv.logging.log("XA module %s is being unloaded." % xartvname) 
     if votelib.isrunning('rockthevote'): 
         votelib.stop('rockthevote') 
     if votelib.exists('rockthevote'): 
         votelib.delete('rockthevote') 
     # Unregister the module 
-    xa.unregister(xartvname) 
+    xartv.unregister() 
 
 def entry(steamid): 
     if not players.has_key(steamid): 
@@ -239,6 +236,10 @@ def read_mapfile():
             maps = xartv.configparser.getList(vote_maplistfile)
     else:
         maps = xartv.configparser.getList(vote_maplistfile, True)
+    if not maps:
+        maps = xartv.configparser.getList('maplist.txt', True)
+    if not maps:
+        maps = xartv.configparser.getList('mapcycle.txt', True)
     if not maps:
         maps = []
     return maps

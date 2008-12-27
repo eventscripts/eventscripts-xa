@@ -4,24 +4,20 @@ import usermsg
 from xa import xa 
 
 ####################################### 
-# MODULE NAME 
-# This is the name of the module. 
-mymodulename = "xarates" 
+# MODULE SETUP 
 # Register the module 
 # this is a global reference to your module 
-mymodule = xa.register(mymodulename) 
+xarates = xa.register('xarates') 
 
 def load():
-    mymodule.logging.log('xarates loaded') 
-    mymodule.addCommand('xa_rates', xarates_cmd, 'display_rates', '#all').register(('console')) 
+    xarates.addCommand('xa_rates', xarates_cmd, 'display_rates', '#all').register('console') 
 
 def unload(): 
-    mymodule.logging.log('xarates unloaded') 
-    xa.unregister('xarates') 
+    xarates.unregister() 
 
 def xarates_cmd(): 
     int_userid = es.getcmduserid() 
-    mymodule.logging.log('xarates request by %s (%s)' % (es.getplayersteamid(int_userid), es.getplayername(int_userid))) 
+    xarates.logging.log('xarates request by %s (%s)' % (es.getplayersteamid(int_userid), es.getplayername(int_userid))) 
     dict_rates = {} 
     longest_name = 4 
     longest_rate = 4 

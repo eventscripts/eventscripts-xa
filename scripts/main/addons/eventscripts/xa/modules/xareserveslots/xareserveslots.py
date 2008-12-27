@@ -1,5 +1,4 @@
 import es
-import services
 import playerlib
 import gamethread
 import os
@@ -10,7 +9,7 @@ info = es.AddonInfo()
 info.name = "Reserve Slots"
 info.version = "1.2.1"
 info.author = "Errant"
-info.url = ""
+info.url = "http://forums.mattie.info"
 info.description = "Clone of Mani's reserve slot feature for XA"
 info.tags = "admin reserve slots kick players XA"
 
@@ -56,9 +55,6 @@ However currently this feature does NOT support the redirect option. IF a server
 # Register the module
 xareserveslots = xa.register("xareserveslots")
 
-# set the gamedir as a constant
-gameDir = str(es.server_var["eventscripts_gamedir"]).replace("\\", "/")
-
 # Get the lang file
 text = xareserveslots.language.getLanguage()
 
@@ -73,13 +69,7 @@ if not xaReservedList:
 else:
     xaReservedList.extend(xareserveslots.configparser.getList("reserved_slots_list.txt"))
 
-try:
-    # load the auth service
-    auth = services.use("auth")
-    # register the capapbility
-    xareserveslots.registerCapability("use_slot", auth.ADMIN)
-except KeyError:
-    auth = None
+xareserveslots.registerCapability("use_slot", "#admin")
 
 # kick delays list
 kick_delays = []
@@ -96,16 +86,14 @@ def returnReservedStatus(x):
         # if we have a list of reserved players then check x's steam id and return false if they are in the list
         if x.attributes['steamid'] in xaReservedList:
             return False
-    if auth:
-        # if the auth service is ok then check it...
-        if xa.isManiMode():
-            # if we have mani mode on we can test for the "N" immunity for reserve slot kick immunity
-            if auth.isUseridAuthorized(int(x), "n", "immunity"):
-                return False
-        # and finally check that they are not on the reserved list
-        if auth.isUseridAuthorized(int(x), "use_slot"):
+
+    if xa.isManiMode():
+        # if we have mani mode on we can test for the "N" immunity for reserve slot kick immunity
+        if xareserveslots.isUseridAuthorized(int(x), "n", "immunity"):
             return False
-    return True
+    # and finally check that they are not on the reserved list
+    if xareserveslots.isUseridAuthorized(int(x), "use_slot"):
+        return False
 
 def cfg_vars():
     '''
@@ -224,7 +212,7 @@ def load():
 def unload():
     for userid in es.getUseridList():
         gamethread.cancelDelayed('res_redirect_%s' % userid)
-    xa.unregister(xareserveslots)
+    xareserveslots.unregister()
    
 def es_map_start(event_var):
     '''
@@ -256,5 +244,3 @@ def player_disconnect(event_var):
     if userid in kick_delays:
         gamethread.cancelDelayed('res_redirect_%s' % userid)
         kick_delays.remove(userid)
-        
-

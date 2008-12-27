@@ -125,7 +125,7 @@ class Admin_lib(object):
                 self._xalibfuncs[name] = Admin_libfunc(self._xalib, self._xalib.__dict__[name], self._xamod)
             return self._xalibfuncs[name]
         else:
-            raise AttributeError
+            raise AttributeError, name
 
 ## Core
 # Admin_module is the module class
@@ -144,32 +144,48 @@ class Admin_module(object):
         self.customPermissions = {}
         self.requiredFrom = []
         self.requiredList = []
+        self.required = 0
         self.variables = {}
-        es.dbgmsg(0, "[eXtensible Admin] Registered module \""+self.name+"\"")
+        self.getCore()
+    def __str__(self):
+        return self.name
     def __getattr__(self, name):
-        if not self._xa:
-            for mod in es.addons.getAddonList():
-                if mod.__name__ == 'xa.xa':
-                    self._xa = mod
+        self.getModule()
         if (name in gImportLibraries) and (self._xa.__dict__.has_key(name)):
             if not name in self._xalibs:
                 self._xalibs[name] = Admin_lib(self._xa.__dict__[name], self)
             return self._xalibs[name]
+        elif (name in gModules) and (name in self.requiredList):
+            for mod in es.addons.getAddonList():
+                if mod.__name__ == 'xa.modules.%s.%s'%(name, name):
+                    if not name in self._xalibs:
+                        self._xalibs[name] = Admin_lib(mod, self)
+                    return self._xalibs[name]
+            raise AttributeError, name
+        elif (self._xamod.__dict__.has_key(name)):
+            return Admin_lib(self._xamod, self).__getattr__(name)
         else:
-            raise AttributeError
-    def __str__(self):
-        return self.name
+            raise AttributeError, name
+    def getAddonInfo(self):
+        self.getModule()
+        for item in self._xamod.__dict__:
+            if isinstance(self._xamod.__dict__[item], es.AddonInfo):
+                return self._xamod.__dict__[item]
+    def getCore(self):
+        if not self._xa:
+            for mod in es.addons.getAddonList():
+                if mod.__name__ == 'xa.xa':
+                    self._xa = mod
+        return self._xa
     def getModule(self):
         if not self._xamod:
             for mod in es.addons.getAddonList():
-                if mod.__name__ == 'xa.xa.modules.'+self.name:
+                if mod.__name__ == 'xa.modules.%s.%s'%(self.name, self.name):
                     self._xamod = mod
         return self._xamod
     def delete(self):
-        unRegister(self.name)
-    def unregister(self):
         unregister(self.name)
-    def unRegister(self):
+    def unregister(self):
         unregister(self.name)
     def addRequirement(self, gModuleList):
         if isinstance(gModuleList, str):
@@ -179,6 +195,7 @@ class Admin_module(object):
         for module in addlist:
             if module in modules():
                 module = find(module)
+                module.required += 1
                 module.requiredFrom.append(self.name)
                 self.requiredList.append(module.name)
     def delRequirement(self, gModuleList):
@@ -189,6 +206,7 @@ class Admin_module(object):
         for module in dellist:
             if exists(module) and (module in self.requiredList):
                 module = find(module)
+                module.required -= 1
                 module.requiredFrom.remove(self.name)
                 self.requiredList.remove(module.name)
     def addCommand(self, command, block, perm, permlvl, descr="eXtensible Admin command", mani=False):
@@ -321,16 +339,16 @@ class Admin_command(object):
             self.console = False
         if "say" in cmdlist and self.say:
             if self.name.startswith('xa_'):
-                cmdlib.unregisterClientCommand(str(gSayPrefix)+self.name[3:])
-            cmdlib.unregisterClientCommand(self.name)
+                cmdlib.unregisterSayCommand(str(gSayPrefix)+self.name[3:])
+            cmdlib.unregisterSayCommand(self.name)
             self.say = False
         if "chat" in cmdlist and self.chat:
             if self.incomingChat in es.addons.SayListeners:
                 es.addons.unregisterSayFilter(self.incomingChat)
             self.chat = False
-    def callBlock(self, args):
+    def callBlock(self, userid, args):
         try:
-            self.block(args)
+            self.block(userid, args)
         except TypeError:
             try:
                 self.block()
@@ -338,13 +356,13 @@ class Admin_command(object):
                 es.doblock(self.block)
     def incomingServer(self, args):
         if self.server:
-            self.callBlock(args)
-    def incomingConsole(self, args):
+            self.callBlock(0, args)
+    def incomingConsole(self, userid, args):
         if self.console:
-            self.callBlock(args)
-    def incomingSay(self, args):
+            self.callBlock(userid, args)
+    def incomingSay(self, userid, args):
         if self.say:
-            self.callBlock(args)
+            self.callBlock(userid, args)
     def incomingChat(self, userid, message, teamonly):
         if self.chat:
             output = message
@@ -356,7 +374,7 @@ class Admin_command(object):
             elif command.startswith(str(gSayPrefix)):
                 command = 'xa_'+command[len(str(gSayPrefix)):]
             if command == self.name and services.use("auth").isUseridAuthorized(userid, self.permission):
-                self.callBlock(cmdlib.cmd_manager.CMDArgs(output.split(' ')[1:] if len(output.split(' ')) > 1 else []))
+                self.callBlock(userid, cmdlib.cmd_manager.CMDArgs(output.split(' ')[1:] if len(output.split(' ')) > 1 else []))
         return (userid, message, teamonly)
     def information(self, listlevel):
         if listlevel >= 1:
@@ -464,14 +482,15 @@ def debug(dbglvl, message):
 
 def register(pModuleid):
     gModules[pModuleid] = Admin_module(pModuleid)
+    es.dbgmsg(0, "[eXtensible Admin] Registered module \""+gModules[pModuleid].name+"\"")
     return gModules[pModuleid]
 
 def unregister(pModuleid):
     if exists(pModuleid):
         module = find(pModuleid)
-        if len(module.requiredFrom) > 0:
+        if module.required:
             es.dbgmsg(0, "[eXtensible Admin] ***********************************")
-            es.dbgmsg(0, "[eXtensible Admin] WARNING! Module \""+module.name+"\" is required by "+str(len(module.requiredFrom)))
+            es.dbgmsg(0, "[eXtensible Admin] WARNING! Module \""+module.name+"\" is required!")
             for submodule in module.requiredFrom:
                 if submodule in modules():
                     es.dbgmsg(0, "[eXtensible Admin] Required by \""+submodule+"\"")
@@ -506,7 +525,7 @@ def find(pModuleid):
 def isRequired(pModuleid):
     """Checks if the module is required by other modules"""
     if exists(pModuleid):
-        return bool(len(find(pModuleid).requiredFrom))
+        return bool(find(pModuleid).required)
 
 def findMenu(pModuleid, pMenuid):
     """Returns the class instance a menu in the named module"""
@@ -556,7 +575,7 @@ def sendMenu(userid=None, choice=10, name=None):
         else:
             gMainMenu[userid].send(userid)
 
-def incomingMenu(self, userid, choice, name):
+def incomingMenu(userid, choice, name):
     for module in modules():
         module = find(module)
         if choice in module.subMenus:
@@ -767,9 +786,8 @@ def load():
 def unload():
     global gMainMenu, gMainCommand, gMainCommandAlternative
     es.dbgmsg(0, "[eXtensible Admin] Begin unloading...")
-    for module in modules():
-        module = find(module)
-        if module.allowAutoUnload == True:
+    for module in sorted(gModules.values(), lambda x, y: cmp(x.required, y.required)*-1):
+        if module.allowAutoUnload:
             for command in module.subCommands:
                 module.subCommands[command].unregister(['console', 'say'])
             for menu in module.subMenus:
@@ -788,8 +806,8 @@ def unload():
     es.dbgmsg(0, "[eXtensible Admin] Finished unloading sequence")
     es.dbgmsg(0, "[eXtensible Admin] Modules will now unregister themself...")
 
-def command(args):
-    if es.getcmduserid():
+def command(userid, args):
+    if userid > 0:
         return sendMenu()
     else:
         argc = len(args)
@@ -894,7 +912,7 @@ def command(args):
                     xseconds += module._xalibs[lib]._xalibfuncs[func]._xalibfuncstats['times']
             statistics.append([str(module.name), xlibs, xfuncs, xcalls, xsubcalls, xseconds])
         es.dbgmsg(0,"---------- List of statistics:")
-        if seccmd.isdigit():
+        if seccmd and seccmd.isdigit():
             sortkey = int(seccmd)
         else:
             sortkey = 5
@@ -915,7 +933,7 @@ def command(args):
         es.dbgmsg(0, "Syntax: xa stats [sort-column]")
     elif subcmd == "list":
         es.dbgmsg(0,"---------- List of modules:")
-        if argc >= 2:
+        if seccmd and seccmd.isdigit():
             listlevel = int(seccmd)
         else:
             listlevel = 0
@@ -929,7 +947,7 @@ def command(args):
         es.dbgmsg(0,"----------")
     elif subcmd == "info":
         if argc >= 2:
-            if argc >= 3:
+            if argc >= 3 and args[2].isdigit():
                 listlevel = int(args[2])
             else:
                 listlevel = 2

@@ -9,18 +9,18 @@ info = es.AddonInfo()
 info.name           = "Sample"
 info.version        = "0.1"
 info.author         = "New Scripter"
-info.url            = "http://forums.mattie.info/"
+info.url            = "http://forums.mattie.info"
 info.description    = "Sample XA Module"
 
 
 #######################################
-# MODULE NAME
-# This is the name of the module.
-# TODO: Change this to your module name.    -- TODO
-mymodulename = "mymodule"
+# MODULE SETUP
 # Register the module
 # this is a global reference to our module
-mymodule = xa.register(mymodulename)
+# This is contains the name of the module.
+# TODO: Change this to your module name.    -- TODO
+# TODO: If possible, change all references of mymodule to your new module name
+mymodule = xa.register("xasample")
 
 
 #######################################
@@ -41,15 +41,13 @@ text = mymodule.language.getLanguage()
 # LOAD AND UNLOAD
 # Formal system registration and unregistration
 def load():
-    mymodule.logging.log("XA module %s loaded." % mymodulename)
     # TODO: Register menu, say, client, or console commands.
     #                                       -- TODO
 
 
 def unload():
-    mymodule.logging.log("XA module %s is being unloaded." % mymodulename)
     # Unregister the module
-    xa.unregister(mymodule)
+    mymodule.unregister()
 
 
 #######################################

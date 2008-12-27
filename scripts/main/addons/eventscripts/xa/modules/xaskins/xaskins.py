@@ -1,16 +1,14 @@
 import es
 import os
-from es import server_var
-from xa.modules.xasettings import xasettings
-from xa import xa
 import popuplib
 import playerlib
+from xa import xa
 
 info = es.AddonInfo()
 info.name           = "Skins"
 info.version        = "0.44"
 info.author         = "Don"
-info.url            = "http://forums.mattie.info/"
+info.url            = "http://forums.mattie.info"
 info.description    = "Skins feature for XA"
 info.tags           = "skins models XA"
 
@@ -20,13 +18,12 @@ skinlist                = {}
 playermenu              = {}
 skins_downloadable      = 1
 if xa.isManiMode():
-    xaskins_skinfiles_path  = server_var['eventscripts_gamedir'] + "/cfg/mani_admin_plugin/skins/"
+    xaskins_skinfiles_path  = xa.gamedir() + "/cfg/mani_admin_plugin/skins/"
 else:
-    xaskins_skinfiles_path  = server_var['eventscripts_gamedir'] + "/cfg/xa/skins/"
+    xaskins_skinfiles_path  = xa.gamedir() + "/cfg/xa/skins/"
 
 # Register XASkins as a xa module
 xaskins                 = xa.register('xaskins')
-xaskins.addRequirement('xasettings')
 # Load strings.ini from the module folder
 xalanguage              = xaskins.language.getLanguage()
 # Register the settings
@@ -52,13 +49,16 @@ def load():
     xaskins.registerCapability("skin_reserved", "#poweruser")
     xaskincommand = xaskins.addCommand("xaskin", _sendmenu, "set_skin", "#all")
     xaskincommand.register(['console', 'server'])
-    xasettings.registerMethod(xaskins, _sendmenu, xalanguage["player skins"])
+    xaskins.addRequirement('xasettings')
+    xaskins.xasettings.registerMethod("xaskins", _sendmenu, xalanguage["player skins"])
     check_if_files_exist()
     if str(es.ServerVar('eventscripts_currentmap')) != "": es_map_start(None)
 
 def unload():
 # This function is called when the script is es_unload-ed
-    xaskins.unRegister()
+    xaskins.xasettings.unregister("xaskins")
+    xaskins.delRequirement("xasettings")
+    xaskins.unregister()
 
 def es_map_start(event_var):
     for i in range(7):
@@ -194,8 +194,8 @@ def findsplit(phrase):
         i-=1
 
 def check_if_files_exist():
-    if not os.path.isdir(server_var['eventscripts_gamedir'] + "/cfg/xa"):
-        os.mkdir(server_var['eventscripts_gamedir'] + "/cfg/xa")
+    if not os.path.isdir(xa.gamedir() + "/cfg/xa"):
+        os.mkdir(xa.gamedir() + "/cfg/xa")
     if not os.path.isdir(xaskins_skinfiles_path):
         os.mkdir(xaskins_skinfiles_path)
     if not os.path.isfile(xaskins_skinfiles_path + 'admin_t.txt'):

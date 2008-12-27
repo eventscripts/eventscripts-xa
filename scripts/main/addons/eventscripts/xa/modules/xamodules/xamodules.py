@@ -35,9 +35,10 @@ def xamodulesmenu_handler(userid,choice,popupid):
     if choice == 'load_module':
         if userid in gMenus['load']:
             gMenus['load'][userid].delete()
-        for module in xa.gModules:
-            if xa.gModules[module].name in gModules:
-                gModules.remove(xa.gModules[module].name)
+        for module in xa.modules():
+            module = xa.find(module)
+            if module.name in gModules:
+                gModules.remove(module.name)
         gMenus['load'][userid] = popuplib.easymenu('xaloadmodule_%s' %userid,None,xaloadmodule_handler)
         gMenus['load'][userid].settitle(xalanguage['load module'])
         for module in gModules:
@@ -48,16 +49,22 @@ def xamodulesmenu_handler(userid,choice,popupid):
             gMenus['unload'][userid].delete()
         gMenus['unload'][userid] = popuplib.easymenu('xaunloadmodule_%s' %userid,None,xaunloadmodule_handler)
         gMenus['unload'][userid].settitle(xalanguage['unload module'])
-        for module in xa.gModules:
-            gMenus['unload'][userid].addoption(module,xamodules.language.createLanguageString(module))
+        for module in xa.modules():
+            try:
+                gMenus['unload'][userid].addoption(module,xamodules.language.createLanguageString(xa.find(module).getAddonInfo().name))
+            except:
+                gMenus['unload'][userid].addoption(module,xamodules.language.createLanguageString(module))
         gMenus['unload'][userid].send(userid)
     elif choice == 'reload_module':
         if userid in gMenus['reload']:
             gMenus['reload'][userid].delete()
         gMenus['reload'][userid] = popuplib.easymenu('xareloadmodule_%s' %userid,None,xareloadmodule_handler)
         gMenus['reload'][userid].settitle(xalanguage['reload module'])
-        for module in xa.gModules:
-            gMenus['reload'][userid].addoption(module,xamodules.language.createLanguageString(module))
+        for module in xa.modules():
+            try:
+                gMenus['reload'][userid].addoption(module,xamodules.language.createLanguageString(xa.find(module).getAddonInfo().name))
+            except:
+                gMenus['reload'][userid].addoption(module,xamodules.language.createLanguageString(module))
         gMenus['reload'][userid].send(userid)
 
 def xaloadmodule_handler(userid,choice,popupid):

@@ -60,7 +60,7 @@ Called automatically when unloading this script
     xabmmenu.delete()
     xabmmenu = None
     
-    xa.unregister(xabotmanagement)
+    xabotmanagement.unregister()
     
 
 def registerDisplay(identifier, updater):

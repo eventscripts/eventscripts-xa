@@ -31,21 +31,21 @@ Provides basic spawn protection and damage reflection
 ''' 
 
 # register module with XA 
-module = xa.register('xaprotect') 
+xaprotect = xa.register('xaprotect') 
 
 # Localization helper: 
-#text = module.language.getLanguage('xaprotect') 
+#text = xaprotect.language.getLanguage('xaprotect') 
 
 # make config vars 
-protect_wound                     = module.setting.createVariable('protect_wound', 1, '1 = ON, 0 = OFF') 
-protect_spawn_protection_time     = module.setting.createVariable('protect_spawn_protection_time', 3, 'The number of seconds to make people invulnerable at spawn (0 = OFF)') 
-protect_spawn_protection_mode     = module.setting.createVariable('protect_spawn_protection_mode', 0, '(1 = Anytime players spawn, 0 = Only at round start)') 
-protect_reflect_damage            = module.setting.createVariable('protect_reflect_damage', 0, '(0 = OFF, 1 = Reflect all damage, 2 = reflect some damage)') 
-protect_reflect_damage_percentage = module.setting.createVariable('protect_reflect_damage_percentage', 10, '(0 to 10: the percentage of damage to reflect)') 
-protect_spawn_slay                = module.setting.createVariable('protect_spawn_slay', 0, 'Slay spawn attackers(0=OFF, 1=ON)') 
-protect_spawn_slay_time           = module.setting.createVariable('protect_spawn_slay_time', 3, '# of seconds after spawning an attacker is slayed for team attacking')    
-protect_teamkill_slay             = module.setting.createVariable('protect_teamkill_slay', 0, 'Slay team killers(0=OFF, 1=ON)') 
-protect_teamattack_slay           = module.setting.createVariable('protect_teamattack_slay', 0, 'Slay team attackers(0=OFF, 1=ON)') 
+protect_wound                     = xaprotect.setting.createVariable('protect_wound', 1, '1 = ON, 0 = OFF') 
+protect_spawn_protection_time     = xaprotect.setting.createVariable('protect_spawn_protection_time', 3, 'The number of seconds to make people invulnerable at spawn (0 = OFF)') 
+protect_spawn_protection_mode     = xaprotect.setting.createVariable('protect_spawn_protection_mode', 0, '(1 = Anytime players spawn, 0 = Only at round start)') 
+protect_reflect_damage            = xaprotect.setting.createVariable('protect_reflect_damage', 0, '(0 = OFF, 1 = Reflect all damage, 2 = reflect some damage)') 
+protect_reflect_damage_percentage = xaprotect.setting.createVariable('protect_reflect_damage_percentage', 10, '(0 to 10: the percentage of damage to reflect)') 
+protect_spawn_slay                = xaprotect.setting.createVariable('protect_spawn_slay', 0, 'Slay spawn attackers(0=OFF, 1=ON)') 
+protect_spawn_slay_time           = xaprotect.setting.createVariable('protect_spawn_slay_time', 3, '# of seconds after spawning an attacker is slayed for team attacking')    
+protect_teamkill_slay             = xaprotect.setting.createVariable('protect_teamkill_slay', 0, 'Slay team killers(0=OFF, 1=ON)') 
+protect_teamattack_slay           = xaprotect.setting.createVariable('protect_teamattack_slay', 0, 'Slay team attackers(0=OFF, 1=ON)') 
 
 class twPlayer(object): 
     def __init__(self, userid): 
@@ -123,7 +123,7 @@ plist = twPHandler()
 def unload():
     for userid in es.getUseridList(): 
         gamethread.cancelDelayed('unprotect_%s'%userid) 
-    xa.unregister('xaprotect')
+    xaprotect.unregister()
     
 def player_team(event_var): 
     if int(event_var["userid"]) not in plist.players and event_var["disconnect"] == "0": 

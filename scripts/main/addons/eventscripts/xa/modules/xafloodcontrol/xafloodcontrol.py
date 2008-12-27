@@ -3,8 +3,6 @@ import langlib
 import os
 import playerlib
 import time
-import xa
-import xa.setting
 from xa import xa
 
 timer = {}
@@ -19,7 +17,7 @@ info.description = "Clone of Mani Flood Control feature for XA"
 info.tags = "admin flood control XA"
 
 xafloodcontrol = xa.register('xafloodcontrol')
-chat_flood_time = xa.setting.createVariable('xafloodcontrol', 'chat_flood_time', '1.5')
+chat_flood_time = xafloodcontrol.setting.createVariable('xafloodcontrol', 'chat_flood_time', '1.5')
 lang_text = None
 
 def floodcontrol(userid, message, teamonly):
@@ -54,7 +52,7 @@ def load():
             es.dbgmsg(0, 'chat_flood_time set to 0, exiting...')
 
 def server_cvar(event_var):
-    if event_var['cvarname'] == xa.setting.getVariableName('chat_flood_time'):
+    if event_var['cvarname'] == xafloodcontrol.setting.getVariableName('chat_flood_time'):
         if event_var['cvarvalue'] == '0':
             if floodcontrol in es.addons.SayListeners:
                 es.addons.unregisterSayFilter(floodcontrol)
@@ -64,9 +62,9 @@ def server_cvar(event_var):
 
 def unload():
     #Unloads XA Flood Control, and unregisteres saylisteners - if registered
-    xa.unregister(xafloodcontrol)
     if floodcontrol in es.addons.SayListeners:
         es.addons.unregisterSayFilter(floodcontrol)
+    xafloodcontrol.unregister()
 
 def es_map_start():
     timer.clear()

@@ -9,28 +9,23 @@ import es
 import gamethread
 import playerlib
 import random
-import services
 from xa import xa
 
 
 #######################################
-# MODULE NAME
-# This is the name of the module.
-
-mymodulename = 'xaobserve'
-
+# MODULE SETUP
 # Register the module
 # this is a global reference to our module
 
-mymodule = xa.register(mymodulename)
+xaobserve = xa.register('xaobserve')
 
 
 #######################################
 # SERVER VARIABLES
 # The list of our server variables
 
-var_allow_chase = mymodule.setting.createVariable('observe_allow_chase', 1, 'xaobserve: 0 = only allow first-person view for dead players, 1 = allow frist-person or chase-cam view for dead players')
-var_spec_delay = mymodule.setting.createVariable('observe_spec_delay', 3, 'xaobserve: Number of seconds after death a player can be spectated')
+var_allow_chase = xaobserve.setting.createVariable('observe_allow_chase', 1, 'xaobserve: 0 = only allow first-person view for dead players, 1 = allow frist-person or chase-cam view for dead players')
+var_spec_delay = xaobserve.setting.createVariable('observe_spec_delay', 3, 'xaobserve: Number of seconds after death a player can be spectated')
 
 
 #######################################
@@ -41,7 +36,6 @@ var_spec_delay = mymodule.setting.createVariable('observe_spec_delay', 3, 'xaobs
 list_delays = []
 dict_dead_players = {}
 dict_team_handles = {2:[], 3:[]}
-auth_service = services.use('auth')
 
 
 #######################################
@@ -53,8 +47,7 @@ def load():
     Logs the module load with XA
     Registers the "observe_opponent" ability with the authorization service
     """
-    mymodule.registerCapability('observe_opponent', auth_service.ADMIN)
-    mymodule.logging.log('XA module %s loaded.' % mymodulename)
+    xaobserve.registerCapability('observe_opponent', '#admin')
     
     round_start({})
 
@@ -64,10 +57,8 @@ def unload():
     Unregisters the module with XA
     Cancels outstanding delays and unregisters client command filter
     """
-    mymodule.logging.log('XA module %s unloaded.' % mymodulename)
-
     # Unregister the module
-    xa.unregister(mymodule)
+    xaobserve.unregister()
 
     cancel_delays()
 
@@ -117,7 +108,7 @@ def player_death(event_var):
         if int_handle in dict_team_handles[int_team]:
             dict_team_handles[int_team].remove(int_handle)
 
-    if not auth_service.isUseridAuthorized(int_userid, 'observe_opponent') and event_var['es_steamid'] <> 'BOT':
+    if not xaobserve.isUseridAuthorized(int_userid, 'observe_opponent') and event_var['es_steamid'] <> 'BOT':
         if not dict_dead_players:
             es.addons.registerClientCommandFilter(client_command_filter)
 

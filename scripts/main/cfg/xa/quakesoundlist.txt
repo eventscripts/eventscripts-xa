@@ -30,16 +30,3 @@
 "unstoppable"	quake/unstoppable.mp3
 "wickedsick"	quake/wickedsick.mp3
 "teamkiller"	quake/teamkiller.mp3
-
-
-
-
-
-
-
-
-
-
-
-
-

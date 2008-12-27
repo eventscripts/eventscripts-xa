@@ -4,7 +4,6 @@ import random
 import gamethread 
 import effectlib 
 import os
-from xa.modules.xapunishments import xapunishments 
 from xa import xa 
 
 info                = es.AddonInfo() 
@@ -15,7 +14,7 @@ info.url            = "http://forums.mattie.info"
 info.description    = "More options for the Punishments feature for XA" 
 info.tags           = "admin punishments players" 
 
-xaextendedpunishments = xa.register('xaextendedpunishments') 
+xaextendedpunishments = xa.register('xaextendedpunishments')
 xalanguage            = xaextendedpunishments.language.getLanguage() 
 
 ####################### 
@@ -48,18 +47,19 @@ else:
 players = {}
 #muted   = []
 
-def load(): 
-    # xapunishments.registerPunishment("punishment", xalanguage["punishment"], _callback_function) 
-    xapunishments.registerPunishment("blind",      xalanguage["blind"]     , _blind      , 1) 
-    xapunishments.registerPunishment("freeze",     xalanguage["freeze"]    , _freeze     , 1) 
-    xapunishments.registerPunishment("gimp",       xalanguage["gimp"]      , _gimp       , 1) 
-    xapunishments.registerPunishment("drug",       xalanguage["drug"]      , _drug       , 1) 
-    xapunishments.registerPunishment("beacon",     xalanguage["beacon"]    , _beacon     , 1) 
-    xapunishments.registerPunishment("noclip",     xalanguage["noclip"]    , _noclip     , 1) 
-    xapunishments.registerPunishment("freezebomb", xalanguage["freezebomb"], _freeze_bomb, 1) 
-    xapunishments.registerPunishment("timebomb",   xalanguage["timebomb"]  , _time_bomb  , 1) 
-    xapunishments.registerPunishment("firebomb",   xalanguage["firebomb"]  , _fire_bomb  , 1)
-    #xapunishments.registerPunishment("mute",       xalanguage["mute"]      , _mute       , 1) 
+def load():
+    xaextendedpunishments.addRequirement('xapunishments')
+    # xaextendedpunishments.xapunishments.registerPunishment("punishment", xalanguage["punishment"], _callback_function) 
+    xaextendedpunishments.xapunishments.registerPunishment("blind",      xalanguage["blind"]     , _blind      , 1) 
+    xaextendedpunishments.xapunishments.registerPunishment("freeze",     xalanguage["freeze"]    , _freeze     , 1) 
+    xaextendedpunishments.xapunishments.registerPunishment("gimp",       xalanguage["gimp"]      , _gimp       , 1) 
+    xaextendedpunishments.xapunishments.registerPunishment("drug",       xalanguage["drug"]      , _drug       , 1) 
+    xaextendedpunishments.xapunishments.registerPunishment("beacon",     xalanguage["beacon"]    , _beacon     , 1) 
+    xaextendedpunishments.xapunishments.registerPunishment("noclip",     xalanguage["noclip"]    , _noclip     , 1) 
+    xaextendedpunishments.xapunishments.registerPunishment("freezebomb", xalanguage["freezebomb"], _freeze_bomb, 1) 
+    xaextendedpunishments.xapunishments.registerPunishment("timebomb",   xalanguage["timebomb"]  , _time_bomb  , 1) 
+    xaextendedpunishments.xapunishments.registerPunishment("firebomb",   xalanguage["firebomb"]  , _fire_bomb  , 1)
+    #xaextendedpunishments.xapunishments.registerPunishment("mute",       xalanguage["mute"]      , _mute       , 1) 
     gamethread.delayedname(1, 'blind_loop', _blind_loop) 
         
 def player_activate(ev): 
@@ -200,7 +200,19 @@ def unload():
     gamethread.cancelDelayed('remove_fire')
     gamethread.cancelDelayed('blind_loop')
     es.addons.unregisterSayFilter(_say_filter)
-    xa.unregister('xaextendedpunishments')
+    # xaextendedpunishments.xapunishments.unregisterPunishment("punishment") 
+    xaextendedpunishments.xapunishments.unregisterPunishment("blind") 
+    xaextendedpunishments.xapunishments.unregisterPunishment("freeze") 
+    xaextendedpunishments.xapunishments.unregisterPunishment("gimp") 
+    xaextendedpunishments.xapunishments.unregisterPunishment("drug") 
+    xaextendedpunishments.xapunishments.unregisterPunishment("beacon") 
+    xaextendedpunishments.xapunishments.unregisterPunishment("noclip") 
+    xaextendedpunishments.xapunishments.unregisterPunishment("freezebomb") 
+    xaextendedpunishments.xapunishments.unregisterPunishment("timebomb") 
+    xaextendedpunishments.xapunishments.unregisterPunishment("firebomb")
+    #xaextendedpunishments.xapunishments.unregisterPunishment("mute")
+    xaextendedpunishments.delRequirement('xapunishments')
+    xaextendedpunishments.unregister()
     
 def getGimpPhrase(): 
     if gimpphrases: 

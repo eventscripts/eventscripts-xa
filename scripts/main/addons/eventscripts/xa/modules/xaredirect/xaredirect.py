@@ -5,30 +5,25 @@ import es
 import gamethread
 import msglib
 import playerlib
-import services
 from xa import xa
 
 
 #######################################
-# MODULE NAME
-# This is the name of the module.
-
-mymodulename = 'xaredirect'
-
+# MODULE SETUP
 # Register the module
 # this is a global reference to our module
 
-mymodule = xa.register(mymodulename)
+xaredirect = xa.register('xaredirect')
 
 
 #######################################
 # SERVER VARIABLES
 # The list of our server variables
 
-var_ip    = mymodule.setting.createVariable('redirect_ip', '127.0.0.1:27015', 'IP players will be redirected to')
-var_delay = mymodule.setting.createVariable('redirect_delay', 15, 'Number of seconds to show redirect prompt')
-var_kick  = mymodule.setting.createVariable('redirect_kick', 0, '0 = do nothing when players choose not to be redirected, 1 = kick players who choose not to be redirected')
-var_count = mymodule.setting.createVariable('redirect_count', 0, 'Number of connected players required to automatically send redirect prompt, 0 = never automatically send redirect prompt')
+var_ip    = xaredirect.setting.createVariable('redirect_ip', '127.0.0.1:27015', 'IP players will be redirected to')
+var_delay = xaredirect.setting.createVariable('redirect_delay', 15, 'Number of seconds to show redirect prompt')
+var_kick  = xaredirect.setting.createVariable('redirect_kick', 0, '0 = do nothing when players choose not to be redirected, 1 = kick players who choose not to be redirected')
+var_count = xaredirect.setting.createVariable('redirect_count', 0, 'Number of connected players required to automatically send redirect prompt, 0 = never automatically send redirect prompt')
 
 
 #######################################
@@ -36,7 +31,7 @@ var_count = mymodule.setting.createVariable('redirect_count', 0, 'Number of conn
 # Initialize our general global data here.
 
 # Localization helper:
-func_lang_text = mymodule.language.getLanguage()
+func_lang_text = xaredirect.language.getLanguage()
 
 # Outstanding kick delays:
 list_delays = []
@@ -50,9 +45,7 @@ def load():
     """
     Registers the xaredirect server, say, and client command
     """
-    mymodule.logging.log('XA module %s loaded.' % mymodulename)
-
-    mymodule.addCommand('xa_redirect', redirect_cmd, 'redirect_client', '#admin').register(('server', 'say', 'console'))
+    xaredirect.addCommand('xa_redirect', redirect_cmd, 'redirect_client', '#admin').register(('server', 'say', 'console'))
 
 
 def unload():
@@ -60,10 +53,7 @@ def unload():
     Unregisters xaredirect with XA
     Calls es_map_start to clear delays
     """
-    mymodule.logging.log('XA module is %s being unloaded.' % mymodulename)
-
-    # Unregister the module
-    xa.unregister(mymodule)
+    xaredirect.unregister()
 
     es_map_start({})
 
@@ -125,7 +115,7 @@ def kick_player(int_userid, str_ip):
     global list_delays
 
     if es.exists('userid', int_userid):
-        if not services.use('auth').isUseridAuthorized(int_userid, 'redirect_client'):
+        if not xaredirect.isUseridAuthorized(int_userid, 'redirect_client'):
             player_kick = playerlib.getPlayer(int_userid)
             player_kick.kick(func_lang_text('kick', {'ip':str_ip}, player_kick.get('lang')))
 

@@ -27,7 +27,7 @@ def load():
 
 def unload():
     popuplib.delete("xasettingmenu")
-    xa.unregister(xasettings)
+    xasettings.unregister()
     
 def _send_menu():
     userid = es.getcmduserid()
@@ -41,7 +41,7 @@ def _select_setting(userid, choice, name):
     if choice in setting_object:
         setting_object[choice].use(userid, name)
 
-class Setting_menu(object):
+class SettingMenu(object):
     def __init__(self, setting, menu, texts):
         self.name = str(setting)
         self.texts = dict(texts)
@@ -64,7 +64,7 @@ class Setting_menu(object):
     def rebuild(self, userid):
         pass
         
-class Setting_method(object):
+class SettingMethod(object):
     def __init__(self, setting, method, texts):
         self.name = str(setting)
         self.texts = dict(texts)
@@ -80,10 +80,14 @@ class Setting_method(object):
     def rebuild(self, userid):
         pass
         
-def registerSubmenu(setting, menu, texts):
+def registerSubmenu(module, setting, menu, texts):
     if not setting in setting_object:
-        setting_object[setting] = Setting_menu(setting, menu, texts)
+        setting_object[setting] = SettingMenu(setting, menu, texts)
 
-def registerMethod(setting, method, texts):
+def registerMethod(module, setting, method, texts):
     if not setting in setting_object:
-        setting_object[setting] = Setting_method(setting, method, texts)
+        setting_object[setting] = SettingMethod(setting, method, texts)
+
+def unregister(module, setting):
+    if setting in setting_object:
+        del setting_object[setting]

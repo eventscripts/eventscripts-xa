@@ -47,8 +47,10 @@ def getVariableName(module, variable = None):
         variable = ("xa_%s"%variable)
     return variable
 
-def getVariables(module = None):
+def getVariables(module = None, submodule = None):
     varlist = []
+    if submodule:
+        module = submodule
     if xa.exists(module):
         module = xa.find(module)
         for variable in sorted(module.variables):

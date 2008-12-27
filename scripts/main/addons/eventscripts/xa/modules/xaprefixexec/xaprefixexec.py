@@ -10,13 +10,10 @@ Executes ./cfg/xa/xaprefixexec/<map prefix>.cfg every map
 
 
 #######################################
-# MODULE NAME
-# This is the name of the module.
-mymodulename = 'xaprefixexec'
-
+# MODULE SETUP
 # Register the module
 # this is a global reference to our module
-mymodule = xa.register(mymodulename)
+xaprefixexec = xa.register('xaprefixexec')
 
 
 #######################################
@@ -36,20 +33,17 @@ def load():
     Loads the path to the .cfg directory in str_dir
     """
     global str_dir
-    mymodule.logging.log('XA module %s loaded.' % mymodulename)
 
     # Ensures .cfg directories exist
-    str_dir = es.ServerVar('eventscripts_gamedir') + '/cfg/xa'
+    str_dir = xa.gamedir() + '/cfg/xa'
     _check_directory(str_dir)
-    str_dir += '/%s' % mymodulename
+    str_dir += '/xaprefixexec'
     _check_directory(str_dir)
 
 
 def unload():
-    mymodule.logging.log('XA module %s is being unloaded.' % mymodulename)
-
     # Unregister the module
-    xa.unregister(mymodule)
+    xaprefixexec.unregister()
 
 
 #######################################
@@ -62,7 +56,7 @@ def es_map_start(event_var):
     if '_' in str_mapname: # No prefix, no .cfg
         str_prefix = str_mapname.split('_')[0]
         if os.path.isfile(str_dir + '/%s.cfg' % str_prefix):
-            es.server.queuecmd('exec xa/%s/%s.cfg' % (mymodulename, str_prefix))
+            es.server.queuecmd('es_xmexec xa/prefixexec/%s.cfg' % str_prefix)
 
 
 def _check_directory(str_dir):

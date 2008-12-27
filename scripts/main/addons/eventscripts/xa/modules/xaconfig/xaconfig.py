@@ -1,5 +1,4 @@
 import es
-import services
 import popuplib
 import langlib
 import random
@@ -9,12 +8,11 @@ info = es.AddonInfo()
 info.name        = "Config"
 info.version     = "0.1"
 info.author      = "Hunter"
-info.url         = "http://forums.mattie.info/cs/forums/index.php"
+info.url         = "http://forums.mattie.info"
 info.description = "Popup interface for XA configuration"
 
 xaconfig = xa.register('xaconfig')
 lang = xaconfig.language.getLanguage()
-auth = services.use('auth')
 menulist = []
 
 def load():
@@ -22,10 +20,9 @@ def load():
     xacmd = xaconfig.addCommand('xa_config', _sendmain, 'change_config', '#root')
     xacmd.register('say')  
 
-    xaconfig.registerCapability("change_config", auth.ROOT)
-    if not int(es.exists('clientcommand','setconfig')):
-        es.regclientcmd('setconfig','xa/modules/xaconfig/inputbox_handle', 'Set config')  
-	
+    xaclientcmd = xaconfig.addCommand('setconfig', _inputbox_handle, 'change_config', '#root', 'Set config')
+    xaclientcmd.register('console')
+
     mainmenu = popuplib.easymenu('xamainconfigmenu',None,_mainmenu_select)
     mainmenu.settitle(lang['main config'])
     mainmenu.addoption('core', lang['core config'])
@@ -38,23 +35,22 @@ def unload():
     for menu in menulist:
         if popuplib.exists(str(menu)): 
             popuplib.delete(str(menu))
-    es.unregclientcmd('setconfig')
-    xa.unregister('xaconfig')
+    xaconfig.unregister()
     
 def _moduleListMenu(userid):
     modulemenu = popuplib.easymenu('xalistmodulemenu_'+str(userid),None,_modulemenu_select)
     modulemenu.settitle(lang['module overview'])
     modulemenu.submenu(mainmenu)
     menulist.append(modulemenu)
-    modulelist = xa.gModules.keys()
-    for module in sorted(modulelist):
-        if len(xa.gModules[str(module)].variables) > 0:
+    for module in sorted(xa.modules()):
+        module = xa.find(module)
+        if len(module.variables) > 0:
             for ll in langlib.getLanguages():
                 modulemenu.addoption(str(module), str(module),1,langlib.getLangAbbreviation(ll))
     return modulemenu
 
 def _variableListMenu(userid, module, parent):
-    varlist = xa.setting.getVariables(module)
+    varlist = xaconfig.setting.getVariables(module)
     varmenu = popuplib.easymenu('xalistsettingmenu_'+str(userid)+'_'+str(module),None,_varmenu_select)
     varmenu.settitle(lang['module variables'])
     varmenu.submenu(parent)
@@ -134,7 +130,7 @@ def _variableEditMenu(userid, module, variable, parent):
 
 def _sendmain():
     userid = es.getcmduserid()
-    if auth.isUseridAuthorized(userid, 'change_config'):
+    if xaconfig.isUseridAuthorized(userid, 'change_config'):
         mainmenu.send(userid)
         
 def _mainmenu_select(userid,choice,popupid):
@@ -156,8 +152,8 @@ def _varmenu_select(userid,choice,popupid):
         parentmenu = popuplib.find(popupid)
         parent = parentmenu._xa[0]
         if str(parent) != 'core':
-            if choice in xa.gModules[str(parent)].variables:
-                var = xa.gModules[str(parent)].variables[choice]
+            if xa.exists(parent) and choice in xa.find(parent).variables:
+                var = xa.find(parent).variables[choice]
                 menu = _variableEditMenu(userid, parent, var, popupid)
                 menu.send(userid)
         else:
@@ -213,7 +209,7 @@ def _changesetting_select(userid,choice,popupid):
         else:
             popuplib.send(popupid, userid)
     elif int(choice) == 9:
-        xa.setting.saveVariables()
+        xaconfig.setting.writeConfiguration()
         parent = popuplib.find(parent)
         if str(module) != 'core':
             newparent = _variableListMenu(userid, module, str(parent._xa[1]))
@@ -229,20 +225,21 @@ def _changesetting_select(userid,choice,popupid):
         newparent.send(userid)
     
 def _setconfig_handle(userid, module, var, parent):
-    if auth.isUseridAuthorized(userid, 'change_config'):
+    if xaconfig.isUseridAuthorized(userid, 'change_config'):
         es.escinputbox(30,userid,"Change '"+str(var.getName())+"' setting"+'\n \nCurrent value: '+str(var)+'\nDefault value: '+str(var._def)+'\n \n'+str(var._descr),'Type in the new value:','setconfig '+str(parent)+' '+str(module)+' '+str(var.getName()))
 
-def inputbox_handle():
+def _inputbox_handle():
     userid = es.getcmduserid()
     count = int(es.getargc())
     if count > 4:
         parent = es.getargv(1)
         if popuplib.exists(parent):
             module = es.getargv(2)
-            if module in xa.gModules:
+            if xa.exists(module):
+                module = xa.find(module)
                 varname = es.getargv(3)
-                if varname in xa.gModules[module].variables:
-                    var = xa.gModules[module].variables[varname]
+                if module and varname in module.variables:
+                    var = module.variables[varname]
                     i = 4
                     newvalue = ''
                     while i < count:

@@ -11,7 +11,7 @@ from xa import xa
 info = es.AddonInfo() 
 info.name     = 'Advert' 
 info.version  = 'oy1b' 
-info.url      = 'http://mattie.info/cs' 
+info.url      = 'http://forums.mattie.info' 
 info.basename = 'xaadvert' 
 info.author   = 'Rio'
 
@@ -23,9 +23,6 @@ colors = {'{RED}': '255 0 0 255', '{BLUE}': '0 0 255 255', '{GREEN}': '0 255 0 2
 
 def load(): 
    global adverts, time_between_advert, adverts_chat_area, adverts_top_left, advert_col_red, advert_col_green, advert_col_blue, advert_dead_only, adverts_bottom_area, xaadvertlist 
-    
-   # log 
-   xaadvert.logging.log("Loaded Advert (mani clone) %s" % (info.version)) 
 
    # make config vars 
    adverts              = xaadvert.setting.createVariable('adverts', 1, 'Turns adverts on or off') 
@@ -48,14 +45,11 @@ def load():
    gamethread.delayedname(time_between_advert, 'adverts', display_advert) 
 
 def unload(): 
-   # unregister module with XA 
-   xa.unregister('xaadvert') 
-    
-   # log 
-   xaadvert.logging.log("UnLoaded Advert (mani clone) %s" % (info.version)) 
-    
    # stop timer 
    gamethread.cancelDelayed('adverts') 
+   
+   # unregister module with XA 
+   xaadvert.unregister() 
     
 def display_advert(): 
    global next_advert 

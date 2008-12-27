@@ -186,8 +186,6 @@ def load():
     ghosting.setting.createVariable('blind_ghosters_when_spectating', '1', "Blind IP Ghosters when they are spectating (1=On, 0=Off)") 
     # create the console command
     ghosting.addCommand('xa_blind_ghoster',blind_con_com,'blind_ghoster','#admin').register(('console','say'))
-    # log what happened
-    ghosting.logging.log("Loaded IP Ghosting (mani clone) V%s" % (info.version))
 
 def player_death(event_var):
     global blinded
@@ -232,6 +230,5 @@ def player_disconnect(event_var):
         remove_from_spec(event_var['userid'])
             
 def unload():
-    ghosting.logging.log("XA module xaipghosting is being unloaded.")
     # Unregister the module
-    xa.unregister(ghosting)
+    ghosting.unregister()

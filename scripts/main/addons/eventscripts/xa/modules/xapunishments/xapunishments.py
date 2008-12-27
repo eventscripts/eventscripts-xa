@@ -2,7 +2,6 @@ import es
 import playerlib
 import popuplib
 import gamethread
-import services
 from xa import xa
 
 #plugin information
@@ -51,22 +50,22 @@ def load():
     xapunishsuremenu.addoption(False, xalanguage["no"])
     xapunishsuremenu.submenu(10, xapunishtargetmenu)
 
-    registerPunishment("burn", xalanguage["burn"], _punishment_burn, 1)
-    registerPunishment("extinguish", xalanguage["extinguish"], _punishment_extinguish, 1)
-    registerPunishment("slap", xalanguage["slap"], _punishment_slap, 1)
-    registerPunishment("slay", xalanguage["slay"], _punishment_slay, 1)
+    xapunishments.registerPunishment("burn", xalanguage["burn"], _punishment_burn, 1)
+    xapunishments.registerPunishment("extinguish", xalanguage["extinguish"], _punishment_extinguish, 1)
+    xapunishments.registerPunishment("slap", xalanguage["slap"], _punishment_slap, 1)
+    xapunishments.registerPunishment("slay", xalanguage["slay"], _punishment_slay, 1)
 
 def unload():
     for userid in es.getUseridList():
         gamethread.cancelDelayed('burn_%s'%userid)
     for punishment in punishment_method:
-        unRegisterPunishment(punishment)
+        xapunishments.unregisterPunishment(punishment)
     popuplib.delete("xapunishmentmenu")
     popuplib.delete("xapunishtargetmenu")
     popuplib.delete("xapunishsuremenu")
     for page in punishment_pmenus:
         page.delete()
-    xa.unregister(xapunishments)
+    xapunishments.unregister()
     
 def _select_punishment(userid, choice, name):
     punishment_choice[userid] = choice
@@ -130,9 +129,8 @@ def _command_player():
                 es.dbgmsg(0, xalanguage("not enough args"))
 
 def _punish_player(userid, punishment, adminid, args = [], force = False):
-    auth = services.use("auth")
-    if (adminid == 0) or auth.isUseridAuthorized(adminid, punishment+"_player") or force:
-        if (not auth.isUseridAuthorized(userid, "immune_"+punishment)) or (userid == adminid) or force:
+    if adminid == 0 or xapunishments.isUseridAuthorized(adminid, punishment+"_player") or force:
+        if (not xapunishments.isUseridAuthorized(userid, "immune_"+punishment)) or (userid == adminid) or force:
             if userid in playerlib.getUseridList("#alive"):
                 if callable(punishment_method[punishment]):
                     xapunishments.logging.log("Player "+es.getplayername(adminid)+ " used punishment "+str(punishment)+" on player "+es.getplayername(userid))
@@ -157,7 +155,7 @@ def _punish_player(userid, punishment, adminid, args = [], force = False):
         es.tell(adminid, xalanguage("not allowed", (), playerlib.getPlayer(adminid).get("lang")))
         return False
 
-def registerPunishment(punishment, name, method, argc = 0):
+def registerPunishment(module, punishment, name, method, argc = 0):
     if not punishment in punishment_method:
         punishment_method[punishment] = method
         punishment_display[punishment] = name
@@ -172,14 +170,17 @@ def registerPunishment(punishment, name, method, argc = 0):
     else:
         return False
     
-def unRegisterPunishment(punishment):
+def unregisterPunishment(module, punishment):
     if punishment in punishment_method:
         xapunishmentmenu = popuplib.find("xapunishmentmenu")
-        xapunishmentmenu.addoption(punishment, punishment_display[punishment], 0)
+        xapunishmentmenu.addoption(punishment, 'Unloaded', 0)
         punishment_method[punishment] = None
-        del punishment_display[punishment]
-        del punishment_argc[punishment]
-        del punishment_cross_ref['xa_'+punishment]
+        try:
+            del punishment_display[punishment]
+            del punishment_argc[punishment]
+            del punishment_cross_ref['xa_'+punishment]
+        except:
+            pass
         return True
     else:
         return False

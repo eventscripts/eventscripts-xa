@@ -14,28 +14,26 @@ psyco.full()
 
 
 #######################################
-# MODULE NAME
-# This is the name of the module.
-mymodulename = 'xarestrict'
+# MODULE SETUP
 # Register the module
 # this is a global reference to our module
-mymodule     = xa.register(mymodulename)
+xarestrict     = xa.register('xarestrict')
 
 
 #######################################
 # SERVER VARIABLES
 # The list of our server variables
 
-repickup      = mymodule.setting.createVariable('restrict_restrict_repickup', '2', 'Number of seconds a weapon will be unavaible for pickup after a restricted player attempts to pick the weapon up')
-removebanned  = mymodule.setting.createVariable('restrict_restrict_removebanned', 1, '0 = no change, 1 = when a player picks up a weapon both team are restricted from the weapon is removed')
-cvar_announce = mymodule.setting.createVariable('restrict_announce', 0, '0 = no change, 1 = players receive a console message when they try to pick up a restricted weapon, 2 = players receive a chat area message when they try to pick up a restricted weapon')
+repickup      = xarestrict.setting.createVariable('restrict_restrict_repickup', '2', 'Number of seconds a weapon will be unavaible for pickup after a restricted player attempts to pick the weapon up')
+removebanned  = xarestrict.setting.createVariable('restrict_restrict_removebanned', 1, '0 = no change, 1 = when a player picks up a weapon both team are restricted from the weapon is removed')
+cvar_announce = xarestrict.setting.createVariable('restrict_announce', 0, '0 = no change, 1 = players receive a console message when they try to pick up a restricted weapon, 2 = players receive a chat area message when they try to pick up a restricted weapon')
 
 
 #######################################
 # GLOBALS
 # Initialize our general global data here.
 # Localization helper:
-lang_text = mymodule.language.getLanguage()
+lang_text = xarestrict.language.getLanguage()
 
 
 ###
@@ -360,10 +358,6 @@ def getWeaponList(weapons):
 ###
 
 
-def load():
-   mymodule.logging.log("XA module %s loaded." % mymodulename)
-
-
 def es_map_start(event_var):
    clearTeamRestrictions()
    clearPlayers()
@@ -396,8 +390,7 @@ def unload():
 
    es.addons.unregisterClientCommandFilter(_buy_restrict)
 
-   mymodule.logging.log("XA module %s is being unloaded." % mymodulename)
-   xa.unregister(mymodule)
+   xarestrict.unregister()
 
 
 ###
@@ -428,7 +421,7 @@ def saferemove_cmd():
 
    else:
       es.dbgmsg(0, 'Syntax: xarestrict_saferemove <index>')
-mymodule.addCommand('xarestrict_saferemove', saferemove_cmd, 'restrict_weapon', '#admin').register('server')
+xarestrict.addCommand('xarestrict_saferemove', saferemove_cmd, 'restrict_weapon', '#admin').register('server')
 
 
 def saferemove(arg_index):
@@ -453,7 +446,7 @@ def removeidle_cmd():
 
    else:
       removeidle()
-mymodule.addCommand('xarestrict_removeidle', removeidle_cmd, 'restrict_weapon', '#admin').register('server')
+xarestrict.addCommand('xarestrict_removeidle', removeidle_cmd, 'restrict_weapon', '#admin').register('server')
 
 
 def removeidle(arg_weapons='#all'):
@@ -483,8 +476,8 @@ def xarestrict_cmd():
 
    else:
       es.dbgmsg(0, 'Syntax: %s <player/team> <weapon 1> [weapon 2] ... [weapon n]' % command_name)
-mymodule.addCommand('xarestrict', xarestrict_cmd, 'restrict_weapon', '#admin').register(('server', 'say', 'console'))
-mymodule.addCommand('xaunrestrict', xarestrict_cmd, 'restrict_weapon', '#admin').register(('server', 'say', 'console'))
+xarestrict.addCommand('xarestrict', xarestrict_cmd, 'restrict_weapon', '#admin').register(('server', 'say', 'console'))
+xarestrict.addCommand('xaunrestrict', xarestrict_cmd, 'restrict_weapon', '#admin').register(('server', 'say', 'console'))
 
 
 def restrict(arg_players, arg_weapons):

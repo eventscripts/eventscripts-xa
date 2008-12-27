@@ -2,30 +2,26 @@
 
 import es
 import playerlib
-import services
 from xa import xa
 
 
 #######################################
-# MODULE NAME
-# This is the name of the module.
-mymodulename = 'xanadespam'
-
+# MODULE SETUP
 # Register the module
 # this is a global reference to our module
-mymodule = xa.register(mymodulename)
+xanadespam = xa.register('xanadespam')
 
 
 #######################################
 # SERVER VARIABLES
 # The list of our server variables
 
-punish_strip = mymodule.setting.createVariable('nadespam_punishment_strip', 0, '0 = do not strip weapons as punishment, 1 = strip weapons as punishment')
-punish_cash  = mymodule.setting.createVariable('nadespam_punishment_cash', 0, '0 = do not remove cash as punishment, 1 = remove cash as punishment')
-punish_slay  = mymodule.setting.createVariable('nadespam_punishment_slay', 0, '0 = do not slay as punishment, 1 = slay as punishment')
-punish_kick  = mymodule.setting.createVariable('nadespam_punishment_kick', 0, '0 = do not kick as punishment, 1 = kick as punishment')
+punish_strip = xanadespam.setting.createVariable('nadespam_punishment_strip', 0, '0 = do not strip weapons as punishment, 1 = strip weapons as punishment')
+punish_cash  = xanadespam.setting.createVariable('nadespam_punishment_cash', 0, '0 = do not remove cash as punishment, 1 = remove cash as punishment')
+punish_slay  = xanadespam.setting.createVariable('nadespam_punishment_slay', 0, '0 = do not slay as punishment, 1 = slay as punishment')
+punish_kick  = xanadespam.setting.createVariable('nadespam_punishment_kick', 0, '0 = do not kick as punishment, 1 = kick as punishment')
 
-dict_grenade_limits = {'hegrenade':mymodule.setting.createVariable('nadespam_limit_he', 1, 'Maximum number of HE grenades players may purchase per round'), 'flashbang':mymodule.setting.createVariable('nadespam_limit_flashbang', 2, 'Maximum number of flashbangs players may purchase per round'), 'smokegrenade':mymodule.setting.createVariable('nadespam_limit_smoke', 1, 'Maximum number of smoke grenades players may purchase per round')}
+dict_grenade_limits = {'hegrenade':xanadespam.setting.createVariable('nadespam_limit_he', 1, 'Maximum number of HE grenades players may purchase per round'), 'flashbang':xanadespam.setting.createVariable('nadespam_limit_flashbang', 2, 'Maximum number of flashbangs players may purchase per round'), 'smokegrenade':xanadespam.setting.createVariable('nadespam_limit_smoke', 1, 'Maximum number of smoke grenades players may purchase per round')}
 
 
 #######################################
@@ -34,27 +30,22 @@ dict_grenade_limits = {'hegrenade':mymodule.setting.createVariable('nadespam_lim
 
 dict_players = {} # Number of each type of grenade a player has purchased
 dict_grenade_names = {'he':'hegrenade', 'fb':'flashbang', 'sg':'smokegrenade'}
-auth_service = services.use('auth')
 
 # Localization helper:
-func_lang_text = mymodule.language.getLanguage()
+func_lang_text = xanadespam.language.getLanguage()
 
 
 #######################################
 # LOAD AND UNLOAD
 # Formal system registration and unregistration
 def load():
-    mymodule.registerCapability('immune_nadespam', auth_service.ADMIN, 'immunity')
-    mymodule.logging.log("XA module %s loaded." % mymodulename)
-
+    xanadespam.registerCapability('immune_nadespam', '#admin', 'immunity')
 
 def unload():
     es.addons.unregisterClientCommandFilter(_cc_filter)
 
-    mymodule.logging.log("XA module %s is being unloaded." % mymodulename)
-
     # Unregister the module
-    xa.unregister(mymodule)
+    xanadespam.unregister()
 
 
 #######################################
@@ -97,7 +88,7 @@ def _cc_filter(userid, args):
         item = args[1].lower().replace('weapon_', '')
         if dict_grenade_limits.has_key(item):
             count = dict_players[userid][item] = dict_players[userid][item] + 1
-            if count > dict_grenade_limits[item] and not auth_service.isUseridAuthorized(userid, 'immune_nadespam'):
+            if count > dict_grenade_limits[item] and not xanadespam.isUseridAuthorized(userid, 'immune_nadespam'):
                 player = playerlib.getPlayer(userid)
                 player_lang = player.get('lang')
                 es.tell(userid, func_lang_text('limit %s' % item, {}, player_lang))

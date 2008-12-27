@@ -5,6 +5,14 @@ import os.path
 import string
 from xa import xa
 
+#plugin information
+info = es.AddonInfo()
+info.name = "Map Management"
+info.version = "1.0"
+info.author = "Unknown"
+info.url = "http://forums.mattie.info"
+info.description = "Map Management for XA"
+
 gActions = {}
 gMapCycle = []
 gCurrentMap = None
@@ -15,7 +23,6 @@ xalanguage = xamapmanagement.language.getLanguage()
 xa_announce_setnextmap = xamapmanagement.setting.createVariable('announce_setnextmap', 1)
 
 nextmapvar = es.ServerVar('eventscripts_nextmapoverride')
-gamedir = str(es.ServerVar('eventscripts_gamedir'))
 
 def load():
     xamapmainmenu = popuplib.easymenu('xamapmainmenu',None,xamapmainmenu_handler)
@@ -29,7 +36,7 @@ def load():
     map_cycle()
 
 def unload():
-    xa.unregister(xamapmanagement)
+    xamapmanagement.unregister()
 
 def es_map_start(event_var):
     global gCurrentMap
@@ -44,7 +51,7 @@ def es_map_start(event_var):
         gCurrentMap = -1
 
 def map_check(mapname):
-    if mapname in gDefaultMaps or os.path.isfile(gamedir + '/maps/%s.bsp' % mapname):
+    if mapname in gDefaultMaps or os.path.isfile(xa.gamedir() + '/maps/%s.bsp' % mapname):
         return True
     else:
         if not mapname.startswith('//') and mapname != '':
@@ -54,7 +61,7 @@ def map_check(mapname):
 def map_menu():
     if popuplib.exists('xamapmenu'):
         popuplib.delete('xamapmenu')
-    maplist_path = gamedir + '/maplist.txt'
+    maplist_path = xa.gamedir() + '/maplist.txt'
     if os.path.isfile(maplist_path):
         mapfile = open(maplist_path, 'r')
         maplist = filter(map_check,map(string.strip,mapfile.readlines()))
@@ -74,7 +81,7 @@ def map_menu():
 def map_cycle():
     global gMapCycle
     gMapCycle = []
-    mapcycle_path = gamedir + '/' + str(es.ServerVar('mapcyclefile'))
+    mapcycle_path = xa.gamedir() + '/' + str(es.ServerVar('mapcyclefile'))
     if os.path.isfile(mapcycle_path):
         mapfile = open(mapcycle_path, 'r')
         gMapCycle = filter(map_check,map(string.strip,mapfile.readlines()))

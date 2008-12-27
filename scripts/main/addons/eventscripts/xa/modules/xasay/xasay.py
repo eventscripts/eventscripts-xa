@@ -1,5 +1,4 @@
 import es
-import services
 import playerlib
 from xa import xa
 
@@ -11,24 +10,22 @@ info = es.AddonInfo()
 info.name           = "Say"
 info.version        = "0.1"
 info.author         = "Mattie"
-info.url            = "http://forums.mattie.info/cs/forums"
+info.url            = "http://forums.mattie.info"
 info.description    = "Handles custom say commands for admins and players."
 
 
 #######################################
-# MODULE NAME
-# This is the name of the module.
-mymodulename = "xasay"
+# MODULE SETUP
 # Register the module
 # this is a global reference to your module
-mymodule = xa.register(mymodulename)
+xasay = xa.register('xasay')
 
 
 #######################################
 # SERVER VARIABLES
 # The list of our my server variables
-say_admin_prefix = mymodule.setting.createVariable('say_admin_prefix', '@', "Prefix for admin chat")
-say_admin_soundfile = mymodule.setting.createVariable('say_admin_soundfile', 'ui/buttonclick.wav', "Determines the sound played with an admin say.")
+say_admin_prefix = xasay.setting.createVariable('say_admin_prefix', '@', "Prefix for admin chat")
+say_admin_soundfile = xasay.setting.createVariable('say_admin_soundfile', 'ui/buttonclick.wav', "Determines the sound played with an admin say.")
 # normal admin say
 # normal
 
@@ -36,9 +33,8 @@ say_admin_soundfile = mymodule.setting.createVariable('say_admin_soundfile', 'ui
 # GLOBALS
 # Initialize our general global data here.
 # Localization helper:
-text = mymodule.language.getLanguage()
+text = xasay.language.getLanguage()
 tree = None
-auth = None
 
 #######################################
 # LOAD AND UNLOAD
@@ -46,21 +42,18 @@ auth = None
 def load():
     global tree, auth
     tree = PrefixCompletionTree()
-    auth = services.use("auth")
     if not saywatcher in es.addons.SayListeners:
         es.addons.registerSayFilter(saywatcher)
 
     playerlib.registerPlayerListFilter("#admin_say", admin_say_filter)
-    registerSayPrefix(str(say_admin_prefix), _admin_say, "admin_say", auth.ADMIN)
+    xasay.registerSayPrefix(str(say_admin_prefix), _admin_say, "admin_say", "#admin")
     # ..
     # ..
-    mymodule.logging.log("XA module %s loaded." % mymodulename)
 
 
 def unload():
-    mymodule.logging.log("XA module is %s being unloaded." % mymodulename)
     # Unregister the module
-    xa.unregister(mymodule)
+    xasay.unregister()
     if saywatcher in es.addons.SayListeners:
         es.addons.unregisterSayFilter(saywatcher)
     playerlib.unregisterPlayerListFilter("#admin_say")
@@ -87,7 +80,7 @@ def saywatcher(userid, message, teamonly):
     text = output[len(word):]
     # we need check if they're authorized for a protected prefix
     if cap:
-      if auth.isUseridAuthorized(userid, cap):
+      if xasay.isUseridAuthorized(userid, cap):
         return func(userid, text, teamonly)
       else:
         # unauthorized, just do nothing
@@ -100,7 +93,7 @@ def saywatcher(userid, message, teamonly):
     return (userid, message, teamonly)
 
 # function to allow people to register their own say filter replacements
-def registerSayPrefix(prefix, command, capability=None, defaultlevel=None):
+def registerSayPrefix(module, prefix, command, capability=None, defaultlevel=None):
   '''
   Allows you to register a prefix string for say commands and a callback.
   Callbacks functions much match a normal say filter. For example:
@@ -114,12 +107,12 @@ def registerSayPrefix(prefix, command, capability=None, defaultlevel=None):
   that capability with the auth service.
   '''
   if defaultlevel and capability:
-    mymodule.registerCapability(capability, defaultlevel)
+    xasay.registerCapability(capability, defaultlevel)
   tree.insert(prefix, command, capability)
 
 # player filter for those with the permissions for admin_say
 def admin_say_filter(x):
-    if auth.isUseridAuthorized(int(x), "admin_say"):
+    if xasay.isUseridAuthorized(int(x), "admin_say"):
       return True
     return False
 

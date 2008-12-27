@@ -17,10 +17,10 @@ def load():
     text = xaobjectives.language.getLanguage()
 
     if es.getgame() != "Counter-Strike: Source":
-        return False
+        raise AttributeError, "Counter-Strike: Source"
 
 def unload():
-    xa.unregister(xaobjectives)
+    xaobjectives.unregister()
 
 def round_end(eventVar):
     if int(slay):

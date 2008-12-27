@@ -3,8 +3,6 @@ import os
 import popuplib
 import playerlib
 import langlib
-import services
-from xa.modules.xasettings import xasettings
 from xa import xa
 
 playerlimit = {}
@@ -14,7 +12,7 @@ info = es.AddonInfo()
 info.name           = "Sounds"
 info.version        = "0.1"
 info.author         = "Hunter"
-info.url            = "http://www.eventscripts.com/"
+info.url            = "http://forums.mattie.info"
 info.description    = "Clone of Mani Sounds feature for XA"
 info.tags           = "admin quake sounds XA"
 
@@ -32,8 +30,6 @@ sounds_filter_if_dead               = xasounds.setting.createVariable('sounds_fi
 sounds_download                     = xasounds.setting.createVariable('sounds_auto_download', '0', '0 = Don\'t auto download files to client, 1 = automatically download files to client')
 sounds_settings                     = xasounds.setting.createVariable('player_settings_sounds', '1', '0 = player settings default to off, 1 = player settings default to on')
 
-auth = services.use("auth")
-
 def load():
     global mainmenu
     mainmenu = popuplib.easymenu('xamainsoundmenu',None,_mainmenu_select)
@@ -45,11 +41,12 @@ def load():
                 mainmenu.addoption(str(sound), str(sound),1,langlib.getLangAbbreviation(ll))
 
     xasounds.addRequirement("xasettings")
-    xasounds.registerCapability('play_adminsound', auth.ADMIN)
+    xasounds.registerCapability('play_adminsound', '#admin')
     xasounds.addMenu('xamainsoundmenu',xalanguage['sounds'],'xamainsoundmenu','play_sound','#all')
-    xasettings.registerMethod(xasounds, _switch_setting, xalanguage["sounds"])
+    xasounds.xasettings.registerMethod("xasounds", _switch_setting, xalanguage["sounds"])
 
 def unload():
+    xasounds.xasettings.unregister("xasounds")
     xasounds.delRequirement("xasettings")
     xa.unregister(xasounds)
 
@@ -101,7 +98,7 @@ def _play_sound(soundfile, soundname, userid):
         playerlimit[userid] = playerlimit[userid] + 1
     else:
         playerlimit[userid] = 1
-    if (playerlimit[userid] < int(sounds_per_round)) or (auth.isUseridAuthorized(userid, "play_adminsound") == True):
+    if (playerlimit[userid] < int(sounds_per_round)) or (xasounds.isUseridAuthorized(userid, "play_adminsound") == True):
         if (int(sounds_filter_if_dead) == 1) and int(player.get('isdead')) == 1:
             useridlist_sound = playerlib.getUseridList('#dead')
         else:

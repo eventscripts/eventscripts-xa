@@ -23,35 +23,34 @@ info                = es.AddonInfo()
 info.name           = "Vote" 
 info.version        = "0.2" 
 info.author         = "freddukes" 
-info.url            = "http://forums.mattie.info/" 
+info.url            = "http://forums.mattie.info" 
 info.description    = "Vote Module for eXtensible Admin"
 
-mymodulename = "xavote" 
-mymodule     = xa.register(mymodulename)
+xavote     = xa.register("xavote")
 
-vote_timer       = mymodule.setting.createVariable('vote_timer',       30,                                "How long in seconds that a vote will last for."      ) 
-vote_start_sound = mymodule.setting.createVariable("vote_start_sound", "ambient/machines/teleport4.wav",  "The sound that will be played when a vote is started") 
-vote_end_sound   = mymodule.setting.createVariable("vote_end_sound",   "ambient/alarms/warningbell1.wav", "The sound that will be played when a vote is ended"  )
-vote_map_file    = mymodule.setting.createVariable("vote_map_file" ,   "maplist.txt",                     "The map file for all of your votes from ../<directory>/\n// e.g, from ../cstrike/"  )
+vote_timer       = xavote.setting.createVariable('vote_timer',       30,                                "How long in seconds that a vote will last for."      ) 
+vote_start_sound = xavote.setting.createVariable("vote_start_sound", "ambient/machines/teleport4.wav",  "The sound that will be played when a vote is started") 
+vote_end_sound   = xavote.setting.createVariable("vote_end_sound",   "ambient/alarms/warningbell1.wav", "The sound that will be played when a vote is ended"  )
+vote_map_file    = xavote.setting.createVariable("vote_map_file" ,   "maplist.txt",                     "The map file for all of your votes from ../<directory>/\n// e.g, from ../cstrike/"  )
 
-xalanguage = mymodule.language.getLanguage()
+xalanguage = xavote.language.getLanguage()
 
 if xa.isManiMode(): 
-    xavotelist     = mymodule.configparser.getList('cfg/mani_admin_plugin/votequestionlist.txt', True)
-    xavoterconlist = mymodule.configparser.getList('cfg/mani_admin_plugin/voterconlist.txt',     True) 
+    xavotelist     = xavote.configparser.getList('cfg/mani_admin_plugin/votequestionlist.txt', True)
+    xavoterconlist = xavote.configparser.getList('cfg/mani_admin_plugin/voterconlist.txt',     True) 
 else: 
-    xavotelist     = mymodule.configparser.getList('votequestionlist.txt')
-    xavoterconlist = mymodule.configparser.getList('voterconlist.txt')
+    xavotelist     = xavote.configparser.getList('votequestionlist.txt')
+    xavoterconlist = xavote.configparser.getList('voterconlist.txt')
     
 def load():
     global vote_list
     xavotemenu = popuplib.easymenu("xavotemenu", "_vote_type", voteOption)
     xavotemenu.settitle(xalanguage["select vote"])
-    mymodule.addMenu("xavotemenu", xalanguage["vote"], "xavotemenu", "start_vote", "#admin")
+    xavote.addMenu("xavotemenu", xalanguage["vote"], "xavotemenu", "start_vote", "#admin")
     
     registerVoteMenu("create"  , xalanguage["create vote"]  , customVote, serverCmdFunction = customVoteCommand)
-    mymodule.addCommand("xa_set_title",   customVoteTitle,     "set_a_title",     "#admin").register("console") 
-    mymodule.addCommand("xa_set_options", customVoteQuestions, "set_vote_option", "#admin").register("console")
+    xavote.addCommand("xa_set_title",   customVoteTitle,     "set_a_title",     "#admin").register("console") 
+    xavote.addCommand("xa_set_options", customVoteQuestions, "set_vote_option", "#admin").register("console")
     
     submenus = []
     if xavoterconlist:
@@ -99,7 +98,7 @@ def load():
 
 def unload():
     gamethread.cancelDelayed('vote_endmap')
-    xa.unregister(mymodule)
+    xavote.unregister()
 
 #################################
 # EVENTS
@@ -138,7 +137,7 @@ def registerVoteMenu(shortName, displayName, returnFunction, submenus=[], server
         vote_list[shortName] = {}
         if serverCmdFunction:
             vote_list[shortName]['commandFunction'] = serverCmdFunction 
-            mymodule.addCommand('xa_' + shortName + 'vote', voteCmd, 'vote_commands', permission).register(('server', 'console'))
+            xavote.addCommand('xa_' + shortName + 'vote', voteCmd, 'vote_commands', permission).register(('server', 'console'))
         vote_list[shortName]['display']  = displayName
         vote_list[shortName]['function'] = returnFunction
         vote_list[shortName]['type']     = 'mainmenu'
@@ -165,7 +164,7 @@ def voteOption(userid, choice, popupid):
 def returnMenu(userid, choice, popupid):
     function = vote_list[choice]['function']
     if callable(function):
-        mymodule.logging.log("Admin "+ es.getplayername(userid)+ " selected vote " + str(choice))
+        xavote.logging.log("Admin "+ es.getplayername(userid)+ " selected vote " + str(choice))
         function(userid, choice)
     else:
         es.dbgmsg(0, "xavote.py: Cannot find method '"+str(function)+"'!")

@@ -5,14 +5,10 @@ from xa import xa
 
 
 #######################################
-# MODULE NAME
-
-# This is the name of the module.
-mymodulename = 'xarcon'
-
+# MODULE SETUP
 # Register the module
 # this is a global reference to our module
-mymodule = xa.register(mymodulename)
+xarcon = xa.register('xarcon')
 
 
 #######################################
@@ -28,19 +24,14 @@ list_map_rcon = []
 # Formal system registration and unregistration
 def load():
     """Registers the xarcon commands"""
-    mymodule.logging.log('XA module %s loaded.' % mymodulename)
-
-    mymodule.addCommand('xa_rcon', rcon_cmd, 'use_rcon', '#root', descr="Appends the command to the end of the queue of server commands to execute").register(('say', 'console'))
-    mymodule.addCommand('xa_rcon_round', rcon_round_cmd, 'use_rcon', '#root', descr="Appends the command to the end of the queue of server commands to execute next round").register(('say', 'console'))
-    mymodule.addCommand('xa_rcon_map', rcon_map_cmd, 'use_rcon', '#root', descr="Appends the command to the end of the queue of server commands to execute next map").register(('say', 'console'))
+    xarcon.addCommand('xa_rcon', rcon_cmd, 'use_rcon', '#root', "Appends the command to the end of the queue of server commands to execute").register(('say', 'console'))
+    xarcon.addCommand('xa_rcon_round', rcon_round_cmd, 'use_rcon', '#root', "Appends the command to the end of the queue of server commands to execute next round").register(('say', 'console'))
+    xarcon.addCommand('xa_rcon_map', rcon_map_cmd, 'use_rcon', '#root', "Appends the command to the end of the queue of server commands to execute next map").register(('say', 'console'))
 
 
 def unload():
     """Unregisters the module with XA"""
-    mymodule.logging.log('XA module %s unloaded.' % mymodulename)
-
-    # Unregister the module
-    xa.unregister(mymodule)
+    xarcon.unregister()
 
 
 #######################################

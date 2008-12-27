@@ -7,8 +7,8 @@ from xa import xa
 info = es.AddonInfo() 
 info.name     = 'High Ping Kicker - XA Module' 
 info.version  = 'oy2' 
-info.url      = 'http://mattie.info/cs' 
-info.basename = 'highpingkick' 
+info.url      = 'http://forums.mattie.info' 
+info.basename = 'xahighpingkick' 
 info.author   = 'SumGuy14 (Aka SoccerDude)'
 
 gInfo = {}
@@ -25,13 +25,11 @@ check         = xahighpingkick.setting.createVariable('ping_check', 10, 'How man
 interval      = xahighpingkick.setting.createVariable('ping_interval', 5, 'How often the players ping is checked, in seconds')
 exceedlimit   = xahighpingkick.setting.createVariable('ping_exceedlimit', 3, 'If the players ping is above the max when checked this many times, player will be kicked')
 
-
 def unload(): 
     for userid in es.getUseridList():
-        loop = repeat.find('hpk_track_' + userid)
-        if loop:
-            loop.delete()
-    xa.unregister(xahighpingkick) 
+        if repeat.status('hpk_track_' + userid) != 0:
+            repeat.find('hpk_track_' + userid).delete()
+    xahighpingkick.unregister() 
 
 def player_activate(event_var):
     userid = event_var['userid']
@@ -46,9 +44,9 @@ def player_disconnect(event_var):
 def tracker(userid, info = None):
     if es.exists('userid',userid):
         ping = es.createplayerlist(userid)[int(userid)]['ping']
-        if ping >= maxping:
+        if maxping and ping >= int(maxping):
             gInfo[userid]+=1
-        if gInfo[userid] >= exceedlimit:
+        if exceedlimit and gInfo[userid] >= int(exceedlimit):
             slowguy = playerlib.getPlayer(userid)
             slowguy.kick(reason=text('kick', {}, slowguy.get('lang')))
     elif info is not None:

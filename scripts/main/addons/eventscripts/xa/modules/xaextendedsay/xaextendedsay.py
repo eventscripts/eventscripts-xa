@@ -1,8 +1,6 @@
 import es
-import services
 import playerlib
 from xa import xa
-from xa.modules.xasay import xasay
 
 info                = es.AddonInfo() 
 info.name           = "xaextendedsay" 
@@ -16,10 +14,9 @@ xaextendedsay = xa.register('xaextendedsay')
 xalanguage    = xaextendedsay.language.getLanguage() 
 
 def load():
-    auth = services.use("auth")
     xaextendedsay.addRequirement("xasay")
-    xasay.registerSayPrefix("@@" , _admin_say_tell, "admin_tell", auth.ADMIN)
-    xasay.registerSayPrefix("@@@", _admin_say_center, "admin_say", auth.ADMIN)
+    xaextendedsay.xasay.registerSayPrefix("@@" , _admin_say_tell, "admin_tell", "#admin")
+    xaextendedsay.xasay.registerSayPrefix("@@@", _admin_say_center, "admin_say", "#admin")
 
 def unload():
     xaextendedsay.delRequirement("xasay")

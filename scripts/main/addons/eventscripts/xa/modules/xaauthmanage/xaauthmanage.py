@@ -15,7 +15,7 @@ info = es.AddonInfo()
 info.name        = "AuthManage"
 info.version     = "0.5"
 info.author      = "HTP w/ thx to freddukes"
-info.url         = "http://forums.mattie.info/cs/forums/index.php"
+info.url         = "http://forums.mattie.info"
 info.description = "Popup interface for Authorization Management"
 
 class connection(object):
@@ -54,10 +54,9 @@ def load():
         """ GroupAuth specific setup """
         global db,gauthmain,groupsmain,newgroup,usermenu,capmain
         db = connection(es.getAddonPath('examples/auth/group_auth') + '/es_group_auth.sqldb')
- 
-        xaauthmanage.registerCapability("manage_auth", auth.ADMIN)  
-        if not int(es.exists('clientcommand','newgroup')):
-            es.regclientcmd('newgroup','xa/modules/xaauthmanage/inputbox_handle', 'Add group')  
+
+        xanewgroupcmd = xaauthmanage.addCommand('newgroup', _inputbox_handle, 'manage_auth', '#admin', 'Add group')
+        xanewgroupcmd.register('console')
 		
         gauthmain = popuplib.easymenu('maingroupauthmenu',None,_gauthmain_select)
         gauthmain.settitle(lang['auth manage'])
@@ -181,7 +180,6 @@ def unload():
             popuplib.delete('groupsusers')
         if int(popuplib.exists('groupcaps')):
             popuplib.delete('groupcaps')
-        es.unregclientcmd('newgroup')
 		
     if int(popuplib.exists('playermenu')):
         popuplib.delete('playermenu')
@@ -413,8 +411,8 @@ def _newgroup_handle(userid,choice,popupid):
     if auth.isUseridAuthorized(userid, 'manage_auth'):
         es.escinputbox(30,userid,'Add a group:\n <groupname- no spaces>, <grouptype>\n -Accepted types (in order of most powerful to least)\n- admin \n  poweruser \n  known \n  all','<groupname> <access level>','newgroup')
 
-def inputbox_handle():
-    es.dbgmsg(1,'*****inputbox_handle')
+def _inputbox_handle():
+    es.dbgmsg(1,'*****_inputbox_handle')
     userid = es.getcmduserid()    
     count = int(es.getargc())
     if count == 3:
