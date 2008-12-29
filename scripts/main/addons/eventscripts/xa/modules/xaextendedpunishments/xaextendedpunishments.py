@@ -152,17 +152,18 @@ def _blind_loop():
             
 def _freeze(userid, adminid, args): 
     player = playerlib.getPlayer(userid) 
-    frozen = int(es.getplayerprop(userid,'CBaseEntity.movetype')) 
     if str(xa_adminfreeze_anonymous) == '0': 
         tokens = {} 
         tokens['admin']   = es.getplayername(adminid) 
         tokens['user']    = es.getplayername(userid) 
         for player in playerlib.getPlayerList(): 
-            tokens['state']   = xalanguage("frozen", lang=player.get("lang")) if frozen != 0 else xalanguage("defrosted", lang=player.get("lang")) 
+            tokens['state']   = xalanguage("frozen", lang=player.get("lang")) if player.get('freeze') == '0' else xalanguage("defrosted", lang=player.get("lang")) 
             es.tell(int(player), xalanguage("admin state", tokens, player.get("lang")))
-    if frozen != 0:
-        es.server.cmd('es_xsetpos %s %s' % (userid, ' '.join(list(es.getplayerlocation(userid))))) # We don't want to hear footsteps
-    gamethread.queue(es.setplayerprop, (userid,'CBaseEntity.movetype','%s'%('0' if frozen != 0 else '2')))
+    if player.get('freeze') == '0':
+        gamethread.queue(player.set, ('noclip', 1))
+        gamethread.queue(player.set, ('freeze', 1))
+    else:
+    		gamethread.queue(player.set, ('freeze', 0))
 
 def _gimp(userid, adminid, args): 
     gimped = players[userid]['gimped'] 
@@ -348,9 +349,10 @@ def _count_down(amount, bombType, userid):
         x,y,z = es.getplayerlocation(userid) 
         for player in es.getUseridList(): 
             xx,yy,zz = es.getplayerlocation(player) 
-            if (((xx - x) ** 2 + (yy - y) ** 2 + (zz-z) ** 2) ** 0.5) <= 300: 
-                frozen = int(es.getplayerprop(player,'CBaseEntity.movetype')) 
-                es.setplayerprop(player,'CBaseEntity.movetype','%s'%('0' if frozen != 0 else '2')) 
+            if (((xx - x) ** 2 + (yy - y) ** 2 + (zz-z) ** 2) ** 0.5) <= 300:
+            		player = playerlib.Player(userid)
+            		gamethread.queue(player.set, ('noclip', 1))
+        				gamethread.queue(player.set, ('freeze', 1))
         players[userid]['freezebombed'] = 0 
     elif bombType == "firebomb": 
         x,y,z = es.getplayerlocation(userid) 
