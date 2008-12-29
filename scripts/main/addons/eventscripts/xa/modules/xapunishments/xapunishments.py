@@ -208,7 +208,8 @@ def _punishment_burn(userid, adminid, args, force):
         tokens['user']    = es.getplayername(userid)
         for user in playerlib.getPlayerList():
             es.tell(user, xalanguage("admin burn", tokens, user.get("lang")))
-    es.server.cmd("es_xfire "+str(userid)+" !self ignite")
+    player = playerlib.getPlayer(userid)
+    player.set('burn')
     if int(burntime) > 0:
         gamethread.delayedname(int(burntime), 'burn_%s'%userid, _punishment_extinguish, (userid, adminid, (), True))
 
@@ -241,7 +242,7 @@ def _punishment_slap(userid, adminid, args, force):
         for user in playerlib.getPlayerList():
             es.tell(int(user), xalanguage("admin slap", tokens, user.get("lang")))
     player = playerlib.getPlayer(userid)
-    player.set("health", int(health))
+    player.set('health', int(health))
 
 def _punishment_slay(userid, adminid, args, force):
     if str(xa_adminslay_anonymous) == '0' and not force:
