@@ -163,7 +163,7 @@ def _freeze(userid, adminid, args):
         gamethread.queue(player.set, ('noclip', 1))
         gamethread.queue(player.set, ('freeze', 1))
     else:
-    		gamethread.queue(player.set, ('freeze', 0))
+        gamethread.queue(player.set, ('freeze', 0))
 
 def _gimp(userid, adminid, args): 
     gimped = players[userid]['gimped'] 
@@ -350,9 +350,9 @@ def _count_down(amount, bombType, userid):
         for player in es.getUseridList(): 
             xx,yy,zz = es.getplayerlocation(player) 
             if (((xx - x) ** 2 + (yy - y) ** 2 + (zz-z) ** 2) ** 0.5) <= 300:
-            		player = playerlib.Player(userid)
-            		gamethread.queue(player.set, ('noclip', 1))
-        				gamethread.queue(player.set, ('freeze', 1))
+                player = playerlib.Player(userid)
+                gamethread.queue(player.set, ('noclip', 1))
+                gamethread.queue(player.set, ('freeze', 1))
         players[userid]['freezebombed'] = 0 
     elif bombType == "firebomb": 
         x,y,z = es.getplayerlocation(userid) 
