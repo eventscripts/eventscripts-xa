@@ -43,6 +43,7 @@ def xamodulesmenu_handler(userid,choice,popupid):
         gMenus['load'][userid].settitle(xalanguage['load module'])
         for module in gModules:
             gMenus['load'][userid].addoption(module,xamodules.language.createLanguageString(module))
+        gMenus['load'][userid].submenu(10, popupid)
         gMenus['load'][userid].send(userid)
     elif choice == 'unload_module':
         if userid in gMenus['unload']:
@@ -54,6 +55,7 @@ def xamodulesmenu_handler(userid,choice,popupid):
                 gMenus['unload'][userid].addoption(module,xamodules.language.createLanguageString(xa.find(module).getAddonInfo().name))
             except:
                 gMenus['unload'][userid].addoption(module,xamodules.language.createLanguageString(module))
+        gMenus['unload'][userid].submenu(10, popupid)
         gMenus['unload'][userid].send(userid)
     elif choice == 'reload_module':
         if userid in gMenus['reload']:
@@ -65,6 +67,7 @@ def xamodulesmenu_handler(userid,choice,popupid):
                 gMenus['reload'][userid].addoption(module,xamodules.language.createLanguageString(xa.find(module).getAddonInfo().name))
             except:
                 gMenus['reload'][userid].addoption(module,xamodules.language.createLanguageString(module))
+        gMenus['reload'][userid].submenu(10, popupid)
         gMenus['reload'][userid].send(userid)
 
 def xaloadmodule_handler(userid,choice,popupid):

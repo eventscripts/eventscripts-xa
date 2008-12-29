@@ -75,6 +75,7 @@ def map_menu():
         maplist = gDefaultMaps
     xamapmenu = popuplib.easymenu('xamapmenu',None,mapmenu_handler)
     xamapmenu.settitle('Choose a map:')
+    xamapmenu.submenu(10, 'xamapmainmenu')
     for mapname in maplist:
         xamapmenu.addoption(mapname,mapname)
 
