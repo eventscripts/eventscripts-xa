@@ -65,7 +65,7 @@ def _variableListMenu(userid, module, parent):
     return varmenu
     
 def _variableCoreListMenu(userid, parent):
-    varlist = xa.gCoreVariables
+    varlist = xa.corevars()
     varmenu = popuplib.easymenu('xalistsettingmenu_'+str(userid)+'_core',None,_varmenu_select)
     varmenu.settitle(lang['core variables'])
     varmenu.submenu(parent)
@@ -157,7 +157,7 @@ def _varmenu_select(userid,choice,popupid):
                 menu = _variableEditMenu(userid, parent, var, popupid)
                 menu.send(userid)
         else:
-            for var in xa.gCoreVariables:
+            for var in xa.corevars():
                 if var.getName() == choice:
                     menu = _variableEditMenu(userid, parent, var, popupid)
                     menu.send(userid)

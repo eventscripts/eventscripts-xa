@@ -36,6 +36,7 @@ info.author = "EventScripts Developers"
 info.url = "http://forums.mattie.info/cs/forums/viewforum.php?f=97"
 info.description = "eXtensible Admin EventScripts Python addon"
 info.basename = "xa"
+es.ServerVar("eventscripts_xa", str(info.version), "eXtensible Admin Version").makepublic()
 
 ##################### ######################################################
 #Variables Section# # PLEASE KEEP IN MIND THAT THOSE VARIABLES ARE PRIVATE #
@@ -43,32 +44,18 @@ info.basename = "xa"
 ##generate import dict
 gImportLibraries = dir()
 ## list of core variables
-gCoreVariables = []
-## Version variable
-gVersion = es.ServerVar("eventscripts_xa", str(info.version), "eXtensible Admin Version")
-gVersion.makepublic()
-## is server logging enabled?
-gLog = es.ServerVar("xa_log", 0, "Activates the module logging")
-gCoreVariables.append(gLog)
-## is XA debugging enabled?
-gDebug = es.ServerVar("xa_debug", 0, "Activates the module/library debugging")
-gCoreVariables.append(gDebug)
-## is XA profiling enabled?
-gDebugProfile = es.ServerVar("xa_debugprofile", 0, "Activates the module/library profiling")
-gCoreVariables.append(gDebugProfile)
-## is Mani compatibility enabled?
-gManiMode = es.ServerVar("xa_manimode", 0, "Is Mani compatibility mode active?")
-gCoreVariables.append(gManiMode)
-## whats the say command prefix?
-gSayPrefix = es.ServerVar("xa_sayprefix", "!", "Say command prefix")
-gCoreVariables.append(gSayPrefix)
-## gMainMenu/gMainCommand/gMainCommandAlternative holds XAs main menu/main command
+gCoreVariables = {}
+gCoreVariables['log']           = es.ServerVar("xa_log", 0, "Activates the module logging")
+gCoreVariables['debug']         = es.ServerVar("xa_debug", 0, "Activates the module/library debugging")
+gCoreVariables['debugprofile']  = es.ServerVar("xa_debugprofile", 0, "Activates the module/library profiling")
+gCoreVariables['manimode']      = es.ServerVar("xa_manimode", 0, "Is Mani compatibility mode active?")
+gCoreVariables['sayprefix']     = es.ServerVar("xa_sayprefix", "!", "Say command prefix")
+## gMainMenu/gMainCommand holds XAs main menu/main command
 gMainMenu = {}
 gMainCommand = None
-gMainCommandAlternative = None
 ## gModules holds all the modules
 gModules = {}
-gModulesLoading = True
+gModulesLoading = False
 
 #################### ######################################################
 #Core Class Section# # PLEASE KEEP IN MIND THAT THOSE CLASSES ARE PRIVATE #
@@ -84,7 +71,7 @@ class Admin_libfunc(object):
         self._xamod = gModule
     def __call__(self, *args, **kw):
         self._xalibfunccalls += 1
-        if int(gDebug) >= 1 or int(gDebugProfile) > 0: #check debug here to be faster
+        if int(gCoreVariables['debug']) >= 1 or int(gCoreVariables['debugprofile']) > 0: #check debug here to be faster
             fn = '%s/xa.prof' % coredir()
             pr = hotshot.Profile(fn)
             re = pr.runcall(self._xalibfunc, *(self._xamod,)+args, **kw)
@@ -92,16 +79,16 @@ class Admin_libfunc(object):
             st = stats.load(fn)
             st.strip_dirs()
             st.sort_stats('time', 'calls')
-            if int(gDebug) >= 2:
+            if int(gCoreVariables['debug']) >= 2:
                 es.dbgmsg(0, '--------------------')
                 es.dbgmsg(0, ('Admin_libfunc %d: __call__(%s.%s [%s], %s, %s)' % (self._xalibfunccalls, str(self._xalib.__name__), str(self._xalibfunc.__name__), str(self._xamod), args, kw)))
                 es.dbgmsg(0, ('Admin_libfunc %d: Profile Statistics' % (self._xalibfunccalls)))
                 st.print_stats(20)
                 es.dbgmsg(0, '--------------------')
-            elif int(gDebug) == 1:
+            elif int(gCoreVariables['debug']) == 1:
                 es.dbgmsg(0, ('Admin_libfunc %d: __call__(%s.%s [%s], %s, %s)' % (self._xalibfunccalls, str(self._xalib.__name__), str(self._xalibfunc.__name__), str(self._xamod), args, kw)))
                 es.dbgmsg(0, ('Admin_libfunc %d: %d calls in %f CPU seconds' % (self._xalibfunccalls, st.total_calls, st.total_tt)))
-            if int(gDebugProfile) > 0:
+            if int(gCoreVariables['debugprofile']) > 0:
                 self._xalibfuncstats['calls'] += st.total_calls
                 self._xalibfuncstats['times'] += st.total_tt
             if os.path.exists(fn):
@@ -119,7 +106,7 @@ class Admin_lib(object):
         self._xamod = gModule
     def __getattr__(self, name):
         self._xalibcalls += 1
-        if int(gDebug) >= 2: #check debug here to be faster
+        if int(gCoreVariables['debug']) >= 2: #check debug here to be faster
             es.dbgmsg(0, ('Admin_lib %d: __getattr__(%s [%s], %s)' % (self._xalibcalls, str(self._xalib.__name__), str(self._xamod), name)))
         if self._xalib.__dict__.has_key(name) and not name.startswith('_'):
             if not name in self._xalibfuncs:
@@ -316,7 +303,7 @@ class Admin_command(object):
             self.console = True
         if "say" in cmdlist and not self.say:
             if self.name.startswith('xa_'):
-                cmdlib.registerSayCommand(str(gSayPrefix)+self.name[3:], self.incomingSay, self.descr, self.permission, self.permissionlevel.replace('#', '').upper().replace('KNOWN', 'IDENTIFIED').replace('ALL', 'UNRESTRICTED'))
+                cmdlib.registerSayCommand(str(gCoreVariables['sayprefix'])+self.name[3:], self.incomingSay, self.descr, self.permission, self.permissionlevel.replace('#', '').upper().replace('KNOWN', 'IDENTIFIED').replace('ALL', 'UNRESTRICTED'))
             cmdlib.registerSayCommand(self.name, self.incomingSay, self.descr, self.permission, self.permissionlevel.replace('#', '').upper().replace('KNOWN', 'IDENTIFIED').replace('ALL', 'UNRESTRICTED'))
             self.say = True
         if "chat" in cmdlist and not self.chat:
@@ -340,7 +327,7 @@ class Admin_command(object):
             self.console = False
         if "say" in cmdlist and self.say:
             if self.name.startswith('xa_'):
-                cmdlib.unregisterSayCommand(str(gSayPrefix)+self.name[3:])
+                cmdlib.unregisterSayCommand(str(gCoreVariables['sayprefix'])+self.name[3:])
             cmdlib.unregisterSayCommand(self.name)
             self.say = False
         if "chat" in cmdlist and self.chat:
@@ -372,8 +359,8 @@ class Admin_command(object):
             command = output.split(' ')[0]
             if command.startswith('ma_'):
                 command = 'xa_'+command[3:]
-            elif command.startswith(str(gSayPrefix)):
-                command = 'xa_'+command[len(str(gSayPrefix)):]
+            elif command.startswith(str(gCoreVariables['sayprefix'])):
+                command = 'xa_'+command[len(str(gCoreVariables['sayprefix'])):]
             if command == self.name and services.use("auth").isUseridAuthorized(userid, self.permission):
                 self.callBlock(userid, cmdlib.cmd_manager.CMDArgs(output.split(' ')[1:] if len(output.split(' ')) > 1 else []))
         return (userid, message, teamonly)
@@ -461,9 +448,8 @@ class Admin_menu(object):
 # Admin_mani is the Mani compatibility helper class
 class Admin_mani(object):
     def __init__(self):
-        global gMainCommandAlternative
-        gMainCommandAlternative = Admin_command("admin", sendMenu, "xa_menu", "#admin")
-        gMainCommandAlternative.register(["console"])
+        self.admincmd = Admin_command("admin", sendMenu, "xa_menu", "#admin")
+        self.admincmd.register(["console"])
 
     def loadModules(self):
         filename = "%s/%s" % (coredir(), 'static/manimodule.txt')
@@ -637,7 +623,7 @@ def xa_exec(pModuleid = None): # be backwards compatible, but just execute gener
     xa_runconfig()
 
 def debug(dbglvl, message):
-    if int(gDebug) >= dbglvl:
+    if int(gCoreVariables['debug']) >= dbglvl:
         es.dbgmsg(0, message)
 
 def register(pModuleid):
@@ -672,6 +658,9 @@ def unregister(pModuleid):
 
 def modules():
     return gModules.keys()
+    
+def corevars():
+    return gCoreVariables.values()
 
 def exists(pModuleid):
     """Checks if the module is registered with XA Core"""
@@ -701,7 +690,7 @@ def findCommand(pModuleid, pCommandid):
 
 def isManiMode():
     """Checks if Mani mode is enabled"""
-    return bool(int(gManiMode))
+    return bool(int(gCoreVariables['manimode']))
 
 def getLevel(permission):
     """Returns the Auth Provider level by name"""
@@ -789,7 +778,7 @@ def load():
     es.dbgmsg(0, "[eXtensible Admin] Finished loading")
 
 def unload():
-    global gMainMenu, gMainCommand, gMainCommandAlternative
+    global gMainMenu, gMainCommand
     es.dbgmsg(0, "[eXtensible Admin] Begin unloading...")
     for module in sorted(gModules.values(), lambda x, y: cmp(x.required, y.required)*-1):
         if module.allowAutoUnload:
@@ -805,9 +794,6 @@ def unload():
     if gMainCommand:
         gMainCommand.unregister(["server", "console", "say"])
         del gMainCommand
-    if gMainCommandAlternative:
-        gMainCommandAlternative.unregister(["console"])
-        del gMainCommandAlternative
     es.dbgmsg(0, "[eXtensible Admin] Finished unloading sequence")
     es.dbgmsg(0, "[eXtensible Admin] Modules will now unregister themself...")
 
@@ -921,14 +907,14 @@ def command(userid, args):
             sortkey = int(seccmd)
         else:
             sortkey = 5
-        if int(gDebugProfile) > 0:
+        if int(gCoreVariables['debugprofile']) > 0:
             sortkey = min(5, sortkey)
         else:
             sortkey = min(3, sortkey)
         sortkey = max(0, sortkey)
         statistics = sorted(statistics, cmp=lambda x,y: cmp(x[sortkey], y[sortkey]))
         statistics.append(['Module', 'Libraries', 'Functions', 'Calls', 'SubCalls', 'CPU seconds'])
-        if int(gDebugProfile) > 0:
+        if int(gCoreVariables['debugprofile']) > 0:
             for stat in reversed(statistics):
                 es.dbgmsg(0,("%-*s"%(18, stat[0]))+" "+("%-*s"%(10, str(stat[1])))+" "+("%-*s"%(10, str(stat[2])))+" "+("%-*s"%(10, str(stat[3])))+" "+("%-*s"%(10, str(stat[4])))+" "+str(stat[5]))
         else:
