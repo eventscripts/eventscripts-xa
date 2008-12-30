@@ -17,7 +17,7 @@ def getList(module, filename, modfolder = False):
         filename = ("%s/cfg/xa/%s" % (xa.gamedir(), filename)).replace("\\", "/")
     else:
         filename = ("%s/%s" % (xa.gamedir(), filename)).replace("\\", "/")
-    if xa.exists(module) and os.path.exists(filename):
+    if os.path.exists(filename):
           lines = []
           try:
               file = open(filename, "rU")
@@ -35,7 +35,7 @@ def getAliasList(module, filename, modfolder = False):
         filename = ("%s/cfg/xa/%s" % (xa.gamedir(), filename)).replace("\\", "/")
     else:
         filename = ("%s/%s" % (xa.gamedir(), filename)).replace("\\", "/")
-    if xa.exists(module) and os.path.exists(filename):
+    if os.path.exists(filename):
         lines = {}
         try:
             file = open(filename, "rU")
@@ -53,7 +53,7 @@ def getKeyList(module, filename, modfolder = False):
         filename = ("%s/cfg/xa/%s" % (xa.gamedir(), filename)).replace("\\", "/")
     else:
         filename = ("%s/%s" % (xa.gamedir(), filename)).replace("\\", "/")
-    if xa.exists(module) and os.path.exists(filename):
+    if os.path.exists(filename):
         kv = keyvalues.KeyValues()
         kv.load(filename)
         return kv

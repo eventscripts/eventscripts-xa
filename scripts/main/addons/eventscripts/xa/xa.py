@@ -447,58 +447,41 @@ class Admin_mani(object):
         self.admincmd.register(['console'])
 
     def loadModules(self):
-        filename = '%s/%s' % (coredir(), 'static/manimodule.txt')
-        if os.path.exists(filename):
-            f = open(filename, 'rU')
-            try:
-                for line in f:
-                    linelist = map(str, line.strip().split('|', 3))
-                    if linelist[0] == '*':
+        module = configparser.getList(self, 'addons/eventscripts/xa/static/manimodule.txt', True)
+        if module:
+            for line in module:
+                linelist = map(str, line.strip().split('|', 3))
+                if linelist[0] == '*':
+                    xa_load(linelist[1])
+                else:
+                    variable = es.ServerVar(linelist[0], 0)
+                    if linelist[2] == str(variable) or linelist[2] == '*':
                         xa_load(linelist[1])
-                    else:
-                        variable = es.ServerVar(linelist[0], 0)
-                        if linelist[2] == str(variable) or linelist[2] == '*':
-                            xa_load(linelist[1])
-                        elif linelist[3] != str(variable) or linelist[3] == '*':
-                            xa_load(linelist[1])
-            finally:
-                f.close()
+                    elif linelist[3] != str(variable) or linelist[3] == '*':
+                        xa_load(linelist[1])
         else:
             raise IOError, 'Could not find xa/static/manimodule.txt!'
 
     def loadVariables(self):
-        filename = '%s/%s' % (coredir(), 'static/maniconfig.txt')
-        if os.path.exists(filename):
-            f = open(filename, 'rU')
-            try:
-                for line in f:
-                    linelist = map(str, line.strip().split('|', 2))
-                    es.ServerVar(linelist[0], linelist[1], linelist[2])
-            finally:
-                f.close()
-            return True
+        config = configparser.getList(self, 'addons/eventscripts/xa/static/maniconfig.txt', True)
+        if config:
+            for line in config:
+                linelist = map(str, line.strip().split('|', 2))
+                es.ServerVar(linelist[0], linelist[1], linelist[2])
         else:
             raise IOError, 'Could not find xa/static/maniconfig.txt!'
 
     def convertClients(self):
-        auth = services.use('auth')
-        if not auth.name in ('group_auth', 'basic_auth'):
-            # Unsupported Auth Provider
-            return False
-
-        filename = '%s/%s' % (coredir(), 'static/manipermission.txt')
-        if os.path.exists(filename):
-            permissions = keyvalues.KeyValues(name='manipermission.txt')
-            permissions.load(filename)
-        else:
+        permissions = configparser.getKeyList(self, 'addons/eventscripts/xa/static/manipermission.txt', True)
+        if not permissions:
             raise IOError, 'Could not find xa/static/manipermission.txt!'
 
-        filename = '%s/%s' % (gamedir(), 'cfg/mani_admin_plugin/clients.txt')
-        if os.path.exists(filename):
-            clients = keyvalues.KeyValues(name='clients.txt')
-            clients.load(filename)
-        else:
-            # Could not find cfg/mani_admin_plugin/clients.txt!
+        auth = services.use('auth')
+        if not auth.name in ('group_auth', 'basic_auth'):
+            return False
+
+        clients = configparser.getKeyList(self, 'cfg/mani_admin_plugin/clients.txt', True)
+        if not clients:
             return False
 
         if not 'players' in clients:
