@@ -45,7 +45,7 @@ def load():
     """
     Registers the xaredirect server, say, and client command
     """
-    xaredirect.addCommand('xa_redirect', redirect_cmd, 'redirect_client', '#admin').register(('server', 'say', 'console'))
+    xaredirect.addCommand('xa_redirect', redirect_cmd, 'redirect_client', 'ADMIN').register(('server', 'say', 'console'))
 
 
 def unload():

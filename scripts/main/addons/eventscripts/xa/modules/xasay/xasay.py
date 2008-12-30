@@ -46,7 +46,7 @@ def load():
         es.addons.registerSayFilter(saywatcher)
 
     playerlib.registerPlayerListFilter("#admin_say", admin_say_filter)
-    xasay.registerSayPrefix(str(say_admin_prefix), _admin_say, "admin_say", "#admin")
+    xasay.registerSayPrefix(str(say_admin_prefix), _admin_say, "admin_say", "ADMIN")
     # ..
     # ..
 

@@ -23,7 +23,7 @@ def load():
     xamodulesmenu.addoption('load_module',xalanguage['load module'])
     xamodulesmenu.addoption('unload_module',xalanguage['unload module'])
     xamodulesmenu.addoption('reload_module',xalanguage['reload module'])
-    xamodules.addMenu('xamodulesmen',xalanguage['module management'],'xamodulesmenu','manage_modules','#root')
+    xamodules.addMenu('xamodulesmen',xalanguage['module management'],'xamodulesmenu','manage_modules','ROOT')
 
 def unload():
     xamodules.unregister()

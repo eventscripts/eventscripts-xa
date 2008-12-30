@@ -41,8 +41,8 @@ def load():
                 mainmenu.addoption(str(sound), str(sound),1,langlib.getLangAbbreviation(ll))
 
     xasounds.addRequirement("xasettings")
-    xasounds.registerCapability('play_adminsound', '#admin')
-    xasounds.addMenu('xamainsoundmenu',xalanguage['sounds'],'xamainsoundmenu','play_sound','#all')
+    xasounds.registerCapability('play_adminsound', 'ADMIN')
+    xasounds.addMenu('xamainsoundmenu',xalanguage['sounds'],'xamainsoundmenu','play_sound','UNRESTRICTED')
     xasounds.xasettings.registerMethod("xasounds", _switch_setting, xalanguage["sounds"])
 
 def unload():

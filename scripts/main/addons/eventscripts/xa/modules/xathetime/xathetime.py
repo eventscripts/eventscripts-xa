@@ -14,7 +14,7 @@ thetime_timezone        = xathetime.setting.createVariable('thetime_timezone', '
 
 def load():
     """ """
-    xathetime.addCommand('thetime', show_time, 'display_thetime', '#all').register(('console', 'say'))
+    xathetime.addCommand('thetime', show_time, 'display_thetime', 'UNRESTRICTED').register(('console', 'say'))
 
 
 def unload():

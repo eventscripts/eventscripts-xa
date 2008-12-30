@@ -15,8 +15,8 @@ xalanguage    = xaextendedsay.language.getLanguage()
 
 def load():
     xaextendedsay.addRequirement("xasay")
-    xaextendedsay.xasay.registerSayPrefix("@@" , _admin_say_tell, "admin_tell", "#admin")
-    xaextendedsay.xasay.registerSayPrefix("@@@", _admin_say_center, "admin_say", "#admin")
+    xaextendedsay.xasay.registerSayPrefix("@@" , _admin_say_tell, "admin_tell", "ADMIN")
+    xaextendedsay.xasay.registerSayPrefix("@@@", _admin_say_center, "admin_say", "ADMIN")
 
 def unload():
     xaextendedsay.delRequirement("xasay")

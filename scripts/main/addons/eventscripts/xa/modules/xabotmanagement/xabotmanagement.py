@@ -30,7 +30,7 @@ Called automatically when loading this script
     global xabmmenu
     xabmmenu = popuplib.easymenu("xabotmanagementmenu", None, _select_action)
     xabmmenu.settitle(xalanguage["bot management"])
-    xabotmanagement.addMenu("xabotmanagementmenu", xalanguage["manage bots"], "xabotmanagementmenu", "manage_bots", "#admin")
+    xabotmanagement.addMenu("xabotmanagementmenu", xalanguage["manage bots"], "xabotmanagementmenu", "manage_bots", "ADMIN")
     
     xabmmenu.prepuser = _menu_update_display
     

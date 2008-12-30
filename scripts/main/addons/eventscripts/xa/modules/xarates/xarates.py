@@ -10,7 +10,7 @@ from xa import xa
 xarates = xa.register('xarates') 
 
 def load():
-    xarates.addCommand('xa_rates', xarates_cmd, 'display_rates', '#all').register('console') 
+    xarates.addCommand('xa_rates', xarates_cmd, 'display_rates', 'UNRESTRICTED').register('console') 
 
 def unload(): 
     xarates.unregister() 

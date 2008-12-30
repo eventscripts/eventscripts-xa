@@ -39,7 +39,7 @@ func_lang_text = xanadespam.language.getLanguage()
 # LOAD AND UNLOAD
 # Formal system registration and unregistration
 def load():
-    xanadespam.registerCapability('immune_nadespam', '#admin', 'immunity')
+    xanadespam.registerCapability('immune_nadespam', 'ADMIN', 'IMMUNITY')
 
 def unload():
     es.addons.unregisterClientCommandFilter(_cc_filter)

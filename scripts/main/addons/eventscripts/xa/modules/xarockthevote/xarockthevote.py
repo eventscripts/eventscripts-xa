@@ -76,9 +76,9 @@ players = {}
 nominations = {}
 
 def load(): 
-    xartv.addCommand('rtv',rtv,'use_rtv','#unrestricted').register(('say', 'console')) 
-    xartv.addCommand('rockthevote',rtv,'use_rtv','#unrestricted').register(('say', 'console')) 
-    xartv.addCommand('nominate',nominate,'use_rtv','#unrestricted').register(('say', 'console')) 
+    xartv.addCommand('rtv',rtv,'use_rtv','UNRESTRICTED').register(('say', 'console')) 
+    xartv.addCommand('rockthevote',rtv,'use_rtv','UNRESTRICTED').register(('say', 'console')) 
+    xartv.addCommand('nominate',nominate,'use_rtv','UNRESTRICTED').register(('say', 'console')) 
     global nomination_popup 
     nomination_popup = popuplib.easymenu('nomination_menu',None, nomination_result) 
     nomination_popup.settitle(lang['choose_map']) 

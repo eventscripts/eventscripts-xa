@@ -21,8 +21,8 @@ def load():
     #Load Function for Player Settings for XA.    
     xasettingmenu = popuplib.easymenu("xasettingmenu", "_tempcore", _select_setting)
     xasettingmenu.settitle(xalanguage["player settings"])
-    xasettings.addMenu("xasettingmenu", xalanguage["player settings"], "xasettingmenu", "change_playersetting", "#all")
-    xacommand = xasettings.addCommand("settings", _send_menu, "change_playersetting", "#all")
+    xasettings.addMenu("xasettingmenu", xalanguage["player settings"], "xasettingmenu", "change_playersetting", "UNRESTRICTED")
+    xacommand = xasettings.addCommand("settings", _send_menu, "change_playersetting", "UNRESTRICTED")
     xacommand.register(["console","say"])
 
 def unload():

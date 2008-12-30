@@ -421,7 +421,7 @@ def saferemove_cmd():
 
    else:
       es.dbgmsg(0, 'Syntax: xarestrict_saferemove <index>')
-xarestrict.addCommand('xarestrict_saferemove', saferemove_cmd, 'restrict_weapon', '#admin').register('server')
+xarestrict.addCommand('xarestrict_saferemove', saferemove_cmd, 'restrict_weapon', 'ADMIN').register('server')
 
 
 def saferemove(arg_index):
@@ -446,7 +446,7 @@ def removeidle_cmd():
 
    else:
       removeidle()
-xarestrict.addCommand('xarestrict_removeidle', removeidle_cmd, 'restrict_weapon', '#admin').register('server')
+xarestrict.addCommand('xarestrict_removeidle', removeidle_cmd, 'restrict_weapon', 'ADMIN').register('server')
 
 
 def removeidle(arg_weapons='#all'):
@@ -476,8 +476,8 @@ def xarestrict_cmd():
 
    else:
       es.dbgmsg(0, 'Syntax: %s <player/team> <weapon 1> [weapon 2] ... [weapon n]' % command_name)
-xarestrict.addCommand('xarestrict', xarestrict_cmd, 'restrict_weapon', '#admin').register(('server', 'say', 'console'))
-xarestrict.addCommand('xaunrestrict', xarestrict_cmd, 'restrict_weapon', '#admin').register(('server', 'say', 'console'))
+xarestrict.addCommand('xarestrict', xarestrict_cmd, 'restrict_weapon', 'ADMIN').register(('server', 'say', 'console'))
+xarestrict.addCommand('xaunrestrict', xarestrict_cmd, 'restrict_weapon', 'ADMIN').register(('server', 'say', 'console'))
 
 
 def restrict(arg_players, arg_weapons):

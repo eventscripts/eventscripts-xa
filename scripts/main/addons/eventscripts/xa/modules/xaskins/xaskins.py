@@ -45,9 +45,9 @@ xaplayerdata_public_ct_skin      = xaskins.playerdata.createUserSetting("public_
 def load():
 # This function is called when the script is es_load-ed
     # Register client console and server command
-    xaskins.registerCapability("skin_admin", "#admin")
-    xaskins.registerCapability("skin_reserved", "#poweruser")
-    xaskincommand = xaskins.addCommand("xaskin", _sendmenu, "set_skin", "#all")
+    xaskins.registerCapability("skin_admin", "ADMIN")
+    xaskins.registerCapability("skin_reserved", "POWERUSER")
+    xaskincommand = xaskins.addCommand("xaskin", _sendmenu, "set_skin", "UNRESTRICTED")
     xaskincommand.register(['console', 'server'])
     xaskins.addRequirement('xasettings')
     xaskins.xasettings.registerMethod("xaskins", _sendmenu, xalanguage["player skins"])

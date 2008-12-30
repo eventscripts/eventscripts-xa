@@ -46,11 +46,11 @@ def load():
     global vote_list
     xavotemenu = popuplib.easymenu("xavotemenu", "_vote_type", voteOption)
     xavotemenu.settitle(xalanguage["select vote"])
-    xavote.addMenu("xavotemenu", xalanguage["vote"], "xavotemenu", "start_vote", "#admin")
+    xavote.addMenu("xavotemenu", xalanguage["vote"], "xavotemenu", "start_vote", "ADMIN")
     
     registerVoteMenu("create"  , xalanguage["create vote"]  , customVote, serverCmdFunction = customVoteCommand)
-    xavote.addCommand("xa_set_title",   customVoteTitle,     "set_a_title",     "#admin").register("console") 
-    xavote.addCommand("xa_set_options", customVoteQuestions, "set_vote_option", "#admin").register("console")
+    xavote.addCommand("xa_set_title",   customVoteTitle,     "set_a_title",     "ADMIN").register("console") 
+    xavote.addCommand("xa_set_options", customVoteQuestions, "set_vote_option", "ADMIN").register("console")
     
     submenus = []
     if xavoterconlist:
@@ -132,7 +132,7 @@ def voteCmd():
         else:
             commandFunction()
     
-def registerVoteMenu(shortName, displayName, returnFunction, submenus=[], serverCmdFunction=None, permission='#admin'):
+def registerVoteMenu(shortName, displayName, returnFunction, submenus=[], serverCmdFunction=None, permission='ADMIN'):
     if not vote_list.has_key(shortName):
         vote_list[shortName] = {}
         if serverCmdFunction:

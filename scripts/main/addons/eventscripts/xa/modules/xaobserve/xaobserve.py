@@ -47,7 +47,7 @@ def load():
     Logs the module load with XA
     Registers the "observe_opponent" ability with the authorization service
     """
-    xaobserve.registerCapability('observe_opponent', '#admin')
+    xaobserve.registerCapability('observe_opponent', 'ADMIN')
     
     round_start({})
 

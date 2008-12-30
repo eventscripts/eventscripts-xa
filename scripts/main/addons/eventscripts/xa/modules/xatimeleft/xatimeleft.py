@@ -13,7 +13,7 @@ xatimeleft = xa.register('xatimeleft')
 float_map_start_time = 0
 
 def load():
-    xatimeleft.addCommand('timeleft', timeleft_cmd, 'display_timeleft', '#all').register(('console', 'say'))
+    xatimeleft.addCommand('timeleft', timeleft_cmd, 'display_timeleft', 'UNRESTRICTED').register(('console', 'say'))
 
 
 def es_map_start(event_var):

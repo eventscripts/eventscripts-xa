@@ -24,9 +24,9 @@ list_map_rcon = []
 # Formal system registration and unregistration
 def load():
     """Registers the xarcon commands"""
-    xarcon.addCommand('xa_rcon', rcon_cmd, 'use_rcon', '#root', "Appends the command to the end of the queue of server commands to execute").register(('say', 'console'))
-    xarcon.addCommand('xa_rcon_round', rcon_round_cmd, 'use_rcon', '#root', "Appends the command to the end of the queue of server commands to execute next round").register(('say', 'console'))
-    xarcon.addCommand('xa_rcon_map', rcon_map_cmd, 'use_rcon', '#root', "Appends the command to the end of the queue of server commands to execute next map").register(('say', 'console'))
+    xarcon.addCommand('xa_rcon', rcon_cmd, 'use_rcon', 'ROOT', "Appends the command to the end of the queue of server commands to execute").register(('say', 'console'))
+    xarcon.addCommand('xa_rcon_round', rcon_round_cmd, 'use_rcon', 'ROOT', "Appends the command to the end of the queue of server commands to execute next round").register(('say', 'console'))
+    xarcon.addCommand('xa_rcon_map', rcon_map_cmd, 'use_rcon', 'ROOT', "Appends the command to the end of the queue of server commands to execute next map").register(('say', 'console'))
 
 
 def unload():

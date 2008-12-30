@@ -154,7 +154,7 @@ def load():
     xastatsmenu.addoption('resetall',text['resetall'])
     xastatsmenu.addoption('importmani',text['importmani'])
 
-    xastats.addMenu("xastatsmenu",text['menu'],'xastatsmenu','manage_stats','#admin')
+    xastats.addMenu("xastatsmenu",text['menu'],'xastatsmenu','manage_stats','ADMIN')
 
     sessionTable = SessionTable(False)
     statTable = SessionTable(True)
@@ -165,14 +165,14 @@ def load():
         sessionTable.add(each)
         statTable.add(each)
 
-    xastats.addCommand('xa_rank',rankPlayer,'stat_rank','#unrestricted').register(('say', 'console')) 
-    xastats.addCommand('xa_session',statPopup,'stat_session','#unrestricted').register(('say', 'console')) 
-    xastats.addCommand('xa_statsme',statPopup,'stat_statsme','#unrestricted').register(('say', 'console'))
-    xastats.addCommand('xa_stats',statPopup,'stat_statsme','#unrestricted').register(('say', 'console'))
-    xastats.addCommand('xa_top',viewTop,'stat_top','#unrestricted').register(('say', 'console'))
-    xastats.addCommand('xa_hitboxme',hitboxPopup,'stat_hitboxme','#unrestricted').register(('say', 'console'))
+    xastats.addCommand('xa_rank',rankPlayer,'stat_rank','UNRESTRICTED').register(('say', 'console')) 
+    xastats.addCommand('xa_session',statPopup,'stat_session','UNRESTRICTED').register(('say', 'console')) 
+    xastats.addCommand('xa_statsme',statPopup,'stat_statsme','UNRESTRICTED').register(('say', 'console'))
+    xastats.addCommand('xa_stats',statPopup,'stat_statsme','UNRESTRICTED').register(('say', 'console'))
+    xastats.addCommand('xa_top',viewTop,'stat_top','UNRESTRICTED').register(('say', 'console'))
+    xastats.addCommand('xa_hitboxme',hitboxPopup,'stat_hitboxme','UNRESTRICTED').register(('say', 'console'))
 
-    #xastats.addCommand('xa_mani',maniWrapper,'stat_mani','#admin').register(('console',))
+    #xastats.addCommand('xa_mani',maniWrapper,'stat_mani','ADMIN').register(('console',))
 
 
     thread.start_new_thread(statTable.sortTable, () )

@@ -185,7 +185,7 @@ def load():
     # Option to blind people who are speccing
     ghosting.setting.createVariable('blind_ghosters_when_spectating', '1', "Blind IP Ghosters when they are spectating (1=On, 0=Off)") 
     # create the console command
-    ghosting.addCommand('xa_blind_ghoster',blind_con_com,'blind_ghoster','#admin').register(('console','say'))
+    ghosting.addCommand('xa_blind_ghoster',blind_con_com,'blind_ghoster','ADMIN').register(('console','say'))
 
 def player_death(event_var):
     global blinded

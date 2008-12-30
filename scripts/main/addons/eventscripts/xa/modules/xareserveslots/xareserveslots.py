@@ -25,7 +25,7 @@ However currently this feature does NOT support the redirect option. IF a server
  * Fixed small syntax error in logging.log()
  * Fixed call to an old method (in check_player) which changed name in 1.1.0 
  -- 1.2.0 --
- * [Nato]Hunter converted this module to use the new api for xa methods
+ * Hunter converted this module to use the new api for xa methods
  -- 1.1.1 -- 
  * Mani file now loaded with xa.configparser (Yay Hunter)
  -- 1.1.0 --
@@ -69,7 +69,7 @@ if not xaReservedList:
 else:
     xaReservedList.extend(xareserveslots.configparser.getList("reserved_slots_list.txt"))
 
-xareserveslots.registerCapability("use_slot", "#admin")
+xareserveslots.registerCapability("use_slot", "ADMIN")
 
 # kick delays list
 kick_delays = []

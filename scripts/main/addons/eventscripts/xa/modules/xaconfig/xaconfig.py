@@ -17,10 +17,10 @@ menulist = []
 
 def load():
     global menulist,mainmenu
-    xacmd = xaconfig.addCommand('xa_config', _sendmain, 'change_config', '#root')
+    xacmd = xaconfig.addCommand('xa_config', _sendmain, 'change_config', 'ROOT')
     xacmd.register('say')  
 
-    xaclientcmd = xaconfig.addCommand('setconfig', _inputbox_handle, 'change_config', '#root', 'Set config')
+    xaclientcmd = xaconfig.addCommand('setconfig', _inputbox_handle, 'change_config', 'ROOT', 'Set config')
     xaclientcmd.register('console')
 
     mainmenu = popuplib.easymenu('xamainconfigmenu',None,_mainmenu_select)
@@ -28,7 +28,7 @@ def load():
     mainmenu.addoption('core', lang['core config'])
     mainmenu.addoption('module', lang['module config'])
     menulist.append(mainmenu)
-    xaconfig.addMenu('xamainconfigmenu',lang['xa menu choice'],'xamainconfigmenu','change_config','#root')
+    xaconfig.addMenu('xamainconfigmenu',lang['xa menu choice'],'xamainconfigmenu','change_config','ROOT')
 	
 def unload():
     global menulist

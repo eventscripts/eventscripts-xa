@@ -34,7 +34,7 @@ def load():
     #Load Function for Player Settings for XA.
     xapunishmentmenu = popuplib.easymenu("xapunishmentmenu", "_tempcore", _select_punishment)
     xapunishmentmenu.settitle(xalanguage["choose punishment"])
-    xapunishments.addMenu("xapunishmentmenu", xalanguage["punish players"], "xapunishmentmenu", "punish_player", "#admin")
+    xapunishments.addMenu("xapunishmentmenu", xalanguage["punish players"], "xapunishmentmenu", "punish_player", "ADMIN")
     
     xapunishtargetmenu = popuplib.easymenu("xapunishtargetmenu", "_tempcore", _select_target)
     xapunishtargetmenu.settitle(xalanguage["choose target"])
@@ -163,9 +163,9 @@ def registerPunishment(module, punishment, name, method, argc = 0):
         punishment_cross_ref['xa_'+punishment] = punishment
         xapunishmentmenu = popuplib.find("xapunishmentmenu")
         xapunishmentmenu.addoption(punishment, name, 1)
-        xapunishments.registerCapability("immune_"+punishment, "#admin", "immunity")
+        xapunishments.registerCapability("immune_"+punishment, "ADMIN", "IMMUNITY")
         if punishment_argc[punishment] > 0:
-            xapunishments.addCommand('xa_'+punishment, _command_player, punishment+"_player", "#admin", name["en"]+" punishment", True).register(('say', 'console','server'))
+            xapunishments.addCommand('xa_'+punishment, _command_player, punishment+"_player", "ADMIN", name["en"]+" punishment", True).register(('say', 'console','server'))
         return True
     else:
         return False
