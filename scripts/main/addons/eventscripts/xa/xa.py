@@ -68,6 +68,7 @@ gMainCommand = None
 gMainCommandAlternative = None
 ## gModules holds all the modules
 gModules = {}
+gModulesLoading = True
 
 #################### ######################################################
 #Core Class Section# # PLEASE KEEP IN MIND THAT THOSE CLASSES ARE PRIVATE #
@@ -457,150 +458,11 @@ class Admin_menu(object):
             es.dbgmsg(0, "  Permission:   "+str(self.permission))
             es.dbgmsg(0, "  Perm-level:   "+str(self.permissionlevel))
 
-###########################
-#Module methods start here#
-###########################
-def xa_load(pModuleid):
-    es.load("xa/modules/%s" % pModuleid)
-
-def xa_unload(pModuleid):
-    es.unload("xa/modules/%s" % pModuleid)
-    
-def xa_reload(pModuleid):
-    gamethread.queue(xa_unload, (pModuleid,))
-    gamethread.queue(xa_load, (pModuleid,))
-
-def xa_runconfig():
-    setting.executeConfiguration()
-
-def xa_exec(pModuleid = None): # be backwards compatible, but just execute general module config
-    xa_runconfig()
-
-def debug(dbglvl, message):
-    if int(gDebug) >= dbglvl:
-        es.dbgmsg(0, message)
-
-def register(pModuleid):
-    gModules[pModuleid] = Admin_module(pModuleid)
-    es.dbgmsg(0, "[eXtensible Admin] Registered module \""+gModules[pModuleid].name+"\"")
-    return gModules[pModuleid]
-
-def unregister(pModuleid):
-    if exists(pModuleid):
-        module = find(pModuleid)
-        if module.required:
-            es.dbgmsg(0, "[eXtensible Admin] ***********************************")
-            es.dbgmsg(0, "[eXtensible Admin] WARNING! Module \""+module.name+"\" is required!")
-            for submodule in module.requiredFrom:
-                if submodule in modules():
-                    es.dbgmsg(0, "[eXtensible Admin] Required by \""+submodule+"\"")
-                else:
-                    module.requiredFrom.remove(submodule)
-            es.dbgmsg(0, "[eXtensible Admin] ***********************************")
-        for submodule in module.requiredList:
-            if submodule in modules():
-                submodule.requiredFrom.remove(module.name)
-                module.requiredList.remove(module)
-        for command in module.subCommands:
-            module.delCommand(command)
-        for menu in module.subMenus:
-            module.delMenu(menu)
-        es.dbgmsg(0, "[eXtensible Admin] Unregistered module \""+module.name+"\"")
-        del gModules[module.name]
-    else:
-        es.dbgmsg(0,"Xa.py: Cannot unregister module \""+pModuleid+"\", it is not registered")
-
-def modules():
-    return gModules.keys()
-
-def exists(pModuleid):
-    """Checks if the module is registered with XA Core"""
-    return (str(pModuleid) in modules())
-
-def find(pModuleid):
-    """Returns the class instance of the named module"""
-    if exists(pModuleid):
-        return gModules[str(pModuleid)]
-
-def isRequired(pModuleid):
-    """Checks if the module is required by other modules"""
-    if exists(pModuleid):
-        return bool(find(pModuleid).required)
-
-def findMenu(pModuleid, pMenuid):
-    """Returns the class instance a menu in the named module"""
-    if exists(pModuleid):
-        if pMenuid in find(pModuleid).subMenus:
-            return find(pModuleid).subMenus[pMenuid]
-
-def findCommand(pModuleid, pCommandid):
-    """Returns the class instance a command in the named module"""
-    if exists(pModuleid):
-        if pCommandid in find(pModuleid).subCommands:
-            return find(pModuleid).subCommands[pCommandid]
-
-def isManiMode():
-    """Checks if Mani mode is enabled"""
-    return bool(int(gManiMode))
-
-def getLevel(permission):
-    """Returns the Auth Provider level by name"""
-    try:
-        return int(permission)
-    except ValueError:
-        try:
-            return services.use('auth').__getattribute__(permission.replace('#', '').upper().replace('KNOWN', 'IDENTIFIED').replace('ALL', 'UNRESTRICTED'))
-        except:
-            return services.use('auth').ROOT
-
-def sendMenu(userid=None, choice=10, name=None):
-    """Shows the main menu to the specified player"""
-    if choice != 10:
-        return None
-    if userid:
-        userid = int(userid)
-    elif es.getcmduserid():
-        userid = int(es.getcmduserid())
-    if userid and (es.exists("userid", userid)):
-        gMainMenu[userid] = popuplib.easymenu("_xa_mainmenu_"+str(userid), None, incomingMenu)
-        gMainMenu[userid].settitle(language.createLanguageString("eXtensible Admin"))
-        gMainMenu[userid].vguititle = "eXtensible Admin"
-        for module in modules():
-            module = find(module)
-            for page in module.subMenus:
-                if module.subMenus[page] and services.use("auth").isUseridAuthorized(userid, module.subMenus[page].permission):
-                    gMainMenu[userid].addoption(page, module.subMenus[page].display, 1)
-        if popuplib.isqueued(gMainMenu[userid].name, userid):
-            gMainMenu[userid].update(userid)
-        else:
-            gMainMenu[userid].send(userid)
-
-def incomingMenu(userid, choice, name):
-    for module in modules():
-        module = find(module)
-        if choice in module.subMenus:
-            if module.subMenus[choice] and services.use("auth").isUseridAuthorized(userid, module.subMenus[choice].permission):
-                module.subMenus[choice].menuobj.send(userid)
-
-def addondir():
-    return str(es.ServerVar('eventscripts_addondir')).replace("\\", "/")
-
-def gamedir():
-    return str(es.ServerVar('eventscripts_gamedir')).replace("\\", "/")
-
-def coredir():
-    return str(es.getAddonPath('xa')).replace("\\", "/")
-
-def moduledir(pModuleid):
-    return str('%smodules/%s' % (es.getAddonPath('xa'), pModuleid)).replace("\\", "/")
-
-##############################################
-#Mani compatibility helper methods start here#
-##############################################
+# Admin_mani is the Mani compatibility helper class
 class Admin_mani(object):
     def __init__(self):
         global gMainCommandAlternative
-        gMainCommandAlternative = Admin_command("admin", sendMenu, "xa_menu", services.use("auth").UNRESTRICTED)
+        gMainCommandAlternative = Admin_command("admin", sendMenu, "xa_menu", "#admin")
         gMainCommandAlternative.register(["console"])
 
     def loadModules(self):
@@ -615,11 +477,9 @@ class Admin_mani(object):
                     else:
                         variable = es.ServerVar(linelist[0], 0)
                         if linelist[2] == str(variable) or linelist[2] == "*":
-                            if not es.exists("script", "xa/modules/"+linelist[2]):
-                                xa_load(linelist[1])
+                            xa_load(linelist[1])
                         elif linelist[3] != str(variable) or linelist[3] == "*":
-                            if not es.exists("script", "xa/modules/"+linelist[2]):
-                                xa_load(linelist[1])
+                            xa_load(linelist[1])
             finally:
                 f.close()
         else:
@@ -754,12 +614,152 @@ class Admin_mani(object):
                 es.server.cmd(cmd)
             es.dbgmsg(0, "[eXtensible Admin] Finished Mani setup for Group Auth")
 
+###########################
+#Module methods start here#
+###########################
+def xa_load(pModuleid):
+    if gModulesLoading:
+        es.load("xa/modules/%s" % pModuleid)
+
+def xa_unload(pModuleid):
+    if gModulesLoading:
+        es.unload("xa/modules/%s" % pModuleid)
+
+def xa_reload(pModuleid):
+    if gModulesLoading:
+        gamethread.queue(xa_unload, (pModuleid,))
+        gamethread.queue(xa_load, (pModuleid,))
+
+def xa_runconfig():
+    setting.executeConfiguration()
+
+def xa_exec(pModuleid = None): # be backwards compatible, but just execute general module config
+    xa_runconfig()
+
+def debug(dbglvl, message):
+    if int(gDebug) >= dbglvl:
+        es.dbgmsg(0, message)
+
+def register(pModuleid):
+    gModules[pModuleid] = Admin_module(pModuleid)
+    es.dbgmsg(0, "[eXtensible Admin] Registered module \""+gModules[pModuleid].name+"\"")
+    return gModules[pModuleid]
+
+def unregister(pModuleid):
+    if exists(pModuleid):
+        module = find(pModuleid)
+        if module.required:
+            es.dbgmsg(0, "[eXtensible Admin] ***********************************")
+            es.dbgmsg(0, "[eXtensible Admin] WARNING! Module \""+module.name+"\" is required!")
+            for submodule in module.requiredFrom:
+                if submodule in modules():
+                    es.dbgmsg(0, "[eXtensible Admin] Required by \""+submodule+"\"")
+                else:
+                    module.requiredFrom.remove(submodule)
+            es.dbgmsg(0, "[eXtensible Admin] ***********************************")
+        for submodule in module.requiredList:
+            if submodule in modules():
+                submodule.requiredFrom.remove(module.name)
+                module.requiredList.remove(module)
+        for command in module.subCommands:
+            module.delCommand(command)
+        for menu in module.subMenus:
+            module.delMenu(menu)
+        es.dbgmsg(0, "[eXtensible Admin] Unregistered module \""+module.name+"\"")
+        del gModules[module.name]
+    else:
+        es.dbgmsg(0,"Xa.py: Cannot unregister module \""+pModuleid+"\", it is not registered")
+
+def modules():
+    return gModules.keys()
+
+def exists(pModuleid):
+    """Checks if the module is registered with XA Core"""
+    return (str(pModuleid) in modules())
+
+def find(pModuleid):
+    """Returns the class instance of the named module"""
+    if exists(pModuleid):
+        return gModules[str(pModuleid)]
+
+def isRequired(pModuleid):
+    """Checks if the module is required by other modules"""
+    if exists(pModuleid):
+        return bool(find(pModuleid).required)
+
+def findMenu(pModuleid, pMenuid):
+    """Returns the class instance a menu in the named module"""
+    if exists(pModuleid):
+        if pMenuid in find(pModuleid).subMenus:
+            return find(pModuleid).subMenus[pMenuid]
+
+def findCommand(pModuleid, pCommandid):
+    """Returns the class instance a command in the named module"""
+    if exists(pModuleid):
+        if pCommandid in find(pModuleid).subCommands:
+            return find(pModuleid).subCommands[pCommandid]
+
+def isManiMode():
+    """Checks if Mani mode is enabled"""
+    return bool(int(gManiMode))
+
+def getLevel(permission):
+    """Returns the Auth Provider level by name"""
+    try:
+        return int(permission)
+    except ValueError:
+        try:
+            return services.use('auth').__getattribute__(permission.replace('#', '').upper().replace('KNOWN', 'IDENTIFIED').replace('ALL', 'UNRESTRICTED'))
+        except:
+            return services.use('auth').ROOT
+
+def sendMenu(userid=None, choice=10, name=None):
+    """Shows the main menu to the specified player"""
+    if choice != 10:
+        return None
+    if userid:
+        userid = int(userid)
+    elif es.getcmduserid():
+        userid = int(es.getcmduserid())
+    if userid and (es.exists("userid", userid)):
+        gMainMenu[userid] = popuplib.easymenu("_xa_mainmenu_"+str(userid), None, incomingMenu)
+        gMainMenu[userid].settitle(language.createLanguageString("eXtensible Admin"))
+        gMainMenu[userid].vguititle = "eXtensible Admin"
+        for module in modules():
+            module = find(module)
+            for page in module.subMenus:
+                if module.subMenus[page] and services.use("auth").isUseridAuthorized(userid, module.subMenus[page].permission):
+                    gMainMenu[userid].addoption(page, module.subMenus[page].display, 1)
+        if popuplib.isqueued(gMainMenu[userid].name, userid):
+            gMainMenu[userid].update(userid)
+        else:
+            gMainMenu[userid].send(userid)
+
+def incomingMenu(userid, choice, name):
+    for module in modules():
+        module = find(module)
+        if choice in module.subMenus:
+            if module.subMenus[choice] and services.use("auth").isUseridAuthorized(userid, module.subMenus[choice].permission):
+                module.subMenus[choice].menuobj.send(userid)
+
+def addondir():
+    return str(es.ServerVar('eventscripts_addondir')).replace("\\", "/")
+
+def gamedir():
+    return str(es.ServerVar('eventscripts_gamedir')).replace("\\", "/")
+
+def coredir():
+    return str(es.getAddonPath('xa')).replace("\\", "/")
+
+def moduledir(pModuleid):
+    return str('%smodules/%s' % (es.getAddonPath('xa'), pModuleid)).replace("\\", "/")
+
 ###########################################
 #EventScripts events and blocks start here#
 ###########################################
 
 def load():
-    global gMainMenu, gMainCommand
+    global gMainMenu, gMainCommand, gModulesLoading
     es.dbgmsg(0, "[eXtensible Admin] Second loading part...")
     if not services.isRegistered('auth'):
         es.dbgmsg(0, "[eXtensible Admin] WARNING! Auth Provider required!")
@@ -767,9 +767,11 @@ def load():
         es.load('examples/auth/basic_auth')
     gMainCommand = Admin_command("xa", command, "xa_menu", "#all")
     gMainCommand.register(["server", "console", "say"])
+    gModulesLoading = False
     es.dbgmsg(0, "[eXtensible Admin] Executing xa.cfg...")
     es.server.cmd('es_xmexec xa.cfg')
     es.dbgmsg(0, "[eXtensible Admin] Mani mode enabled = "+str(isManiMode()))
+    gModulesLoading = True
     if isManiMode():
         ma = Admin_mani()
         es.dbgmsg(0, "[eXtensible Admin] Executing mani_server.cfg...")
@@ -777,6 +779,9 @@ def load():
         es.server.cmd("exec mani_server.cfg")
         ma.loadModules()
         ma.convertClients()
+    es.dbgmsg(0, "[eXtensible Admin] Third loading part...")
+    es.dbgmsg(0, "[eXtensible Admin] Executing xa.cfg...")
+    es.server.cmd('es_xmexec xa.cfg')
     es.dbgmsg(0, "[eXtensible Admin] Executing xamodules.cfg...")
     setting.executeConfiguration()
     es.dbgmsg(0, "[eXtensible Admin] Updating xamodules.cfg...")
