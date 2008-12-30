@@ -40,11 +40,12 @@ def getVariable(module, variable):
     return False
 
 def getVariableName(module, variable = None):
-    variable = variable.replace("xa_", "")
-    if es.exists("variable", "mani_"+variable):
-        variable = ("mani_%s"%variable)
+    if str(variable).startswith('xa_'):
+        variable = str(variable)[3:]
+    if es.exists("variable", "mani_%s" % variable):
+        variable = ("mani_%s" % variable)
     else:
-        variable = ("xa_%s"%variable)
+        variable = ("xa_%s" % variable)
     return variable
 
 def getVariables(module = None, submodule = None):
