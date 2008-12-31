@@ -68,7 +68,7 @@ def _stringEditMenu(userid, module, key, parent):
     menulist.append(changestring)
     for ll in langlib.getLanguages():
         lang = langlib.getLangAbbreviation(ll)
-        changestring.addoption(str(lang), xalanguage.language.createLanguageString('%s = %s' % (lang, keylist(key, lang))))
+        changestring.addoption(str(lang), xalanguage.language.createLanguageString('%s = %s' % (lang, keylist(key, {}, lang))))
     return changestring
 
 def _sendmain():
@@ -110,7 +110,6 @@ def _setconfig_handle(userid, module, key, lang, parent):
         es.tell(userid, '#green', xalang('press esc', playerlib.getPlayer(userid).get('lang')))
 
 def _inputbox_handle():
-    print es.getargs()
     userid = es.getcmduserid()
     count = int(es.getargc())
     if count > 5:
@@ -138,12 +137,12 @@ def _inputbox_handle():
                         es.tell(userid, '#green', xalang('string warning', playerlib.getPlayer(userid).get('lang')))
                     else:
                         newvalue = langlist[str(module)](key, lang)
-                    es.esctextbox(10, userid, "Changed '"+str(keylist(key, lang))+"' string", "Changed '%s' to '%s'\nThe language menu is open again.\nPress [ESC] a second time." %(keylist(key, lang),newvalue))
-                    menu = _stringEditMenu(userid, module, key, parent)
-                    menu.send(userid)
                     try:
                         langlist[str(module)] = module.language.getLanguage()
                     except IOError:
                         pass
+                    es.esctextbox(10, userid, "Changed '"+str(keylist(key, lang))+"' string", "Changed '%s' to '%s'\nThe language menu is open again.\nPress [ESC] a second time." %(keylist(key, lang),newvalue))
+                    menu = _stringEditMenu(userid, module, key, parent)
+                    menu.send(userid)
     else:
         es.esctextbox(10, userid, "Invalid Entry", "<string>")

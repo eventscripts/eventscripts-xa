@@ -81,7 +81,7 @@ class Player:
             self.createdata('Killed',self.KilledPlayers)
         if args:
             type = xalang(args[0],self.lang)
-            killer = '%s %s'%(type,xalang('HeadShot',self.lang)) if args[1] else type
+            killer = '%s %s'%(type,xalang('HeadShot',{},self.lang)) if args[1] else type
             self.Data['Killer'] = [xalang('%sText'%args[0],{'killertype':killer,'name':args[2],'weapon':args[3],'distance':args[4],'health':args[5]},self.lang)]
         if self.setting in [1,2]:
             for x in ['Attacker','Wounded','Killed','Killer']:
@@ -126,7 +126,7 @@ class Player:
                         type = 'Gui%sPlus'%name if name == 'Killed' and kills > enemies else 'Gui%s'%name
                         text = xalang(type,{'total_enemies':enemies,'enemies':xalang(enemytype,self.lang),'total_kills':kills,'killtype':xalang(killtype,self.lang),'total_dmg':self.Totals[name].damage,'total_hits':hits,'hittype':xalang(hittype,self.lang)},self.lang)
                     else:
-                        text = xalang('No%s'%name,self.lang)
+                        text = xalang('No%s'%name,{},self.lang)
                     main_popup.addline(text)
                     main_popup.addline(' ')
                     popupid.addline(text)
@@ -161,7 +161,7 @@ class Player:
             if type == 'Killed' and player.kills > 1:
                 text = xalang('KillsText',{'type':addtype,'name':name,'kills':player.kills,'damage':player.damage,'hits':player.hits,'hittype':hittype},self.lang)
             else:
-                newtype = '%s %s'%(addtype,xalang('HeadShot',self.lang)) if type == 'Killed' and player.headshot else addtype
+                newtype = '%s %s'%(addtype,xalang('HeadShot',{},self.lang)) if type == 'Killed' and player.headshot else addtype
                 text = xalang('MainText',{'type':newtype,'name':name,'damage':player.damage,'hits':player.hits,'hittype':hittype},self.lang)
                 newtext = xalang('WeaponText',{'text':text,'weapon':player.weapon,'distance':player.distance},self.lang) if type == 'Killed' else text
                 text = gui2(newtext,addtype) if self.setting > 2 else newtext
@@ -325,11 +325,11 @@ def sendmenu(userid = False):
     player = PlayerList[str(userid)]
     userlang = player.lang
     victimstatsmenu = popuplib.easymenu('victimstatsmenu','victimstatsmenu_choice',select)
-    victimstatsmenu.settitle(xalang('Victim Stats Options',userlang))
+    victimstatsmenu.settitle(xalang('Victim Stats Options',{},userlang))
     for x in xavictimstats_menu:
         y = xavictimstats_menu[x]
         z = xalang(y,userlang)
-        z = '%s    [%s]'%(z,xalang('current',userlang)) if x == player.setting else z
+        z = '%s    [%s]'%(z,xalang('current',{},userlang)) if x == player.setting else z
         victimstatsmenu.addoption(x, z)
     victimstatsmenu.send(userid)
 
