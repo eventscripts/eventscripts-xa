@@ -97,10 +97,21 @@ def getLanguage(module, file = None):
         filename = "%s/modules/%s/%s.ini" % (xa.coredir(), module, file)
     else:
         filename = "%s/modules/%s/strings.ini" % (xa.coredir(), module)
+    if os.path.exists(filename.replace('.ini', '.custom.ini')):
+        customlangobj = langlib.Strings(filename.replace('.ini', '.custom.ini'))
+    else:
+        customlangobj = None
     if os.path.exists(filename):
         langobj = langlib.Strings(filename)
-        for key in langobj:
-            langobj[key] = LanguageDict(key, langobj[key])
-        return langobj
     else:
         raise IOError, "Could not find %s!" % filename
+    if langobj and customlangobj:
+        for key in customlangobj:
+            if key in langobj:
+                langobj[key].update(customlangobj[key])
+            else:
+                langobj[key] = customlangobj[key]
+    if langobj:
+        for key in langobj:
+            langobj[key] = LanguageDict(key, langobj[key])
+    return langobj

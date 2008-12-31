@@ -624,15 +624,17 @@ def unregister(pModuleid):
             es.dbgmsg(0, '[eXtensible Admin] ***********************************')
             es.dbgmsg(0, '[eXtensible Admin] WARNING! Module "%s" is required!' % module.name)
             for submodule in module.requiredFrom:
-                if submodule in modules():
-                    es.dbgmsg(0, '[eXtensible Admin] Required by "%s"' % submodule)
+                submodule = find(submodule)
+                if submodule.name in modules():
+                    es.dbgmsg(0, '[eXtensible Admin] Required by "%s"' % submodule.name)
                 else:
-                    module.requiredFrom.remove(submodule)
+                    module.requiredFrom.remove(submodule.name)
             es.dbgmsg(0, '[eXtensible Admin] ***********************************')
         for submodule in module.requiredList:
             if submodule in modules():
+                submodule = find(submodule)
                 submodule.requiredFrom.remove(module.name)
-                module.requiredList.remove(module)
+                module.requiredList.remove(submodule.name)
         for command in module.subCommands:
             module.delCommand(command)
         for menu in module.subMenus:
