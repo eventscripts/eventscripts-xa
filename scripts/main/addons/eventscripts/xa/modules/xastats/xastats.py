@@ -13,15 +13,14 @@ info = es.AddonInfo()
 info.name           = "Stats Module"
 info.version        = "0.8"
 info.author         = "Carlsagan43 (Adminc)"
-info.url            = "http://forums.mattie.info"
-info.description    = "Keeps track of player statistics"
+info.basename       = "xastats"
 
 
 #######################################
 # MODULE SETUP
 # Register the module
 # this is a global reference to our module
-xastats = xa.register('xastats')
+xastats = xa.register(info.basename)
 
 
 #######################################
@@ -865,8 +864,11 @@ class SessionTable():
                     self.sess[each[1]].set("rank", i)
                     
                     i += 1
-            es.dbgmsg(0, "[eXtensible Admin] Stats: Calculated stats in %0.5f seconds" % ( time.time() - start) )
+            
             self.sortList = sortList
+
+            if float(time.time() - start) > 0.2:
+                es.dbgmsg(0, "[eXtensible Admin] Stats: Calculated stats in %0.5f seconds" % (time.time() - start) )
         else:
             es.dbgmsg(0, "[eXtensible Admin] Stats: Session table cannot be sorted!" )
 

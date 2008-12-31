@@ -3,12 +3,18 @@
 import es
 from xa import xa
 
+#plugin information
+info = es.AddonInfo() 
+info.name     = "Admin rcon" 
+info.version  = "1.0" 
+info.author   = "McFly"
+info.basename = "xarcon"
 
 #######################################
 # MODULE SETUP
 # Register the module
 # this is a global reference to our module
-xarcon = xa.register('xarcon')
+xarcon = xa.register(info.basename)
 
 
 #######################################

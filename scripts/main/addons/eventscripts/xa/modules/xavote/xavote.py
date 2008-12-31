@@ -6,7 +6,7 @@ import gamethread
 import time
 import os
 import random
-from xa import xa 
+from xa import xa
 
 vote_list      = {}
 vote_admins    = {}
@@ -23,10 +23,9 @@ info                = es.AddonInfo()
 info.name           = "Vote" 
 info.version        = "0.2" 
 info.author         = "freddukes" 
-info.url            = "http://forums.mattie.info" 
-info.description    = "Vote Module for eXtensible Admin"
+info.basename       = "xavote"
 
-xavote     = xa.register("xavote")
+xavote     = xa.register(info.basename)
 
 vote_timer       = xavote.setting.createVariable('vote_timer',       30,                                "How long in seconds that a vote will last for."      ) 
 vote_start_sound = xavote.setting.createVariable("vote_start_sound", "ambient/machines/teleport4.wav",  "The sound that will be played when a vote is started") 

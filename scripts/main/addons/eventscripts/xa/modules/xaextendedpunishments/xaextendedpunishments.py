@@ -10,11 +10,9 @@ info                = es.AddonInfo()
 info.name           = "Extended Punishments" 
 info.version        = "0.3" 
 info.author         = "freddukes" 
-info.url            = "http://forums.mattie.info" 
-info.description    = "More options for the Punishments feature for XA" 
-info.tags           = "admin punishments players" 
+info.basename       = "xaextendedpunishments" 
 
-xaextendedpunishments = xa.register('xaextendedpunishments')
+xaextendedpunishments = xa.register(info.basename)
 xalanguage            = xaextendedpunishments.language.getLanguage() 
 
 ####################### 

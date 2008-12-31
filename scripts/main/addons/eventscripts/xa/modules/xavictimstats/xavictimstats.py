@@ -5,12 +5,12 @@ import gamethread
 from xa import xa
 
 info = es.AddonInfo()
-info.name = 'Victim Stats'
-info.version = '4.0'
-info.author = 'Satoon101'
-info.basename = 'xavictimstats'
+info.name       = 'Victim Stats'
+info.version    = '4.0'
+info.author     = 'Satoon101'
+info.basename   = 'xavictimstats'
 
-xavictimstats = xa.register('xavictimstats')
+xavictimstats = xa.register(info.basename)
 xavictimstats.addRequirement('xasettings')
 victimstats_setting = xavictimstats.playerdata.createUserSetting('victimstats_setting')
 victimstats_timeout_death = xavictimstats.setting.createVariable('victimstats_timeout_death', 15, 'Time till gui closes with inaction after player_death')

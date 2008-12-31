@@ -9,18 +9,15 @@ info = es.AddonInfo()
 info.name           = "Sample"
 info.version        = "0.1"
 info.author         = "New Scripter"
-info.url            = "http://forums.mattie.info"
-info.description    = "Sample XA Module"
+info.basename       = "xasample"
 
 
 #######################################
 # MODULE SETUP
 # Register the module
 # this is a global reference to our module
-# This is contains the name of the module.
-# TODO: Change this to your module name.    -- TODO
 # TODO: If possible, change all references of mymodule to your new module name
-mymodule = xa.register("xasample")
+mymodule = xa.register(info.basename)
 
 
 #######################################

@@ -11,9 +11,7 @@ info = es.AddonInfo()
 info.name       = "Rock the Vote" 
 info.version    = "0.01" 
 info.author     = "[#OMEGA] - K2" 
-info.url        = "http://forums.mattie.info" 
-info.description    = "Rock the Vote Module for XA" 
-info.tags       = "rock the vote rtv rockthevote" 
+info.basename   = "xarockthevote" 
 
 ''' 
 Credits: 
@@ -40,7 +38,7 @@ Notes:
 
 ''' 
 
-xartv = xa.register('xarockthevote') 
+xartv = xa.register(info.basename) 
 
 vote_req_setmap_p   = xartv.setting.createVariable('vote_rock_the_vote_percent_required', 60, "Defines the vote percentage required to set map (0 min, 100max)") 
 vote_req_time       = xartv.setting.createVariable('vote_time_before_rock_the_vote', 1, "Time before rockthevote can be started after a new map starts in seconds") #120 

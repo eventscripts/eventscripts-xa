@@ -3,11 +3,18 @@ import playerlib
 import usermsg
 from xa import xa 
 
+#plugin information
+info = es.AddonInfo() 
+info.name     = "Rates" 
+info.version  = "1.0" 
+info.author   = "Unknown"
+info.basename = "xarates"
+
 ####################################### 
 # MODULE SETUP 
 # Register the module 
 # this is a global reference to your module 
-xarates = xa.register('xarates') 
+xarates = xa.register(info.basename) 
 
 def load():
     xarates.addCommand('xa_rates', xarates_cmd, 'display_rates', 'UNRESTRICTED').register('console') 

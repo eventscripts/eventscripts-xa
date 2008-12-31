@@ -6,12 +6,10 @@ from xa import xa
 
 #plugin information
 info = es.AddonInfo()
-info.name = "Reserve Slots"
-info.version = "1.2.1"
-info.author = "Errant"
-info.url = "http://forums.mattie.info"
-info.description = "Clone of Mani's reserve slot feature for XA"
-info.tags = "admin reserve slots kick players XA"
+info.name       = "Reserve Slots"
+info.version    = "1.2.1"
+info.author     = "Errant"
+info.basename   = "xareserveslots"
 
 
 '''
@@ -53,7 +51,7 @@ However currently this feature does NOT support the redirect option. IF a server
 '''
 
 # Register the module
-xareserveslots = xa.register("xareserveslots")
+xareserveslots = xa.register(info.basename)
 
 # Get the lang file
 text = xareserveslots.language.getLanguage()

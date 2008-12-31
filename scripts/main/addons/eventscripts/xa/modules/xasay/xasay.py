@@ -10,15 +10,14 @@ info = es.AddonInfo()
 info.name           = "Say"
 info.version        = "0.1"
 info.author         = "Mattie"
-info.url            = "http://forums.mattie.info"
-info.description    = "Handles custom say commands for admins and players."
+info.basename       = "xasay"
 
 
 #######################################
 # MODULE SETUP
 # Register the module
 # this is a global reference to your module
-xasay = xa.register('xasay')
+xasay = xa.register(info.basename)
 
 
 #######################################
@@ -52,11 +51,11 @@ def load():
 
 
 def unload():
-    # Unregister the module
-    xasay.unregister()
     if saywatcher in es.addons.SayListeners:
         es.addons.unregisterSayFilter(saywatcher)
     playerlib.unregisterPlayerListFilter("#admin_say")
+    # Unregister the module
+    xasay.unregister()
 
 
 #######################################

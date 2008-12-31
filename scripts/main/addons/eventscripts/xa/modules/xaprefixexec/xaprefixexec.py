@@ -8,12 +8,18 @@ from xa import xa
 Executes ./cfg/xa/xaprefixexec/<map prefix>.cfg every map
 """
 
+#plugin information
+info = es.AddonInfo() 
+info.name     = "Map Prefix cfg" 
+info.version  = "1.0" 
+info.author   = "Unknown"
+info.basename = "xaprefixexec"
 
 #######################################
 # MODULE SETUP
 # Register the module
 # this is a global reference to our module
-xaprefixexec = xa.register('xaprefixexec')
+xaprefixexec = xa.register(info.basename)
 
 
 #######################################
@@ -37,7 +43,7 @@ def load():
     # Ensures .cfg directories exist
     str_dir = xa.gamedir() + '/cfg/xa'
     _check_directory(str_dir)
-    str_dir += '/xaprefixexec'
+    str_dir += '/prefixexec'
     _check_directory(str_dir)
 
 
@@ -51,7 +57,7 @@ def unload():
 # Register your module's functions
 
 def es_map_start(event_var):
-    """Executes ./cfg/xa/xaprefixexec/<map prefix>.cfg"""
+    """Executes ./cfg/xa/prefixexec/<map prefix>.cfg"""
     str_mapname = event_var['mapname']
     if '_' in str_mapname: # No prefix, no .cfg
         str_prefix = str_mapname.split('_')[0]

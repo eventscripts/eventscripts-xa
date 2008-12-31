@@ -3,12 +3,12 @@ from playerlib import getPlayerList
 from xa import xa
 
 info = es.AddonInfo()
-info.name = "Objectives for CS:S"
-info.version = "0.1"
-info.author = "Wonder"
-info.description = "Slays the team which fails to complete their objectives."
+info.name       = "Objectives"
+info.version    = "0.1"
+info.author     = "Wonder"
+info.basename   = "xaobjectives"
 
-xaobjectives = xa.register("xaobjectives")
+xaobjectives = xa.register(info.basename)
 
 def load():
     global slay, text

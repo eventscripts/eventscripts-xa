@@ -9,15 +9,18 @@ import playerlib
 import random
 from xa import xa
 
-import psyco
-psyco.full()
-
+#plugin information
+info = es.AddonInfo()
+info.name       = "Restrict Weapons"
+info.version    = "1.0"
+info.author     = "Unknown"
+info.basename   = "xarestrict"
 
 #######################################
 # MODULE SETUP
 # Register the module
 # this is a global reference to our module
-xarestrict     = xa.register('xarestrict')
+xarestrict     = xa.register(info.basename)
 
 
 #######################################
@@ -414,14 +417,14 @@ es.addons.registerClientCommandFilter(_buy_restrict)
 
 def saferemove_cmd():
    """
-   xarestrict_saferemove <index>
+   xa_restrict_saferemove <index>
    """
    if es.getargc() == 2:
       saferemove(es.getargv(1))
 
    else:
-      es.dbgmsg(0, 'Syntax: xarestrict_saferemove <index>')
-xarestrict.addCommand('xarestrict_saferemove', saferemove_cmd, 'restrict_weapon', 'ADMIN').register('server')
+      es.dbgmsg(0, 'Syntax: xa_restrict_saferemove <index>')
+xarestrict.addCommand('xa_restrict_saferemove', saferemove_cmd, 'restrict_weapon', 'ADMIN').register('server')
 
 
 def saferemove(arg_index):
@@ -435,7 +438,7 @@ def saferemove(arg_index):
 
 def removeidle_cmd():
    """
-   xarestrict_removeidle [weapon 1] [weapon 2] ... [weapon n]
+   xa_restrict_removeidle [weapon 1] [weapon 2] ... [weapon n]
    """
    arg_count = es.getargc()
    if arg_count > 1:
@@ -446,7 +449,7 @@ def removeidle_cmd():
 
    else:
       removeidle()
-xarestrict.addCommand('xarestrict_removeidle', removeidle_cmd, 'restrict_weapon', 'ADMIN').register('server')
+xarestrict.addCommand('xa_restrict_removeidle', removeidle_cmd, 'restrict_weapon', 'ADMIN').register('server')
 
 
 def removeidle(arg_weapons='#all'):
@@ -464,20 +467,20 @@ def removeidle(arg_weapons='#all'):
 
 def xarestrict_cmd():
    """
-   xarestrict <player/team> <weapon 1> [weapon 2] ... [weapon n]
-   xaunrestrict <player/team> <weapon 1> [weapon 2] ... [weapon n]
+   xa_restrict <player/team> <weapon 1> [weapon 2] ... [weapon n]
+   xa_unrestrict <player/team> <weapon 1> [weapon 2] ... [weapon n]
    """
    arg_count    = es.getargc()
    command_name = es.getargv(0).lower()
-   func_command = restrict if command_name == 'xarestrict' else unrestrict
+   func_command = restrict if command_name == 'xa_restrict' else unrestrict
 
    if arg_count > 2:
       func_command(es.getargv(1).lower(), [es.getargv(x).lower() for x in range(2, arg_count)])
 
    else:
       es.dbgmsg(0, 'Syntax: %s <player/team> <weapon 1> [weapon 2] ... [weapon n]' % command_name)
-xarestrict.addCommand('xarestrict', xarestrict_cmd, 'restrict_weapon', 'ADMIN').register(('server', 'say', 'console'))
-xarestrict.addCommand('xaunrestrict', xarestrict_cmd, 'restrict_weapon', 'ADMIN').register(('server', 'say', 'console'))
+xarestrict.addCommand('xa_restrict', xarestrict_cmd, 'restrict_weapon', 'ADMIN').register(('server', 'say', 'console'))
+xarestrict.addCommand('xa_unrestrict', xarestrict_cmd, 'restrict_weapon', 'ADMIN').register(('server', 'say', 'console'))
 
 
 def restrict(arg_players, arg_weapons):

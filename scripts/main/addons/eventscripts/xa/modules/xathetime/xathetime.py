@@ -4,8 +4,14 @@ import es
 import time
 from xa import xa
 
+#plugin information
+info = es.AddonInfo()
+info.name       = "The Time"
+info.version    = "1.0"
+info.author     = "Unknown"
+info.basename   = "xathetime"
 
-xathetime               = xa.register('xathetime')
+xathetime               = xa.register(info.basename)
 adjust_time             = xathetime.setting.createVariable('adjust_time', 0, 'Minutes to add to server clock')
 military_time           = xathetime.setting.createVariable('military_time', 0, '0 = use 12hr format, 1 = use 24hr format')
 thetime_player_only     = xathetime.setting.createVariable('thetime_player_only', 1, '0 = time is sent to all players on request, 1 = time is only sent to the requesting player')

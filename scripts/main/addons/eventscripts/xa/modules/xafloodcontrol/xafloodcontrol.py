@@ -5,20 +5,17 @@ import playerlib
 import time
 from xa import xa
 
-timer = {}
-
 #plugin information
 info = es.AddonInfo()
-info.name = "XA:Flood Control"
-info.version = "0.1"
-info.author = "Venjax"
-info.url = "http://forums.mattie.info"
-info.description = "Clone of Mani Flood Control feature for XA"
-info.tags = "admin flood control XA"
+info.name       = "Flood Control"
+info.version    = "0.1"
+info.author     = "Venjax"
+info.basename   = "xafloodcontrol"
 
-xafloodcontrol = xa.register('xafloodcontrol')
-chat_flood_time = xafloodcontrol.setting.createVariable('xafloodcontrol', 'chat_flood_time', '1.5')
-lang_text = None
+xafloodcontrol = xa.register(info.basename)
+lang_text = xafloodcontrol.language.getLanguage() 
+chat_flood_time = xafloodcontrol.setting.createVariable('chat_flood_time', '1.5')
+timer = {}
 
 def floodcontrol(userid, message, teamonly):
     #floodcontrol function. Eats spam according to time set in config options.
@@ -40,12 +37,8 @@ def floodcontrol(userid, message, teamonly):
          return userid, message, teamonly
 
 def load():
-    global lang_text
-    #Load language .ini for flood message
-    lang_text = langlib.Strings(es.getAddonPath('xa') + '/languages/strings.ini')
-
     #Load Function for Chat Flood Control for XA.
-    if chat_flood_time != '0':
+    if str(chat_flood_time) != '0':
         if not floodcontrol in es.addons.SayListeners:
             es.addons.registerSayFilter(floodcontrol)
         else:

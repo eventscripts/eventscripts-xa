@@ -4,12 +4,12 @@ from os import listdir,path
 from xa import xa
 
 info = es.AddonInfo()
-info.name = 'xamodules'
-info.version = '1.0.1'
-info.basename = 'xa/modules/xamodules'
-info.author = 'british.assassin'
+info.name       = 'Modules'
+info.version    = '1.0.1'
+info.author     = 'british.assassin'
+info.basename   = 'xamodules'
 
-xamodules = xa.register('xamodules')
+xamodules = xa.register(info.basename)
 xalanguage = xamodules.language.getLanguage()
 
 gGamedir = str(es.ServerVar('eventscripts_gamedir')).replace('\\','/')

@@ -4,12 +4,18 @@ import es
 import playerlib
 from xa import xa
 
+#plugin information
+info = es.AddonInfo() 
+info.name     = "Grenade Spam Prevention" 
+info.version  = "1.0" 
+info.author   = "Unknown"
+info.basename = "xanadespam"
 
 #######################################
 # MODULE SETUP
 # Register the module
 # this is a global reference to our module
-xanadespam = xa.register('xanadespam')
+xanadespam = xa.register(info.basename)
 
 
 #######################################

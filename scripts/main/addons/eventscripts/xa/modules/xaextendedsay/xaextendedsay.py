@@ -3,14 +3,12 @@ import playerlib
 from xa import xa
 
 info                = es.AddonInfo() 
-info.name           = "xaextendedsay" 
+info.name           = "Extended Admin Say" 
 info.version        = "0.1" 
 info.author         = "freddukes" 
-info.url            = "http://forums.mattie.info" 
-info.description    = "More options for the say feature for XA" 
-info.tags           = "admin say players" 
+info.basename       = "xaextendedsay" 
 
-xaextendedsay = xa.register('xaextendedsay') 
+xaextendedsay = xa.register(info.basename) 
 xalanguage    = xaextendedsay.language.getLanguage() 
 
 def load():

@@ -12,11 +12,10 @@ from xa import xa
 from sqlite3 import dbapi2 as sqlite
 
 info = es.AddonInfo()
-info.name        = "AuthManage"
+info.name        = "Auth Manage"
 info.version     = "0.5"
-info.author      = "HTP w/ thx to freddukes"
-info.url         = "http://forums.mattie.info"
-info.description = "Popup interface for Authorization Management"
+info.author      = "HitThePipe, freddukes"
+info.basename    = "xaauthmanage"
 
 class connection(object):
     def __init__(self,path):
@@ -30,9 +29,9 @@ class connection(object):
         return self.cur.fetchall()
     def close(self):
         self.con.close()
-    
 
-xaauthmanage = xa.register('xaauthmanage')
+
+xaauthmanage = xa.register(info.basename)
 lang = xaauthmanage.language.getLanguage()
 
 auth = services.use('auth')

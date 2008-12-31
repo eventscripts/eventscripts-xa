@@ -8,9 +8,7 @@ info = es.AddonInfo()
 info.name           = "Skins"
 info.version        = "0.44"
 info.author         = "Don"
-info.url            = "http://forums.mattie.info"
-info.description    = "Skins feature for XA"
-info.tags           = "skins models XA"
+info.basename       = "xaskins"
 
 skinmenu                = ['Admin T', 'Admin CT', 'Public T', 'Public CT', 'Reserved T', 'Reserved CT', 'Misc']
 skinnames               = ['admin_t', 'admin_ct', 'public_t', 'public_ct', 'reserved_t', 'reserved_ct', 'misc']
@@ -23,7 +21,7 @@ else:
     xaskins_skinfiles_path  = xa.gamedir() + "/cfg/xa/skins/"
 
 # Register XASkins as a xa module
-xaskins                 = xa.register('xaskins')
+xaskins                 = xa.register(info.basename)
 # Load strings.ini from the module folder
 xalanguage              = xaskins.language.getLanguage()
 # Register the settings

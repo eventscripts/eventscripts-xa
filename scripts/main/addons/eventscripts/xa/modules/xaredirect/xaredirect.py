@@ -7,13 +7,19 @@ import msglib
 import playerlib
 from xa import xa
 
+#plugin information
+info = es.AddonInfo() 
+info.name     = "Redirect Users"
+info.version  = "1.0" 
+info.author   = "Unknown"
+info.basename = "xaredirect"
 
 #######################################
 # MODULE SETUP
 # Register the module
 # this is a global reference to our module
 
-xaredirect = xa.register('xaredirect')
+xaredirect = xa.register(info.basename)
 
 
 #######################################

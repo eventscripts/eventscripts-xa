@@ -5,14 +5,12 @@ from xa import xa
 
 #plugin information
 info = es.AddonInfo()
-info.name           = "BotManagement"
+info.name           = "Bot Management"
 info.version        = "0.1.1"
 info.author         = "GODJonez"
-info.url            = "http://forums.mattie.info"
-info.description    = "Bot management menu for XA"
-info.tags           = "admin bot-management"
+info.basename       = "xabotmanagement"
 
-xabotmanagement     = xa.register('xabotmanagement')
+xabotmanagement     = xa.register(info.basename)
 xalanguage          = xabotmanagement.language.getLanguage()
 
 xabmmenu = None

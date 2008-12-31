@@ -14,11 +14,9 @@ info = es.AddonInfo()
 info.name           = "Quake Sounds"
 info.version        = "0.1"
 info.author         = "Hunter"
-info.url            = "http://forums.mattie.info"
-info.description    = "Clone of Mani Quake Sounds feature for XA"
-info.tags           = "admin quake sounds XA"
+info.basename       = "xaquakesounds"
 
-xaquakesounds                       = xa.register('xaquakesounds')
+xaquakesounds                       = xa.register(info.basename)
 xalanguage                          = xaquakesounds.language.getLanguage()
 xaplayerdata_quakesounds            = xaquakesounds.playerdata.createUserSetting('quakesounds')
 

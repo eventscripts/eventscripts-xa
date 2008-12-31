@@ -8,13 +8,11 @@ info = es.AddonInfo()
 info.name           = "Settings"
 info.version        = "0.1"
 info.author         = "Hunter"
-info.url            = "http://forums.mattie.info"
-info.description    = "Clone of Mani Player Settings feature for XA"
-info.tags           = "admin settings players"
+info.basename       = "xasettings"
 
 setting_object = {}
 
-xasettings                  = xa.register('xasettings')
+xasettings                  = xa.register(info.basename)
 xalanguage                  = xasettings.language.getLanguage()
 
 def load():

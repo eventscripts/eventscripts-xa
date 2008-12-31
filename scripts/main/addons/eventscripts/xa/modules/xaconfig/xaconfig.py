@@ -8,10 +8,9 @@ info = es.AddonInfo()
 info.name        = "Config"
 info.version     = "0.1"
 info.author      = "Hunter"
-info.url         = "http://forums.mattie.info"
-info.description = "Popup interface for XA configuration"
+info.basename    = "xaconfig"
 
-xaconfig = xa.register('xaconfig')
+xaconfig = xa.register(info.basename)
 lang = xaconfig.language.getLanguage()
 menulist = []
 
@@ -46,7 +45,7 @@ def _moduleListMenu(userid):
         module = xa.find(module)
         if len(module.variables) > 0:
             for ll in langlib.getLanguages():
-                modulemenu.addoption(str(module), str(module),1,langlib.getLangAbbreviation(ll))
+                modulemenu.addoption(str(module), module.getAddonInfo().name, 1, langlib.getLangAbbreviation(ll))
     return modulemenu
 
 def _variableListMenu(userid, module, parent):
@@ -61,7 +60,7 @@ def _variableListMenu(userid, module, parent):
         if len(value) > 10:
             value = value[0:10]
         for ll in langlib.getLanguages():
-            varmenu.addoption(str(var.getName()), str(var.getName())+' = '+str(value),1,langlib.getLangAbbreviation(ll))
+            varmenu.addoption(str(var.getName()), str(var.getName())+' = '+str(value), 1, langlib.getLangAbbreviation(ll))
     return varmenu
     
 def _variableCoreListMenu(userid, parent):
@@ -78,7 +77,7 @@ def _variableCoreListMenu(userid, parent):
         if len(value) > 10:
             value = value[0:10]
         for ll in langlib.getLanguages():
-            varmenu.addoption(str(var.getName()), str(var.getName())+' = '+str(value),1,langlib.getLangAbbreviation(ll))
+            varmenu.addoption(str(var.getName()), str(var.getName())+' = '+str(value), 1, langlib.getLangAbbreviation(ll))
     return varmenu
 
 def _variableEditMenu(userid, module, variable, parent):

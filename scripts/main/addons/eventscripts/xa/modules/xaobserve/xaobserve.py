@@ -4,13 +4,18 @@
 TODO: Allow admin-view with mp_forcecamera
 """
 
-
 import es
 import gamethread
 import playerlib
 import random
 from xa import xa
 
+#plugin information
+info = es.AddonInfo() 
+info.name     = "Observe" 
+info.version  = "1.0" 
+info.author   = "Unknown"
+info.basename = "xaobserve"
 
 #######################################
 # MODULE SETUP

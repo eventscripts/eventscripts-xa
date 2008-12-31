@@ -5,16 +5,15 @@ from xa import xa
 
 #plugin information
 info = es.AddonInfo() 
-info.name     = 'High Ping Kicker - XA Module' 
-info.version  = 'oy2' 
-info.url      = 'http://forums.mattie.info' 
+info.name     = 'High Ping Kicker' 
+info.version  = '1.0'
+info.author   = 'SumGuy14'
 info.basename = 'xahighpingkick' 
-info.author   = 'SumGuy14 (Aka SoccerDude)'
 
 gInfo = {}
 
 # register module with XA
-xahighpingkick = xa.register('xahighpingkick')
+xahighpingkick = xa.register(info.basename)
 
 # Localization helper:
 text = xahighpingkick.language.getLanguage()

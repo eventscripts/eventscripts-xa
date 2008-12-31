@@ -6,12 +6,10 @@ from xa import xa
 
 #plugin information
 info = es.AddonInfo()
-info.name           = "Punishments"
+info.name           = "Player Punishments"
 info.version        = "0.2"
 info.author         = "Hunter"
-info.url            = "http://forums.mattie.info"
-info.description    = "Clone of Mani Player Punishments feature for XA"
-info.tags           = "admin punishments players"
+info.basename       = "xapunishments"
 
 punishment_choice = {}
 punishment_method = {}
@@ -22,7 +20,7 @@ punishment_pmenus = {}
 punishment_argc = {}
 punishment_cross_ref = {}
 
-xapunishments               = xa.register('xapunishments')
+xapunishments               = xa.register(info.basename)
 xalanguage                  = xapunishments.language.getLanguage()
 xa_adminburn_anonymous      = xapunishments.setting.createVariable('adminburn_anonymous', 0)
 xa_adminslap_anonymous      = xapunishments.setting.createVariable('adminslap_anonymous', 0)

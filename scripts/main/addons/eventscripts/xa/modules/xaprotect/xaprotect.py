@@ -6,11 +6,10 @@ from xa import xa
 
 #plugin information 
 info = es.AddonInfo() 
-info.name     = 'XA Spawn & Team Kill/Attack Protection' 
+info.name     = 'Spawn and Team protection' 
 info.version  = '1.0.1' 
-info.url      = 'http://forums.mattie.info/cs/forums/viewtopic.php?t=19690' 
-info.basename = 'xaprotect' 
 info.author   = 'Errant' 
+info.basename = 'xaprotect' 
 
 ''' 
 Provides basic spawn protection and damage reflection
@@ -31,10 +30,10 @@ Provides basic spawn protection and damage reflection
 ''' 
 
 # register module with XA 
-xaprotect = xa.register('xaprotect') 
+xaprotect = xa.register(info.basename) 
 
 # Localization helper: 
-#text = xaprotect.language.getLanguage('xaprotect') 
+#text = xaprotect.language.getLanguage() 
 
 # make config vars 
 protect_wound                     = xaprotect.setting.createVariable('protect_wound', 1, '1 = ON, 0 = OFF') 

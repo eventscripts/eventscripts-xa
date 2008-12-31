@@ -4,11 +4,18 @@ import es
 import time
 from xa import xa
 
+#plugin information
+info = es.AddonInfo()
+info.name       = "Timeleft"
+info.version    = "1.0"
+info.author     = "Unknown"
+info.basename   = "xatimeleft"
+
 #######################################
 # MODULE SETUP
 # Register the module
 # this is a global reference to your module
-xatimeleft = xa.register('xatimeleft')
+xatimeleft = xa.register(info.basename)
 
 float_map_start_time = 0
 

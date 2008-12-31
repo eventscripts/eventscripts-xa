@@ -10,13 +10,12 @@ from xa import xa
 #plugin information
 info = es.AddonInfo() 
 info.name     = 'Advert' 
-info.version  = 'oy1b' 
-info.url      = 'http://forums.mattie.info' 
-info.basename = 'xaadvert' 
+info.version  = '1.0' 
 info.author   = 'Rio'
+info.basename = 'xaadvert' 
 
 # register module with XA 
-xaadvert = xa.register('xaadvert') 
+xaadvert = xa.register(info.basename) 
 
 next_advert = 0 
 colors = {'{RED}': '255 0 0 255', '{BLUE}': '0 0 255 255', '{GREEN}': '0 255 0 255', '{MAGENTA}': '139 0 139 255', '{BROWN}': '128 42 42 255', '{GREY}': '128 128 128', '{CYAN}':  '0 204 204 255', '{YELLOW}': '255 255 0 255', '{ORANGE}': '255 127 0 255', '{WHITE}': '255 255 255 255', '{PINK}': '255 0 204 255'} 

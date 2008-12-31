@@ -8,12 +8,10 @@ from xa import xa
 
 #plugin information
 info = es.AddonInfo()
-info.name = "IP Ghosting"
-info.version = "1.3.2"
-info.author = "Errant"
-info.url = "http://forums.mattie.info/cs/forums/viewtopic.php?t=16321"
-info.description = "Clone of Mani's IP ghosting feature for XA"
-info.tags = "admin ip ghosting player_death XA"
+info.name       = "IP Ghosting"
+info.version    = "1.3.2"
+info.author     = "Errant"
+info.basename   = "xaipghosting"
 
 '''
 ==  IP Ghosting - A full port of mani's fuctionality to blind IP ghosters  ==
@@ -46,7 +44,7 @@ blinded = {}
 spec_blinded = {}
 
 # Register the module
-ghosting = xa.register("xaipghosting") 
+ghosting = xa.register(info.basename) 
 
 # Grab the languages file using the XA langlib wrapper
 text = ghosting.language.getLanguage()

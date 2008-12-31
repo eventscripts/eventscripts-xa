@@ -7,11 +7,10 @@ from xa import xa
 
 #plugin information
 info = es.AddonInfo()
-info.name = "Map Management"
-info.version = "1.0"
-info.author = "Unknown"
-info.url = "http://forums.mattie.info"
-info.description = "Map Management for XA"
+info.name       = "Map Management"
+info.version    = "1.0"
+info.author     = "Unknown"
+info.basename   = "xamapmanagement"
 
 gActions = {}
 gMapCycle = []
