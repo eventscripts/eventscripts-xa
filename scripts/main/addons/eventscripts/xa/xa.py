@@ -594,8 +594,8 @@ def xa_unload(pModuleid):
 def xa_reload(pModuleid):
     """Reloads a module"""
     if gModulesLoading:
-        gamethread.queue(xa_unload, (pModuleid,))
-        gamethread.queue(xa_load, (pModuleid,))
+        gamethread.delayed(0.1, xa_unload, (pModuleid,))
+        gamethread.delayed(0.5, xa_load, (pModuleid,))
 
 def xa_runconfig():
     """Runs XA's configuration file"""

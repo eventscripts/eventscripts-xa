@@ -1,6 +1,5 @@
 import es
 import popuplib
-import langlib
 import random
 from xa import xa
 
@@ -44,8 +43,7 @@ def _moduleListMenu(userid):
     for module in sorted(xa.modules()):
         module = xa.find(module)
         if len(module.variables) > 0:
-            for ll in langlib.getLanguages():
-                modulemenu.addoption(str(module), module.getAddonInfo().name, 1, langlib.getLangAbbreviation(ll))
+            modulemenu.addoption(str(module), xaconfig.language.createLanguageString(module.getAddonInfo().name))
     return modulemenu
 
 def _variableListMenu(userid, module, parent):
@@ -59,10 +57,9 @@ def _variableListMenu(userid, module, parent):
         value = str(var)
         if len(value) > 10:
             value = value[0:10]
-        for ll in langlib.getLanguages():
-            varmenu.addoption(str(var.getName()), str(var.getName())+' = '+str(value), 1, langlib.getLangAbbreviation(ll))
+        varmenu.addoption(str(var.getName()), xaconfig.language.createLanguageString(str(var.getName())+' = '+str(value)))
     return varmenu
-    
+
 def _variableCoreListMenu(userid, parent):
     varlist = xa.corevars()
     varmenu = popuplib.easymenu('xalistsettingmenu_'+str(userid)+'_core',None,_varmenu_select)
@@ -76,8 +73,7 @@ def _variableCoreListMenu(userid, parent):
         value = str(var)
         if len(value) > 10:
             value = value[0:10]
-        for ll in langlib.getLanguages():
-            varmenu.addoption(str(var.getName()), str(var.getName())+' = '+str(value), 1, langlib.getLangAbbreviation(ll))
+        varmenu.addoption(str(var.getName()), xaconfig.language.createLanguageString(str(var.getName())+' = '+str(value)))
     return varmenu
 
 def _variableEditMenu(userid, module, variable, parent):
