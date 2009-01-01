@@ -755,7 +755,7 @@ def load():
         ma = Admin_mani()
         es.dbgmsg(0, '[eXtensible Admin] Executing mani_server.cfg...')
         ma.loadVariables()
-        es.server.cmd('exec mani_server.cfg')
+        es.server.cmd('es_xmexec mani_server.cfg')
         ma.loadModules()
         ma.convertClients()
     es.dbgmsg(0, '[eXtensible Admin] Third loading part...')
