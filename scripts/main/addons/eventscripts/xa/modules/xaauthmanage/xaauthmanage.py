@@ -186,19 +186,10 @@ def unload():
     xa.unregister(xaauthmanage)
 
 def player_activate(event_var):
-    es.dbgmsg(0,'***** player_activate triggered')
     if event_var['es_steamid'] != 'BOT':
         if authaddon == 'basic_auth':
             steamid, name = event_var['es_steamid'], event_var['es_username']
             _update_badmins(steamid,name,None,None)
-            
-        """
-        # Following 'Else' for testing only
-        else:
-            #_set_playergroup(userid,choice,popupid=None)
-            es.dbgmsg(0,'***** User name = %s' %es.getplayername(event_var['userid']))
-            _set_playergroup(event_var['userid'],('test1',es.getplayername(event_var['userid'])),None)
-        """
        
 def player_changename(event_var):
     if authaddon == 'basic_auth':
