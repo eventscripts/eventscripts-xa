@@ -13,7 +13,7 @@ from sqlite3 import dbapi2 as sqlite
 
 info = es.AddonInfo()
 info.name        = "Auth Manage"
-info.version     = "0.5"
+info.version     = "0.6"
 info.author      = "HitThePipe, freddukes"
 info.basename    = "xaauthmanage"
 
@@ -186,10 +186,19 @@ def unload():
     xa.unregister(xaauthmanage)
 
 def player_activate(event_var):
+    es.dbgmsg(0,'***** player_activate triggered')
     if event_var['es_steamid'] != 'BOT':
         if authaddon == 'basic_auth':
             steamid, name = event_var['es_steamid'], event_var['es_username']
             _update_badmins(steamid,name,None,None)
+            
+        """
+        # Following 'Else' for testing only
+        else:
+            #_set_playergroup(userid,choice,popupid=None)
+            es.dbgmsg(0,'***** User name = %s' %es.getplayername(event_var['userid']))
+            _set_playergroup(event_var['userid'],('test1',es.getplayername(event_var['userid'])),None)
+        """
        
 def player_changename(event_var):
     if authaddon == 'basic_auth':
@@ -324,9 +333,9 @@ def _update_badmins(steamid,name=None,master=None,suspend=None):
 #############################################
 #    GROUP_AUTH METHODS
 
-def _set_playergroup(userid,choice,popupid):
+def _set_playergroup(userid,choice,popupid=None):
     es.dbgmsg(1,'*****_set_playergroup')
-    steamid = es.getplayersteamid(es.getuserid(choice[1]))
+    steamid = '"' + es.getplayersteamid(es.getuserid(choice[1])) + '"'
     es.server.queuecmd('gauth user create %s %s' % (choice[1], steamid))
     es.server.queuecmd('gauth user join %s %s' %(choice[1], choice[0]))
   
@@ -589,7 +598,7 @@ def convertQuery(result):
 def _sendmain():
     es.dbgmsg(1,'*****_sendmain')
     userid = es.getcmduserid()
-    if auth.isUseridAuthorized(userid, 'xaauth'):
+    if auth.isUseridAuthorized(userid, 'manage_auth'):
         if authaddon == 'group_auth':
             gauthmain.send(userid)
         elif authaddon == 'basic_auth':
