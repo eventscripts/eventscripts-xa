@@ -209,6 +209,8 @@ def _gauthmain_select(userid,choice,popupid):
         _userslist(userid)
     elif choice == 'capabilities':
         _capslist(userid)
+    else:
+        _sendmain()
 
 def _bauthmain_select(userid,choice,popupid):
     es.dbgmsg(1,'*****_bauthmain_select')
@@ -528,32 +530,32 @@ def _capmain_select(userid,choice,popupid):
     if int(choice) == 1:
         groups = db.query("SELECT GroupName FROM Groups WHERE GId IN (SELECT GId FROM GroupCaps WHERE GroupCaps.CId=(SELECT CId FROM Caps WHERE CName='%s'))" %capname)
         if groups:
+            action = 'go'
             capgroups = popuplib.easymenu('capgroups',None,_capgroup_set)
             for group in groups:	
                 capgroups.addoption((action,capname,group[0]),utfcode(group[0]))
-            capgroups.settitle(lang('cap groups'))
-            action = 'go'        
+            capgroups.settitle(lang('cap groups'))                   
         else:
             es.tell(userid,'#multi',prefix + '#lightgreen' + capname + '#default' + lang('not in groups'))
             capmain.send(userid)
     elif int(choice) == 2:
         groups = db.query("SELECT GroupName FROM Groups WHERE GId NOT IN (SELECT GId FROM GroupCaps WHERE GroupCaps.CId=(SELECT CId FROM Caps WHERE CName='%s'))" %capname)
         if groups:
+            action = 'give'
             capgroups = popuplib.easymenu('capgroups',None,_capgroup_set)
             for group in groups:	
                 capgroups.addoption((action,capname,group[0]),utfcode(group[0]))
-            capgroups.settitle(lang('add cap to group'))
-            action = 'give'  
+            capgroups.settitle(lang('add cap to group'))              
         else:
             es.tell(userid,'#multi',prefix + '#lightgreen' + capname + '#default' + lang('in all groups'))
     elif int(choice) == 3:
         groups = db.query("SELECT GroupName FROM Groups WHERE GId IN (SELECT GId FROM GroupCaps WHERE GroupCaps.CId=(SELECT CId FROM Caps WHERE CName='%s'))" %capname)
         if groups:
+            action = 'revoke'
             capgroups = popuplib.easymenu('capgroups',None,_capgroup_set)
             for group in groups:	
                 capgroups.addoption((action,capname,group[0]),utfcode(group[0]))
-            capgroups.settitle(lang('remove cap from group'))
-            action = 'revoke'  
+            capgroups.settitle(lang('remove cap from group'))              
         else:
             es.tell(userid,'#multi',prefix + '#lightgreen' + capname + '#default' + lang('not in groups'))
     es.dbgmsg(1,'*****groups=%s' %groups)
