@@ -1,14 +1,14 @@
 import es 
-import playerlib 
+import playerlib
 import random 
 import gamethread 
-import effectlib 
 import os
+import effectlib
 from xa import xa 
 
 info                = es.AddonInfo() 
 info.name           = "Extended Punishments" 
-info.version        = "0.3" 
+info.version        = "0.4s" 
 info.author         = "freddukes" 
 info.basename       = "xaextendedpunishments" 
 
@@ -17,33 +17,37 @@ xalanguage            = xaextendedpunishments.language.getLanguage()
 
 ####################### 
 # Variables 
-xa_adminblind_anonymous        = xaextendedpunishments.setting.createVariable('adminblind_anonymous',      0                  , "When an admin blinds a player, will a message be sent? 1 = yes, 0 = no") 
-xa_adminfreeze_anonymous       = xaextendedpunishments.setting.createVariable('adminfreeze_anonymous',     0                  , "When an admin freezes a player, will a message be sent? 1 = yes, 0 = no") 
-xa_admingimp_anonymous         = xaextendedpunishments.setting.createVariable('admingimp_anonymous',       0                  , "When an admin gimps a player, will a message be sent? 1 = yes, 0 = no") 
-xa_admindrug_anonymous         = xaextendedpunishments.setting.createVariable('admindrug_anonymous',       0                  , "When an admin drugs a player, will a message be sent? 1 = yes, 0 = no") 
-xa_adminbeacon_anonymous       = xaextendedpunishments.setting.createVariable('adminbeacon_anonymous',     0                  , "When an admin beacons a player, will a message be sent? 1 = yes, 0 = no") 
+xa_adminblind_anonymous        = xaextendedpunishments.setting.createVariable('adminblind_anonymous',      0                  , "When an admin blinds a player, will a message be sent? 1 = no, 0 = yes") 
+xa_adminfreeze_anonymous       = xaextendedpunishments.setting.createVariable('adminfreeze_anonymous',     0                  , "When an admin freezes a player, will a message be sent? 1 = no, 0 = yes") 
+xa_admingimp_anonymous         = xaextendedpunishments.setting.createVariable('admingimp_anonymous',       0                  , "When an admin gimps a player, will a message be sent? 1 = no, 0 = yes") 
+xa_admindrug_anonymous         = xaextendedpunishments.setting.createVariable('admindrug_anonymous',       0                  , "When an admin drugs a player, will a message be sent? 1 = no, 0 = yes") 
+xa_adminbeacon_anonymous       = xaextendedpunishments.setting.createVariable('adminbeacon_anonymous',     0                  , "When an admin beacons a player, will a message be sent? 1 = no, 0 = yes") 
 xa_adminbeacon_color           = xaextendedpunishments.setting.createVariable('adminbeacon_color',         '255 0 0 255'      , "The color of the beacon when the player is beaconed. \n// Maximum value for each color is 255. (red green blue alpha)") 
-xa_adminnoclip_anonymous       = xaextendedpunishments.setting.createVariable('adminnoclip_anonymous',     0                  , "When an admin noclips a player, will a message be sent? 1 = yes, 0 = no") 
+xa_adminnoclip_anonymous       = xaextendedpunishments.setting.createVariable('adminnoclip_anonymous',     0                  , "When an admin noclips a player, will a message be sent? 1 = no, 0 = yes") 
 xa_adminbeacon_sound           = xaextendedpunishments.setting.createVariable('adminbeacon_sound',         'buttons/blip1.wav', "The sound emited from a player when beaconed (from ../sound/)") 
 xa_adminbomb_sound             = xaextendedpunishments.setting.createVariable('adminbomb_sound',           'buttons/blip1.wav', "The sound emited from the player when they have a fuse lit (from ../sound/)") 
 xa_adminbomb_beaconcolor       = xaextendedpunishments.setting.createVariable('adminbomb_beaconcolor',     '0 0 255 255'      , "The color of the beacon when a player has a fuse lit for a bomb. \n// Maximum value for each color is 255. (red green blue alpha)") 
-xa_adminfreezebomb_anonymous   = xaextendedpunishments.setting.createVariable('adminfreezebomb_anonymous', 0                  , "When an admin freeze bombs a player, will a message be sent? 1 = yes, 0 = no") 
+xa_adminfreezebomb_anonymous   = xaextendedpunishments.setting.createVariable('adminfreezebomb_anonymous', 0                  , "When an admin freeze bombs a player, will a message be sent? 1 = no, 0 = yes") 
 xa_adminfreezebomb_countdown   = xaextendedpunishments.setting.createVariable('adminfreezebomb_countdown', 10                 , "The countdown of the fuse (in seconds)") 
-xa_admintimebomb_anonymous     = xaextendedpunishments.setting.createVariable('admintimebomb_anonymous',   0                  , "When an admin time bombs a player, will a message be sent? 1 = yes, 0 = no") 
+xa_admintimebomb_anonymous     = xaextendedpunishments.setting.createVariable('admintimebomb_anonymous',   0                  , "When an admin time bombs a player, will a message be sent? 1 = no, 0 = yes") 
 xa_admintimebomb_countdown     = xaextendedpunishments.setting.createVariable('admintimebomb_countdown',   10                 , "The countdown of the fuse (in seconds)") 
-xa_adminfirebomb_anonymous     = xaextendedpunishments.setting.createVariable('adminfirebomb_anonymous',   0                  , "When an admin fire bombs a player, will a message be sent? 1 = yes, 0 = no") 
+xa_adminfirebomb_anonymous     = xaextendedpunishments.setting.createVariable('adminfirebomb_anonymous',   0                  , "When an admin fire bombs a player, will a message be sent? 1 = no, 0 = yes") 
 xa_adminfirebomb_countdown     = xaextendedpunishments.setting.createVariable('adminfirebomb_countdown',   10                 , "The countdown of the fuse (in seconds)") 
 xa_adminfirebomb_duration      = xaextendedpunishments.setting.createVariable('adminfirebomb_duration',    15                 , "How long the players will stay on fire for after a fire bomb (in seconds)")
-#xa_adminmute_anonymous         = xaextendedpunishments.setting.createVariable('adminmute_anonymous',       0                  , "When an admin mutes a player, will a message be sent? 1 = yes, 0 = no")
-#xa_adminmute_deletetime        = xaextendedpunishments.setting.createVariable('xa_adminmute_deletetime',   600                , "How long after a person disconnects from the server that they will be able to reconnect and be unmuted (in seconds)\n // E.G If it was 600, then 10 minutes after they left, they'd be able to rejoin unmuted again.\n // If they joined before the 10 minutes were up, they'd still be muted")
+xa_adminrocket_anonymous       = xaextendedpunishments.setting.createVariable('adminrocket_anonymous',     0                  , "When an admin rockets a player, will a message be sent? 1 = no, 0 = yes")
+
+""" MUTE """
+xa_adminmute_on                = xaextendedpunishments.setting.createVariable('adminmute_enabled',         0                  , "Whether or not mute is on\n// WARNING!!! This has been known to cause lag, so if you are experiencing lag, turn this off\n// 0 = Mute is not enabled\n// 1 = Mute is enabled")
+xa_adminmute_anonymous         = xaextendedpunishments.setting.createVariable('adminmute_anonymous',       0                  , "When an admin mutes a player, will a message be sent? 1 = yes, 0 = no")
+xa_adminmute_deletetime        = xaextendedpunishments.setting.createVariable('adminmute_deletetime',      600                , "How long after a person disconnects from the server that they will be able to reconnect and be unmuted (in seconds)\n// E.G If it was 600, then 10 minutes after they left, they'd be able to rejoin unmuted again.\n// If they joined before the 10 minutes were up, they'd still be muted")
 
 if xa.isManiMode(): 
     gimpphrases = xaextendedpunishments.configparser.getList('cfg/mani_admin_plugin/gimpphrase.txt', True)
 else: 
     gimpphrases = xaextendedpunishments.configparser.getList('gimpphrase.txt')
 
-players = {}
-#muted   = []
+players    = {}
+muted      = {}
 
 def load():
     xaextendedpunishments.addRequirement('xapunishments')
@@ -57,14 +61,20 @@ def load():
     xaextendedpunishments.xapunishments.registerPunishment("freezebomb", xalanguage["freezebomb"], _freeze_bomb, 1) 
     xaextendedpunishments.xapunishments.registerPunishment("timebomb",   xalanguage["timebomb"]  , _time_bomb  , 1) 
     xaextendedpunishments.xapunishments.registerPunishment("firebomb",   xalanguage["firebomb"]  , _fire_bomb  , 1)
-    #xaextendedpunishments.xapunishments.registerPunishment("mute",       xalanguage["mute"]      , _mute       , 1) 
-    gamethread.delayedname(1, 'blind_loop', _blind_loop) 
+    xaextendedpunishments.xapunishments.registerPunishment("rocket",     xalanguage["rocket"]    , _rocket     , 1)
+    if int(xa_adminmute_on):
+        xaextendedpunishments.xapunishments.registerPunishment("mute",   xalanguage["mute"]      , _mute       , 1)
+    gamethread.delayedname(1, 'blind_loop', _blind_loop)
+    
+    """ Make sure if XA is loaded late, add all players """
+    for player in es.getUseridList():
+        player_activate({'userid' : player})
         
 def player_activate(ev): 
     userid = int(ev['userid']) 
-    if players.has_key(userid): 
+    if userid in players: 
         del players[userid] 
-    players[userid] = {} 
+    players[userid]                 = {} 
     players[userid]['gimped']       = 0 
     players[userid]['blind']        = 0 
     players[userid]['drugged']      = 0 
@@ -77,12 +87,11 @@ def player_activate(ev):
 
 def player_disconnect(ev): 
     userid = int(ev['userid']) 
-    if players.has_key(userid): 
+    if userid in players: 
         del players[userid]
-    '''
-    if ev['networkid'] in muted:
+
+    if userid in map(int, muted): 
         gamethread.delayedname(int(xa_adminmute_deletetime), 'unmute_%s'%ev['networkid'], _unmute, ev['networkid'])
-    '''
 
 def round_end(ev): 
     for userid in es.getUseridList(): 
@@ -176,13 +185,18 @@ def _gimp(userid, adminid, args):
     
 def _say_filter(userid, text, team):
     if userid in players:
-        if players[userid]['gimped']: 
-            return(userid, getGimpPhrase(), team)
-        '''
-        if es.getplayersteamid(userid) in muted:
-            es.tell(userid,'#multi', xalanguage("you are muted", lang=playerlib.getPlayer(userid).get("lang")))
-            return (0, None, 0)
-        '''
+        if not es.exists('saycommand', text.strip('"').split()[0]):
+            if players[userid]['gimped']:
+                text = getGimpPhrase()
+                if text: 
+                    return(userid, getGimpPhrase(), team)
+                else:
+                    return (userid, "I have been gimped", team)
+    
+            if userid in map(int, muted):
+                es.tell(userid,'#multi', xalanguage("you are muted", lang=playerlib.getPlayer(userid).get("lang")))
+                return (0, None, 0)
+
     return(userid, text, team)
 es.addons.registerSayFilter(_say_filter)
 
@@ -209,7 +223,10 @@ def unload():
     xaextendedpunishments.xapunishments.unregisterPunishment("freezebomb") 
     xaextendedpunishments.xapunishments.unregisterPunishment("timebomb") 
     xaextendedpunishments.xapunishments.unregisterPunishment("firebomb")
-    #xaextendedpunishments.xapunishments.unregisterPunishment("mute")
+    
+    if int(xa_adminmute_on):
+        xaextendedpunishments.xapunishments.unregisterPunishment("mute")
+        
     xaextendedpunishments.delRequirement('xapunishments')
     xaextendedpunishments.unregister()
     
@@ -369,14 +386,58 @@ def _extinguish(userid):
         if string == handle: 
             es.setindexprop(flame_entity, 'CEntityFlame.m_flLifetime', 0) 
             break
-'''
+            
+def _rocket(userid, adminid, args):
+    if str(xa_adminrocket_anonymous) == "0": 
+        tokens = {} 
+        tokens['admin']  = es.getplayername(adminid) 
+        tokens['user']   = es.getplayername(userid) 
+        for player in playerlib.getPlayerList():  
+            es.tell(int(player), xalanguage("rocketed", tokens, player.get("lang"))) 
+    es.emitsound('player', userid, 'weapons/rpg/rocketfire1.wav', '1.0', '0.4')
+    
+    es.usermsg('create', 'shake', 'Shake')
+    es.usermsg('write', 'byte',  'shake', 0)
+    es.usermsg('write', 'float', 'shake', 25)
+    es.usermsg('write', 'float', 'shake', 1.0)
+    es.usermsg('write', 'float', 'shake', 3)
+    es.usermsg('send', 'shake', userid)
+    es.usermsg('delete', 'shake')
+    
+    gamethread.delayed(0.5, es.emitsound, ('player', userid, 'ambient/fire/ignite.wav', '1.0', '0.4') )
+    #playerlib.getPlayer(userid).set("freeze", 1)
+    rocketEffectLoop(userid, 3.0)
+    
+def rocketEffectLoop(userid, time):
+    """ A command to make some neat effects and push a player vertically... Made by bonbon <3 """
+    if time >= 0:
+        time -= 0.1
+        loc = es.getplayerlocation(userid)
+        if time < 2.5:
+            effectlib.drawBox(loc, [loc[0] + 10, loc[1] + 10, loc[2]], "materials/sprites/laser.vmt", "materials/sprites/halo01.vmt", 0.2, 20, 20, 255, 0, 0, 255, 10, 0, 0, 0, 0)
+            effectlib.drawBox(loc, [loc[0] - 10, loc[1] - 10, loc[2]], "materials/sprites/laser.vmt", "materials/sprites/halo01.vmt", 0.2, 20, 20, 255, 128, 0, 255, 10, 0, 0, 0, 0)
+            effectlib.drawBox([loc[0] - 5, loc[1] - 5, loc[2]], [loc[0] + 5, loc[1] + 5, loc[2]], "materials/sprites/laser.vmt", "materials/sprites/halo01.vmt", 0.2, 20, 20, 0, 0, 255, 255, 10, 0, 0, 0, 0)
+            if (time * 10) % 2:
+                #es.setplayerprop(userid, 'CBasePlayer.localdata.m_vecBaseVelocity', '0,0,145')
+                if es.exists('userid', userid): # stops the playerlib error if the player doesn't exist
+                    playerlib.getPlayer(userid).set("push", (0, 145, True) )
+                else:
+                    return 
+        gamethread.delayed(0.1, rocketEffectLoop, (userid, time) )
+    else:
+        es.server.queuecmd('es_give %s env_explosion' % userid)
+        es.server.queuecmd('es_xfire %s env_explosion addoutput "iMagnitude 100"' % userid)
+        es.server.queuecmd('es_xfire %s env_explosion explode' % userid)
+        es.server.queuecmd('damage %s %s' % (userid, es.getplayerprop(userid, 'CBasePlayer.m_iHealth') ) )
+        es.emitsound('player', userid, 'ambient/explosions/exp3.wav', '1.0', '0.4')
+            
 def _mute(userid, adminid, args):
     steamid = es.getplayersteamid(userid)
-    if steamid in muted:
-        muted.remove(steamid)
+    if userid in muted:
+        del muted[userid]
         status = 'unmuted'
     else:
-        muted.append(steamid)
+        muted[userid] = steamid
         status = 'muted'
     if str(xa_adminmute_anonymous) == '0':
         tokens = {}
@@ -387,14 +448,15 @@ def _mute(userid, adminid, args):
             es.tell(int(player), '#multi', xalanguage('admin state', tokens, player.get("lang")))
     
 def _unmute(steamid):
-    if steamid in muted:
-        muted.remove(steamid)
+    tUserid = None
+    for userid in muted:
+        if muted[userid] == steamid:
+            tUserid = userid
+    if tUserid:
+        del muted[tUserid]
         
 def tick():
-    playerlist = es.getUseridList()
-    for player in filter(lambda x: es.getplayersteamid(x) in muted, playerlist):
-        for listener in playerlist:
-            if es.voicechat('islistening', listener, player):
-                es.voicechat('nolisten', listener, player)
+    for player in muted:
+        for listener in players:
+            es.voicechat('nolisten', listener, player)
 es.addons.registerTickListener(tick)
-'''
