@@ -13,7 +13,6 @@ vote_admins    = {}
 vote_players   = {}
 multi_map      = []
 change_map     = None
-amount_of_maps = None
 
 map_file       = open(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maplist.txt', 'r')
 map_list       = filter(lambda x: False if x == '' or x.startswith('//') else os.path.isfile(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maps/%s.bsp'%x), map(lambda x: x.replace('\n',''), map_file.readlines()))
@@ -21,7 +20,7 @@ map_file.close()
 
 info                = es.AddonInfo() 
 info.name           = "Vote" 
-info.version        = "0.2" 
+info.version        = "0.3" 
 info.author         = "freddukes" 
 info.basename       = "xavote"
 
@@ -348,6 +347,8 @@ def RandomCommand(args):
     vote.StartVote()
     
 def EndMap():
+    global change_map
+    change_map = None
     winner = es.ServerVar('eventscripts_nextmapoverride')
     userid = es.getuserid()
     if not userid:
@@ -431,12 +432,30 @@ class Vote:
                 es.tell(int(player),'#multi',xalanguage("vote win",tokens, player.get("lang"))) 
         elif was_tied and not was_canceled:
             for player in playerlib.getPlayerList(): 
-                es.tell(int(player),'#green',xalanguage("vote tie", player.get("lang"))) 
-            winner = random.choice["yes","no"]
+                es.tell(int(player),'#green',xalanguage("vote tie", player.get("lang")))
+            possibilities = []
+            maxAmount = 0
+            for possibility in self.display.SortDict():
+                amount = self.display.votes[possibility]['votes'] 
+                if amount < maxAmount:
+                    break
+                maxAmount = amount
+                possibilities.append(possibility)
+            winner = random.choice(possibilities)
             tokens = {}
-            tokens['winner'] = xalanguage(winner)
+            tokens['winner'] = winner
             for player in playerlib.getPlayerList(): 
-                es.tell(int(player),'#multi',xalanguage("random win", player.get("lang")))  
+                es.tell(int(player),'#multi',xalanguage("random win", tokens, player.get("lang")))
+            if self.option and self.options[winner]['winner']:
+                if isinstance(self.option, str):
+                    es.server.cmd(self.option)
+                elif callable(self.option):
+                    self.params = {}
+                    self.params['winner']      = winner
+                    self.params['votes']       = winner_votes
+                    self.params['percent']     = winner_percent
+                    self.params['total votes'] = total_votes
+                    self.option(self.params)
         else: 
             for player in playerlib.getPlayerList(): 
                 es.tell(int(player),'#green',xalanguage("vote canceled", player.get("lang"))) 
@@ -471,7 +490,7 @@ class HudHint:
         gamethread.delayedname(1, self.name, self.Loop) 
         
     def SortDict(self):
-        return sorted(self.votes, lambda x,y : -1 if self.votes[x]['votes'] > self.votes[y]['votes'] else 0 if self.votes[x] == self.votes[y] else 1)
+        return sorted(self.votes, lambda x,y : -1 if self.votes[x]['votes'] > self.votes[y]['votes'] else 0 if self.votes[x]['votes'] == self.votes[y]['votes'] else 1)
         
     def ChangeDict(self, vote, amount):
         self.votes[vote]['votes'] += amount
