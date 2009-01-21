@@ -6,7 +6,7 @@ es.dbgmsg(0, '[eXtensible Admin] Begin loading...')
 
 #import custom stuff
 import os
-import hotshot
+import hotshot.stats
 import services
 import gamethread
 import playerlib
@@ -15,18 +15,18 @@ import keymenulib
 import settinglib
 import keyvalues
 import cmdlib
-from hotshot import stats
 
 #import libraries
 import configparser
+reload(configparser)
 import language
+reload(language)
 import logging
+reload(logging)
 import playerdata
+reload(playerdata)
 import setting
-
-#import compiler
-import psyco
-psyco.full()
+reload(setting)
 
 #plugin information
 info = es.AddonInfo()
@@ -76,7 +76,7 @@ class Admin_libfunc(object):
             pr = hotshot.Profile(fn)
             re = pr.runcall(self._xalibfunc, *(self._xamod,)+args, **kw)
             pr.close()
-            st = stats.load(fn)
+            st = hotshot.stats.load(fn)
             st.strip_dirs()
             st.sort_stats('time', 'calls')
             if int(gCoreVariables['debug']) >= 2:
@@ -118,11 +118,9 @@ class Admin_lib(object):
 ## Core
 # Admin_module is the module class
 class Admin_module(object):
-    # XA reference, lookup once, required in all instances:
-    _xa = None
-    # methods:
     def __init__(self, gModule):
         #initialization of the module
+        self._xa = None
         self._xamod = None
         self._xalibs = {}
         self.name = gModule
@@ -628,12 +626,15 @@ def unregister(pModuleid):
                 if submodule.name in modules():
                     es.dbgmsg(0, '[eXtensible Admin] Required by "%s"' % submodule.name)
                 else:
+                    module.required -= 1
                     module.requiredFrom.remove(submodule.name)
             es.dbgmsg(0, '[eXtensible Admin] ***********************************')
         for submodule in module.requiredList:
             if submodule in modules():
                 submodule = find(submodule)
+                submodule.required -= 1
                 submodule.requiredFrom.remove(module.name)
+                module.required -= 1
                 module.requiredList.remove(submodule.name)
         for command in module.subCommands:
             module.delCommand(command)
