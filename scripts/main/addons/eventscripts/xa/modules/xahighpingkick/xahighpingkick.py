@@ -6,7 +6,7 @@ from xa import xa
 #plugin information
 info = es.AddonInfo() 
 info.name     = 'High Ping Kicker' 
-info.version  = '1.0'
+info.version  = '1.2'
 info.author   = 'SumGuy14'
 info.basename = 'xahighpingkick' 
 
@@ -24,8 +24,13 @@ check         = xahighpingkick.setting.createVariable('ping_check', 10, 'How man
 interval      = xahighpingkick.setting.createVariable('ping_interval', 5, 'How often the players ping is checked, in seconds')
 exceedlimit   = xahighpingkick.setting.createVariable('ping_exceedlimit', 3, 'If the players ping is above the max when checked this many times, player will be kicked')
 
+def load():
+    """ Make sure all people on the server when this is loaded are not forgotten """
+    for userid in map(str, es.getUseridList()):
+        player_activate({'userid':userid})
+
 def unload(): 
-    for userid in es.getUseridList():
+    for userid in map(str, es.getUseridList()):
         if repeat.status('hpk_track_' + userid) != 0:
             repeat.find('hpk_track_' + userid).delete()
     xahighpingkick.unregister() 

@@ -10,7 +10,7 @@ from xa import xa
 #plugin information
 info = es.AddonInfo() 
 info.name     = "Redirect Users"
-info.version  = "1.0" 
+info.version  = "1.1" 
 info.author   = "Unknown"
 info.basename = "xaredirect"
 
@@ -52,6 +52,10 @@ def load():
     Registers the xaredirect server, say, and client command
     """
     xaredirect.addCommand('xa_redirect', redirect_cmd, 'redirect_client', 'ADMIN').register(('server', 'say', 'console'))
+    
+    """ If XA is loaded whilst players are active, ensure they're not forgotten """
+    for player in es.getUseridList():
+        player_activate({'userid':player})
 
 
 def unload():

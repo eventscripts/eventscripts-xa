@@ -7,7 +7,7 @@ from xa import xa
 #plugin information
 info = es.AddonInfo()
 info.name       = "Timeleft"
-info.version    = "1.0"
+info.version    = "1.1"
 info.author     = "Unknown"
 info.basename   = "xatimeleft"
 
@@ -21,6 +21,10 @@ float_map_start_time = 0
 
 def load():
     xatimeleft.addCommand('timeleft', timeleft_cmd, 'display_timeleft', 'UNRESTRICTED').register(('console', 'say'))
+    
+    """ If XA loads late, then send es_map_start event to load the start time """
+    if str(es.ServerVar('eventscripts_currentmap')) != "":
+        es_map_start({})
 
 
 def es_map_start(event_var):

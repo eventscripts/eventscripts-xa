@@ -7,7 +7,7 @@ from xa import xa
 #plugin information
 info = es.AddonInfo() 
 info.name     = "Grenade Spam Prevention" 
-info.version  = "1.0" 
+info.version  = "1.2" 
 info.author   = "Unknown"
 info.basename = "xanadespam"
 
@@ -46,6 +46,9 @@ func_lang_text = xanadespam.language.getLanguage()
 # Formal system registration and unregistration
 def load():
     xanadespam.registerCapability('immune_nadespam', 'ADMIN', 'IMMUNITY')
+    """ If XA is loaded late, ensure all userid's are inserted """
+    for player in es.getUseridList():
+        player_activate({'userid':player})
 
 def unload():
     es.addons.unregisterClientCommandFilter(_cc_filter)

@@ -13,7 +13,7 @@ from sqlite3 import dbapi2 as sqlite
 
 info = es.AddonInfo()
 info.name        = "Auth Manage"
-info.version     = "0.6"
+info.version     = "0.7"
 info.author      = "HitThePipe, freddukes"
 info.basename    = "xaauthmanage"
 
@@ -158,6 +158,16 @@ def load():
         admindetail.select(9, _adminlist)
 
         xaauthmanage.logging.log('basic_auth use setup complete.')
+        
+    """ 
+    If the addon is loaded whilst people are playing, ensure they are in
+    the database.
+    """
+    for player in es.getUseridList():
+        fakeEventVariable = {}
+        fakeEventVariable['es_steamid']  = es.getplayersteamid(player)
+        fakeEventVariable['es_username'] = es.getplayername(player)
+        player_activate(fakeEventVariable)
 	
 def unload():
     es.dbgmsg(1,'*****unload')

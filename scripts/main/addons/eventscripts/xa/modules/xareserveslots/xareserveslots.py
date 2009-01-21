@@ -7,7 +7,7 @@ from xa import xa
 #plugin information
 info = es.AddonInfo()
 info.name       = "Reserve Slots"
-info.version    = "1.2.1"
+info.version    = "1.2.2"
 info.author     = "Errant"
 info.basename   = "xareserveslots"
 
@@ -206,6 +206,11 @@ def load():
     playerlib.registerPlayerListFilter("#res", returnReservedStatus)
     # And say were loaded!
     xareserveslots.logging.log("Loaded Reserve slots (mani clone) %s" % str(info.version))
+    
+    """ If XA has loaded whilst players are active, ensure they're not forgotten """
+    es_map_start({})
+    for player in map(str, es.getUseridList() ):
+        player_activate({'userid':player})
  
 def unload():
     for userid in es.getUseridList():

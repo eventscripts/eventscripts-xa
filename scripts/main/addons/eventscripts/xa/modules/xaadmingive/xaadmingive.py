@@ -3,21 +3,20 @@ import gamethread
 import popuplib
 import playerlib
 
-import xa
 from xa import xa
 
 import psyco
 psyco.full()
 
 info = es.AddonInfo()
-info.name     = 'admingive'
-info.version  = '1.0.3'
+info.name     = 'Admin Give'
+info.version  = '1.0.4'
 info.basename = 'xaadmingive'
 
-admingive  			 = xa.register('xaadmingive')
-xalanguage 			 = admingive.language.getLanguage()
-admingive_anonymous  = admingive.setting.createVariable('admingive_anonymous' , 0, 'Whether or not giving a player a weapon is anonymous... 1 = Anonymous, 0 = Global')
-admingive_stripfirst = admingive.setting.createVariable("admingive_stripfirst", 1, 'Whether or not the target is striped of their weapon before being gave another.\n // Will only strip the same slot as their being given.')
+xaadmingive  			 = xa.register('xaadmingive')
+xalanguage 			     = xaadmingive.language.getLanguage()
+admingive_anonymous      = xaadmingive.setting.createVariable('admingive_anonymous' , 0, 'Whether or not giving a player a weapon is anonymous... 1 = Anonymous, 0 = Global')
+admingive_stripfirst     = xaadmingive.setting.createVariable("admingive_stripfirst", 1, 'Whether or not the target is striped of their weapon before being gave another.\n // Will only strip the same slot as their being given.')
 
 pistols  = ('usp','glock','p228','deagle','elite','fiveseven')
 shotguns = ('m3','xm1014')
@@ -39,7 +38,7 @@ def player_disconnect(ev):
 def load():
     admingivemenu = popuplib.easymenu("admingive", "_tempcore", _select_give)
     admingivemenu.settitle(xalanguage["give object"])
-    admingive.addMenu("admingive", xalanguage["give"], "admingive", "give", "ADMIN")
+    xaadmingive.addMenu("admingive", xalanguage["give"], "admingive", "give", "ADMIN")
     admingivemenu.addoption(1, xalanguage["give weapon"])
     admingivemenu.addoption(2, xalanguage["give item"])
     admingivemenu.addoption(3, xalanguage["give health"])
@@ -151,7 +150,7 @@ def unload():
         if popuplib.exists(popup):
             popuplib.close(popup, es.getUseridList())
             popuplib.delete(popup)
-    xa.unregister('admingive')
+    xaadmingive.unregister()
     
 def _select_target(userid, choice, popupid):
     if not admins.has_key(userid):

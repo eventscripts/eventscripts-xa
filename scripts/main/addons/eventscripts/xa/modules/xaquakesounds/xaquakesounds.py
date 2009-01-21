@@ -12,7 +12,7 @@ firstblood = False
 #plugin information
 info = es.AddonInfo()
 info.name           = "Quake Sounds"
-info.version        = "0.1"
+info.version        = "0.2"
 info.author         = "Hunter"
 info.basename       = "xaquakesounds"
 
@@ -90,6 +90,12 @@ xaquakekills['holyshit']['trigger_count']     = xaquakesounds.setting.createVari
 def load():
     xaquakesounds.addRequirement("xasettings")
     xaquakesounds.xasettings.registerMethod("xaquakesounds", _switch_setting, xalanguage["quake sounds"])
+    
+    """ If XA is loaded whilst players are active, add them all """
+    if str(es.ServerVar('eventscripts_currentmap')) != "":
+        es_map_start({})
+    for player in es.getUseridList():
+        player_activate({'userid':player})
 
 def unload():
     xaquakesounds.xasettings.unregister("xaquakesounds")

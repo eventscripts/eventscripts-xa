@@ -5,13 +5,12 @@ import playerlib
 import cPickle
 import os
 
-import xa
 from xa import xa
 
 info                = es.AddonInfo() 
 info.basename       = "xateleport"
 info.name           = "Telport"
-info.version        = "1.0.0"
+info.version        = "1.0.1"
 
 xateleport   = xa.register(info.basename)
 xalanguage   = xateleport.language.getLanguage() 
@@ -37,6 +36,9 @@ def load():
     xateleportmenu.addoption(3, xalanguage["teleport to other"])
     
     xateleport.addMenu("xa_teleport_menu", xalanguage["teleport"], "xa_teleport_menu", "teleport_players", "ADMIN")
+    
+def unload():
+    xateleport.unregister()
     
 def saveDatabase():
     strPath = os.path.join(es.getAddonPath("xa"), "data", "locations.db")

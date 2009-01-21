@@ -14,13 +14,11 @@ vote_players   = {}
 multi_map      = []
 change_map     = None
 
-map_file       = open(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maplist.txt', 'r')
-map_list       = filter(lambda x: False if x == '' or x.startswith('//') else os.path.isfile(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maps/%s.bsp'%x), map(lambda x: x.replace('\n',''), map_file.readlines()))
-map_file.close()
+
 
 info                = es.AddonInfo() 
 info.name           = "Vote" 
-info.version        = "0.3" 
+info.version        = "0.4" 
 info.author         = "freddukes" 
 info.basename       = "xavote"
 
@@ -93,6 +91,12 @@ def load():
     registerVoteMenu("multimap", xalanguage["build multi map"], MultiMap, serverCmdFunction= MultiMapCommand)
     
     registerVoteMenu("random", xalanguage["random map vote"], RandomMapVote, serverCmdFunction= RandomCommand)
+    
+    """ If XA loads late, then ensure all users are added to the dictionary. """
+    for player in map(str, es.getUseridList() ):
+        player_activate({'userid':player})
+    if str(es.ServerVar('eventscripts_currentmap')) != "":
+        gamethread.delayed(10, es_map_start, {})
 
 def unload():
     gamethread.cancelDelayed('vote_endmap')
@@ -110,6 +114,14 @@ def player_disconnect(event_var):
 def round_end(ev):
     if change_map == 2:
         EndMap()
+        
+def es_map_start(ev):
+    global map_list
+    #print str(es.ServerVar("xa_vote_map_file")) + " is the actual variable"
+    #print str(vote_map_file) + " is the value we got..."
+    map_file       = open(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/' + str(vote_map_file), 'r')
+    map_list       = filter(lambda x: False if x == '' or x.startswith('//') else os.path.isfile(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maps/%s.bsp'%x), map(lambda x: x.replace('\n',''), map_file.readlines()))
+    map_file.close()
 #
 #################################
     
@@ -389,7 +401,7 @@ class Vote:
         
     def StartVote(self):
         self.vote.showmenu = False
-        self.vote.start(vote_timer)
+        self.vote.start(float(vote_timer))
         self.display = HudHint(self.options, self.shortName)
         for player in vote_players:
             if not vote_players[player]['stopped']: 
@@ -398,7 +410,7 @@ class Vote:
                 tokens = {} 
                 tokens['reason'] = vote_players[player]['reason'] 
                 es.tell(player, '#green', xalanguage("stopped vote", tokens, playerlib.getPlayer(player).get("lang"))) 
-        es.cexec_all('playgamesound ' + vote_start_sound)
+        es.cexec_all('playgamesound ' + str(vote_start_sound) )
         self.display.Start()
         
     def Message(self, userid, votename, optionid, option):
@@ -411,7 +423,7 @@ class Vote:
         
     def Win(self, popupid, optionid, choice, winner_votes, winner_percent, total_votes, was_tied, was_canceled):
         self.display.Stop()
-        es.cexec_all('playgamesound',vote_end_sound)
+        es.cexec_all('playgamesound', str(vote_end_sound) )
         if not was_tied or was_canceled: 
             if self.option and self.options[choice]['winner']:
                 if isinstance(self.option, str):
@@ -473,7 +485,7 @@ class HudHint:
             self.Loop()
         
     def Loop(self):
-        time_left = int(self.starttime - time.time() + vote_timer)
+        time_left = int(self.starttime - time.time() + float(vote_timer) )
         if time_left < 0:
             time_left = 0
         SortedVotes = self.SortDict()

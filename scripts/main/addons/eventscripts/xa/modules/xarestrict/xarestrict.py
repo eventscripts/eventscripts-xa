@@ -12,7 +12,7 @@ from xa import xa
 #plugin information
 info = es.AddonInfo()
 info.name       = "Restrict Weapons"
-info.version    = "1.0"
+info.version    = "1.3"
 info.author     = "Unknown"
 info.basename   = "xarestrict"
 
@@ -360,6 +360,11 @@ def getWeaponList(weapons):
 
 ###
 
+
+def load():
+    """ If XA loads late, then call map start by default to reset everythin """
+    if (str(es.ServerVar('eventscripts_currentmap')) != ""):
+        es_map_start({})
 
 def es_map_start(event_var):
    clearTeamRestrictions()

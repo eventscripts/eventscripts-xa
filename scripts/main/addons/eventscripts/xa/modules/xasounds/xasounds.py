@@ -10,7 +10,7 @@ playerlimit = {}
 #plugin information
 info = es.AddonInfo()
 info.name           = "Sounds"
-info.version        = "0.1"
+info.version        = "0.2"
 info.author         = "Hunter"
 info.basename       = "xasounds"
 
@@ -42,6 +42,12 @@ def load():
     xasounds.registerCapability('play_adminsound', 'ADMIN')
     xasounds.addMenu('xamainsoundmenu',xalanguage['sounds'],'xamainsoundmenu','play_sound','UNRESTRICTED')
     xasounds.xasettings.registerMethod("xasounds", _switch_setting, xalanguage["sounds"])
+    
+    """ If XA is loaded whilst a map is loaded, then call map start event """
+    if str(es.ServerVar('eventscripts_currentmap')) != "":
+        es_map_start({})
+    for player in es.getUseridList():
+        player_activate({'userid':player})
 
 def unload():
     xasounds.xasettings.unregister("xasounds")

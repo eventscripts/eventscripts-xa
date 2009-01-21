@@ -11,7 +11,7 @@ Executes ./cfg/xa/xaprefixexec/<map prefix>.cfg every map
 #plugin information
 info = es.AddonInfo() 
 info.name     = "Map Prefix cfg" 
-info.version  = "1.0" 
+info.version  = "1.1" 
 info.author   = "Unknown"
 info.basename = "xaprefixexec"
 
@@ -45,6 +45,11 @@ def load():
     _check_directory(str_dir)
     str_dir += '/prefixexec'
     _check_directory(str_dir)
+    
+    """ If XA is loaded whilst a map is loaded, run the map start event """
+    mapName = str(es.ServerVar('eventscripts_currentmap'))
+    if mapName != "":
+        es_map_start({'mapname':mapName})
 
 
 def unload():
