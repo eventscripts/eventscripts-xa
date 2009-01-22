@@ -479,26 +479,32 @@ class Vote:
     def Win(self, popupid, optionid, choice, winner_votes, winner_percent, total_votes, was_tied, was_canceled):
         self.display.Stop()
         es.cexec_all('playgamesound', str(vote_end_sound) )
-        if not was_tied or was_canceled: 
-            if self.option and self.options[choice]['winner']:
-                if isinstance(self.option, str):
-                    es.server.cmd(self.option)
-                elif callable(self.option):
-                    self.params = {}
-                    self.params['winner'] = choice
-                    self.params['votes'] = winner_votes
-                    self.params['percent'] = winner_percent
-                    self.params['total votes'] = total_votes
-                    self.option(self.params)
-            tokens = {}
-            tokens['winner']     = choice 
-            tokens['votes']      = winner_votes 
-            tokens['totalvotes'] = total_votes
-            tokens['percent']    = winner_percent 
-            for player in playerlib.getPlayerList(): 
-                es.tell(int(player),'#multi',xalanguage("vote win",tokens, player.get("lang"))) 
+        if not was_tied or was_canceled:
+            if choice != "0" and winner_votes:
+                if self.option and self.options[choice]['winner']:
+                    if isinstance(self.option, str):
+                        es.server.cmd(self.option)
+                    elif callable(self.option):
+                        self.params = {}
+                        self.params['winner']      = choice
+                        self.params['votes']       = winner_votes
+                        self.params['percent']     = winner_percent
+                        self.params['total votes'] = total_votes
+                        self.option(self.params)
+                tokens = {}
+                tokens['winner']     = choice 
+                tokens['votes']      = winner_votes 
+                tokens['totalvotes'] = total_votes
+                tokens['percent']    = winner_percent
+                
+                for player in playerlib.getPlayerList("#human"): 
+                    es.tell(int(player),'#multi',xalanguage("vote win",tokens, player.get("lang")))
+            else:
+                for player in playerlib.getPlayerList("#human"): 
+                    es.tell(int(player),'#green',xalanguage("vote no voters", {}, player.get("lang")))
+             
         elif was_tied and not was_canceled:
-            for player in playerlib.getPlayerList(): 
+            for player in playerlib.getPlayerList("#human"): 
                 es.tell(int(player),'#green',xalanguage("vote tie", player.get("lang")))
             possibilities = []
             maxAmount = 0
@@ -511,7 +517,7 @@ class Vote:
             winner = random.choice(possibilities)
             tokens = {}
             tokens['winner'] = winner
-            for player in playerlib.getPlayerList(): 
+            for player in playerlib.getPlayerList("#human"): 
                 es.tell(int(player),'#multi',xalanguage("random win", tokens, player.get("lang")))
             if self.option and self.options[winner]['winner']:
                 if isinstance(self.option, str):
@@ -524,7 +530,7 @@ class Vote:
                     self.params['total votes'] = total_votes
                     self.option(self.params)
         else: 
-            for player in playerlib.getPlayerList(): 
+            for player in playerlib.getPlayerList("#human"): 
                 es.tell(int(player),'#green',xalanguage("vote canceled", player.get("lang"))) 
 
 class HudHint:
