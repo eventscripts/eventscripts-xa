@@ -6,7 +6,7 @@ from xa import xa
 
 info = es.AddonInfo()
 info.name       = 'Victim Stats'
-info.version    = '4.0'
+info.version    = '4.1'
 info.author     = 'Satoon101'
 info.basename   = 'xavictimstats'
 
@@ -158,8 +158,19 @@ class Player:
                 else:
                     self.Totals[type].addTotals(player.hits,player.damage,player.kills)
             hittype = 'hit' if player.hits == 1 else 'hits'
-            if type == 'Killed' and player.kills > 1:
-                text = xalang('KillsText',{'type':addtype,'name':name,'kills':player.kills,'damage':player.damage,'hits':player.hits,'hittype':hittype},self.lang)
+            if type == 'Killed' and player.kills >= 1:
+                """ 
+                Killer Jason mac10 @ 1.26m (3.69ft) still has 8 hp left
+                Killed <name> <weapoN> @ <distance> <feet> 
+                """
+                text = xalang('KillsText',{'type':addtype,'name':name,'damage':player.damage,'hits':player.hits,'hittype':hittype},self.lang)
+                newtext = xalang("WeaponText", {"text":text, "weapon":player.weapon,"distance":player.distance}, self.lang)
+                text = gui2(newtext, addtype) if self.setting > 2 else newtext
+                if self.setting in [1,3,5]:
+                    sort = sorted(player.hitgroup)
+                    text = '%s, %s: %s'%(text,xalang(hitgroups[sort[0]],self.lang),player.hitgroup[sort[0]])
+                    for x in range(1,len(player.hitgroup)):
+                        text = '%s - %s: %s'%(text,xalang(hitgroups[sort[x]],self.lang),player.hitgroup[sort[x]])
             else:
                 newtype = '%s %s'%(addtype,xalang('HeadShot',{},self.lang)) if type == 'Killed' and player.headshot else addtype
                 text = xalang('MainText',{'type':newtype,'name':name,'damage':player.damage,'hits':player.hits,'hittype':hittype},self.lang)
