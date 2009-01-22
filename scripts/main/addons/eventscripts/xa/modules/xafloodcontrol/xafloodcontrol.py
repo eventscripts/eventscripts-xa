@@ -8,7 +8,7 @@ from xa import xa
 #plugin information
 info = es.AddonInfo()
 info.name       = "Flood Control"
-info.version    = "0.1"
+info.version    = "0.2"
 info.author     = "Venjax"
 info.basename   = "xafloodcontrol"
 
@@ -59,5 +59,5 @@ def unload():
         es.addons.unregisterSayFilter(floodcontrol)
     xafloodcontrol.unregister()
 
-def es_map_start():
+def es_map_start(event_var):
     timer.clear()
