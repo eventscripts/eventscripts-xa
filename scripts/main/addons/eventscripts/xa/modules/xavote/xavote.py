@@ -12,13 +12,13 @@ vote_list      = {}
 vote_admins    = {}
 vote_players   = {}
 multi_map      = []
+previousMaps   = []
+round_count    = {}
 change_map     = None
-
-
 
 info                = es.AddonInfo() 
 info.name           = "Vote" 
-info.version        = "0.4" 
+info.version        = "0.5" 
 info.author         = "freddukes" 
 info.basename       = "xavote"
 
@@ -28,6 +28,13 @@ vote_timer       = xavote.setting.createVariable('vote_timer',       30,        
 vote_start_sound = xavote.setting.createVariable("vote_start_sound", "ambient/machines/teleport4.wav",  "The sound that will be played when a vote is started") 
 vote_end_sound   = xavote.setting.createVariable("vote_end_sound",   "ambient/alarms/warningbell1.wav", "The sound that will be played when a vote is ended"  )
 vote_map_file    = xavote.setting.createVariable("vote_map_file" ,   "maplist.txt",                     "The map file for all of your votes from ../<directory>/\n// e.g, from ../cstrike/"  )
+
+end_of_map_vote             = xavote.setting.createVariable('end_of_map_vote',             1,   'Whether or not you wish to enable automatic end of map voting.\n// 0 = disabled\n// 1 = enabled')
+amount_of_maps              = xavote.setting.createVariable('amount_of_maps',              8,   'Amount of maps to be inside the end of map vote')
+ignore_last_map_amount      = xavote.setting.createVariable('ignore_last_map_amount',      3,   'The number of previous maps played to be ignored from the random vote')
+time_before_end_of_map_vote = xavote.setting.createVariable('time_before_end_of_map_vote', 180, 'Amount of seconds before the end of the map that the vote will appear.\n// If you do not wish to use this feature use a value of 0')
+rounds_before_mp_winlimit   = xavote.setting.createVariable('rounds_before_mp_winlimit',   2,   'Amount of rounds before mp_winlimit that the vote will appear.\n// If you do not wish to use this feature use a value of 0')
+rounds_before_mp_maxrounds  = xavote.setting.createVariable('rounds_before_mp_maxrounds',  3,   'Amount of rounds before mp_maxrounds that the vote will appear.\n// If you do not wish to use this feature use a value of 0')
 
 xalanguage = xavote.language.getLanguage()
 
@@ -96,10 +103,11 @@ def load():
     for player in map(str, es.getUseridList() ):
         player_activate({'userid':player})
     if str(es.ServerVar('eventscripts_currentmap')) != "":
-        gamethread.delayed(10, es_map_start, {})
+        es_map_start({'mapname':str(es.ServerVar('eventscripts_currentmap'))})
 
 def unload():
     gamethread.cancelDelayed('vote_endmap')
+    gamethread.cancelDelayed('votemap_timer')
     xavote.unregister()
 
 #################################
@@ -111,17 +119,50 @@ def player_disconnect(event_var):
     if vote_players.has_key(event_var['userid']):
         del vote_players[event_var['userid']] 
         
-def round_end(ev):
+def round_end(event_var):
     if change_map == 2:
         EndMap()
+    elif not change_map:
+        round_count['round_counting'] += 1
+        winlimit = int(es.ServerVar('mp_winlimit')) - int(rounds_before_mp_winlimit)
+        roundlimit = int(es.ServerVar('mp_maxrounds')) - int(rounds_before_mp_maxrounds)
+        if event_var['winner'] == '2':
+            round_count['t_wins'] += 1
+        elif event_var['winner'] == '3':
+            round_count['c_wins'] += 1
+        if (round_count['round_counting'] >= roundlimit) and roundlimit > 0:
+            EndOfMapVote()
+        elif (round_count['c_wins'] >= winlimit or round_count['t_wins'] >= winlimit) and winlimit > 0:
+            EndOfMapVote()
+            
+def server_cvar(event_var):
+    if event_var['cvarname'] == "mp_timelimit" and startTime is not None and int(time_before_end_of_map_vote):
+        gamethread.cancelDelayed('votemap_timer')
+        delay = es.ServerVar('mp_timelimit') * 60 - int(time_before_end_of_map_vote) - (time.time() - startTime)
+        if delay:
+            gamethread.delayedname(delay, 'votemap_timer', EndOfMapVote)
+        else:
+            EndOfMapVote()
         
-def es_map_start(ev):
+def es_map_start(event_var):
     global map_list
-    #print str(es.ServerVar("xa_vote_map_file")) + " is the actual variable"
-    #print str(vote_map_file) + " is the value we got..."
+    global startTime
+    global round_count
     map_file       = open(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/' + str(vote_map_file), 'r')
     map_list       = filter(lambda x: False if x == '' or x.startswith('//') else os.path.isfile(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maps/%s.bsp'%x), map(lambda x: x.replace('\n',''), map_file.readlines()))
     map_file.close()
+    gamethread.cancelDelayed('votemap_timer')
+    round_count = {}
+    round_count['round_counting'] = 0
+    round_count['t_wins']     = 0
+    round_count['c_wins']     = 0
+    round_count['frag_kills'] = 0
+    startTime = time.time()
+    if int(time_before_end_of_map_vote):
+        gamethread.delayed(10, DelayTimer)
+    previousMaps.append(event_var['mapname'])
+    if len(previousMaps) and len(previousMaps) > int(ignore_last_map_amount):
+        previousMaps.remove(previousMaps[0])
 #
 #################################
     
@@ -289,8 +330,7 @@ def MultiMapWin(args):
     winner = args['winner']
     es.set('eventscripts_nextmapoverride', winner)
     if change_map == 1:
-        chattime = int(es.ServerVar('mp_chattime'))
-        gamethread.delayedname(chattime, 'vote_endmap', EndMap)
+        EndMap()
     
 def MultiMapCommand(args):
     global change_map
@@ -337,8 +377,7 @@ def RandomMapWin(args):
     winner = args['winner']
     es.set('eventscripts_nextmapoverride', winner)
     if change_map == 1:
-        chattime = int(es.ServerVar('mp_chattime'))
-        gamethread.delayedname(chattime, 'vote_endmap', EndMap)
+        EndMap()
     
 def RandomCommand(args):
     global change_map
@@ -357,6 +396,22 @@ def RandomCommand(args):
     for random_map in random_list:
         vote.AddOption(random_map, True)
     vote.StartVote()
+    
+def DelayTimer():
+    gamethread.cancelDelayed('votemap_timer')
+    delay = int(es.ServerVar('mp_timelimit')) * 60 - int(time_before_end_of_map_vote) - 10
+    gamethread.delayedname(delay, 'votemap_timer', EndOfMapVote)
+    
+def EndOfMapVote():
+    if not change_map and int(end_of_map_vote):
+        string = ""
+        for ignoremap in previousMaps:
+            string += (ignoremap + " ")
+        string = string[:-1]
+        if string:
+            es.server.queuecmd('xa_randomvote %s 3 %s' % (amount_of_maps, string))
+        else:
+            es.server.queuecmd('xa_randomvote %s 3' % amount_of_maps)
     
 def EndMap():
     global change_map
@@ -405,7 +460,7 @@ class Vote:
         self.display = HudHint(self.options, self.shortName)
         for player in vote_players:
             if not vote_players[player]['stopped']: 
-                popuplib.send("_vote_" + self.shortName , player) 
+                popuplib.send("vote_" + self.shortName , player) 
             elif vote_players[player]['reason']: 
                 tokens = {} 
                 tokens['reason'] = vote_players[player]['reason'] 
