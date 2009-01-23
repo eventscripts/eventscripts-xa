@@ -11,7 +11,7 @@ from xa import xa
 info = es.AddonInfo()
 # TODO: Change this to your module's data.  -- TODO
 info.name           = "Stats Module"
-info.version        = "0.8"
+info.version        = "0.9"
 info.author         = "Carlsagan43 (Adminc)"
 info.basename       = "xastats"
 
@@ -22,6 +22,7 @@ info.basename       = "xastats"
 # this is a global reference to our module
 xastats = xa.register(info.basename)
 
+directory = str(es.ServerVar('eventscripts_gamedir')).replace('\\', '/').split('/')[~0]
 
 #######################################
 # SERVER VARIABLES
@@ -44,80 +45,86 @@ stats_addonly           = xastats.setting.createVariable('stats_points_add_only'
 bonusTable = {}
 bonusTable['teamkill']          = xastats.setting.createVariable('stats_teamkill_bonus', -10, "The number of points a player will lose for teamkilling")
 bonusTable['suicide']           = xastats.setting.createVariable('stats_suicide_bonus', -5, "The number of points a player will lose for committing suicide. Note that this does not include players typing kill in console or admin slay")
-bonusTable['hostagekill']       = xastats.setting.createVariable('stats_css_hostage_killed_bonus', -15, "How many points the player will lose for killing a hostage")
-bonusTable['hostagerescue']     = xastats.setting.createVariable('stats_css_hostage_rescued_bonus', 5, "How many points a player will gain for rescuing a hostage")
-bonusTable['bombplant']         = xastats.setting.createVariable('stats_css_bomb_planted_bonus', 10, "How many points a player will gain planting the bomb")
-bonusTable['bombdefuse']        = xastats.setting.createVariable('stats_css_bomb_defused_bonus', 10, "How many points a player will gain defusing the bomb")
-bonusTable['teamcteliminated']  = xastats.setting.createVariable('stats_css_t_eliminated_team_bonus', 2, "If Terrorists kill all CT, then all terrrorist will gain this many points")
-bonusTable['teamteliminated']   = xastats.setting.createVariable('stats_css_ct_eliminated_team_bonus', 2, "If CTs kill all Terrorists, then all CTs will gain this many points")
-bonusTable['teambombexplode']   = xastats.setting.createVariable('stats_css_t_target_bombed_team_bonus', 5, "If the bomb explodes, then All Terrorists will gain this many points")
-bonusTable['teambombdefuse']    = xastats.setting.createVariable('stats_css_ct_bomb_defused_team_bonus', 5, "If the bomb is defused, all CTs will gain this many points")
-bonusTable['teambombplant']     = xastats.setting.createVariable('stats_css_t_bomb_planted_team_bonus', 2, "If the bomb is planted, then All Terrorists will gain this many points")
-bonusTable['teamallhostages']   = xastats.setting.createVariable('stats_css_ct_all_hostages_rescued_team_bonus', 10, "If all hostages are rescued, all CTs will gain this many points")
-bonusTable['teamnohostages']    = xastats.setting.createVariable('stats_css_t_no_hostages_rescued_team_bonus', 0, "If Hostages are not rescued, then All Terrorists will gain this many points. Note: This does not stack with any other winning conditions")
-bonusTable['teamhostagekill']   = xastats.setting.createVariable('stats_css_ct_hostage_killed_team_bonus', 1, "If a player kills a hostage, everyone on his team will lose this many points")
-bonusTable['teamhostagerescue'] = xastats.setting.createVariable('stats_css_ct_hostage_rescued_team_bonus', 1, "If a single hostage is rescued, all CTs will gain this many points")
-bonusTable['teamblockcapture']  = xastats.setting.createVariable('stats_dods_block_capture', 4, "Points given to all players blocking the capture")
-bonusTable['teamcapturepoint']  = xastats.setting.createVariable('stats_dods_capture_point', 4, "Points given to all players that captured the point")
-bonusTable['teamroundwin']      = xastats.setting.createVariable('stats_dods_round_win_bonus', 4, "Points given to all players on winning team")
+if directory == "cstrike":
+    bonusTable['hostagekill']       = xastats.setting.createVariable('stats_css_hostage_killed_bonus', -15, "How many points the player will lose for killing a hostage")
+    bonusTable['hostagerescue']     = xastats.setting.createVariable('stats_css_hostage_rescued_bonus', 5, "How many points a player will gain for rescuing a hostage")
+    bonusTable['bombplant']         = xastats.setting.createVariable('stats_css_bomb_planted_bonus', 10, "How many points a player will gain planting the bomb")
+    bonusTable['bombdefuse']        = xastats.setting.createVariable('stats_css_bomb_defused_bonus', 10, "How many points a player will gain defusing the bomb")
+    bonusTable['teamcteliminated']  = xastats.setting.createVariable('stats_css_t_eliminated_team_bonus', 2, "If Terrorists kill all CT, then all terrrorist will gain this many points")
+    bonusTable['teamteliminated']   = xastats.setting.createVariable('stats_css_ct_eliminated_team_bonus', 2, "If CTs kill all Terrorists, then all CTs will gain this many points")
+    bonusTable['teambombexplode']   = xastats.setting.createVariable('stats_css_t_target_bombed_team_bonus', 5, "If the bomb explodes, then All Terrorists will gain this many points")
+    bonusTable['teambombdefuse']    = xastats.setting.createVariable('stats_css_ct_bomb_defused_team_bonus', 5, "If the bomb is defused, all CTs will gain this many points")
+    bonusTable['teambombplant']     = xastats.setting.createVariable('stats_css_t_bomb_planted_team_bonus', 2, "If the bomb is planted, then All Terrorists will gain this many points")
+    bonusTable['teamallhostages']   = xastats.setting.createVariable('stats_css_ct_all_hostages_rescued_team_bonus', 10, "If all hostages are rescued, all CTs will gain this many points")
+    bonusTable['teamnohostages']    = xastats.setting.createVariable('stats_css_t_no_hostages_rescued_team_bonus', 0, "If Hostages are not rescued, then All Terrorists will gain this many points. Note: This does not stack with any other winning conditions")
+    bonusTable['teamhostagekill']   = xastats.setting.createVariable('stats_css_ct_hostage_killed_team_bonus', 1, "If a player kills a hostage, everyone on his team will lose this many points")
+    bonusTable['teamhostagerescue'] = xastats.setting.createVariable('stats_css_ct_hostage_rescued_team_bonus', 1, "If a single hostage is rescued, all CTs will gain this many points")
+elif directory == "dod":
+    bonusTable['teamblockcapture']  = xastats.setting.createVariable('stats_dods_block_capture', 4, "Points given to all players blocking the capture")
+    bonusTable['teamcapturepoint']  = xastats.setting.createVariable('stats_dods_capture_point', 4, "Points given to all players that captured the point")
+    bonusTable['teamroundwin']      = xastats.setting.createVariable('stats_dods_round_win_bonus', 4, "Points given to all players on winning team")
+
+
 
 weaponTable = {}
-weaponTable['ak47']         = xastats.setting.createVariable('stats_css_weapon_ak47', 1.0, "Weapon weight (1.0 default)")
-weaponTable['aug']          = xastats.setting.createVariable('stats_css_weapon_aug', 1.0, "Weapon weight (1.0 default)")
-weaponTable['awp']          = xastats.setting.createVariable('stats_css_weapon_awp', 1.0, "Weapon weight (1.0 default)")
-weaponTable['deagle']       = xastats.setting.createVariable('stats_css_weapon_deagle', 1.2, "Weapon weight (1.2 default)")
-weaponTable['elite']        = xastats.setting.createVariable('stats_css_weapon_elite', 1.4, "Weapon weight (1.4 default)")
-weaponTable['famas']        = xastats.setting.createVariable('stats_css_weapon_famas', 1.0, "Weapon weight (1.0 default)")
-weaponTable['fiveseven']    = xastats.setting.createVariable('stats_css_weapon_fiveseven', 1.5, "Weapon weight (1.5 default)")
-weaponTable['flashbang']    = xastats.setting.createVariable('stats_css_weapon_flashbang', 5.0, "Weapon weight (5.0 default)")
-weaponTable['g3sg1']        = xastats.setting.createVariable('stats_css_weapon_g3sg1', 0.8, "Weapon weight (0.8 default)")
-weaponTable['galil']        = xastats.setting.createVariable('stats_css_weapon_galil', 1.1, "Weapon weight (1.1 default)")
-weaponTable['glock']        = xastats.setting.createVariable('stats_css_weapon_glock', 1.4, "Weapon weight (1.4 default)")
-weaponTable['hegrenade']    = xastats.setting.createVariable('stats_css_weapon_hegrenade', 1.8, "Weapon weight (1.8 default)")
-weaponTable['knife']        = xastats.setting.createVariable('stats_css_weapon_knife', 2, "Weapon weight (2.0 default)")
-weaponTable['m249']         = xastats.setting.createVariable('stats_css_weapon_m249', 1.2, "Weapon weight (1.2 default)")
-weaponTable['m3']           = xastats.setting.createVariable('stats_css_weapon_m3', 1.2, "Weapon weight (1.2 default)")
-weaponTable['m4a1']         = xastats.setting.createVariable('stats_css_weapon_m4a1', 1, "Weapon weight (1.0 default)")
-weaponTable['mac10']        = xastats.setting.createVariable('stats_css_weapon_mac10', 1.5, "Weapon weight (1.5 default)")
-weaponTable['mp5navy']      = xastats.setting.createVariable('stats_css_weapon_mp5navy', 1.2, "Weapon weight (1.2 default)")
-weaponTable['p228']         = xastats.setting.createVariable('stats_css_weapon_p228', 1.5, "Weapon weight (1.5 default)")
-weaponTable['p90']          = xastats.setting.createVariable('stats_css_weapon_p90', 1.2, "Weapon weight (1.2 default)")
-weaponTable['scout']        = xastats.setting.createVariable('stats_css_weapon_scout', 1.1, "Weapon weight (1.1 default)")
-weaponTable['sg550']        = xastats.setting.createVariable('stats_css_weapon_sg550', 0.8, "Weapon weight (0.8 default)")
-weaponTable['sg552']        = xastats.setting.createVariable('stats_css_weapon_sg552', 1, "Weapon weight (1.0 default)")
-weaponTable['smokegrenade'] = xastats.setting.createVariable('stats_css_weapon_smokegrenade', 5, "Weapon weight (5.0 default)")
-weaponTable['tmp']          = xastats.setting.createVariable('stats_css_weapon_tmp', 1.5, "Weapon weight (1.5 default)")
-weaponTable['ump45']        = xastats.setting.createVariable('stats_css_weapon_ump45', 1.2, "Weapon weight (1.2 default)")
-weaponTable['usp']          = xastats.setting.createVariable('stats_css_weapon_usp', 1.4, "Weapon weight (1.4 default)")
-weaponTable['xm1014']       = xastats.setting.createVariable('stats_css_weapon_xm1014', 1.1, "Weapon weight (1.1 default)")
-weaponTable['30cal']        = xastats.setting.createVariable('stats_dods_weapon_30cal', 1.25, "Weapon weight (1.25 default)")
-weaponTable['amerknife']    = xastats.setting.createVariable('stats_dods_weapon_amerknife', 3, "Weapon weight (3.0 default)")
-weaponTable['bar']          = xastats.setting.createVariable('stats_dods_weapon_bar', 1.2, "Weapon weight (1.2 default)")
-weaponTable['bazooka']      = xastats.setting.createVariable('stats_dods_weapon_bazooka', 2.25, "Weapon weight (2.25 default)")
-weaponTable['c96']          = xastats.setting.createVariable('stats_dods_weapon_c96', 1.5, "Weapon weight (1.5 default)")
-weaponTable['colt']         = xastats.setting.createVariable('stats_dods_weapon_colt', 1.6, "Weapon weight (1.6 default)")
-weaponTable['frag_ger']     = xastats.setting.createVariable('stats_dods_weapon_frag_ger', 1, "Weapon weight (1.0 default)")
-weaponTable['frag_us']      = xastats.setting.createVariable('stats_dods_weapon_frag_us', 1, "Weapon weight (1.0 default)")
-weaponTable['garand']       = xastats.setting.createVariable('stats_dods_weapon_garand', 1.3, "Weapon weight (1.3 default)")
-weaponTable['k98']          = xastats.setting.createVariable('stats_dods_weapon_k98', 1.3, "Weapon weight (1.3 default)")
-weaponTable['k98_scoped']   = xastats.setting.createVariable('stats_dods_weapon_k98_scoped', 1.5, "Weapon weight (1.5 default)")
-weaponTable['m1carbine']    = xastats.setting.createVariable('stats_dods_weapon_m1carbine', 1.2, "Weapon weight (1.2 default)")
-weaponTable['mg42']         = xastats.setting.createVariable('stats_dods_weapon_mg42', 1.2, "Weapon weight (1.2 default)")
-weaponTable['mp40']         = xastats.setting.createVariable('stats_dods_weapon_mp40', 1.25, "Weapon weight (1.25 default)")
-weaponTable['mp44']         = xastats.setting.createVariable('stats_dods_weapon_mp44', 1.35, "Weapon weight (1.35 default)")
-weaponTable['p38']          = xastats.setting.createVariable('stats_dods_weapon_p38', 1.5, "Weapon weight (1.5 default)")
-weaponTable['pschreck']     = xastats.setting.createVariable('stats_dods_weapon_pschreck', 2.25, "Weapon weight (2.25 default)")
-weaponTable['punch']        = xastats.setting.createVariable('stats_dods_weapon_punch', 3, "Weapon weight (3.0 default)")
-weaponTable['riflegren_ger']= xastats.setting.createVariable('stats_dods_weapon_riflegren_ger', 1.3, "Weapon weight (1.3 default)")
-weaponTable['riflegren_us'] = xastats.setting.createVariable('stats_dods_weapon_riflegren_us', 1.3, "Weapon weight (1.3 default)")
-weaponTable['smoke_ger']    = xastats.setting.createVariable('stats_dods_weapon_smoke_ger', 5, "Weapon weight (5.0 default)")
-weaponTable['smoke_us']     = xastats.setting.createVariable('stats_dods_weapon_smoke_us', 5, "Weapon weight (5.0 default)")
-weaponTable['spade']        = xastats.setting.createVariable('stats_dods_weapon_spade', 3, "Weapon weight (3.0 default)")
-weaponTable['spring']       = xastats.setting.createVariable('stats_dods_weapon_spring', 1.5, "Weapon weight (1.5 default)")
-weaponTable['thompson']     = xastats.setting.createVariable('stats_dods_weapon_thompson', 1.25, "Weapon weight (1.25 default)")
+if directory == "cstrike":
+    weaponTable['ak47']         = xastats.setting.createVariable('stats_css_weapon_ak47', 1.0, "Weapon weight (1.0 default)")
+    weaponTable['aug']          = xastats.setting.createVariable('stats_css_weapon_aug', 1.0, "Weapon weight (1.0 default)")
+    weaponTable['awp']          = xastats.setting.createVariable('stats_css_weapon_awp', 1.0, "Weapon weight (1.0 default)")
+    weaponTable['deagle']       = xastats.setting.createVariable('stats_css_weapon_deagle', 1.2, "Weapon weight (1.2 default)")
+    weaponTable['elite']        = xastats.setting.createVariable('stats_css_weapon_elite', 1.4, "Weapon weight (1.4 default)")
+    weaponTable['famas']        = xastats.setting.createVariable('stats_css_weapon_famas', 1.0, "Weapon weight (1.0 default)")
+    weaponTable['fiveseven']    = xastats.setting.createVariable('stats_css_weapon_fiveseven', 1.5, "Weapon weight (1.5 default)")
+    weaponTable['flashbang']    = xastats.setting.createVariable('stats_css_weapon_flashbang', 5.0, "Weapon weight (5.0 default)")
+    weaponTable['g3sg1']        = xastats.setting.createVariable('stats_css_weapon_g3sg1', 0.8, "Weapon weight (0.8 default)")
+    weaponTable['galil']        = xastats.setting.createVariable('stats_css_weapon_galil', 1.1, "Weapon weight (1.1 default)")
+    weaponTable['glock']        = xastats.setting.createVariable('stats_css_weapon_glock', 1.4, "Weapon weight (1.4 default)")
+    weaponTable['hegrenade']    = xastats.setting.createVariable('stats_css_weapon_hegrenade', 1.8, "Weapon weight (1.8 default)")
+    weaponTable['knife']        = xastats.setting.createVariable('stats_css_weapon_knife', 2, "Weapon weight (2.0 default)")
+    weaponTable['m249']         = xastats.setting.createVariable('stats_css_weapon_m249', 1.2, "Weapon weight (1.2 default)")
+    weaponTable['m3']           = xastats.setting.createVariable('stats_css_weapon_m3', 1.2, "Weapon weight (1.2 default)")
+    weaponTable['m4a1']         = xastats.setting.createVariable('stats_css_weapon_m4a1', 1, "Weapon weight (1.0 default)")
+    weaponTable['mac10']        = xastats.setting.createVariable('stats_css_weapon_mac10', 1.5, "Weapon weight (1.5 default)")
+    weaponTable['mp5navy']      = xastats.setting.createVariable('stats_css_weapon_mp5navy', 1.2, "Weapon weight (1.2 default)")
+    weaponTable['p228']         = xastats.setting.createVariable('stats_css_weapon_p228', 1.5, "Weapon weight (1.5 default)")
+    weaponTable['p90']          = xastats.setting.createVariable('stats_css_weapon_p90', 1.2, "Weapon weight (1.2 default)")
+    weaponTable['scout']        = xastats.setting.createVariable('stats_css_weapon_scout', 1.1, "Weapon weight (1.1 default)")
+    weaponTable['sg550']        = xastats.setting.createVariable('stats_css_weapon_sg550', 0.8, "Weapon weight (0.8 default)")
+    weaponTable['sg552']        = xastats.setting.createVariable('stats_css_weapon_sg552', 1, "Weapon weight (1.0 default)")
+    weaponTable['smokegrenade'] = xastats.setting.createVariable('stats_css_weapon_smokegrenade', 5, "Weapon weight (5.0 default)")
+    weaponTable['tmp']          = xastats.setting.createVariable('stats_css_weapon_tmp', 1.5, "Weapon weight (1.5 default)")
+    weaponTable['ump45']        = xastats.setting.createVariable('stats_css_weapon_ump45', 1.2, "Weapon weight (1.2 default)")
+    weaponTable['usp']          = xastats.setting.createVariable('stats_css_weapon_usp', 1.4, "Weapon weight (1.4 default)")
+    weaponTable['xm1014']       = xastats.setting.createVariable('stats_css_weapon_xm1014', 1.1, "Weapon weight (1.1 default)")
+elif directory == "dod":
+    weaponTable['30cal']        = xastats.setting.createVariable('stats_dods_weapon_30cal', 1.25, "Weapon weight (1.25 default)")
+    weaponTable['amerknife']    = xastats.setting.createVariable('stats_dods_weapon_amerknife', 3, "Weapon weight (3.0 default)")
+    weaponTable['bar']          = xastats.setting.createVariable('stats_dods_weapon_bar', 1.2, "Weapon weight (1.2 default)")
+    weaponTable['bazooka']      = xastats.setting.createVariable('stats_dods_weapon_bazooka', 2.25, "Weapon weight (2.25 default)")
+    weaponTable['c96']          = xastats.setting.createVariable('stats_dods_weapon_c96', 1.5, "Weapon weight (1.5 default)")
+    weaponTable['colt']         = xastats.setting.createVariable('stats_dods_weapon_colt', 1.6, "Weapon weight (1.6 default)")
+    weaponTable['frag_ger']     = xastats.setting.createVariable('stats_dods_weapon_frag_ger', 1, "Weapon weight (1.0 default)")
+    weaponTable['frag_us']      = xastats.setting.createVariable('stats_dods_weapon_frag_us', 1, "Weapon weight (1.0 default)")
+    weaponTable['garand']       = xastats.setting.createVariable('stats_dods_weapon_garand', 1.3, "Weapon weight (1.3 default)")
+    weaponTable['k98']          = xastats.setting.createVariable('stats_dods_weapon_k98', 1.3, "Weapon weight (1.3 default)")
+    weaponTable['k98_scoped']   = xastats.setting.createVariable('stats_dods_weapon_k98_scoped', 1.5, "Weapon weight (1.5 default)")
+    weaponTable['m1carbine']    = xastats.setting.createVariable('stats_dods_weapon_m1carbine', 1.2, "Weapon weight (1.2 default)")
+    weaponTable['mg42']         = xastats.setting.createVariable('stats_dods_weapon_mg42', 1.2, "Weapon weight (1.2 default)")
+    weaponTable['mp40']         = xastats.setting.createVariable('stats_dods_weapon_mp40', 1.25, "Weapon weight (1.25 default)")
+    weaponTable['mp44']         = xastats.setting.createVariable('stats_dods_weapon_mp44', 1.35, "Weapon weight (1.35 default)")
+    weaponTable['p38']          = xastats.setting.createVariable('stats_dods_weapon_p38', 1.5, "Weapon weight (1.5 default)")
+    weaponTable['pschreck']     = xastats.setting.createVariable('stats_dods_weapon_pschreck', 2.25, "Weapon weight (2.25 default)")
+    weaponTable['punch']        = xastats.setting.createVariable('stats_dods_weapon_punch', 3, "Weapon weight (3.0 default)")
+    weaponTable['riflegren_ger']= xastats.setting.createVariable('stats_dods_weapon_riflegren_ger', 1.3, "Weapon weight (1.3 default)")
+    weaponTable['riflegren_us'] = xastats.setting.createVariable('stats_dods_weapon_riflegren_us', 1.3, "Weapon weight (1.3 default)")
+    weaponTable['smoke_ger']    = xastats.setting.createVariable('stats_dods_weapon_smoke_ger', 5, "Weapon weight (5.0 default)")
+    weaponTable['smoke_us']     = xastats.setting.createVariable('stats_dods_weapon_smoke_us', 5, "Weapon weight (5.0 default)")
+    weaponTable['spade']        = xastats.setting.createVariable('stats_dods_weapon_spade', 3, "Weapon weight (3.0 default)")
+    weaponTable['spring']       = xastats.setting.createVariable('stats_dods_weapon_spring', 1.5, "Weapon weight (1.5 default)")
+    weaponTable['thompson']     = xastats.setting.createVariable('stats_dods_weapon_thompson', 1.25, "Weapon weight (1.25 default)")
 
-weaponTable['prop_physics'] = xastats.setting.createVariable('stats_prop_physics', 1.2, "Barrel explosions/collisions weight (1.2 default)")
-weaponTable['env_explosion']= xastats.setting.createVariable('stats_env_explosion', 1.0, "Server created explosions weight (1.0 default)")
+weaponTable['prop_physics']     = xastats.setting.createVariable('stats_prop_physics', 1.2, "Barrel explosions/collisions weight (1.2 default)")
+weaponTable['env_explosion']    = xastats.setting.createVariable('stats_env_explosion', 1.0, "Server created explosions weight (1.0 default)")
 
 
 #######################################
@@ -128,7 +135,7 @@ sessionTable = None
 statTable = None
 playerbomb = None
 text = xastats.language.getLanguage()
-pop = popuplib.create('session_popup')
+pop  = popuplib.create('session_popup')
 pop2 = popuplib.easymenu('stats_adminplayer', None, None)
 
 mani_string  = "steamid,address,lastconnected,rank,points,deaths,headshots,kills,suicides,teamkills,timeconnected,"
@@ -160,9 +167,8 @@ def load():
 
     statTable.readTable()
 
-    for each in es.getUseridList(): # The session table is something we want to create rather than reload
-        sessionTable.add(each)
-        statTable.add(each)
+    for each in map(str, es.getUseridList()): # The session table is something we want to create rather than reload
+        player_activate({'userid':each})
 
     xastats.addCommand('xa_rank',rankPlayer,'stat_rank','UNRESTRICTED').register(('say', 'console')) 
     xastats.addCommand('xa_session',statPopup,'stat_session','UNRESTRICTED').register(('say', 'console')) 

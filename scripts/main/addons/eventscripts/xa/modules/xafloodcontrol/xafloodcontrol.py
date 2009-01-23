@@ -14,7 +14,7 @@ info.basename   = "xafloodcontrol"
 
 xafloodcontrol = xa.register(info.basename)
 lang_text = xafloodcontrol.language.getLanguage() 
-chat_flood_time = xafloodcontrol.setting.createVariable('chat_flood_time', '1.5')
+chat_flood_time = xafloodcontrol.setting.createVariable('chat_flood_time', '1.5', "The amount of time (in seconds) that after a player speaks they are restricted from speaking again")
 timer = {}
 
 def floodcontrol(userid, message, teamonly):

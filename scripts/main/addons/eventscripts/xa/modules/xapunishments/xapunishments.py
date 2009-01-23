@@ -22,11 +22,11 @@ punishment_cross_ref = {}
 
 xapunishments               = xa.register(info.basename)
 xalanguage                  = xapunishments.language.getLanguage()
-xa_adminburn_anonymous      = xapunishments.setting.createVariable('adminburn_anonymous', 0)
-xa_adminslap_anonymous      = xapunishments.setting.createVariable('adminslap_anonymous', 0)
-xa_adminslay_anonymous      = xapunishments.setting.createVariable('adminslay_anonymous', 0)
-xa_admin_burn_time          = xapunishments.setting.createVariable('admin_burn_time', 20)
-xa_slap_to_damage           = xapunishments.setting.createVariable('slap_to_damage', 10)
+xa_adminburn_anonymous      = xapunishments.setting.createVariable('adminburn_anonymous', 0, "When an admin burns a player, will the text be cut out from chat?")
+xa_adminslap_anonymous      = xapunishments.setting.createVariable('adminslap_anonymous', 0, "When an admin slaps a player, will the text be cut out from chat?")
+xa_adminslay_anonymous      = xapunishments.setting.createVariable('adminslay_anonymous', 0, "When an admin slays a player, will the text be cut out from chat?")
+xa_admin_burn_time          = xapunishments.setting.createVariable('admin_burn_time', 20, "The amount of time (in seconds) to burna  player for")
+xa_slap_to_damage           = xapunishments.setting.createVariable('slap_to_damage', 10, "How much health to slap a player to")
 
 def load():
     #Load Function for Player Settings for XA.

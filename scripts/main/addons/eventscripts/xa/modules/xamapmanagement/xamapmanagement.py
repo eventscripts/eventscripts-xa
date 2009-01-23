@@ -19,7 +19,7 @@ gDefaultMaps = ('cs_assault','cs_compound','cs_havana','cs_italy','cs_militia','
 
 xamapmanagement = xa.register('xamapmanagement')
 xalanguage = xamapmanagement.language.getLanguage()
-xa_announce_setnextmap = xamapmanagement.setting.createVariable('announce_setnextmap', 1)
+xa_announce_setnextmap = xamapmanagement.setting.createVariable('announce_setnextmap', 1, "Announce that a new map has been set in chat to all players?")
 
 nextmapvar = es.ServerVar('eventscripts_nextmapoverride')
 
