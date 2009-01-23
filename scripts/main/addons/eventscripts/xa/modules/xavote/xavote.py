@@ -18,7 +18,7 @@ change_map     = None
 
 info                = es.AddonInfo() 
 info.name           = "Vote" 
-info.version        = "0.5" 
+info.version        = "0.6" 
 info.author         = "freddukes" 
 info.basename       = "xavote"
 
@@ -98,6 +98,8 @@ def load():
     registerVoteMenu("multimap", xalanguage["build multi map"], MultiMap, serverCmdFunction= MultiMapCommand)
     
     registerVoteMenu("random", xalanguage["random map vote"], RandomMapVote, serverCmdFunction= RandomCommand)
+    
+    registerVoteMenu("stopvotes", xalanguage["stop votes"], StopVotes, serverCmdFunction=StopVotesCommand)
     
     """ If XA loads late, then ensure all users are added to the dictionary. """
     for player in map(str, es.getUseridList() ):
@@ -235,8 +237,8 @@ def customVoteQuestions():
     userid    = es.getcmduserid()
     title     = str(es.getargs()).split('^^^')[0].strip()
     questions = str(es.getargs()).split('^^^')[1].split(',')
-    myvote = Vote()
-    myvote.CreateVote(str(userid), title)
+    myvote = Vote(str(userid))
+    myvote.CreateVote(title)
     for question in questions:
         myvote.AddOption(question.strip())
     myvote.StartVote()
@@ -244,15 +246,15 @@ def customVoteQuestions():
 def customVoteCommand(args):
     title     = args[0].strip()
     questions = args[1].split(',')
-    myvote = Vote()
-    myvote.CreateVote(title, title)
+    myvote = Vote(title)
+    myvote.CreateVote(title)
     for question in questions:
         myvote.AddOption(question.strip())
     myvote.StartVote()
     
 def rconVote(userid, vote):
-    myvote = Vote()
-    myvote.CreateVote(vote, vote_list[vote]['question'], vote_list[vote]['command'])
+    myvote = Vote(vote)
+    myvote.CreateVote(vote_list[vote]['question'], vote_list[vote]['command'])
     myvote.AddOption("Yes", True)
     myvote.AddOption("No")
     myvote.StartVote()
@@ -260,23 +262,23 @@ def rconVote(userid, vote):
 def rconCommand(args):
     question = args[0]
     command  = args[1]
-    myvote = Vote()
-    myvote.CreateVote(question, question, command)
+    myvote = Vote(question)
+    myvote.CreateVote(question, command)
     myvote.AddOption("Yes", True)
     myvote.AddOption("No")
     myvote.StartVote()
         
 def questionVote(userid, vote):
-    myvote = Vote()
-    myvote.CreateVote(vote, vote_list[vote]['question'])
+    myvote = Vote(vote)
+    myvote.CreateVote(vote_list[vote]['question'])
     myvote.AddOption("Yes")
     myvote.AddOption("No")
     myvote.StartVote()
     
 def questionCommand(args):
     question = args[0]
-    myvote = Vote()
-    myvote.CreateVote(question, question)
+    myvote = Vote(question)
+    myvote.CreateVote(question)
     myvote.AddOption("Yes")
     myvote.AddOption("No")
     myvote.StartVote()
@@ -319,8 +321,8 @@ def StartMultiMap(userid, choice, popupid):
     global change_map
     global multi_map
     change_map = int(choice)
-    myvote = Vote()
-    myvote.CreateVote("multimap", "Please select a map", MultiMapWin)
+    myvote = Vote("multimap")
+    myvote.CreateVote("Please select a map", MultiMapWin)
     for mymap in multi_map:
         myvote.AddOption(mymap, True)
     multi_map = []
@@ -337,8 +339,8 @@ def MultiMapCommand(args):
     global multi_map
     multi_map = args[0].split(',')
     change_map = int(args[1].replace('immediately','1').replace('round_end','2').replace('map_end','3'))
-    myvote = Vote()
-    myvote.CreateVote("multimap", "Please select a map", MultiMapWin)
+    myvote = Vote("multimap")
+    myvote.CreateVote("Please select a map", MultiMapWin)
     for mymap in multi_map:
         myvote.AddOption(mymap.strip(), True)
     myvote.StartVote()
@@ -360,8 +362,8 @@ def StartRandomMapVote(userid, choice, popupid):
     mypopup.send(userid)
     
 def RandomMapVoteAmountSelection(userid, choice, popupid):
-    vote = Vote()
-    vote.CreateVote("randommap", "Please select a map", RandomMapWin)
+    vote = Vote("randommap")
+    vote.CreateVote("Please select a map", RandomMapWin)
     random_list = []
     while choice:
         choice -= 1
@@ -381,8 +383,8 @@ def RandomMapWin(args):
     
 def RandomCommand(args):
     global change_map
-    vote = Vote()
-    vote.CreateVote("randommap", "Please select a map", RandomMapWin)
+    vote = Vote("randommap")
+    vote.CreateVote("Please select a map", RandomMapWin)
     maplist = filter(lambda x: False if x in args else True, map_list)
     random_list = []
     choice = int(args[0])
@@ -413,7 +415,7 @@ def EndOfMapVote():
         else:
             es.server.queuecmd('xa_randomvote %s 3' % amount_of_maps)
     
-def EndMap():
+def EndMap( APIAccessorModule = None ):
     global change_map
     change_map = None
     winner = es.ServerVar('eventscripts_nextmapoverride')
@@ -437,16 +439,23 @@ def ChangeMapBuild(function, userid):
     mypopup.menuselect = function
     mypopup.send(userid)
         
-class Vote:
-    def __init__(self):
-        self.options = {}
-        self.display = None
-        self.vote = None
-        self.option = None
+def StopVotes(userid, vote):
+    for voteInstance in voteInstances:
+        voteInstances[voteInstance].Stop()
+    
+def StopVotesCommand(args):
+    stopVotes(None, None)
         
-    def CreateVote(self, shortName, question, command=None):
-        self.shortName = shortName
-        self.vote      = votelib.create(self.shortName, self.Win, self.Message)
+class VoteManager(object):
+    def __init__(self, name):
+        self.options   = {}
+        self.display   = None
+        self.vote      = None
+        self.option    = None
+        self.shortName = name
+        
+    def CreateVote(self, question, command=None):
+        self.vote      = votelib.create(self.shortName, self._Win, self._Message)
         self.option    = command
         self.vote.setquestion(question)
         
@@ -468,7 +477,10 @@ class Vote:
         es.cexec_all('playgamesound ' + str(vote_start_sound) )
         self.display.Start()
         
-    def Message(self, userid, votename, optionid, option):
+    def Stop(self):
+        self.vote.stop(True)
+        
+    def _Message(self, userid, votename, optionid, option):
         tokens = {} 
         tokens['username'] = es.getplayername(userid) 
         tokens['option']   = str(option) 
@@ -476,7 +488,7 @@ class Vote:
             es.tell(int(player),'#multi', xalanguage("vote message", tokens, player.get("lang")))
         self.display.ChangeDict(option, 1)
         
-    def Win(self, popupid, optionid, choice, winner_votes, winner_percent, total_votes, was_tied, was_canceled):
+    def _Win(self, popupid, optionid, choice, winner_votes, winner_percent, total_votes, was_tied, was_canceled):
         self.display.Stop()
         es.cexec_all('playgamesound', str(vote_end_sound) )
         if not was_tied or was_canceled:
@@ -531,9 +543,74 @@ class Vote:
                     self.option(self.params)
         else: 
             for player in playerlib.getPlayerList("#human"): 
-                es.tell(int(player),'#green',xalanguage("vote canceled", player.get("lang"))) 
+                es.tell(int(player), '#green', xalanguage("vote canceled", player.get("lang") ) )
 
-class HudHint:
+""" Acessor functions which allows others to start votes etc """    
+
+voteInstances = {}            
+def Vote( APIAccessorFunctionTest, shortNameTest = None ):
+    if not isinstance(APIAccessorFunctionTest, str):
+        shortName = shortNameTest
+    else:
+        shortName = APIAccessorFunctionTest
+    if shortName not in voteInstances:
+        voteInstances[shortName] = VoteManager(shortName)
+    return voteInstances[shortName]
+
+def CreateVote( APIAccessorFunctionTest, shortNameTest, questionTest = None, commandTest = None):
+    if not isinstance(APIAccessorFunctionTest, str):
+        shortName = shortNameTest
+        question  = questionTest
+        command   = commandTest
+    else:
+        shortName = APIAccessorFunctionTest
+        question  = shortNameTest
+        command   = questionTest
+    myVote = FindVote(shortName)
+    if myVote:
+        myVote.CreateVote(question, command)
+        
+def StartVote( APIAccessorFunctionTest, shortNameTest = None):
+    if not isinstance(APIAccessorFunctionTest, str):
+        shortName = shortNameTest
+    else:
+        shortName = APIAccessorFunction
+    myVote = FindVote(shortName)
+    if myVote:
+        myVote.StartVote()
+
+def FindVote( APIAccessorFunctionTest, shortNameTest = None):
+    if not isinstance(APIAccessorFunctionTest, str):
+        shortName = shortNameTest
+    else:
+        shortName = APIAccessorFunction
+    if shortName in voteInstances:
+        return voteInstances[shortName]
+    return None
+    
+def StopVote( APIAccessorFunctionTest, shortNameTest = None ):
+    if not isinstance(APIAccessorFunctionTest, str):
+        shortName = shortNameTest
+    else:
+        shortName = APIAccessorFunctionTest
+    myVote = FindVote(shortName)
+    if myVote:
+        myVote.stop()
+        
+def AddOption( APIAccessorFunctionTest, shortNameTest, optionTest = None, winnerTest = None):
+    if not isinstance(APIAccessorFunctionTest, str):
+        shortName = shortNameTest
+        option    = optionTest
+        winner    = winnerTest if winnerTest else False
+    else:
+        shortName = APIAccessorFunctionTest
+        option    = shortNameTest
+        winner    = optionTest if optionTest else False
+    myVote = FindVote(shortName)
+    if myVote:
+        myVote.AddOption(option, winner)
+
+class HudHint(object):
     def __init__(self, votes, uniquename):
         self.running = False
         self.votes = votes
@@ -574,3 +651,13 @@ class HudHint:
         if self.running:
             self.running = False
             gamethread.cancelDelayed(self.name)
+            
+def getGlobalVariable( APIAccessorFunctionTest, variableNameTest=None ):
+    if not isinstance(APIAccessorFunctionTest, str):
+        variableName = variableNameTest
+    else:
+        variableName = APIAccessorFunctionTest
+    if variableName not in globals().keys():
+        raise AttributeError, "Variable name %s is not inside xavote" % variableName
+        return 0
+    return globals()[variableName]

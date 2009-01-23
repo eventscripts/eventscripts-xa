@@ -1,15 +1,20 @@
+""" Eventscripts Libary Imports """
 import es
-import gamethread
 import playerlib
 import popuplib
-import votelib
+import gamethread
+
+""" Import engine files """
 import random
 import time
-from xa import xa 
+import os
+
+""" Import eXtensible Admin """
+from xa import xa
 
 info = es.AddonInfo() 
 info.name       = "Rock the Vote" 
-info.version    = "0.01" 
+info.version    = "0.02" 
 info.author     = "[#OMEGA] - K2" 
 info.basename   = "xarockthevote" 
 
@@ -18,7 +23,12 @@ Credits:
 
 me (obviously)  
 
-Changelog: 
+Changelog:
+
+Version 0.02
+
+It is now usig xavote to manage the votes.
+Fixed lots of small bugs.
 
 Version 0.01: 
 
@@ -40,216 +50,199 @@ Notes:
 
 xartv = xa.register(info.basename) 
 
-vote_req_setmap_p   = xartv.setting.createVariable('vote_rock_the_vote_percent_required', 60, "Defines the vote percentage required to set map (0 min, 100max)") 
-vote_req_time       = xartv.setting.createVariable('vote_time_before_rock_the_vote', 1, "Time before rockthevote can be started after a new map starts in seconds") #120 
-vote_nominations    = xartv.setting.createVariable('vote_rock_the_vote_number_of_nominations', 6, "Number of nominations included in the vote (min 1,can't be higher than vote_rock_the_vote_number_of_maps)") 
-vote_maps           = xartv.setting.createVariable('vote_rock_the_vote_number_of_maps', 6, "Number of random maps chosen from the maplistfile votemaplist.txt") 
-vote_maplistfile    = xartv.setting.createVariable('vote_rock_the_vote_maplistfile', 'votemaplist.txt', "Defines the maplistfile (custom files must be located in /cstrike/)") 
+vote_req_time       = xartv.setting.createVariable('vote_time_before_rock_the_vote',           120, "Time before rockthevote can be started after a new map starts in seconds")  
+vote_maps           = xartv.setting.createVariable('vote_rock_the_vote_number_of_maps',          6, "Number of random maps chosen from the votelist after nominations have been taken into account.")
 vote_req_p          = xartv.setting.createVariable('vote_vote_rock_the_vote_threshold_percent', 60, "Percentage of players on server required to type rockthevote before it starts (min 1, max 100)") 
-vote_req_min        = xartv.setting.createVariable('vote_rock_the_vote_threshold_minimum', 1, "Minimum number of players required to type rockthevote before it starts") #4 
-vote_mapchange_time = xartv.setting.createVariable('vote_rock_the_vote_time_to_mapchange', 10, "The amount of time after which the map is changed to (1 min, 60max)") 
+vote_req_min        = xartv.setting.createVariable('vote_rock_the_vote_threshold_minimum',       4, "Minimum number of players required to type rockthevote before it starts")
 
-if not 1 <= vote_mapchange_time <= 60: 
-    vote_mapchange_time = 10 
-if not 1 <= vote_req_setmap_p <= 100: 
-    vote_req_setmap_p  = 60 
-if not 1 <= vote_req_p <= 100: 
-    vote_req_p = 60 
-if not 1 <= vote_nominations: 
-    vote_nominations = 6 
-if vote_nominations > vote_maps: 
-    vote_nominations = vote_maps 
+if int(vote_req_min) < 1:
+    vote_req_min = 4
+     
+if not 1 < int(vote_req_p) < 100: 
+    vote_req_p = 60
+     
+if int(vote_maps) < 1:
+    vote_maps = 6 
 
-lang = xartv.language.getLanguage() 
-
-# Globals 
-votes_in = 0 
+###############
+### GLOBALS ###
+###############
+votes_in       = 0 
 vote_req_total = 0 
-map_start_time = time.time() 
+allowVoting    = True
+players        = {} 
+nominations    = []
+map_start_time = time.time()
+lang           = xartv.language.getLanguage() 
 
-players = {} 
-# Structure of the dict: 
-# {'playersteamid': [voted?,nominated?]} 
-
-nominations = {}
-
-def load(): 
-    xartv.addCommand('rtv',rtv,'use_rtv','UNRESTRICTED').register(('say', 'console')) 
-    xartv.addCommand('rockthevote',rtv,'use_rtv','UNRESTRICTED').register(('say', 'console')) 
-    xartv.addCommand('nominate',nominate,'use_rtv','UNRESTRICTED').register(('say', 'console')) 
+def load():
+    """ Called on load. Register itself with the XA API """
     global nomination_popup 
-    nomination_popup = popuplib.easymenu('nomination_menu',None, nomination_result) 
+    
+    xartv.addRequirement("xavote")
+    
+    xartv.addCommand('rtv',         rtv,      'use_rtv', 'UNRESTRICTED').register(('say', 'console')) 
+    xartv.addCommand('rockthevote', rtv,      'use_rtv', 'UNRESTRICTED').register(('say', 'console')) 
+    xartv.addCommand('nominate',    nominate, 'use_rtv', 'UNRESTRICTED').register(('say', 'console'))
+
+def unload():
+    """ Called on unload. Remove itself from the XA API """
+    xartv.delRequirement("xavote") 
+    xartv.unregister()
+
+def entry(steamid):
+    """ Make sure a player exists before try reading from the dictionary """ 
+    if steamid not in players: 
+        players[steamid] = [False, False]
+        
+def loadPopups():
+    nomination_popup = popuplib.easymenu('nomination_menu', None, nomination_result) 
     nomination_popup.settitle(lang['choose_map']) 
-    maps = read_mapfile() 
-    for map in maps: 
-        nomination_popup.addoption(map,xartv.language.createLanguageString(map)) 
-
-def unload(): 
-    gamethread.cancelDelayed('rtv_mapchange')
-    if votelib.isrunning('rockthevote'): 
-        votelib.stop('rockthevote') 
-    if votelib.exists('rockthevote'): 
-        votelib.delete('rockthevote') 
-    # Unregister the module 
-    xartv.unregister() 
-
-def entry(steamid): 
-    if not players.has_key(steamid): 
-        players[steamid] = [False,False] 
+    maps = read_mapfile()
+    for mapName in maps: 
+        nomination_popup.addoption(mapName, xartv.language.createLanguageString(mapName))
     
-# Nomination System 
+#####################
+### USER COMMANDS ###
+#####################
     
-def nominate(): 
+def nominate():
+    """ Executed when a user types 'nominate' in chat """
     userid = es.getcmduserid() 
-    if not votelib.isrunning('rockthevote') and votes_in: 
+    if allowVoting: 
         steamid = es.getplayersteamid(userid) 
         entry(steamid) 
         if not players[steamid][1]: 
-            nomination_popup.send(userid) 
-        else: 
-            es.tell(userid,'#multi',lang('1nominate',lang=playerlib.getPlayer(userid).get('lang'))) 
-    else: 
-        es.tell(userid,'#multi',lang('no_nominate',lang=playerlib.getPlayer(userid).get('lang'))) 
+            popuplib.send("nomination_menu", userid) 
+        else:
+            es.tell(userid, '#multi', lang('1nominate', lang=playerlib.getPlayer(userid).get('lang') ) )
+    else:
+        es.tell(userid, '#multi', lang('no_nominate', lang=playerlib.getPlayer(userid).get('lang') ) )
 
 def nomination_result(userid, choice, popupname):
-    steamid = es.getplayersteamid(userid)
-    players[steamid][1] = True 
-    if not nominations.has_key(choice): 
-        nominations[choice] = 1
-    else: 
-        # I might add support for "most" nominations later 
-        nominations[choice] += 1
-    name = es.getplayername(userid) 
-    for userid in es.getUseridList(): 
-        es.tell(userid,'#multi',lang('nominated',{'player': name,'mapname': choice},playerlib.getPlayer(userid).get('lang'))) 
+    """ Append the nomination to the nomination list """
+    if allowVoting:
+        steamid = es.getplayersteamid(userid)
+        players[steamid][1] = True
+        if choice not in nominations:
+            nominations.append(choice)
+            
+        tokens = {}
+        tokens['player']  = es.getplayername(userid)
+        tokens['mapname'] = choice 
+        for user in es.getUseridList():
+            es.tell(user, '#multi', lang('nominated', tokens, playerlib.getPlayer(user).get('lang') ) )
+    else:
+        es.tell(userid, '#multi', lang('no_nominate', lang=playerlib.getPlayer(userid).get('lang') ) )
     
-# Rock The Vote 
-    
-def rtv(): 
-    userid = es.getcmduserid() 
+def rtv():
+    """ Executed when a user types 'rtv' in chat """
+    global votes_in
+    global vote_req_total
+     
+    userid  = es.getcmduserid() 
     steamid = es.getplayersteamid(userid) 
     entry(steamid) 
-    if not players[steamid][0]: 
-        players[steamid][0] = True
-        global votes_in,vote_req_total 
-        if (time.time() - map_start_time) < vote_req_time: 
-            es.tell(userid,'#multi',lang('map_time',{'time': (120 - int((time.time() - map_start_time)))},playerlib.getPlayer(userid).get('lang'))) 
+    if not players[steamid][0]:
+        
+        if (time.time() - map_start_time) < float(vote_req_time):
+            tokens = {}
+            tokens['time'] = int(float(vote_req_time) - int( time.time() - map_start_time ) ) 
+            es.tell(userid, '#multi', lang('map_time', tokens, playerlib.getPlayer(userid).get('lang') ) ) 
         else: 
-            if not votelib.isrunning('rockthevote'): 
+            if allowVoting:
+                players[steamid][0] = True
+                vote_req_total = int( round(vote_req_p / 100. * len(playerlib.getPlayerList("#human") ) ) )
                 if not votes_in: 
-                    vote_req_total = int(vote_req_p * 0.01 * len(es.getUseridList())) 
                     name = es.getplayername(userid) 
                     for user in es.getUseridList(): 
-                        es.tell(user,'#multi',lang('player_started',{'player': name},playerlib.getPlayer(user).get('lang'))) 
-                        nomination_popup.unsend(user) 
-                votes_in += 1 
-                # Checks for percentage and for the amount of minium votes required 
-                if votes_in >= vote_req_min: 
+                        tokens = {}
+                        tokens['player'] = es.getplayername(user)
+                        es.tell(user, '#multi', lang('player_started', tokens, playerlib.getPlayer(user).get('lang') ) ) 
+                        popuplib.unsend("nomination_menu", user)
+                votes_in += 1
+                
+                if votes_in >= int(vote_req_min): 
                     if votes_in >= vote_req_total: 
                         rtv_init() 
                     else: 
-                        name = es.getplayername(userid) 
-                        for user in es.getUseridList(): 
-                            es.tell(user,'#multi',lang('req',{'player': name,'votes': (vote_req_total - votes_in)},playerlib.getPlayer(user).get('lang'))) 
+                        name   = es.getplayername(userid)
+                        tokens = {}
+                        tokens['player'] = name
+                        tokens['votes']  = vote_req_total - votes_in 
+                        for user in es.getUseridList():
+                            es.tell(user, '#multi', lang('req', tokens ,playerlib.getPlayer(user).get('lang') ) ) 
                 else: 
-                    name = es.getplayername(userid) 
+                    name   = es.getplayername(userid)
+                    tokens = {}
+                    tokens['player'] = name
+                    tokens['votes']  = int(vote_req_min) - votes_in
                     for user in es.getUseridList(): 
-                        es.tell(user,'#multi',lang('req',{'player': name,'votes': (vote_req_min - votes_in)},playerlib.getPlayer(user).get('lang'))) 
+                        es.tell(user, '#multi', lang('req', tokens, playerlib.getPlayer(user).get('lang') ) ) 
             else: 
-                es.tell(userid,'#multi',lang('started',lang=playerlib.getPlayer(userid).get('lang'))) 
+                es.tell(userid, '#multi', lang('started', lang=playerlib.getPlayer(userid).get('lang') ) ) 
     else: 
-        es.tell(userid,'#multi',lang('1vote',lang=playerlib.getPlayer(userid).get('lang'))) 
+        es.tell(userid, '#multi', lang('1vote', lang=playerlib.getPlayer(userid).get('lang') ) ) 
 
-def rtv_init(): 
-    global vote_maps 
-    maps = read_mapfile() 
-    # Checks for the number of maps to be included 
-    if vote_maps > len(maps): 
-        vote_maps = len(maps) 
-        xartv.logging.log("Number of maps to be included in rtv is too high - using all maps.") 
-    # Get a list of the indexes of the random maps 
-    rnd_maps = random_map(maps).get_results() 
-    # Create the vote 
-    rockthevote = votelib.create('rockthevote', rtv_finish, rtv_submit) 
-    rockthevote.setquestion('Choose a map:') 
-    # Add for everymap in the list a option 
-    for index in rnd_maps: 
-        rockthevote.addoption(maps[index]) 
-    # Start the vote 
-    rockthevote.start(45) 
+############################
+### END OF USER COMMANDS ###
+############################
+
+#######################
+### VOTE MANAGEMENT ###
+#######################
+
+def rtv_init():
+    """ Called when there has been enough "RTV's" to execute the vote """
+    global allowVoting
+    allowVoting = False
+    maps = read_mapfile()
+     
+    """ Checks for the number of maps to be included """ 
+    if len(nominations) >= int(vote_maps): 
+        random_maps = nominations
+        xartv.logging.log("Number of maps to be included in rtv is too high - using all maps.")
+    else:
+        random_maps = []
+        for x in xrange(0, min( len(nominations), int(vote_maps) ) ):
+            random.shuffle(nominations)
+            random_maps.append( nominations.pop(0) )
+        maps = filter(lambda x: x not in random_maps, maps)
+        while len(random_maps) < vote_maps and maps:
+            random.shuffle( maps )
+            random_maps.append( maps.pop(0) )
+
+    random_maps = sorted(random_maps)
     
-class random_map: 
-    found = 0 
-    results = [] 
-    length = 0 
-    def __init__(self,maps): 
-        self.results = [] 
-        self.found = 0 
-        self.length = len(maps) - 1 
-        for map in nominations: 
-            for i in range(0,self.length): 
-                if maps[i] == map: 
-                    self.found += 1 
-                    self.results += [i] 
-        self.loop() 
-    def loop(self): 
-        map_index = random.randint(0,self.length) 
-        if map_index in self.results: 
-            self.loop() 
-        else: 
-            self.results += [map_index] 
-            self.found += 1 
-            if not self.found == vote_maps: 
-                self.loop() 
-    def get_results(self): 
-        return self.results 
+    """ Create a vote """
+    myVote = xartv.xavote.Vote("rockthevote")
+    myVote.CreateVote("Choose a map:", vote_win)
+    for mapName in random_maps: 
+        myVote.AddOption(mapName, True) 
+    myVote.StartVote() 
 
-def rtv_submit(userid, votename, choice, choicename): 
-    for user in es.getUseridList(): 
-        es.tell(user,'#multi',lang('voted',{'player': es.getplayername(userid),'mapname': choicename},playerlib.getPlayer(user).get('lang'))) 
-
-def rtv_finish(votename, win, winname, winvotes, winpercent, total, tie, cancelled): 
-    # Deletes vote so it can be re-created 
-    votelib.delete('rockthevote') 
-    if (float(total) / len(es.getUseridList())) >= (vote_req_setmap_p * 0.01): 
-        for userid in es.getUseridList(): 
-            es.tell(userid,'#multi',lang('success',{'mapname': winname,'time': vote_mapchange_time},playerlib.getPlayer(userid).get('lang'))) 
-        gamethread.delayedname(vote_mapchange_time,'rtv_mapchange',rtv_map,winname) 
-    else: 
-        for userid in es.getUseridList(): 
-            es.tell(userid,'#multi',lang('fail',lang=playerlib.getPlayer(userid).get('lang'))) 
-
-def rtv_map(map): 
-    xartv.logging.log('Changing map to %s...' % map) 
-    # Removes all players from the dict 
-    players.clear() 
-    es.server.cmd('changelevel %s' % map) 
+def vote_win(args):
+    """ Called when a winner has been chosen. """
+    xartv.logging.log('Changing map to %s...' % args['winner']) 
+    players.clear()
+    winner = args['winner']
+    es.set('eventscripts_nextmapoverride', winner)
+    xartv.xavote.EndMap()     
     
 def read_mapfile(): 
-    # Read the mapcycle file 
-    if vote_maplistfile == "votemaplist.txt":
-        if xa.isManiMode():
-            maps = xartv.configparser.getList('cfg/mani_admin_plugin/%s' % vote_maplistfile, True)
-        else:
-            maps = xartv.configparser.getList(vote_maplistfile)
-    else:
-        maps = xartv.configparser.getList(vote_maplistfile, True)
-    if not maps:
-        maps = xartv.configparser.getList('maplist.txt', True)
-    if not maps:
-        maps = xartv.configparser.getList('mapcycle.txt', True)
-    if not maps:
-        maps = []
-    return maps
-# Events
+    """ Return the global map list in xavote """ 
+    return sorted(xartv.xavote.getGlobalVariable("map_list"))
+    
+##############
+### Events ###
+##############
 
-def es_map_start(ev): 
-    global map_start_time 
-    map_start_time = time.time() 
-    # Deletes and unsends vote 
-    if votelib.isrunning('rockthevote'): 
-        votelib.stop('rockthevote') 
-    if votelib.exists('rockthevote'): 
-        votelib.delete('rockthevote')
+def es_map_start(event_var):
+    """ Executed when the map starts """
+    global map_start_time
+    global allowVoting
+    map_start_time = time.time()
+    allowVoting    = True
     for steamid in players:
-        players[steamid] = [False,False]
+        players[steamid] = [False, False]
+    gamethread.delayed(1, loadPopups)
