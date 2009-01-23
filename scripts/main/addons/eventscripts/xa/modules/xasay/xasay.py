@@ -8,7 +8,7 @@ from xa import xa
 # This describes the XA module
 info = es.AddonInfo()
 info.name           = "Say"
-info.version        = "0.1"
+info.version        = "0.2"
 info.author         = "Mattie"
 info.basename       = "xasay"
 
@@ -44,7 +44,7 @@ def load():
     if not saywatcher in es.addons.SayListeners:
         es.addons.registerSayFilter(saywatcher)
 
-    playerlib.registerPlayerListFilter("#admin_say", admin_say_filter)
+    playerlib.registerPlayerListFilter("admin_say", admin_say_filter)
     xasay.registerSayPrefix(str(say_admin_prefix), _admin_say, "admin_say", "ADMIN")
     # ..
     # ..
