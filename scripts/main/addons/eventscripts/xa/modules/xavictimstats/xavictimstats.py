@@ -6,7 +6,7 @@ from xa import xa
 
 info = es.AddonInfo()
 info.name       = 'Victim Stats'
-info.version    = '4.1'
+info.version    = '4.2'
 info.author     = 'Satoon101'
 info.basename   = 'xavictimstats'
 
@@ -300,25 +300,26 @@ def player_death(ev):
     if steam == usersteam == 'BOT': return
     userid = ev['userid']
     attacker = ev['attacker']
-    headshot = int(ev['headshot'])
-    weapon = ev['weapon']
-    team = int(ev['es_attackerteam'])
-    userteam = int(ev['es_userteam'])
-    killtype = 'Killer' if not userteam == team else 'TeamKilled'
-    killtype = 'Suicide' if userid in ['0',attacker] else killtype
-    distance = playerlib.getPlayer(userid).get('distance',attacker) if userid != attacker else 0
-    feet = '%0.2fft'%(distance * 0.0375)
-    meters = '%0.2fm'%(distance * 0.01278)
-    dist = feet if victimstats_distance == 1 else meters
-    dist = str('%s (%s)'%(meters,feet)) if victimstats_distance == 3 else dist
-    if usersteam != 'BOT':
-        victim = PlayerList[userid]
-        if victim.setting:
-            victim.sendStats((killtype,headshot,ev['es_attackername'],weapon,dist,ev['es_attackerhealth']))
-    if steam == 'BOT': return
-    killer = PlayerList[attacker]
-    if killer.setting and userteam != team in [2,3]:
-        killer.playerKilled(ev['es_username'],weapon,headshot,dist)
+    if attacker != userid and attacker.isdigit() and int(attacker):
+        headshot = int(ev['headshot'])
+        weapon = ev['weapon']
+        team = int(ev['es_attackerteam'])
+        userteam = int(ev['es_userteam'])
+        killtype = 'Killer' if not userteam == team else 'TeamKilled'
+        killtype = 'Suicide' if userid in ['0',attacker] else killtype
+        distance = playerlib.getPlayer(userid).get('distance',attacker) if userid != attacker else 0
+        feet = '%0.2fft'%(distance * 0.0375)
+        meters = '%0.2fm'%(distance * 0.01278)
+        dist = feet if victimstats_distance == 1 else meters
+        dist = str('%s (%s)'%(meters,feet)) if victimstats_distance == 3 else dist
+        if usersteam != 'BOT':
+            victim = PlayerList[userid]
+            if victim.setting:
+                victim.sendStats((killtype,headshot,ev['es_attackername'],weapon,dist,ev['es_attackerhealth']))
+        if steam == 'BOT': return
+        killer = PlayerList[attacker]
+        if killer.setting and userteam != team in [2,3]:
+            killer.playerKilled(ev['es_username'],weapon,headshot,dist)
 
 def round_end(ev):
     for userid in playerlib.getUseridList('#alive,#human'):

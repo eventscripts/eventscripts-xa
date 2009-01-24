@@ -18,7 +18,7 @@ change_map     = None
 
 info                = es.AddonInfo() 
 info.name           = "Vote" 
-info.version        = "0.6" 
+info.version        = "0.7" 
 info.author         = "freddukes" 
 info.basename       = "xavote"
 
@@ -365,10 +365,11 @@ def RandomMapVoteAmountSelection(userid, choice, popupid):
     vote = Vote("randommap")
     vote.CreateVote("Please select a map", RandomMapWin)
     random_list = []
+    copyOfMapList = map_list[:]
     while choice:
         choice -= 1
-        random_map = random.choice(map_list)
-        map_list.remove(random_map)
+        random_map = random.choice(copyOfMapList)
+        copyOfMapList.remove(random_map)
         random_list.append(random_map)
     random_list.sort()
     for random_map in random_list:
@@ -392,7 +393,7 @@ def RandomCommand(args):
     while choice:
         choice -= 1
         random_map = random.choice(maplist)
-        map_list.remove(random_map)
+        maplist.remove(random_map)
         random_list.append(random_map)
     random_list.sort()
     for random_map in random_list:
