@@ -13,7 +13,7 @@ from xa import xa
 #plugin information
 info = es.AddonInfo() 
 info.name     = "Observe" 
-info.version  = "1.0" 
+info.version  = "1.1" 
 info.author   = "Unknown"
 info.basename = "xaobserve"
 
@@ -29,8 +29,8 @@ xaobserve = xa.register('xaobserve')
 # SERVER VARIABLES
 # The list of our server variables
 
-var_allow_chase = xaobserve.setting.createVariable('observe_allow_chase', 1, 'xaobserve: 0 = only allow first-person view for dead players, 1 = allow frist-person or chase-cam view for dead players')
-var_spec_delay = xaobserve.setting.createVariable('observe_spec_delay', 3, 'xaobserve: Number of seconds after death a player can be spectated')
+allow_chase = xaobserve.setting.createVariable('observe_allow_chase', 1, 'xaobserve: 0 = only allow first-person view for dead players, 1 = allow frist-person or chase-cam view for dead players')
+spec_delay  = xaobserve.setting.createVariable('observe_spec_delay',  3, 'xaobserve: Number of seconds after death a player can be spectated')
 
 
 #######################################
@@ -38,9 +38,9 @@ var_spec_delay = xaobserve.setting.createVariable('observe_spec_delay', 3, 'xaob
 # We initialize our general global data here.
 
 # Module globals
-list_delays = []
-dict_dead_players = {}
-dict_team_handles = {2:[], 3:[]}
+delays       = []
+dead_players = {}
+team_handles = {2:[], 3:[]}
 
 
 #######################################
@@ -77,18 +77,19 @@ def round_start(event_var):
     Cancels outstanding delays and unregisters client command filter
     Refreshes the dictionary of living player handles
     """
-    global dict_team_handles
+    global team_handles
 
     cancel_delays()
 
-    dict_team_handles = {2:[], 3:[]}
-    for int_userid in es.getUseridList():
-        add_player_handle(int_userid, es.getplayerteam(int_userid))
+    team_handles = {2:[], 3:[]}
+    for userid in es.getUseridList():
+        add_player_handle(userid, es.getplayerteam(userid))
 
 
 def player_spawn(event_var):
     """Ensures the player's handle is in the dictionary of living player handles and not in the dictionary of dead players"""
-    add_player_handle(int(event_var['userid']), int(event_var['es_userteam']))
+    if not es.getplayerprop(event_var['userid'], 'CBasePlayer.pl.deadflag'):
+        add_player_handle(int(event_var['userid']), int(event_var['es_userteam']))
 
 
 def player_death(event_var):
@@ -97,30 +98,28 @@ def player_death(event_var):
     Registers client command filter if this is the first unauthorized dead player
     Adds the player to the dictionary of dead players to monitor if the player is not authorized to observe opponents
     """
-    global dict_dead_players
+    userid = int(event_var['userid'])
+    team   = int(event_var['es_userteam']) if event_var['es_userteam'] else 0
+    handle = es.getplayerhandle(userid)
 
-    int_userid = int(event_var['userid'])
-    int_team = int(event_var['es_userteam'])
-    int_handle = es.getplayerhandle(int_userid)
+    if team in team_handles:
+        for loop_userid in dead_players:
+            if dead_players[loop_userid] == handle:
+                gamethread.delayedname(float(spec_delay), 'xaobserve_%s' % loop_userid, end_spec_delay, loop_userid)
+                if loop_userid not in delays:
+                    delays.append(loop_userid)
 
-    if dict_team_handles.has_key(int_team):
-        for int_loop_userid in dict_dead_players:
-            if dict_dead_players[int_loop_userid] == int_handle:
-                gamethread.delayedname(float(var_spec_delay), 'xaobserve_%s' % int_loop_userid, end_spec_delay, int_loop_userid)
-                if int_loop_userid not in list_delays:
-                    list_delays.append(int_loop_userid)
+        if handle in team_handles[team]:
+            team_handles[team].remove(handle)
 
-        if int_handle in dict_team_handles[int_team]:
-            dict_team_handles[int_team].remove(int_handle)
-
-    if not xaobserve.isUseridAuthorized(int_userid, 'observe_opponent') and event_var['es_steamid'] <> 'BOT':
-        if not dict_dead_players:
+    if not xaobserve.isUseridAuthorized(userid, 'observe_opponent') and event_var['es_steamid'] <> 'BOT':
+        if not dead_players:
             es.addons.registerClientCommandFilter(client_command_filter)
 
-        dict_dead_players[int_userid] = -1
-        gamethread.delayedname(float(var_spec_delay), 'xaobserve_%s' % int_userid, end_spec_delay, (int_userid, True))
-        if int_userid not in list_delays:
-            list_delays.append(int_userid)
+        dead_players[userid] = -1
+        gamethread.delayedname(float(spec_delay), 'xaobserve_%s' % userid, end_spec_delay, (userid, True) )
+        if userid not in delays:
+            delays.append(userid)
 
 
 def player_disconnect(event_var):
@@ -128,96 +127,90 @@ def player_disconnect(event_var):
     Cancels any delays for the disconnecting player
     Removes the disconnecting player from the dictionary of unauthorized dead players
     """
-    global dict_dead_players
+    userid = int(event_var['userid'])
+    if userid in delays:
+        gamethread.cancelDelayed('xaobserve_%s' % userid)
+        delays.remove(userid)
 
-    int_userid = int(event_var['userid'])
-    if int_userid in list_delays:
-        gamethread.cancelDelayed('xaobserve_%s' % int_userid)
-        list_delays.remove(int_userid)
-
-    if dict_dead_players.has_key(int_userid):
-        del dict_dead_players[int_userid]
-        if not dict_dead_players:
+    if userid in dead_players:
+        del dead_players[userid]
+        if not dead_players:
             es.addons.unregisterClientCommandFilter(client_command_filter)
 
 
-def client_command_filter(int_userid, list_args):
+def client_command_filter(userid, args):
     """
     Checks all non-admin dead players for spectating an opponent
     """
-    global dict_dead_players
+    team = es.getplayerteam(userid)
+    if userid not in dead_players or not args or team not in (2, 3):
+        return True
 
-    int_team = es.getplayerteam(int_userid)
-    if not dict_dead_players.has_key(int_userid) or not list_args or int_team not in (2, 3):
-        return 1
+    if userid in delays:
+        gamethread.cancelDelayed('xaobserve_%s' % userid)
+        delays.remove(userid)
 
-    if int_userid in list_delays:
-        gamethread.cancelDelayed('xaobserve_%s' % int_userid)
-        list_delays.remove(int_userid)
+    if len(args):
+        if args[0] == 'spec_mode':
+            if es.getplayerprop(userid, 'CBasePlayer.m_iObserverMode') == 3 and int(allow_chase):
+                es.setplayerprop(userid, 'CBasePlayer.m_iObserverMode', 4)
+            else:
+                es.setplayerprop(userid, 'CBasePlayer.m_iObserverMode', 3)
+            return False
+    
+        elif args[0] == 'spec_next' and team_handles[team]:
+            target_handle = es.getplayerprop(userid, 'CBasePlayer.m_hObserverTarget')
+            if target_handle in team_handles[team]:
+                target_index = team_handles[team].index(target_handle) + 1
+                if target_index >= len(team_handles[team]):
+                    target_index = 0
+                dead_players[userid] = team_handles[team][target_index]
+            else:
+                dead_players[userid] = team_handles[team][0]
+            es.setplayerprop(userid, 'CBasePlayer.m_hObserverTarget', dead_players[userid])
+            return False
+    
+        elif args[0] == 'spec_prev' and team_handles[team]:
+            target_handle = es.getplayerprop(userid, 'CBasePlayer.m_hObserverTarget')
+            if target_handle in team_handles[team]:
+                target_index = team_handles[team].index(target_handle) - 1
+                if target_index < 0:
+                    target_index = len(team_handles[team]) - 1
+                dead_players[userid] = team_handles[team][target_index]
+            else:
+                dead_players[userid] = team_handles[team][0]
+            es.setplayerprop(userid, 'CBasePlayer.m_hObserverTarget', dead_players[userid])
+            return False
 
-    if list_args[0] == 'spec_mode':
-        if es.getplayerprop(int_userid, 'CBasePlayer.m_iObserverMode') == 3 and int(var_allow_chase):
-            es.setplayerprop(int_userid, 'CBasePlayer.m_iObserverMode', 4)
-        else:
-            es.setplayerprop(int_userid, 'CBasePlayer.m_iObserverMode', 3)
-        return 0
-
-    elif list_args[0] == 'spec_next' and dict_team_handles[int_team]:
-        int_target_handle = es.getplayerprop(int_userid, 'CBasePlayer.m_hObserverTarget')
-        if int_target_handle in dict_team_handles[int_team]:
-            int_target_index = dict_team_handles[int_team].index(int_target_handle) + 1
-            if int_target_index >= len(dict_team_handles[int_team]):
-                int_target_index = 0
-            dict_dead_players[int_userid] = dict_team_handles[int_team][int_target_index]
-        else:
-            dict_dead_players[int_userid] = dict_team_handles[int_team][0]
-        es.setplayerprop(int_userid, 'CBasePlayer.m_hObserverTarget', dict_dead_players[int_userid])
-        return 0
-
-    elif list_args[0] == 'spec_prev' and dict_team_handles[int_team]:
-        int_target_handle = es.getplayerprop(int_userid, 'CBasePlayer.m_hObserverTarget')
-        if int_target_handle in dict_team_handles[int_team]:
-            int_target_index = dict_team_handles[int_team].index(int_target_handle) - 1
-            if int_target_index < 0:
-                int_target_index = len(dict_team_handles[int_team]) - 1
-            dict_dead_players[int_userid] = dict_team_handles[int_team][int_target_index]
-        else:
-            dict_dead_players[int_userid] = dict_team_handles[int_team][0]
-        es.setplayerprop(int_userid, 'CBasePlayer.m_hObserverTarget', dict_dead_players[int_userid])
-        return 0
-
-    return 1
+    return True
 
 
-def end_spec_delay(int_userid, bool_set_mode=False):
+def end_spec_delay(userid, set_mode=False):
     """
     Removes the delay from the list of delays
     Forces the client to spectate a teammate
     """
-    if int_userid in list_delays:
-        list_delays.remove(int_userid)
+    if userid in delays:
+        delays.remove(userid)
 
-    if bool_set_mode:
-        client_command_filter(int_userid, ['spec_mode'])
-    client_command_filter(int_userid, ['spec_next'])
+    if set_mode:
+        client_command_filter(userid, ['spec_mode'])
+    client_command_filter(userid, ['spec_next'])
 
 
-def add_player_handle(int_userid, int_team):
+def add_player_handle(userid, team):
     """Adds the player's handle to the dictionary of player handles according to team"""
-    global dict_dead_players
-    global dict_team_handles
+    if team in (2, 3):
+        handle = es.getplayerhandle(userid)
+        if handle not in team_handles[team]:
+            team_handles[team].append(handle)
 
-    if int_team in (2, 3):
-        int_handle = es.getplayerhandle(int_userid)
-        if int_handle not in dict_team_handles[int_team]:
-            dict_team_handles[int_team].append(int_handle)
+    if playerlib.getPlayer(userid).get('isdead'):
+        dead_players[userid] = -1
+        end_spec_delay(userid)
 
-    if playerlib.getPlayer(int_userid).get('isdead'):
-        dict_dead_players[int_userid] = -1
-        end_spec_delay(int_userid)
-
-    elif dict_dead_players.has_key(int_userid):
-        del dict_dead_players[int_userid]
+    elif userid in dead_players:
+        del dead_players[userid]
 
 
 def cancel_delays():
@@ -225,11 +218,9 @@ def cancel_delays():
     Cancels delays for dead players
     Unregisters client command filter
     """
-    global list_delays
+    for userid in delays:
+        gamethread.cancelDelayed('xaobserve_%s' % userid)
 
-    for int_userid in list_delays:
-        gamethread.cancelDelayed('xaobserve_%s' % int_userid)
-
-    if dict_dead_players:
+    if dead_players:
         es.addons.unregisterClientCommandFilter(client_command_filter)
-        dict_dead_players.clear()
+        dead_players.clear()
