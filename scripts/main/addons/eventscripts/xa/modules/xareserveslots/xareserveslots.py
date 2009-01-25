@@ -18,7 +18,9 @@ info.basename   = "xareserveslots"
 Reserved slots - a full port of manis reserved slots (horrible though it is Smile) functionality for eXtendable Admin.
 This module uses all the Mani configuration straight from the box.
 However currently this feature does NOT support the redirect option. IF a server IP is set this is added to the kick message.
-
+ -- 1.2.2 --
+ * Fixed an error where player_activate was passing a string userid, not a playerlib
+   instance 
  -- 1.2.1 --
  * Fixed small syntax error in logging.log()
  * Fixed call to an old method (in check_player) which changed name in 1.1.0 
@@ -80,6 +82,8 @@ def returnReservedStatus(x):
     Checks via various methods if the player x has a reserved slot
      - RETURNS False if they do have one (For playerlib purposes)
     '''
+    if isinstance(x, str):
+        x = playerlib.getPlayer(x)
     if xaReservedList:
         # if we have a list of reserved players then check x's steam id and return false if they are in the list
         if x.attributes['steamid'] in xaReservedList:
