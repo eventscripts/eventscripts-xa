@@ -207,7 +207,7 @@ def load():
     # run the configuration variables
     cfg_vars()
     # register the playerlib player filter we have..
-    playerlib.registerPlayerListFilter("#res", returnReservedStatus)
+    playerlib.registerPlayerListFilter("res", returnReservedStatus)
     # And say were loaded!
     xareserveslots.logging.log("Loaded Reserve slots (mani clone) %s" % str(info.version))
     
