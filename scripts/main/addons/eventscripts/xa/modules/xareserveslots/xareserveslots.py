@@ -7,7 +7,7 @@ from xa import xa
 #plugin information
 info = es.AddonInfo()
 info.name       = "Reserve Slots"
-info.version    = "1.2.2"
+info.version    = "1.2.3"
 info.author     = "Errant"
 info.basename   = "xareserveslots"
 
@@ -18,6 +18,8 @@ info.basename   = "xareserveslots"
 Reserved slots - a full port of manis reserved slots (horrible though it is Smile) functionality for eXtendable Admin.
 This module uses all the Mani configuration straight from the box.
 However currently this feature does NOT support the redirect option. IF a server IP is set this is added to the kick message.
+ -- 1.2.3 --
+ * Fixed an error where "kickud" was an unkown local vairable
  -- 1.2.2 --
  * Fixed an error where player_activate was passing a string userid, not a playerlib
    instance 
@@ -182,22 +184,24 @@ def choosePlayer():
     Used by chooseKick() to determine a player to kick
     '''
     kicklist = playerlib.getPlayerList("#res")
+    kickuid = es.getuserid() # get a random player
     if int(xareserveslots.setting.getVariable("reserve_slots_kick_method")) == 1:
-        timelowest = 1000000000000
+        timelowest = None
         for id in kicklist:
             time = id.attributes["timeconnected"]   
-            if time < timelow:
+            if timelowest is None or time < timelowest:
                 timelowest = time
                 kickuid = id
         return kickuid
     else:
-        ping = 0
+        ping = -1
         for id in kicklist:
             pping = id.attributes["ping"]
             if pping > ping:
                 ping = pping
                 kickuid = id
         return kickuid
+    return kickuid
                 
 '''
 Events
