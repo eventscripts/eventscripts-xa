@@ -32,6 +32,7 @@ OY1   | [BETA] | 15/09/2007 |  Working Standalone version
 1.3.0 | [FULL] | 08/02/2008 | Added a console command for when auto blinding is turned off 
 1.3.1 | [FULL] | 16/02/2008 | Fixed a bunch of minor errors in player_team, commented out global variable
 1.3.2 | [FULL] | 13/05/2008 | Fixed typo in player_team method/event
+1.3.1 | [FULL] | 22/02/2009 | Fixed a chance where a key error could happen when a player would be checked before added to the dictionary.
 --Future--
  #  |  Status       | Desc
 
@@ -131,10 +132,16 @@ def checkplayer(uid):
     Checks if a player is ghosting and blinds them if so (does not test bots)
     '''
     if not es.isbot(uid):
+        if str(uid).isdigit():
+            uid = int(uid)
+        else:
+            return False
         plist = es.createplayerlist()
-        uip = plist[int(uid)]["address"]   
-        for id in plist:
-            if not id == int(uid) and plist[id]["address"]== uip: 
+        if uid not in plist:
+            return False
+        uip   = plist[uid]["address"]   
+        for userid in plist:
+            if not userid == int(uid) and plist[userid]["address"]== uip: 
                 return True
     return False
     

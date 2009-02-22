@@ -18,7 +18,7 @@ change_map     = None
 
 info                = es.AddonInfo() 
 info.name           = "Vote" 
-info.version        = "0.7" 
+info.version        = "0.8" 
 info.author         = "freddukes" 
 info.basename       = "xavote"
 
@@ -366,6 +366,8 @@ def RandomMapVoteAmountSelection(userid, choice, popupid):
     vote.CreateVote("Please select a map", RandomMapWin)
     random_list = []
     copyOfMapList = map_list[:]
+    if not copyOfMapList:
+        return
     while choice:
         choice -= 1
         random_map = random.choice(copyOfMapList)
@@ -387,6 +389,8 @@ def RandomCommand(args):
     vote = Vote("randommap")
     vote.CreateVote("Please select a map", RandomMapWin)
     maplist = filter(lambda x: False if x in args else True, map_list)
+    if not maplist:
+        return
     random_list = []
     choice = int(args[0])
     change_map = int(args[1].replace('immediately','1').replace('round_end','2').replace('map_end','3'))
@@ -469,6 +473,8 @@ class VoteManager(object):
         self.vote.start(float(vote_timer))
         self.display = HudHint(self.options, self.shortName)
         for player in vote_players:
+            if not es.exists('userid', player):
+                continue
             if not vote_players[player]['stopped']: 
                 popuplib.send("vote_" + self.shortName , player) 
             elif vote_players[player]['reason']: 

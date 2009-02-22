@@ -406,6 +406,8 @@ def unload():
 
 def _buy_restrict(userid, args):
    """Client command filter to prevent players from buying restricted weapons"""
+   if not args:
+      return True
    if args[0].lower() == 'buy' and len(args) > 1:
       player = getPlayer(userid)
       weapon = args[1].lower().replace('weapon_', '')

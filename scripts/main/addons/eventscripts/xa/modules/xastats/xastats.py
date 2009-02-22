@@ -313,19 +313,20 @@ def player_death(event_var):
                     headshot = stats_headshot
                 else:
                     headshot = 1.0
-
-                vscoreDelta = 1.0 * vscore / ascore * float(weaponTable[weapon]) * float(headshot) * float(stats_deathmult)
-                ascoreDelta = 1.0 * vscore / ascore * float(weaponTable[weapon]) * float(headshot) * float(stats_killmult)
+                    
+                if weapon in weaponTable:
+                    vscoreDelta = 1.0 * vscore / ascore * float(weaponTable[weapon]) * float(headshot) * float(stats_deathmult)
+                    ascoreDelta = 1.0 * vscore / ascore * float(weaponTable[weapon]) * float(headshot) * float(stats_killmult)
                 
-                # lets update the player session.  Note that the socre 
-                # put here is only the score changes made during the session.
-                asess.add("temp_points", int(ascoreDelta) ) 
-                astat.add("points", int(ascoreDelta) ) # lets update the statistics table
-
-                # only subtract player points if the killer has a few kills
-                if astat.getTotal("kills") > int(stats_minkills) and int(stats_addonly) == 0:
-                    vsess.add("temp_points", -int(vscoreDelta) )
-                    vstat.add("points", -int(vscoreDelta) )
+                    # lets update the player session.  Note that the socre 
+                    # put here is only the score changes made during the session.
+                    asess.add("temp_points", int(ascoreDelta) ) 
+                    astat.add("points", int(ascoreDelta) ) # lets update the statistics table
+    
+                    # only subtract player points if the killer has a few kills
+                    if astat.getTotal("kills") > int(stats_minkills) and int(stats_addonly) == 0:
+                        vsess.add("temp_points", -int(vscoreDelta) )
+                        vstat.add("points", -int(vscoreDelta) )
 
             # can we do PDF calculations?
             if int(stats_pdf) == 1:

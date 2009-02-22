@@ -185,7 +185,10 @@ def _gimp(userid, adminid, args):
     
 def _say_filter(userid, text, team):
     if userid in players:
-        if not es.exists('saycommand', text.strip('"').split()[0]):
+        sayCommand = text.strip('"').split()
+        if not sayCommand:
+           return (0, "", 0)
+        if not es.exists('saycommand', sayCommand[0]):
             if players[userid]['gimped']:
                 text = getGimpPhrase()
                 if text: 

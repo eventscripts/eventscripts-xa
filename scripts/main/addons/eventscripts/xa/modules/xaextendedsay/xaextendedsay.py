@@ -4,7 +4,7 @@ from xa import xa
 
 info                = es.AddonInfo() 
 info.name           = "Extended Admin Say" 
-info.version        = "0.1" 
+info.version        = "0.2" 
 info.author         = "freddukes" 
 info.basename       = "xaextendedsay" 
 
@@ -25,6 +25,8 @@ def _admin_say_tell(adminid, message, teamonly):
     tokens = {}
     username = ''
     messagetokens = message.split()
+    if not messagetokens:
+        return
     if messagetokens[0].startswith('"') and message.count('"') >= 2:
         for part in messagetokens:
             position += 1

@@ -92,7 +92,8 @@ def player_disconnect(event_var):
 def _cc_filter(userid, args):
     """Eats the client command if the player tries to buy more grenades than allowed."""
     global dict_players
-
+    if not args:
+        return True
     if args[0].lower() == 'buy' and len(args) > 1:
         item = args[1].lower().replace('weapon_', '')
         if dict_grenade_limits.has_key(item):
