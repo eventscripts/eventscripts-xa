@@ -15,10 +15,11 @@ multi_map      = []
 previousMaps   = []
 round_count    = {}
 change_map     = None
+startTime      = time.time()
 
 info                = es.AddonInfo() 
 info.name           = "Vote" 
-info.version        = "0.8" 
+info.version        = "0.9" 
 info.author         = "freddukes" 
 info.basename       = "xavote"
 
