@@ -151,9 +151,14 @@ def es_map_start(event_var):
     global map_list
     global startTime
     global round_count
-    map_file       = open(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/' + str(vote_map_file), 'r')
-    map_list       = filter(lambda x: False if x == '' or x.startswith('//') else os.path.isfile(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maps/%s.bsp'%x), map(lambda x: x.replace('\n',''), map_file.readlines()))
-    map_file.close()
+    mapfilename = str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/' + str(vote_map_file)
+    if os.path.exists(mapfilename):    
+      map_file       = open(mapfilename, 'r')
+      map_list       = filter(lambda x: False if x == '' or x.startswith('//') else os.path.isfile(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maps/%s.bsp'%x), map(lambda x: x.replace('\n',''), map_file.readlines()))
+      map_file.close()
+    else:
+      es.dbgmsg(0, "xavote.py: Note: Cannot find maplist file '"+mapfilename+"'")
+    
     gamethread.cancelDelayed('votemap_timer')
     round_count = {}
     round_count['round_counting'] = 0
