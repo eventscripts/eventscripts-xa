@@ -31,7 +31,7 @@ reload(setting)
 #plugin information
 info = es.AddonInfo()
 info.name = 'eXtensible Admin EventScripts Python addon'
-info.version = '0.7.0.328'
+info.version = '1.0.0.395'
 info.author = 'EventScripts Developers'
 info.url = 'http://forums.mattie.info/cs/forums/viewforum.php?f=97'
 info.description = 'eXtensible Admin EventScripts Python addon'
