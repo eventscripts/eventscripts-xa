@@ -6,6 +6,7 @@ es.dbgmsg(0, '[eXtensible Admin] Begin loading...')
 
 #import custom stuff
 import os
+import shutil
 import hotshot.stats
 import services
 import gamethread
@@ -31,16 +32,17 @@ reload(setting)
 #plugin information
 info = es.AddonInfo()
 info.name = 'eXtensible Admin EventScripts Python addon'
-info.version = '1.0.0.395'
+info.version = '1.0.0.397'
 info.author = 'EventScripts Developers'
 info.url = 'http://forums.mattie.info/cs/forums/viewforum.php?f=97'
 info.description = 'eXtensible Admin EventScripts Python addon'
 info.basename = 'xa'
-es.ServerVar('eventscripts_xa', str(info.version), 'eXtensible Admin Version').makepublic()
 
 ##################### ######################################################
 #Variables Section# # PLEASE KEEP IN MIND THAT THOSE VARIABLES ARE PRIVATE #
 ##################### ######################################################
+##public server variable
+es.ServerVar('eventscripts_xa', str(info.version), 'eXtensible Admin Version').makepublic()
 ##generate import dict
 gImportLibraries = dir()
 ## list of core variables
@@ -734,6 +736,25 @@ def coredir():
 def moduledir(pModuleid):
     return str('%smodules/%s' % (es.getAddonPath('xa'), pModuleid)).replace("\\", "/")
 
+def copytree(src, dst, counter=0):
+    # modified Python 2.6 shutil.copytree method that ignores existing files
+    if not os.path.exists(dst):
+        os.makedirs(dst)
+    for name in os.listdir(src):
+        srcname = os.path.join(src, name)
+        dstname = os.path.join(dst, name)
+        if os.path.isdir(srcname):
+            counter += copytree(srcname, dstname, counter)
+        elif not os.path.exists(dstname):
+            shutil.copy2(srcname, dstname)
+            counter += 1
+    try:
+        shutil.copystat(src, dst)
+    except WindowsError:
+        # can't copy file access times on Windows
+        pass
+    return counter
+
 ###########################################
 #EventScripts events and blocks start here#
 ###########################################
@@ -748,9 +769,12 @@ def load():
     gMainCommand = Admin_command('xa', command, 'xa_menu', 'UNRESTRICTED')
     gMainCommand.register(['server', 'console', 'say'])
     gModulesLoading = False
+    es.dbgmsg(0, '[eXtensible Admin] Merging default configuration...')
+    gCopiedFiles = copytree('%s/cfg/xa/_defaults' % gamedir(), '%s/cfg' % gamedir())
+    es.dbgmsg(0, '[eXtensible Admin] Number of files copied = %d' % gCopiedFiles)
     es.dbgmsg(0, '[eXtensible Admin] Executing xa.cfg...')
     es.server.cmd('es_xmexec xa.cfg')
-    es.dbgmsg(0, '[eXtensible Admin] Mani mode enabled = '+str(isManiMode()))
+    es.dbgmsg(0, '[eXtensible Admin] Mani mode enabled = %s' % isManiMode())
     gModulesLoading = True
     if isManiMode():
         ma = Admin_mani()
