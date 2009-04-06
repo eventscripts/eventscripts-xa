@@ -18,6 +18,8 @@ def log(module, text, userid=0, admin=False):
                 logtext = str(module) + ': User ' + es.getplayername(userid) + ' [' + es.getplayersteamid(userid) + ']: ' + str(text)
         else:
             logtext = str(module) + ': ' + str(text)
+        if not os.path.isdir('%s/logs' % xa.coredir()):
+            os.mkdir('%s/logs' % xa.coredir())
         logname = '%s/logs/l%s' % (xa.coredir(), time.strftime('%m%d000.log'))
         logfile = open(logname, 'a+')
         logfile.write(time.strftime('L %m/%d/%Y - %H:%M:%S: ') + logtext + '\n')
