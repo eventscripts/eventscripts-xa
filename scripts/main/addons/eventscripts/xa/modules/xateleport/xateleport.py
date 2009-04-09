@@ -101,6 +101,11 @@ def teleportPlayerToPlayer(userid, choice, popupid):
     if es.getplayerprop(target, 'CBasePlayer.pl.deadflag') or es.getplayerprop(recipient, 'CBasePlayer.pl.deadflag'):
         es.tell(userid, xalanguage('one player died', {}, playerlib.getPlayer(userid).get("lang") ) )
         return
+        
+    if not es.exists('userid', target) or not es.exists('userid', recipient):
+        """ One of the player's doesn't exists... Return early and break the function """
+        return
+        
     x, y, z = es.getplayerlocation(recipient)
     z += 100
     es.server.queuecmd('es_xsetpos %s %s %s %s' % (target, x, y, z) )
