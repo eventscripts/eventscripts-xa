@@ -177,7 +177,7 @@ def unload():
             popuplib.delete('adminlistmenu')
         es.dbgmsg(1,'basicadmins_default=%s' %basicadmins_default)
         es.set('BASIC_AUTH_ADMIN_LIST', basicadmins_default)
-    else:
+    elif authaddon == 'group_auth':
         popuplib.delete('groupsmainmenu')
         popuplib.delete('usermenu')
         popuplib.delete('capmain')
