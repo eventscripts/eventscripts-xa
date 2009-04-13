@@ -445,11 +445,13 @@ class Admin_mani(object):
     def __init__(self):
         self.admincmd = Admin_command('admin', sendMenu, 'xa_menu', 'ADMIN')
         self.admincmd.register(['console'])
+        self.config = configparser.getList(self, 'addons/eventscripts/xa/static/maniconfig.txt', True)
+        self.module = configparser.getList(self, 'addons/eventscripts/xa/static/manimodule.txt', True)
+        self.permissions = configparser.getKeyList(self, 'addons/eventscripts/xa/static/manipermission.txt', True)
 
     def loadModules(self):
-        module = configparser.getList(self, 'addons/eventscripts/xa/static/manimodule.txt', True)
-        if module:
-            for line in module:
+        if self.module:
+            for line in self.module:
                 linelist = map(str, line.strip().split('|', 3))
                 if linelist[0] == '*':
                     xa_load(linelist[1])
@@ -463,21 +465,19 @@ class Admin_mani(object):
             raise IOError, 'Could not find xa/static/manimodule.txt!'
 
     def loadVariables(self):
-        config = configparser.getList(self, 'addons/eventscripts/xa/static/maniconfig.txt', True)
-        if config:
-            for line in config:
+        if self.config:
+            for line in self.config:
                 linelist = map(str, line.strip().split('|', 2))
                 es.ServerVar(linelist[0], linelist[1], linelist[2])
         else:
             raise IOError, 'Could not find xa/static/maniconfig.txt!'
 
     def convertClients(self):
-        permissions = configparser.getKeyList(self, 'addons/eventscripts/xa/static/manipermission.txt', True)
-        if not permissions:
+        if not self.permissions:
             raise IOError, 'Could not find xa/static/manipermission.txt!'
 
         auth = services.use('auth')
-        if not auth.name in ('group_auth', 'basic_auth'):
+        if not auth.name in ('group_auth', 'basic_auth', 'mani_basic_auth'):
             return False
 
         clients = configparser.getKeyList(self, 'cfg/mani_admin_plugin/clients.txt', True)
@@ -499,7 +499,8 @@ class Admin_mani(object):
                     if not clients['players'][str(client)]['steam'] in adminlist.split(';'):
                         adminlist += ';' + str(clients['players'][str(client)]['steam'])
                         es.dbgmsg(0, ('[eXtensible Admin] Added Admin: %s [%s]' % (str(client), str(clients['players'][str(client)]['steam']))))
-            es.dbgmsg(0, '[eXtensible Admin] Finished Mani setup for Basic Auth')        
+            es.dbgmsg(0, '[eXtensible Admin] Finished Mani setup for Basic Auth')
+            return True
         elif auth.name == 'group_auth':
             es.dbgmsg(0, '[eXtensible Admin] Converting clients.txt to Group Auth')
             permcache = []
@@ -522,12 +523,12 @@ class Admin_mani(object):
                     for custom in module.customPermissions:
                         if module.customPermissions[str(custom)]['type'] == 'IMMUNITY':
                             immunityflags[str(custom)] = 'ADMIN'
-            for perm in permissions['adminflags']:
+            for perm in self.permissions['adminflags']:
                 if not str(perm) in adminflags:
-                    adminflags[str(perm)] = permissions['adminflags'][str(perm)]
-            for perm in permissions['immunityflags']:
+                    adminflags[str(perm)] = self.permissions['adminflags'][str(perm)]
+            for perm in self.permissions['immunityflags']:
                 if not str(perm) in immunityflags:
-                    immunityflags[str(perm)] = permissions['immunityflags'][str(perm)]
+                    immunityflags[str(perm)] = self.permissions['immunityflags'][str(perm)]
             for group in clients['admingroups']:
                 if 'ADMIN' in clients['admingroups'][str(group)].upper().split(' '):
                     commandqueue.append('gauth group delete "Mani_%s"' % (str(group).replace(' ', '_')))
@@ -577,6 +578,22 @@ class Admin_mani(object):
             for cmd in commandqueue:
                 es.server.cmd(cmd)
             es.dbgmsg(0, '[eXtensible Admin] Finished Mani setup for Group Auth')
+            return True
+        elif auth.name == 'mani_basic_auth':
+            es.dbgmsg(0, '[eXtensible Admin] We will be converting flags to Basic Mani Auth')
+            auth.__isIdAuthorized__ = auth.isIdAuthorized
+            auth.isIdAuthorized = self.isIdAuthorized
+            es.dbgmsg(0, '[eXtensible Admin] Finished Mani setup for Basic Mani Auth')
+            return True
+
+    def isIdAuthorized(self, auth_identifier, auth_capability):
+        if not self.permissions:
+            raise IOError, 'Could not find xa/static/manipermission.txt!'
+
+        if auth_capability in self.permissions['adminflags']:
+            return self.__isIdAuthorized__(auth_identifier, 'mani_flag_%s'%self.permissions['adminflags'][auth_capability])
+        else:
+            return self.__isIdAuthorized__(auth_identifier, auth_capability)
 
 ###########################
 #Module methods start here#
