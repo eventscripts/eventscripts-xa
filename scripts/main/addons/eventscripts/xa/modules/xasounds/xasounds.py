@@ -60,8 +60,7 @@ def es_map_start(event_var):
     if xasoundslist:
         if int(sounds_download) == 1:
             for sound in xasoundslist:
-                soundfile = str(xasoundslist[sound])
-                es.stringtable('downloadables', 'sound/'+sound)
+                es.stringtable('downloadables', 'sound/%s'%xasoundslist[sound])
 
 def round_start(event_var):
     for userid in es.getUseridList():

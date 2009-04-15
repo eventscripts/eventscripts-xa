@@ -112,8 +112,7 @@ def es_map_start(event_var):
     if len(xaquakesoundslist) > 0:
         if int(quake_sounds_download) == 1:
             for sound in xaquakesoundslist:
-                soundfile = str(xaquakesoundslist[sound])
-                es.stringtable('downloadables', 'sound/'+sound)
+                es.stringtable('downloadables', 'sound/%s'%xaquakesoundslist[sound])
     else:
         quake_sounds.set('0')
 
