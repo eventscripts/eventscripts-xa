@@ -3,9 +3,6 @@ import time
 import cfglib
 import xa
 
-import psyco
-psyco.full()
-
 ###########################
 #Module methods start here#
 ########################################################

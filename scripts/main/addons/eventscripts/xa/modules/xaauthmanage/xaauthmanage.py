@@ -37,7 +37,7 @@ lang = xaauthmanage.language.getLanguage()
 auth = services.use('auth')
 authaddon = auth.name
 if authaddon not in ('group_auth','basic_auth'):
-    es.unload('xa/modules/xaauthmanage')
+    xaauthmanage.unload()
 
 prefix = '#green[AuthManage]#default'
 

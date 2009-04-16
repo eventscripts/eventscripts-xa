@@ -3,9 +3,6 @@ import os
 import keyvalues
 import xa
 
-import psyco
-psyco.full()
-
 ###########################
 #Module methods start here#
 ########################################################
@@ -28,7 +25,7 @@ def getList(module, filename, modfolder = False):
           finally:
               file.close()
           return lines
-    return False
+    return []
 
 def getAliasList(module, filename, modfolder = False):
     if modfolder == False:
@@ -46,7 +43,7 @@ def getAliasList(module, filename, modfolder = False):
         finally:
             file.close()
         return lines
-    return False
+    return {}
 
 def getKeyList(module, filename, modfolder = False):
     if modfolder == False:
@@ -57,4 +54,4 @@ def getKeyList(module, filename, modfolder = False):
         kv = keyvalues.KeyValues()
         kv.load(filename)
         return kv
-    return False
+    return None

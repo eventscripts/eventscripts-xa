@@ -3,9 +3,6 @@ import copy
 import langlib
 import xa
 
-import psyco
-psyco.full()
-
 ###########################
 #Module methods start here#
 ########################################################

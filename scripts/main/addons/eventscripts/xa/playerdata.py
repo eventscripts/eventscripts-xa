@@ -3,9 +3,6 @@ import playerlib
 import keyvalues
 import xa
 
-import psyco
-psyco.full()
-
 gSettingFile = "%s/data/playerdata.txt" % es.getAddonPath('xa')
 gKeyValues = keyvalues.KeyValues(name="playerdata.txt")
 gKeyValues.load(gSettingFile)

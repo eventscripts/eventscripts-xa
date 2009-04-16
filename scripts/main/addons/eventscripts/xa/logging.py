@@ -3,9 +3,6 @@ import os
 import time
 import xa
 
-import psyco
-psyco.full()
-
 ###########################
 #Module methods start here#
 ###########################
