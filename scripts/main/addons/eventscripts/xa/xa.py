@@ -126,7 +126,6 @@ class Admin_module(object):
         self._xamod = None
         self._xalibs = {}
         self.name = gModule
-        self.allowAutoUnload = True
         self.subCommands = {}
         self.subMenus = {}
         self.customPermissions = {}
@@ -243,8 +242,6 @@ class Admin_module(object):
             es.dbgmsg(0, ' ')
         es.dbgmsg(0, self.name)
         if listlevel >= 1:
-            es.dbgmsg(0, '  Auto-Unload:  '+str(self.allowAutoUnload))
-        if listlevel >= 2:
             es.dbgmsg(0, '  Required by:  '+str(len(self.requiredFrom)))
             for module in self.requiredFrom:
                 es.dbgmsg(0,'    '+module)
@@ -255,7 +252,7 @@ class Admin_module(object):
             es.dbgmsg(0, '  Variables:    '+str(len(self.variables)))
             for var in self.variables:
                 es.dbgmsg(0,'    '+var)
-        if listlevel >= 3:
+        if listlevel >= 2:
             es.dbgmsg(0, '  ')
             es.dbgmsg(0, '  Libs & Funcs: '+str(len(self._xalibs)))
             for lib in self._xalibs:
@@ -695,13 +692,12 @@ def unload():
     global gMainMenu, gMainCommand
     es.dbgmsg(0, '[eXtensible Admin] Begin unloading...')
     for module in sorted(gModules.values(), lambda x, y: cmp(x.required, y.required)*-1):
-        if module.allowAutoUnload:
-            for command in module.subCommands:
-                module.subCommands[command].unregister(['console', 'say'])
-            for menu in module.subMenus:
-                module.subMenus[menu].unregister()
-            es.dbgmsg(0, '[eXtensible Admin] Unloading module "%s"' % module.name)
-            es.unload('xa/modules/'+module.name)
+        for command in module.subCommands:
+            module.subCommands[command].unregister(['console', 'say'])
+        for menu in module.subMenus:
+            module.subMenus[menu].unregister()
+        es.dbgmsg(0, '[eXtensible Admin] Unloading module "%s"' % module.name)
+        module.unload()
     for menu in gMainMenu:
         if popuplib.exists(str(menu)):
             menu.delete()
@@ -847,7 +843,7 @@ def command(userid, args):
             module.information(listlevel)
         if argc == 2:
             es.dbgmsg(0, ' ')
-            es.dbgmsg(0, 'For more details, supply list level (0-3):')
+            es.dbgmsg(0, 'For more details, supply list level (0-2):')
             es.dbgmsg(0, 'Syntax: xa module list [level]')
         es.dbgmsg(0,'----------')
     elif subcmd == 'info':
