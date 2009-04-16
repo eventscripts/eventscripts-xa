@@ -693,8 +693,8 @@ def load():
     es.dbgmsg(0, '[eXtensible Admin] Second loading part...')
     if not services.isRegistered('auth'):
         es.dbgmsg(0, '[eXtensible Admin] WARNING! Auth Provider required!')
-        es.dbgmsg(0, '[eXtensible Admin] Loading Basic Auth...')
-        es.load('examples/auth/basic_auth')
+        es.dbgmsg(0, '[eXtensible Admin] Loading Mani Basic Auth...')
+        es.load('examples/auth/mani_basic_auth')
     gMainCommand = Admin_command('xa', command)
     gMainCommand.register(['server', 'console', 'say'])
     gModulesLoading = False
