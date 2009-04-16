@@ -1,13 +1,13 @@
-#import EventScripts
-import es
-
-#begin loading
-es.dbgmsg(0, '[eXtensible Admin] Begin loading...')
-
-#import custom stuff
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
+# Python Imports
 import os
 import shutil
 import hotshot.stats
+
+# EventScripts Imports
+import es
 import services
 import gamethread
 import playerlib
@@ -17,7 +17,26 @@ import settinglib
 import keyvalues
 import cmdlib
 
-#import libraries
+# ==============================================================================
+#   ADDON REGISTRATION
+# ==============================================================================
+# Version info
+__version__ = '1.0.0.410'
+es.ServerVar('eventscripts_xa', __version__, 'eXtensible Admin').makepublic()
+es.dbgmsg(0, '[eXtensible Admin] Version: %s' % __version__)
+es.dbgmsg(0, '[eXtensible Admin] Begin loading...')
+
+# Register with EventScripts
+info = es.AddonInfo()
+info.name       = 'eXtensible Admin'
+info.version    = __version__
+info.url        = 'http://forums.mattie.info/cs/forums/viewforum.php?f=97'
+info.basename   = 'xa'
+info.author     = 'EventScripts Developers'
+
+# ==============================================================================
+#   LOAD XA LIBRARIES
+# ==============================================================================
 import configparser
 reload(configparser)
 import language
@@ -29,41 +48,31 @@ reload(playerdata)
 import setting
 reload(setting)
 
-#plugin information
-info = es.AddonInfo()
-info.name = 'eXtensible Admin EventScripts Python addon'
-info.version = '1.0.0.406'
-info.author = 'EventScripts Developers'
-info.url = 'http://forums.mattie.info/cs/forums/viewforum.php?f=97'
-info.description = 'eXtensible Admin EventScripts Python addon'
-info.basename = 'xa'
-
-##################### ######################################################
-#Variables Section# # PLEASE KEEP IN MIND THAT THOSE VARIABLES ARE PRIVATE #
-##################### ######################################################
-##public server variable
-es.ServerVar('eventscripts_xa', str(info.version), 'eXtensible Admin Version').makepublic()
-##generate import dict
+# ==============================================================================
+#   GLOBALS
+# ==============================================================================
+# Imported libraries
 gImportLibraries = dir()
-## list of core variables
+
+# Core variables
 gCoreVariables = {}
-gCoreVariables['log']           = es.ServerVar('xa_log', 0, 'Activates the module logging')
-gCoreVariables['debug']         = es.ServerVar('xa_debug', 0, 'Activates the module/library debugging')
-gCoreVariables['debugprofile']  = es.ServerVar('xa_debugprofile', 0, 'Activates the module/library profiling')
-gCoreVariables['manimode']      = es.ServerVar('xa_manimode', 0, 'Is Mani compatibility mode active?')
-gCoreVariables['sayprefix']     = es.ServerVar('xa_sayprefix', '!', 'Say command prefix')
-## gMainMenu/gMainCommand holds XAs main menu/main command
+gCoreVariables['log']           = es.ServerVar('xa_log',            0,      'Activates the module logging')
+gCoreVariables['debug']         = es.ServerVar('xa_debug',          0,      'Activates the module/library debugging')
+gCoreVariables['debugprofile']  = es.ServerVar('xa_debugprofile',   0,      'Activates the module/library profiling')
+gCoreVariables['manimode']      = es.ServerVar('xa_manimode',       0,      'Is Mani compatibility mode active?')
+gCoreVariables['sayprefix']     = es.ServerVar('xa_sayprefix',      '!',    'Say command prefix')
+
+# Main menu and command instance
 gMainMenu = {}
 gMainCommand = None
-## gModules holds all the modules
+
+# Module dict
 gModules = {}
 gModulesLoading = False
 
-#################### ######################################################
-#Core Class Section# # PLEASE KEEP IN MIND THAT THOSE CLASSES ARE PRIVATE #
-#################### ######################################################
-## Library API
-# Admin_libfunc is a 'fake' method class used for the lib API
+# ==============================================================================
+#   HELPER CLASSES
+# ==============================================================================
 class Admin_libfunc(object):
     def __init__(self, gLib, gFunc, gModule):
         self._xalib = gLib
@@ -71,6 +80,7 @@ class Admin_libfunc(object):
         self._xalibfunccalls = 0
         self._xalibfuncstats = {'calls':0, 'times':0}
         self._xamod = gModule
+        
     def __call__(self, *args, **kw):
         self._xalibfunccalls += 1
         if int(gCoreVariables['debug']) >= 1 or int(gCoreVariables['debugprofile']) > 0: #check debug here to be faster
@@ -99,13 +109,13 @@ class Admin_libfunc(object):
         else:
             return self._xalibfunc(self._xamod, *args, **kw)
 
-# Admin_lib is a 'fake' library class used for the lib API
 class Admin_lib(object):
     def __init__(self, gLib, gModule):
         self._xalib = gLib
         self._xalibcalls = 0
         self._xalibfuncs = {}
         self._xamod = gModule
+        
     def __getattr__(self, name):
         self._xalibcalls += 1
         if int(gCoreVariables['debug']) >= 2: #check debug here to be faster
@@ -117,11 +127,11 @@ class Admin_lib(object):
         else:
             raise AttributeError, name
 
-## Core
-# Admin_module is the module class
+# ==============================================================================
+#   CORE CLASSES
+# ==============================================================================
 class Admin_module(object):
     def __init__(self, gModule):
-        #initialization of the module
         self._xa = None
         self._xamod = None
         self._xalibs = {}
@@ -134,8 +144,10 @@ class Admin_module(object):
         self.required = 0
         self.variables = {}
         self.getCore()
+        
     def __str__(self):
         return self.name
+        
     def __getattr__(self, name):
         self.getModule()
         if (name in gImportLibraries) and (self._xa.__dict__.has_key(name)):
@@ -153,29 +165,36 @@ class Admin_module(object):
             return Admin_lib(self._xamod, self).__getattr__(name)
         else:
             raise AttributeError, name
+            
     def getAddonInfo(self):
         self.getModule()
         for item in self._xamod.__dict__:
             if isinstance(self._xamod.__dict__[item], es.AddonInfo):
                 return self._xamod.__dict__[item]
+                
     def getCore(self):
         if not self._xa:
             for mod in es.addons.getAddonList():
                 if mod.__name__ == 'xa.xa':
                     self._xa = mod
         return self._xa
+        
     def getModule(self):
         if not self._xamod:
             for mod in es.addons.getAddonList():
                 if mod.__name__ == 'xa.modules.%s.%s'%(self.name, self.name):
                     self._xamod = mod
         return self._xamod
+        
     def delete(self):
         unregister(self.name)
+        
     def unregister(self):
         unregister(self.name)
+        
     def unload(self):
         xa_unload(self.name)
+        
     def addRequirement(self, gModuleList):
         if isinstance(gModuleList, str):
             addlist = [gModuleList]
@@ -187,6 +206,7 @@ class Admin_module(object):
                 module.required += 1
                 module.requiredFrom.append(self.name)
                 self.requiredList.append(module.name)
+                
     def delRequirement(self, gModuleList):
         if isinstance(gModuleList, str):
             dellist = [gModuleList]
@@ -198,45 +218,52 @@ class Admin_module(object):
                 module.required -= 1
                 module.requiredFrom.remove(self.name)
                 self.requiredList.remove(module.name)
+                
     def addCommand(self, command, block, perm=None, permlvl=None, descr='eXtensible Admin command', mani=False):
-        #create new menu
         self.subCommands[command] = Admin_command(command, block, perm, permlvl, descr, mani)
         return self.subCommands[command]
+        
     def delCommand(self, command):
-        #delete a menu
         if (command in self.subCommands):
             if self.subCommands[command]:
                 self.subCommands[command].unregister(['server','console','say'])
                 self.subCommands[command] = None
+                
     def isCommand(self, command):
         if (command in self.subCommands):
             return True
         return False
+        
     def findCommand(self, command):
         if (command in self.subCommands):
             return self.subCommands[command]
+            
     def addMenu(self, menu, display, menuname, perm=None, permlvl=None):
-        #create new menu
         self.subMenus[menu] = Admin_menu(menu, display, menuname, perm, permlvl)
         return self.subMenus[menu]
+        
     def delMenu(self, menu):
-        #delete a menu
         if (menu in self.subMenus):
             if self.subMenus[menu]:
                 self.subMenus[menu].unregister()
                 self.subMenus[menu] = None
+                
     def isMenu(self, menu):
         if (menu in self.subMenus):
             return True
         return False
+        
     def findMenu(self, menu):
         if (menu in self.subMenus):
             return self.subMenus[menu]
+            
     def registerCapability(self, auth_capability, auth_recommendedlevel, auth_type='ADMIN'):
         self.customPermissions[auth_capability] = {'level':str(auth_recommendedlevel).upper(), 'type':str(auth_type).upper()}
         return registerCapability(auth_capability, getLevel(auth_recommendedlevel))
+        
     def isUseridAuthorized(self, auth_userid, auth_capability):
         return isUseridAuthorized(auth_userid, auth_capability)
+        
     def information(self, listlevel):
         if listlevel >= 1:
             es.dbgmsg(0, ' ')
@@ -264,10 +291,8 @@ class Admin_module(object):
                         es.dbgmsg(0,'        '+func+' ['+str(self._xalibs[lib]._xalibfuncs[func]._xalibfunccalls)+' calls]')
             es.dbgmsg(0, '  -------------')
 
-# Admin_command is the clientcmd class
 class Admin_command(object):
     def __init__(self, gCommand, gBlock, gPerm=None, gPermLevel=None, gDescription='eXtensible Admin command', gManiComp=False):
-        #initialization of the module
         self.name = gCommand
         self.block = gBlock
         self.permission = gPerm
@@ -278,8 +303,10 @@ class Admin_command(object):
         self.console = False
         self.say = False
         self.chat = False
+        
     def __str__(self):
         return self.name
+        
     def register(self, gList):
         if isinstance(gList, str):
             cmdlist = [gList]
@@ -304,6 +331,7 @@ class Admin_command(object):
             if not self.incomingChat in es.addons.SayListeners:
                 es.addons.registerSayFilter(self.incomingChat)
             self.chat = True
+            
     def unregister(self, gList):
         if isinstance(gList, str):
             cmdlist = [gList]
@@ -328,6 +356,7 @@ class Admin_command(object):
             if self.incomingChat in es.addons.SayListeners:
                 es.addons.unregisterSayFilter(self.incomingChat)
             self.chat = False
+            
     def callBlock(self, userid, args):
         try:
             self.block(userid, args)
@@ -336,15 +365,19 @@ class Admin_command(object):
                 self.block()
             except TypeError:
                 es.doblock(self.block)
+                
     def incomingServer(self, args):
         if self.server:
             self.callBlock(0, args)
+            
     def incomingConsole(self, userid, args):
         if self.console:
             self.callBlock(userid, args)
+            
     def incomingSay(self, userid, args):
         if self.say:
             self.callBlock(userid, args)
+            
     def incomingChat(self, userid, message, teamonly):
         if self.chat:
             output = message
@@ -358,6 +391,7 @@ class Admin_command(object):
             if command == self.name and not self.permission or isUseridAuthorized(userid, self.permission):
                 self.callBlock(userid, cmdlib.cmd_manager.CMDArgs(output.split(' ')[1:] if len(output.split(' ')) > 1 else []))
         return (userid, message, teamonly)
+        
     def information(self, listlevel):
         if listlevel >= 1:
             es.dbgmsg(0, ' ')
@@ -373,10 +407,8 @@ class Admin_command(object):
             es.dbgmsg(0, '  Level:        '+str(self.permissionlevel))
             es.dbgmsg(0, '  Description:  '+str(self.descr))
 
-# Admin_menu is the clientcmd class
 class Admin_menu(object):
     def __init__(self, gMenu, gDisplay, gMenuName, gPerm=None, gPermLevel=None):
-        #initialization of the module
         self.name = gMenu
         self.display = gDisplay
         self.menu = gMenuName
@@ -396,12 +428,16 @@ class Admin_menu(object):
         if self.permission and self.permissionlevel:
             registerCapability(self.permission, getLevel(self.permissionlevel))
         self.addBackButton()
+        
     def __str__(self):
         return self.name
+        
     def unregister(self):
         self.menuobj = None
+        
     def setDisplay(self, display):
         self.display = display
+        
     def setMenu(self, menu):
         if popuplib.exists(menu):
             self.menu = menu
@@ -418,6 +454,7 @@ class Admin_menu(object):
         else:
             return False
         return self.addBackButton()
+        
     def addBackButton(self):
         if isinstance(self.menuobj, popuplib.Popup_easymenu):
             self.menuobj.menuselect = sendMenu
@@ -429,6 +466,7 @@ class Admin_menu(object):
             except:
                 return False ## keymenulib was probably changed, don't worry, no back button then
         return True
+        
     def information(self, listlevel):
         if listlevel >= 1:
             es.dbgmsg(0, ' ')
@@ -440,7 +478,6 @@ class Admin_menu(object):
             es.dbgmsg(0, '  Capability:   '+str(self.permission))
             es.dbgmsg(0, '  Level:        '+str(self.permissionlevel))
 
-# Admin_mani is the Mani compatibility helper class
 class Admin_mani(object):
     def __init__(self):
         self.admincmd = Admin_command('admin', sendMenu)
@@ -476,9 +513,9 @@ class Admin_mani(object):
         else:
             raise IOError, 'Could not find xa/static/manipermission.txt!'
 
-###########################
-#Module methods start here#
-###########################
+# ==============================================================================
+#   MODULE API FUNCTIONS
+# ==============================================================================
 def xa_load(pModuleid):
     """Loads a module"""
     if gModulesLoading:
@@ -497,11 +534,7 @@ def xa_reload(pModuleid):
 
 def xa_runconfig():
     """Runs XA's configuration file"""
-    setting.executeConfiguration()
-
-def xa_exec(pModuleid = None): # be backwards compatible, but just execute general module config
-    """Runs XA's configuration file"""
-    xa_runconfig()
+    setting.executeConfiguration(None)
 
 def debug(dbglvl, message):
     """Debugs a message"""
@@ -553,7 +586,7 @@ def corevars():
 
 def exists(pModuleid):
     """Checks if the module is registered with XA Core"""
-    return (str(pModuleid) in modules())
+    return str(pModuleid) in modules()
 
 def find(pModuleid):
     """Returns the class instance of the named module"""
@@ -603,7 +636,7 @@ def sendMenu(userid=None, choice=10, name=None):
         userid = int(es.getcmduserid())
     if userid and (es.exists('userid', userid)):
         gMainMenu[userid] = popuplib.easymenu('xa_%s'%userid, None, incomingMenu)
-        gMainMenu[userid].settitle(language.createLanguageString('eXtensible Admin'))
+        gMainMenu[userid].settitle(language.createLanguageString(None, 'eXtensible Admin'))
         gMainMenu[userid].vguititle = 'eXtensible Admin'
         for module in modules():
             module = find(module)
@@ -652,10 +685,9 @@ def copytree(src, dst, counter=0):
         pass # can't copy file access times on Windows
     return counter
 
-###########################################
-#EventScripts events and blocks start here#
-###########################################
-
+# ==============================================================================
+#   GAME EVENTS
+# ==============================================================================
 def load():
     global gMainMenu, gMainCommand, gModulesLoading
     es.dbgmsg(0, '[eXtensible Admin] Second loading part...')
@@ -683,9 +715,9 @@ def load():
     es.dbgmsg(0, '[eXtensible Admin] Executing xa.cfg...')
     es.server.cmd('es_xmexec xa.cfg')
     es.dbgmsg(0, '[eXtensible Admin] Executing xamodules.cfg...')
-    setting.executeConfiguration()
+    setting.executeConfiguration(None)
     es.dbgmsg(0, '[eXtensible Admin] Updating xamodules.cfg...')
-    setting.writeConfiguration()
+    setting.writeConfiguration(None)
     es.dbgmsg(0, '[eXtensible Admin] Finished loading')
 
 def unload():
@@ -707,6 +739,9 @@ def unload():
     es.dbgmsg(0, '[eXtensible Admin] Finished unloading sequence')
     es.dbgmsg(0, '[eXtensible Admin] Modules will now unregister themself...')
 
+# ==============================================================================
+#   SERVER COMMANDS
+# ==============================================================================
 def command(userid, args):
     if userid > 0:
         return sendMenu()

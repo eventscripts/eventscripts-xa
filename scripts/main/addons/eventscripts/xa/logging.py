@@ -1,26 +1,44 @@
-import es
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
+# Python Imports
 import os
 import time
+
+# EventScripts Imports
+import es
 import xa
 
-###########################
-#Module methods start here#
-###########################
-def log(module, text, userid=0, admin=False):
-    if bool(int(es.ServerVar("xa_log"))) and xa.exists(module):
-        if (int(userid) > 0) and es.exists('userid', int(userid)):
+# ==============================================================================
+#   MODULE API FUNCTIONS
+# ==============================================================================
+def log(module, text, userid=None, admin=False):
+    # Is logging enabled and does our module exist?
+    if int(es.ServerVar('xa_log')) and xa.exists(module):
+        # Was a valid source userid specified?
+        if userid and es.exists('userid', int(userid)):
+            # Is this userid an admin?
             if admin:
-                logtext = str(module) + ': Admin ' + es.getplayername(userid) + ' [' + es.getplayersteamid(userid) + ']: ' + str(text)
+                # Adming log
+                logtext = '%s: Admin %s [%s]: %s' % (module, es.getplayername(userid), es.getplayersteamid(userid), text)
+            
             else:
-                logtext = str(module) + ': User ' + es.getplayername(userid) + ' [' + es.getplayersteamid(userid) + ']: ' + str(text)
+                # User log
+                logtext = '%s: User %s [%s]: %s' % (module, es.getplayername(userid), es.getplayersteamid(userid), text)
+            
         else:
-            logtext = str(module) + ': ' + str(text)
+            # Default log
+            logtext = '%s: %s' % (module, text)
+        
+        # Create our log folder if it does not exist
         if not os.path.isdir('%s/logs' % xa.coredir()):
             os.mkdir('%s/logs' % xa.coredir())
+        
+        # Write to our log file
         logname = '%s/logs/l%s' % (xa.coredir(), time.strftime('%m%d000.log'))
         logfile = open(logname, 'a+')
         logfile.write(time.strftime('L %m/%d/%Y - %H:%M:%S: ') + logtext + '\n')
         logfile.close()
+        
+        # Write to the SRCDS log file
         es.log(logtext)
-        return True
-    return False

@@ -1,57 +1,82 @@
-import es
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
+# Python Imports
 import os
+
+# EventScripts Imports
+import es
 import keyvalues
 import xa
 
-###########################
-#Module methods start here#
-########################################################
-# All methods that should be able to be called through #
-# the API need to have "module" as first parameter     #
-########################################################
+# ==============================================================================
+#   MODULE API FUNCTIONS
+# ==============================================================================
 def getList(module, filename, modfolder = False):
-    if modfolder == False:
-        filename = ("%s/cfg/xa/%s" % (xa.gamedir(), filename)).replace("\\", "/")
+    # Return variable
+    lines = []
+    
+    # Is the filename relative to the modfolder?
+    if modfolder:
+        filename = ('%s/%s' % (xa.gamedir(), filename)).replace('\\', '/')
     else:
-        filename = ("%s/%s" % (xa.gamedir(), filename)).replace("\\", "/")
+        filename = ('%s/cfg/xa/%s' % (xa.gamedir(), filename)).replace('\\', '/')
+    
+    # Does the file exist?
     if os.path.exists(filename):
-          lines = []
-          try:
-              file = open(filename, "rU")
-              for line in file:
-                  if line and (line[0:2] != '//') and (line != '\n'):
-                      line = line.replace("\r", "").replace("\n", "").replace("\t", " ").replace("  ", " ")
-                      lines.append(line)
-          finally:
-              file.close()
-          return lines
-    return []
-
-def getAliasList(module, filename, modfolder = False):
-    if modfolder == False:
-        filename = ("%s/cfg/xa/%s" % (xa.gamedir(), filename)).replace("\\", "/")
-    else:
-        filename = ("%s/%s" % (xa.gamedir(), filename)).replace("\\", "/")
-    if os.path.exists(filename):
-        lines = {}
+        # Try reading the file into the list
         try:
-            file = open(filename, "rU")
+            file = open(filename, 'rU')
             for line in file:
                 if line and (line[0:2] != '//') and (line != '\n'):
-                    line = line.replace("\r", "").replace("\n", "").replace("\t", " ").replace("  ", " ")[1:].split("\" ", 1)
-                    lines[line[0].replace("\"", "")] = line[1]
+                    line = line.replace('\r', '').replace('\n', '').replace('\t', ' ').replace('  ', ' ')
+                    lines.append(line)
         finally:
             file.close()
-        return lines
-    return {}
+    
+    # Return the line list
+    return lines
+
+def getAliasList(module, filename, modfolder = False):
+    # Return variable
+    lines = {}
+    
+    # Is the filename relative to the modfolder?
+    if modfolder:
+        filename = ('%s/%s' % (xa.gamedir(), filename)).replace('\\', '/')
+    else:
+        filename = ('%s/cfg/xa/%s' % (xa.gamedir(), filename)).replace('\\', '/')
+    
+    # Does the file exist?
+    if os.path.exists(filename):
+        # Try reading the file into the dict
+        try:
+            file = open(filename, 'rU')
+            for line in file:
+                if line and (line[0:2] != '//') and (line != '\n'):
+                    line = line.replace('\r', '').replace('\n', '').replace('\t', ' ').replace('  ', ' ')[1:].split('\' ', 1)
+                    lines[line[0].replace('\'', '')] = line[1]
+        finally:
+            file.close()
+    
+    # Return the line dict
+    return lines
 
 def getKeyList(module, filename, modfolder = False):
-    if modfolder == False:
-        filename = ("%s/cfg/xa/%s" % (xa.gamedir(), filename)).replace("\\", "/")
+    # Is the filename relative to the modfolder?
+    if modfolder:
+        filename = ('%s/%s' % (xa.gamedir(), filename)).replace('\\', '/')
     else:
-        filename = ("%s/%s" % (xa.gamedir(), filename)).replace("\\", "/")
+        filename = ('%s/cfg/xa/%s' % (xa.gamedir(), filename)).replace('\\', '/')
+    
+    # Does the file exist?
     if os.path.exists(filename):
-        kv = keyvalues.KeyValues()
-        kv.load(filename)
+        # Load the file into a new KeyValues object
+        try:
+            kv = keyvalues.KeyValues()
+            kv.load(filename)
+        except:
+            kv = None
+        
+        # Return ou new KeyValues object
         return kv
-    return None
