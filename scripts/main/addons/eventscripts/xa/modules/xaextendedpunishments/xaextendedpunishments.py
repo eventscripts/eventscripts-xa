@@ -356,12 +356,12 @@ def _count_down(amount, bombType, userid):
     elif bombType == "timebomb": 
         for index in es.createentitylist('env_explosion'): 
             es.server.cmd('es_xremove %s'%index) 
-        es.server.cmd('es_xgive %s env_explosion'%userid) 
-        es.server.cmd('es_xfire %s env_explosion addoutput "imagnitude 300"'%userid) 
-        es.server.cmd('es_xfire %s env_explosion addoutput "iradiusoverride 600"'%userid) 
+        es.server.cmd('es_xgive %s env_explosion'%userid)
+        es.server.queuecmd('es_xfire %s env_explosion addoutput "imagnitude 300"'%userid) 
+        es.server.queuecmd('es_xfire %s env_explosion addoutput "iradiusoverride 600"'%userid) 
         es.setindexprop(es.ServerVar('eventscripts_lastgive'), 'CBaseEntity.m_hOwnerEntity', es.getplayerhandle(userid)) 
-        es.server.cmd('es_xfire %s env_explosion explode'%userid) 
-        es.server.cmd('es_xfire %s env_explosion kill'%userid) 
+        es.server.queuecmd('es_xfire %s env_explosion explode'%userid) 
+        es.server.queuecmd('es_xfire %s env_explosion kill'%userid) 
         players[userid]['timebombed'] = 0 
     elif bombType == "freezebomb": 
         x,y,z = es.getplayerlocation(userid) 
@@ -377,7 +377,7 @@ def _count_down(amount, bombType, userid):
         for player in es.getUseridList(): 
             xx,yy,zz = es.getplayerlocation(player) 
             if (((xx - x) ** 2 + (yy - y) ** 2 + (zz-z) ** 2) ** 0.5) <= 300: 
-                es.server.cmd('es_xfire %s !self ignite'%player) 
+                es.server.queuecmd('es_xfire %s !self ignite'%player) 
                 gamethread.delayedname(xa_adminfirebomb_duration, 'remove_fire', _extinguish, player) 
         players[userid]['firebombed'] = 0 
         

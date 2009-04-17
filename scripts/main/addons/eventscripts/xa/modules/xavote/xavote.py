@@ -508,7 +508,7 @@ class VoteManager(object):
             if choice != "0" and winner_votes:
                 if self.option and self.options[choice]['winner']:
                     if isinstance(self.option, str):
-                        es.server.cmd(self.option)
+                        es.server.queuecmd(self.option)
                     elif callable(self.option):
                         self.params = {}
                         self.params['winner']      = choice
@@ -546,7 +546,7 @@ class VoteManager(object):
                 es.tell(int(player),'#multi',xalanguage("random win", tokens, player.get("lang")))
             if self.option and self.options[winner]['winner']:
                 if isinstance(self.option, str):
-                    es.server.cmd(self.option)
+                    es.server.queuecmd(self.option)
                 elif callable(self.option):
                     self.params = {}
                     self.params['winner']      = winner

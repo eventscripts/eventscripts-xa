@@ -2,11 +2,7 @@ import es
 import gamethread
 import popuplib
 import playerlib
-
 from xa import xa
-
-import psyco
-psyco.full()
 
 info = es.AddonInfo()
 info.name     = 'Admin Give'

@@ -103,7 +103,7 @@ def xamapmainmenu_handler(userid,choice,popupname):
 
 def mapmenu_handler(userid,choice,popupname):
     if gActions[userid] == 'changemap':
-        es.server.cmd('changelevel '+choice)
+        es.server.queuecmd('changelevel '+choice)
     elif gActions[userid] == 'setnextmap':
         nextmapvar.set(choice)
         if str(xa_announce_setnextmap) == '1':
