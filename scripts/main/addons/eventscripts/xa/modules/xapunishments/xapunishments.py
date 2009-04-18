@@ -241,6 +241,10 @@ def _punishment_slap(userid, adminid, args, force):
             es.tell(int(user), xalanguage("admin slap", tokens, user.get("lang")))
     player = playerlib.getPlayer(userid)
     player.set('health', int(health))
+    es.emitsound('player', userid, 'player/damage2.wav', '1.0', '0.5')
+    es.setplayerprop(userid, 'CCSPlayer.baseclass.localdata.m_vecBaseVelocity', '%s,%s,%s'%(random.randint(-255, 255), random.randint(-255, 255), random.randint(-100, 255)))
+    if player.get('health') <= 0:
+        player.kill()
 
 def _punishment_slay(userid, adminid, args, force):
     if str(xa_adminslay_anonymous) == '0' and not force:

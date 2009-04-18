@@ -166,11 +166,11 @@ def _freeze(userid, adminid, args):
         for player in playerlib.getPlayerList(): 
             tokens['state']   = xalanguage("frozen", lang=player.get("lang")) if player.get('freeze') == '0' else xalanguage("defrosted", lang=player.get("lang")) 
             es.tell(int(player), xalanguage("admin state", tokens, player.get("lang")))
-    if player.get('freeze') == '0':
+    if player.get('freeze'):
+        gamethread.queue(player.set, ('freeze', 0))
+    else:
         gamethread.queue(player.set, ('noclip', 1))
         gamethread.queue(player.set, ('freeze', 1))
-    else:
-        gamethread.queue(player.set, ('freeze', 0))
 
 def _gimp(userid, adminid, args): 
     gimped = players[userid]['gimped'] 
