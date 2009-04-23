@@ -21,7 +21,7 @@ import cmdlib
 #   ADDON REGISTRATION
 # ==============================================================================
 # Version info
-__version__ = '1.0.0.410'
+__version__ = '1.0.0.415'
 es.ServerVar('eventscripts_xa', __version__, 'eXtensible Admin').makepublic()
 es.dbgmsg(0, '[eXtensible Admin] Version: %s' % __version__)
 es.dbgmsg(0, '[eXtensible Admin] Begin loading...')
@@ -643,7 +643,7 @@ def sendMenu(userid=None, choice=10, name=None):
             for page in module.subMenus:
                 if module.subMenus[page] and not module.subMenus[page].permission or isUseridAuthorized(userid, module.subMenus[page].permission):
                     gMainMenu[userid].addoption(page, module.subMenus[page].display, 1)
-        if popuplib.isqueued(gMainMenu[userid].name, userid):
+        if popuplib.active(userid)['name'] == gMainMenu[userid].name or popuplib.isqueued(gMainMenu[userid].name, userid):
             gMainMenu[userid].update(userid)
         else:
             gMainMenu[userid].send(userid)
