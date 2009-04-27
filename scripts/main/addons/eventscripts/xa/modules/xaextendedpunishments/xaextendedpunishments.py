@@ -158,19 +158,24 @@ def _blind_loop():
     gamethread.delayedname(1, 'blind_loop', _blind_loop) 
             
 def _freeze(userid, adminid, args): 
-    player = playerlib.getPlayer(userid) 
+    player = playerlib.getPlayer(userid)
+    frozen = int(player.get('freeze'))
     if str(xa_adminfreeze_anonymous) == '0': 
-        tokens = {} 
+        tokens = {}
         tokens['admin']   = es.getplayername(adminid) 
         tokens['user']    = es.getplayername(userid) 
         for player in playerlib.getPlayerList(): 
-            tokens['state']   = xalanguage("frozen", lang=player.get("lang")) if player.get('freeze') == '0' else xalanguage("defrosted", lang=player.get("lang")) 
+            tokens['state'] = xalanguage("freezed", lang=player.get("lang")) if not frozen else xalanguage("defrosted", lang=player.get("lang")) 
             es.tell(int(player), xalanguage("admin state", tokens, player.get("lang")))
-    if player.get('freeze'):
+    if frozen:
         gamethread.queue(player.set, ('freeze', 0))
     else:
-        gamethread.queue(player.set, ('noclip', 1))
         gamethread.queue(player.set, ('freeze', 1))
+        gamethread.queue(_freeze_loop, (int(player),))
+
+def _freeze_loop(userid):
+    for soundfile in os.listdir('%s/sound/player/footsteps/' % xa.gamedir()):
+        es.server.queuecmd('es_xstopsound %d "player/footsteps/%s"' % (userid, soundfile))
 
 def _gimp(userid, adminid, args): 
     gimped = players[userid]['gimped'] 
@@ -369,8 +374,8 @@ def _count_down(amount, bombType, userid):
             xx,yy,zz = es.getplayerlocation(player) 
             if (((xx - x) ** 2 + (yy - y) ** 2 + (zz-z) ** 2) ** 0.5) <= 300:
                 player = playerlib.Player(userid)
-                gamethread.queue(player.set, ('noclip', 1))
                 gamethread.queue(player.set, ('freeze', 1))
+                gamethread.queue(_freeze_loop, (int(player),))
         players[userid]['freezebombed'] = 0 
     elif bombType == "firebomb": 
         x,y,z = es.getplayerlocation(userid) 
