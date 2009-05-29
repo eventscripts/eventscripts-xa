@@ -1,49 +1,61 @@
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
+# Python Imports
 import re
+import time
+
+# EventScripts Imports
 import es
 import gamethread
 import playerlib
 import msglib
 import usermsg
-import time
-import os.path
+
+# XA Imports
 from xa import xa
 
-#plugin information
-info = es.AddonInfo() 
-info.name     = 'Advert' 
-info.version  = '1.1' 
-info.author   = 'Rio'
-info.basename = 'xaadvert' 
+# ==============================================================================
+#   ADDON REGISTRATION
+# ==============================================================================
+# Register with EventScripts
+info = es.AddonInfo()
+info.name       = 'Advert' 
+info.version    = '1.1' 
+info.author     = 'Rio'
+info.basename   = 'xaadvert' 
 
-gMapCycle = []
-gCurrentMap = None
-
-# register module with XA 
+# Register with XA
 xaadvert = xa.register(info.basename) 
+adverts              = xaadvert.setting.createVariable('adverts', 1, 'Turns adverts on or off') 
+time_between_advert  = xaadvert.setting.createVariable('time_between_advert', 120, 'Time between adverts displayed') 
+adverts_chat_area    = xaadvert.setting.createVariable('adverts_chat_area', 1, 'Allow adverts in chat area of screen') 
+adverts_top_left     = xaadvert.setting.createVariable('adverts_top_left', 1, 'Allow adverts in top left corner of screen') 
+advert_col_red       = xaadvert.setting.createVariable('advert_col_red', 0, 'Red component colour of adverts (255 = max)') 
+advert_col_green     = xaadvert.setting.createVariable('advert_col_green', 0, 'Green component colour of adverts (255 = max)') 
+advert_col_blue      = xaadvert.setting.createVariable('advert_col_blue', 255, 'Blue component colour of adverts (255 = max)') 
+advert_dead_only     = xaadvert.setting.createVariable('advert_dead_only', 0, 'Specify if all players or only dead players can see adverts') 
+adverts_bottom_area  = xaadvert.setting.createVariable('adverts_bottom_area', 0, 'Show adverts in the hint text area') 
 
+if xa.isManiMode():
+   xaadvertlist = xaadvert.configparser.getList('cfg/mani_admin_plugin/adverts.txt', True)
+else:
+   xaadvertlist = xaadvert.configparser.getList('adverts.txt')
+if not xaadvertlist:
+    raise ImportError('No adverts.txt found!')
+
+# ==============================================================================
+#   GLOBALS
+# ==============================================================================
+mapcycle = []
+currentmap = None
 next_advert = 0 
 colors = {'{RED}': '255 0 0 255', '{BLUE}': '0 0 255 255', '{GREEN}': '0 255 0 255', '{MAGENTA}': '139 0 139 255', '{BROWN}': '128 42 42 255', '{GREY}': '128 128 128', '{CYAN}':  '0 204 204 255', '{YELLOW}': '255 255 0 255', '{ORANGE}': '255 127 0 255', '{WHITE}': '255 255 255 255', '{PINK}': '255 0 204 255'} 
 
+# ==============================================================================
+#   GAME EVENTS
+# ==============================================================================
 def load(): 
-   global adverts, time_between_advert, adverts_chat_area, adverts_top_left, advert_col_red, advert_col_green, advert_col_blue, advert_dead_only, adverts_bottom_area, xaadvertlist 
-
-   # make config vars 
-   adverts              = xaadvert.setting.createVariable('adverts', 1, 'Turns adverts on or off') 
-   time_between_advert  = xaadvert.setting.createVariable('time_between_advert', 120, 'Time between adverts displayed') 
-   adverts_chat_area    = xaadvert.setting.createVariable('adverts_chat_area', 1, 'Allow adverts in chat area of screen') 
-   adverts_top_left     = xaadvert.setting.createVariable('adverts_top_left', 1, 'Allow adverts in top left corner of screen') 
-   advert_col_red       = xaadvert.setting.createVariable('advert_col_red', 0, 'Red component colour of adverts (255 = max)') 
-   advert_col_green     = xaadvert.setting.createVariable('advert_col_green', 0, 'Green component colour of adverts (255 = max)') 
-   advert_col_blue      = xaadvert.setting.createVariable('advert_col_blue', 255, 'Blue component colour of adverts (255 = max)') 
-   advert_dead_only     = xaadvert.setting.createVariable('advert_dead_only', 0, 'Specify if all players or only dead players can see adverts') 
-   adverts_bottom_area  = xaadvert.setting.createVariable('adverts_bottom_area', 0, 'Show adverts in the hint text area') 
-    
-   # get advert list 
-   if xa.isManiMode(): 
-      xaadvertlist = xaadvert.configparser.getList('cfg/mani_admin_plugin/adverts.txt', True) 
-   else: 
-      xaadvertlist = xaadvert.configparser.getList('adverts.txt') 
-    
    # start timer 
    gamethread.delayedname(time_between_advert, 'adverts', display_advert) 
 
@@ -57,22 +69,25 @@ def unload():
    xaadvert.unregister() 
 
 def es_map_start(event_var):
-   global gCurrentMap
+   global currentmap
    map_cycle()
-   if event_var['mapname'] in gMapCycle:
-      if not gCurrentMap or (gMapCycle.index(event_var['mapname']) != gCurrentMap+1):
-         gCurrentMap = gMapCycle.index(event_var['mapname'])
+   if event_var['mapname'] in mapcycle:
+      if not currentmap or (mapcycle.index(event_var['mapname']) != currentmap+1):
+         currentmap = mapcycle.index(event_var['mapname'])
       else:
-         gCurrentMap += 1
+         currentmap += 1
    else:
-      gCurrentMap = -1
-   es.msg('gCurrentMap: ' % gCurrentMap)
+      currentmap = -1
+   es.msg('currentmap: ' % currentmap)
 
+# ==============================================================================
+#   HELPER METHODS
+# ==============================================================================
 def map_cycle():
-   global gMapCycle
-   gMapCycle = filter(map_check, xaadvert.configparser.getList(str(es.ServerVar('mapcyclefile')), True))
-   if not gMapCycle:
-      gMapCycle = ['UNKNOWN']
+   global mapcycle
+   mapcycle = filter(map_check, xaadvert.configparser.getList(str(es.ServerVar('mapcyclefile')), True))
+   if not mapcycle:
+      mapcycle = ['UNKNOWN']
 
 def map_check(mapname):
    if es.exists('map', mapname):
@@ -111,7 +126,7 @@ def display_advert():
       if str(es.ServerVar('eventscripts_nextmapoverride')) != '': 
          advert_text = advert_text.replace('{NEXTMAP}', str(es.ServerVar('eventscripts_nextmapoverride'))) 
       else: 
-         advert_text = advert_text.replace('{NEXTMAP}', gMapCycle[gCurrentMap+1]) 
+         advert_text = advert_text.replace('{NEXTMAP}', mapcycle[currentmap+1]) 
           
       advert_text = advert_text.replace('{CURRENTMAP}', str(es.ServerVar('eventscripts_currentmap'))) 
       advert_text = advert_text.replace('{TICKRATE}', 'UNKNOWN') 

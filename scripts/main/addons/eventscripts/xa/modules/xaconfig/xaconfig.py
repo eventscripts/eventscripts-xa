@@ -1,20 +1,40 @@
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
+# Python Imports
+import random
+
+# EventScripts Imports
 import es
 import popuplib
-import random
+
+# XA Imports
 from xa import xa
 
+# ==============================================================================
+#   ADDON REGISTRATION
+# ==============================================================================
+# Register with EventScripts
 info = es.AddonInfo()
-info.name        = "Config"
-info.version     = "0.1"
-info.author      = "Hunter"
-info.basename    = "xaconfig"
+info.name       = 'Config'
+info.version    = '0.1'
+info.author     = 'Hunter'
+info.basename   = 'xaconfig'
 
+# Register with XA
 xaconfig = xa.register(info.basename)
 lang = xaconfig.language.getLanguage()
+
+# ==============================================================================
+#   GLOBALS
+# ==============================================================================
+mainmenu = None
 menulist = []
 
+# ==============================================================================
+#   GAME EVENTS
+# ==============================================================================
 def load():
-    global menulist,mainmenu
     xacmd = xaconfig.addCommand('xa_config', _sendmain, 'change_config', 'ROOT')
     xacmd.register('say')  
 
@@ -26,15 +46,18 @@ def load():
     mainmenu.addoption('core', lang['core config'])
     mainmenu.addoption('module', lang['module config'])
     menulist.append(mainmenu)
+
     xaconfig.addMenu('xamainconfigmenu',lang['xa menu choice'],'xamainconfigmenu','change_config','ROOT')
 	
 def unload():
-    global menulist
     for menu in menulist:
-        if popuplib.exists(str(menu)): 
+        if popuplib.exists(str(menu)):
             popuplib.delete(str(menu))
     xaconfig.unregister()
     
+# ==============================================================================
+#   HELPER METHODS
+# ==============================================================================
 def _moduleListMenu(userid):
     modulemenu = popuplib.easymenu('xalistmodulemenu_'+str(userid),None,_modulemenu_select)
     modulemenu.settitle(lang['module overview'])

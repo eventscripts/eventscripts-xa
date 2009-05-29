@@ -1,19 +1,34 @@
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
+# EventScripts Imports
 import es
 import gamethread
 import popuplib
 import playerlib
+
+# XA Imports
 from xa import xa
 
+# ==============================================================================
+#   ADDON REGISTRATION
+# ==============================================================================
+# Register with EventScripts
 info = es.AddonInfo()
-info.name     = 'Admin Give'
-info.version  = '1.0.4'
-info.basename = 'xaadmingive'
+info.name       = 'Admin Give'
+info.version    = '1.1'
+info.author     = 'freddukes'
+info.basename   = 'xaadmingive'
 
+# Register with XA
 xaadmingive  			 = xa.register('xaadmingive')
 xalanguage 			     = xaadmingive.language.getLanguage()
 admingive_anonymous      = xaadmingive.setting.createVariable('admingive_anonymous' , 0, 'Whether or not giving a player a weapon is anonymous... 1 = Anonymous, 0 = Global')
 admingive_stripfirst     = xaadmingive.setting.createVariable("admingive_stripfirst", 1, 'Whether or not the target is striped of their weapon before being gave another.\n // Will only strip the same slot as their being given.')
 
+# ==============================================================================
+#   GLOBALS
+# ==============================================================================
 pistols  = ('usp','glock','p228','deagle','elite','fiveseven')
 shotguns = ('m3','xm1014')
 smgs     = ('tmp','mac10','mp5navy','ump45','p90')
@@ -24,13 +39,9 @@ items    = ('vest','vesthelm','nvgs','c4','defuser')
 admins   = {}
 gamename = str(es.ServerVar('eventscripts_gamedir')).replace('\\', '/').split('/')[~0]
 
-####################
-# EVENTS
-def player_disconnect(ev):
-    if admins.has_key(int(ev['userid'])):
-        del admins[int(ev['userid'])]
-####################
-
+# ==============================================================================
+#   GAME EVENTS
+# ==============================================================================
 def load():
     admingivemenu = popuplib.easymenu("admingive", "_tempcore", _select_give)
     admingivemenu.settitle(xalanguage["give object"])
@@ -147,7 +158,14 @@ def unload():
             popuplib.close(popup, es.getUseridList())
             popuplib.delete(popup)
     xaadmingive.unregister()
-    
+
+def player_disconnect(ev):
+    if admins.has_key(int(ev['userid'])):
+        del admins[int(ev['userid'])]
+
+# ==============================================================================
+#   HELPER METHODS
+# ==============================================================================
 def _select_target(userid, choice, popupid):
     if not admins.has_key(userid):
         return
@@ -181,11 +199,11 @@ def _select_target(userid, choice, popupid):
                         if command.replace('weapon_','') in pistols:
                             secondary = playerlib.getPlayer(player).get('secondary') 
                             if secondary:
-                                RemoveWeapon(player, secondary)
+                                _remove_weapon(player, secondary)
                         elif command.replace('weapon_','') in (list(shotguns) + list(smgs) + list(rifles) + list(snipers) + ['m249']):
                             primary = playerlib.getPlayer(player).get('primary') 
                             if primary:
-                                RemoveWeapon(player, primary)
+                                _remove_weapon(player, primary)
                     gamethread.delayed(0.1, es.server.queuecmd, 'es_xgive %s %s'%(player, command))
                 else:
                     if 'helm' in command:
@@ -230,11 +248,11 @@ def _select_player(userid, choice, popupid):
                 if command.replace('weapon_','') in pistols:
                     secondary = playerlib.getPlayer(choice).get('secondary') 
                     if secondary:
-                        RemoveWeapon(choice, secondary)
+                        _remove_weapon(choice, secondary)
                 elif command.replace('weapon_','') in (list(shotguns) + list(smgs) + list(rifles) + list(snipers) + ['m249']):
                     primary = playerlib.getPlayer(choice).get('primary') 
                     if primary:
-                        RemoveWeapon(choice, primary)
+                        _remove_weapon(choice, primary)
             gamethread.delayed(0.1, es.server.queuecmd, 'es_xgive %s %s'%(choice, command))
         else:
             if 'helm' in command:
@@ -322,7 +340,7 @@ def _give(userid, choice, popupid):
     admins[userid]['command'] = choice
     popuplib.send('targetmenu', userid)
 
-def RemoveWeapon(userid, weapon):
+def _remove_weapon(userid, weapon):
     handle = es.getplayerhandle(userid)
     if not weapon.startswith('weapon_'):
         weapon = "weapon_" + weapon
