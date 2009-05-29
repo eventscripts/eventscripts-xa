@@ -22,7 +22,7 @@ import cfglib
 #   ADDON REGISTRATION
 # ==============================================================================
 # Version info
-__version__ = '1.0.0.415'
+__version__ = '1.0.0.419'
 es.ServerVar('eventscripts_xa', __version__, 'eXtensible Admin').makepublic()
 es.dbgmsg(0, '[eXtensible Admin] Version: %s' % __version__)
 es.dbgmsg(0, '[eXtensible Admin] Begin loading...')
@@ -77,56 +77,108 @@ gModulesLoading = False
 # ==============================================================================
 class Admin_libfunc(object):
     def __init__(self, gLib, gFunc, gModule):
+        # Module reference
         self._xalib = gLib
+        
+        # Function reference
         self._xalibfunc = gFunc
+        
+        # Number of function calls
         self._xalibfunccalls = 0
+        
+        # Statistics for functions calls
         self._xalibfuncstats = {'calls':0, 'times':0}
+        
+        # XA module reference
         self._xamod = gModule
         
     def __call__(self, *args, **kw):
+        # Let's call our lib function, increase counter
         self._xalibfunccalls += 1
-        if int(gCoreVariables['debug']) >= 1 or int(gCoreVariables['debugprofile']) > 0: #check debug here to be faster
+        
+        # Is debugging or profiling enabled?
+        if int(gCoreVariables['debug']) >= 1 or int(gCoreVariables['debugprofile']) > 0:
+            # Let's profile our function to collect statistics
             fn = '%s/xa.prof' % coredir()
+            
+            # Create hotshot Profile object
             pr = hotshot.Profile(fn)
+            
+            # Run the function using the Profiler
             re = pr.runcall(self._xalibfunc, *(self._xamod,)+args, **kw)
+            
+            # Close the Profiler
             pr.close()
+            
+            # Load the generated statistic
             st = hotshot.stats.load(fn)
             st.strip_dirs()
+            
+            # Sort the statistic
             st.sort_stats('time', 'calls')
+            
+            # How much should we debug to the console?
             if int(gCoreVariables['debug']) >= 2:
                 es.dbgmsg(0, '--------------------')
                 es.dbgmsg(0, ('Admin_libfunc %d: __call__(%s.%s [%s], %s, %s)' % (self._xalibfunccalls, str(self._xalib.__name__), str(self._xalibfunc.__name__), str(self._xamod), args, kw)))
                 es.dbgmsg(0, ('Admin_libfunc %d: Profile Statistics' % (self._xalibfunccalls)))
                 st.print_stats(20)
                 es.dbgmsg(0, '--------------------')
+                
             elif int(gCoreVariables['debug']) == 1:
                 es.dbgmsg(0, ('Admin_libfunc %d: __call__(%s.%s [%s], %s, %s)' % (self._xalibfunccalls, str(self._xalib.__name__), str(self._xalibfunc.__name__), str(self._xamod), args, kw)))
                 es.dbgmsg(0, ('Admin_libfunc %d: %d calls in %f CPU seconds' % (self._xalibfunccalls, st.total_calls, st.total_tt)))
+            
+            # Should we increate the statistic counters?
             if int(gCoreVariables['debugprofile']) > 0:
                 self._xalibfuncstats['calls'] += st.total_calls
                 self._xalibfuncstats['times'] += st.total_tt
+                
+            # Does our statistic file still exist?
             if os.path.exists(fn):
+                # Delete the statistic file
                 os.unlink(fn)
+            
+            # Return the functions result
             return re
+
         else:
+            # Just call our function and return it's result
             return self._xalibfunc(self._xamod, *args, **kw)
 
 class Admin_lib(object):
     def __init__(self, gLib, gModule):
+        # Module reference
         self._xalib = gLib
+        
+        # Number of library function requests
         self._xalibcalls = 0
+        
+        # References to function wrappers
         self._xalibfuncs = {}
+        
+        # XA module reference
         self._xamod = gModule
         
     def __getattr__(self, name):
+        # Let's fetch our function from the library, increase counter
         self._xalibcalls += 1
-        if int(gCoreVariables['debug']) >= 2: #check debug here to be faster
+        
+        # Is debugging enabled?
+        if int(gCoreVariables['debug']) >= 2:
             es.dbgmsg(0, ('Admin_lib %d: __getattr__(%s [%s], %s)' % (self._xalibcalls, str(self._xalib.__name__), str(self._xamod), name)))
+        
+        # Does the function exist in the library and is it public?
         if self._xalib.__dict__.has_key(name) and not name.startswith('_'):
+            # Didn't we already find the function before?
             if not name in self._xalibfuncs:
                 self._xalibfuncs[name] = Admin_libfunc(self._xalib, self._xalib.__dict__[name], self._xamod)
+                
+            # Return the function wrapper reference
             return self._xalibfuncs[name]
+            
         else:
+            # Raise an error, the function does not exist
             raise AttributeError, name
 
 # ==============================================================================
@@ -134,67 +186,131 @@ class Admin_lib(object):
 # ==============================================================================
 class Admin_module(object):
     def __init__(self, gModule):
+        # XA core reference
         self._xa = None
+        
+        # XA module reference
         self._xamod = None
+        
+        # XA libraries references
         self._xalibs = {}
+        
+        # Module name
         self.name = gModule
+        
+        # Module commands
         self.subCommands = {}
+        
+        # Module menus inside the main menu
         self.subMenus = {}
+        
+        # Custom permissions owned by this module
         self.customPermissions = {}
+        
+        # Other modules which require this module
         self.requiredFrom = []
+        
+        # This module requires other modules
         self.requiredList = []
+        
+        # Number of other modules which require this module
         self.required = 0
+        
+        # Variables created by this module
         self.variables = {}
+        
+        # Find the XA core reference
         self.getCore()
         
     def __str__(self):
+        # Module name
         return self.name
         
     def __getattr__(self, name):
+        # Get library or module wrapper
+        # Find the module reference
         self.getModule()
+        
+        # Is the requested module a library?
         if (name in gImportLibraries) and (self._xa.__dict__.has_key(name)):
+            # Didn't we already find the library before?
             if not name in self._xalibs:
                 self._xalibs[name] = Admin_lib(self._xa.__dict__[name], self)
+            
+            # Return the library wrapper reference
             return self._xalibs[name]
+        
+        # Is the requested module another XA module?
         elif (name in gModules) and (name in self.requiredList):
+            # Find the module reference in the addonlist
             for mod in es.addons.getAddonList():
+                # Is this our XA module?
                 if mod.__name__ == 'xa.modules.%s.%s'%(name, name):
+                    # Didn't we already find the module before?
                     if not name in self._xalibs:
                         self._xalibs[name] = Admin_lib(mod, self)
+                    
+                    # Return the module wrapper reference
                     return self._xalibs[name]
-            raise AttributeError, name
-        elif (self._xamod.__dict__.has_key(name)):
-            return Admin_lib(self._xamod, self).__getattr__(name)
-        else:
-            raise AttributeError, name
             
+            # We coudln't find the module, raise an error
+            raise AttributeError, name
+        
+        # Is this an object in our own module?
+        elif (self._xamod.__dict__.has_key(name)):
+            # Return our own wrapper reference
+            return Admin_lib(self._xamod, self).__getattr__(name)
+        
+        else:
+            # Raise an error, we coudln't find anything with the given name
+            raise AttributeError, name
+
     def getAddonInfo(self):
+        # Get modules AddonInfo instance
+        # Find the module reference
         self.getModule()
+        
+        # Loop through our modules objects
         for item in self._xamod.__dict__:
+            # Is this an AddonInfo instance?
             if isinstance(self._xamod.__dict__[item], es.AddonInfo):
+                # Return the AddonInfo instance
                 return self._xamod.__dict__[item]
                 
     def getCore(self):
+        # Didn't we find the XA core reference yet?
         if not self._xa:
+            # Loop through the ES addonlist
             for mod in es.addons.getAddonList():
+                # Is this addon the XA core?
                 if mod.__name__ == 'xa.xa':
                     self._xa = mod
+                    
+        # Return the XA core reference
         return self._xa
         
     def getModule(self):
+        # Didn't we find the XA module reference yet?
         if not self._xamod:
+            # Loop through the ES addonlist
             for mod in es.addons.getAddonList():
+                # Is this addon the XA module?
                 if mod.__name__ == 'xa.modules.%s.%s'%(self.name, self.name):
                     self._xamod = mod
+        
+        # Return the XA module reference
         return self._xamod
         
     def delete(self):
+        # Unregister our module (deprecated!)
         unregister(self.name)
         
     def unregister(self):
+        # Unregister our module
         unregister(self.name)
         
     def unload(self):
+        # Unload our module
         xa_unload(self.name)
         
     def addRequirement(self, gModuleList):
@@ -519,38 +635,38 @@ class Admin_mani(object):
 #   MODULE API FUNCTIONS
 # ==============================================================================
 def xa_load(pModuleid):
-    """Loads a module"""
+    # Loads a module if loading is enabled
     if gModulesLoading:
-        es.loadModuleAddon('xa/modules/%s' % pModuleid)
+        es.server.cmd('es_xload xa/modules/%s' % pModuleid)
 
 def xa_unload(pModuleid):
-    """Unloads a module"""
+    # Unloads a module if loading is enabled
     if gModulesLoading:
-        es.unload('xa/modules/%s' % pModuleid)
+        es.server.cmd('es_xunload xa/modules/%s' % pModuleid)
 
 def xa_reload(pModuleid):
-    """Reloads a module"""
+    # Reloads a module if loading is enabled
     if gModulesLoading:
-        es.unload('xa/modules/%s' % pModuleid)
-        gamethread.queue(es.loadModuleAddon, ('xa/modules/%s' % pModuleid,))
+        es.server.cmd('es_xunload xa/modules/%s' % pModuleid)
+        es.server.queuecmd('es_xload xa/modules/%s' % pModuleid)
 
 def xa_runconfig():
-    """Runs XA's configuration file"""
+    # Runs XA configuration file
     setting.executeConfiguration(None)
 
 def debug(dbglvl, message):
-    """Debugs a message"""
+    # Debugs a message to console
     if int(gCoreVariables['debug']) >= dbglvl:
         es.dbgmsg(0, message)
 
 def register(pModuleid):
-    """Registers a new module with XA"""
+    # Registers a new module with XA
     gModules[pModuleid] = Admin_module(pModuleid)
-    es.dbgmsg(0, '[eXtensible Admin] Registered module "%s"' % gModules[pModuleid].name)
+    es.dbgmsg(1, '[eXtensible Admin] Registered module "%s"' % gModules[pModuleid].name)
     return gModules[pModuleid]
 
 def unregister(pModuleid):
-    """Unregisters the module from XA"""
+    # Unregisters the module from XA
     if exists(pModuleid):
         module = find(pModuleid)
         if module.required:
@@ -575,61 +691,61 @@ def unregister(pModuleid):
             module.delCommand(command)
         for menu in module.subMenus:
             module.delMenu(menu)
-        es.dbgmsg(0, '[eXtensible Admin] Unregistered module "%s"' % module.name)
+        es.dbgmsg(1, '[eXtensible Admin] Unregistered module "%s"' % module.name)
         del gModules[module.name]
 
 def modules():
-    """Returns the list of registered modules"""
+    # Returns the list of registered modules
     return gModules.keys()
     
 def corevars():
-    """Returns the list of core server variables"""
+    # Returns the list of core server variables
     return gCoreVariables.values()
 
 def exists(pModuleid):
-    """Checks if the module is registered with XA Core"""
+    # Checks if the module is registered with XA Core
     return str(pModuleid) in modules()
 
 def find(pModuleid):
-    """Returns the class instance of the named module"""
+    # Returns the class instance of the named module
     if exists(pModuleid):
         return gModules[str(pModuleid)]
 
 def isRequired(pModuleid):
-    """Checks if the module is required by other modules"""
+    # Checks if the module is required by other modules
     if exists(pModuleid):
         return bool(find(pModuleid).required)
 
 def findMenu(pModuleid, pMenuid):
-    """Returns the class instance a menu in the named module"""
+    # Returns the class instance a menu in the named module
     if exists(pModuleid):
         if pMenuid in find(pModuleid).subMenus:
             return find(pModuleid).subMenus[pMenuid]
 
 def findCommand(pModuleid, pCommandid):
-    """Returns the class instance a command in the named module"""
+    # Returns the class instance a command in the named module
     if exists(pModuleid):
         if pCommandid in find(pModuleid).subCommands:
             return find(pModuleid).subCommands[pCommandid]
 
 def isManiMode():
-    """Checks if Mani mode is enabled"""
+    # Checks if Mani mode is enabled
     return bool(int(gCoreVariables['manimode']))
 
 def getLevel(auth_capability):
-    """Returns the Auth Provider level by name"""
+    # Returns the Auth Provider level by name
     return cmdlib.permissionToInteger(auth_capability)
 
 def registerCapability(auth_capability, auth_recommendedlevel):
-    """Registers an auth capability with the recommended level"""
+    # Registers an auth capability with the recommended level
     return services.use('auth').registerCapability(auth_capability, getLevel(auth_recommendedlevel))
 
 def isUseridAuthorized(auth_userid, auth_capability):
-    """Checks if a userid is authorized or not"""
+    # Checks if a userid is authorized or not
     return services.use('auth').isUseridAuthorized(auth_userid, auth_capability)
 
 def sendMenu(userid=None, choice=10, name=None):
-    """Shows the main menu to the specified player"""
+    # Shows the main menu to the specified player
     if choice != 10:
         return None
     if userid:
