@@ -16,6 +16,7 @@ import keymenulib
 import settinglib
 import keyvalues
 import cmdlib
+import cfglib
 
 # ==============================================================================
 #   ADDON REGISTRATION
@@ -63,6 +64,7 @@ gCoreVariables['manimode']      = es.ServerVar('xa_manimode',       0,      'Is 
 gCoreVariables['sayprefix']     = es.ServerVar('xa_sayprefix',      '!',    'Say command prefix')
 
 # Main menu and command instance
+gMainConfig = None
 gMainMenu = {}
 gMainCommand = None
 
@@ -519,18 +521,18 @@ class Admin_mani(object):
 def xa_load(pModuleid):
     """Loads a module"""
     if gModulesLoading:
-        es.load('xa/modules/%s' % pModuleid)
+        es.loadModuleAddon('xa/modules/%s' % pModuleid)
 
 def xa_unload(pModuleid):
     """Unloads a module"""
     if gModulesLoading:
-        es.unload('xa/modules/%s' % pModuleid)
+        es.unloadModuleAddon('xa/modules/%s' % pModuleid)
 
 def xa_reload(pModuleid):
     """Reloads a module"""
     if gModulesLoading:
-        gamethread.delayed(0.1, xa_unload, (pModuleid,))
-        gamethread.delayed(0.5, xa_load, (pModuleid,))
+        es.loadModuleAddon('xa/modules/%s' % pModuleid)
+        es.unloadModuleAddon('xa/modules/%s' % pModuleid)
 
 def xa_runconfig():
     """Runs XA's configuration file"""
@@ -689,7 +691,7 @@ def copytree(src, dst, counter=0):
 #   GAME EVENTS
 # ==============================================================================
 def load():
-    global gMainMenu, gMainCommand, gModulesLoading
+    global gMainConfig, gMainMenu, gMainCommand, gModulesLoading
     es.dbgmsg(0, '[eXtensible Admin] Second loading part...')
     if not services.isRegistered('auth'):
         es.dbgmsg(0, '[eXtensible Admin] WARNING! Auth Provider required!')
@@ -702,7 +704,8 @@ def load():
     gCopiedFiles = copytree('%s/cfg/xa/_defaults' % gamedir(), '%s/cfg' % gamedir())
     es.dbgmsg(0, '[eXtensible Admin] Number of files copied = %d' % gCopiedFiles)
     es.dbgmsg(0, '[eXtensible Admin] Executing xa.cfg...')
-    es.server.cmd('es_xmexec xa.cfg')
+    gMainConfig = cfglib.AddonCFG('%s/cfg/xa.cfg' % gamedir())
+    gMainConfig.execute()
     es.dbgmsg(0, '[eXtensible Admin] Mani mode enabled = %s' % isManiMode())
     gModulesLoading = True
     if isManiMode():
@@ -713,7 +716,7 @@ def load():
         ma.hookAuthProvider()
     es.dbgmsg(0, '[eXtensible Admin] Third loading part...')
     es.dbgmsg(0, '[eXtensible Admin] Executing xa.cfg...')
-    es.server.cmd('es_xmexec xa.cfg')
+    gMainConfig.execute()
     es.dbgmsg(0, '[eXtensible Admin] Executing xamodules.cfg...')
     setting.executeConfiguration(None)
     es.dbgmsg(0, '[eXtensible Admin] Updating xamodules.cfg...')

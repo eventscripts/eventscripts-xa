@@ -25,7 +25,7 @@ if xa.isManiMode():
 else:
     xaquakesoundslist               = xaquakesounds.configparser.getAliasList('quakesoundlist.txt')
 if not xaquakesoundslist:
-    xaquakesounds.unload()
+    raise ImportError('No quakesoundslist.txt found!')
 
 quake_sounds                        = xaquakesounds.setting.createVariable('quake_sounds', '1', '0 = off, 1 = enable Quake Sounds')
 quake_sounds_download               = xaquakesounds.setting.createVariable('quake_auto_download', '0', '0 = Don\'t auto download files to client, 1 = automatically download files to client')

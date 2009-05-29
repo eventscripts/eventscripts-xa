@@ -5,14 +5,18 @@ import playerlib
 import msglib
 import usermsg
 import time
+import os.path
 from xa import xa
 
 #plugin information
 info = es.AddonInfo() 
 info.name     = 'Advert' 
-info.version  = '1.0' 
+info.version  = '1.1' 
 info.author   = 'Rio'
 info.basename = 'xaadvert' 
+
+gMapCycle = []
+gCurrentMap = None
 
 # register module with XA 
 xaadvert = xa.register(info.basename) 
@@ -43,13 +47,40 @@ def load():
    # start timer 
    gamethread.delayedname(time_between_advert, 'adverts', display_advert) 
 
+   map_cycle()
+
 def unload(): 
    # stop timer 
    gamethread.cancelDelayed('adverts') 
    
    # unregister module with XA 
    xaadvert.unregister() 
-    
+
+def es_map_start(event_var):
+   global gCurrentMap
+   map_cycle()
+   if event_var['mapname'] in gMapCycle:
+      if not gCurrentMap or (gMapCycle.index(event_var['mapname']) != gCurrentMap+1):
+         gCurrentMap = gMapCycle.index(event_var['mapname'])
+      else:
+         gCurrentMap += 1
+   else:
+      gCurrentMap = -1
+   es.msg('gCurrentMap: ' % gCurrentMap)
+
+def map_cycle():
+   global gMapCycle
+   gMapCycle = filter(map_check, xaadvert.configparser.getList(str(es.ServerVar('mapcyclefile')), True))
+   if not gMapCycle:
+      gMapCycle = ['UNKNOWN']
+
+def map_check(mapname):
+   if es.exists('map', mapname):
+      return True
+   else:
+      es.dbgmsg(0, 'XAAdvert: Unable to find map: %s.' % mapname)
+      return False
+
 def display_advert(): 
    global next_advert 
     
@@ -80,7 +111,7 @@ def display_advert():
       if str(es.ServerVar('eventscripts_nextmapoverride')) != '': 
          advert_text = advert_text.replace('{NEXTMAP}', str(es.ServerVar('eventscripts_nextmapoverride'))) 
       else: 
-         advert_text = advert_text.replace('{NEXTMAP}', 'UNKNOWN') 
+         advert_text = advert_text.replace('{NEXTMAP}', gMapCycle[gCurrentMap+1]) 
           
       advert_text = advert_text.replace('{CURRENTMAP}', str(es.ServerVar('eventscripts_currentmap'))) 
       advert_text = advert_text.replace('{TICKRATE}', 'UNKNOWN') 

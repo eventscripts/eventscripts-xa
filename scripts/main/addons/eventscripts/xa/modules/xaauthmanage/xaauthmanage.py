@@ -37,7 +37,7 @@ lang = xaauthmanage.language.getLanguage()
 auth = services.use('auth')
 authaddon = auth.name
 if authaddon not in ('group_auth','basic_auth'):
-    xaauthmanage.unload()
+    raise ImportError('Unsupported Auth Provider!')
 
 prefix = '#green[AuthManage]#default'
 
