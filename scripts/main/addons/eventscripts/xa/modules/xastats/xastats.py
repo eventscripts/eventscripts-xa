@@ -501,14 +501,15 @@ def player_activate(event_var):
     
 def player_disconnect(event_var):
     userid = event_var['userid']
-    if 'timeconnected' not in players[userid]:
-        players[userid]['timeconnected'] = int(time.time()) - sessions[userid]['joined']
-    else:
-        players[userid]['timeconnected'] += int(time.time()) - sessions[userid]['joined']
-    players[userid]['lastconnected'] = int(time.time())
-    players[userid].commitAttributes()
-    sessions.deleteSession(userid)
-    players.removePlayer(userid)
+    if userid in players:
+        if 'timeconnected' not in players[userid]:
+            players[userid]['timeconnected'] = int(time.time()) - sessions[userid]['joined']
+        else:
+            players[userid]['timeconnected'] += int(time.time()) - sessions[userid]['joined']
+        players[userid]['lastconnected'] = int(time.time())
+        players[userid].commitAttributes()
+        sessions.deleteSession(userid)
+        players.removePlayer(userid)
     
 def player_death(event_var):
     victim       = event_var['userid']
@@ -595,7 +596,7 @@ def player_death(event_var):
                     if stddev != 0:
                         e = 2.7182818284590451 # im not importing the math module for a single constant
                         pi = 3.1415926535897931 # not for two either
-                        exp = vsess["temp_killstreak"] - 1.0 * ( vstat["kills"] ) / ( vstat.get["deaths"] )
+                        exp = vsess["temp_killstreak"] - 1.0 * ( vstat["kills"] ) / ( vstat["deaths"] )
                         exp = -0.5 * pow(exp / stddev, 2) # dont worry about this.
                         pdf = pow(e, exp) / (stddev * pow(2 * pi , 0.5 )  )  * 100  # this is the probability that we have been looking for
                     else:
