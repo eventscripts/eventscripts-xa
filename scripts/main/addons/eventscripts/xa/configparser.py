@@ -55,7 +55,8 @@ def getAliasList(module, filename, modfolder = False):
             for line in file:
                 if line and (line[0:2] != '//') and (line != '\n'):
                     line = line.replace('\r', '').replace('\n', '').replace('\t', ' ').replace('  ', ' ')[1:].split('\' ', 1)
-                    lines[line[0].replace('\'', '')] = line[1]
+                    if line and len(line) >= 2:
+                        lines[line[0].replace('\'', '')] = line[1]
         finally:
             file.close()
     
