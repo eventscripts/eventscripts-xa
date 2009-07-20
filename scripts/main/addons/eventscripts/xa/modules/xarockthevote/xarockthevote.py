@@ -241,8 +241,10 @@ def es_map_start(event_var):
     """ Executed when the map starts """
     global map_start_time
     global allowVoting
+    global votes_in
     map_start_time = time.time()
     allowVoting    = True
+    votes_in       = 0
     for steamid in players:
         players[steamid] = [False, False]
     gamethread.delayed(1, loadPopups)
