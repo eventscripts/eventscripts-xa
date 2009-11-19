@@ -1,0 +1,14 @@
+== eXtensible Admin ==
+
+An open source admin tool for SRCDS servers based on the Eventscripts 
+scripting engine
+
+== Repository Layout ==
+
+scripts			[esp scripts]
+  - main		[XA esp core/module code]
+  - obselete		[old or outdated code]
+  - packages		[packaged (zip) versions]
+modules			[custom modules not included in the core]
+website			[XA website code & content]
+README			[this file]
