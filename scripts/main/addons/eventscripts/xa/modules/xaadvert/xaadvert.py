@@ -78,7 +78,7 @@ def es_map_start(event_var):
          currentmap += 1
    else:
       currentmap = -1
-   es.msg('currentmap: ' % currentmap)
+   es.msg('currentmap: %s' % currentmap)
 
 # ==============================================================================
 #   HELPER METHODS

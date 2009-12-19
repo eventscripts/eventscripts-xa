@@ -453,6 +453,11 @@ def load():
     xastats.addCommand('resetrank', resetPlayerStats, 'stat_reset', 'UNRESTRICTED').register(('say', 'console'))
     
 def unload():
+    # check we have commited and then 
+    database.commit()
+    database.cursor.close()
+    database.connection.close()
+    
     xastats.unregister()
     popuplib.delete("xastatsmenu")
     
