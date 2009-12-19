@@ -5,6 +5,8 @@
 import os
 import shutil
 import hotshot.stats
+import time
+import cPickle
 
 # EventScripts Imports
 import es
@@ -17,6 +19,7 @@ import settinglib
 import keyvalues
 import cmdlib
 import cfglib
+
 
 # ==============================================================================
 #   ADDON REGISTRATION
@@ -62,6 +65,7 @@ gCoreVariables['debug']         = es.ServerVar('xa_debug',          0,      'Act
 gCoreVariables['debugprofile']  = es.ServerVar('xa_debugprofile',   0,      'Activates the module/library profiling')
 gCoreVariables['manimode']      = es.ServerVar('xa_manimode',       0,      'Is Mani compatibility mode active?')
 gCoreVariables['sayprefix']     = es.ServerVar('xa_sayprefix',      '!',    'Say command prefix')
+gCoreVariables['setting_expiry_days'] = es.ServerVar('xa_setting_expiry_days',      14,    'Amount of days before settings are removed') 
 
 # Main menu and command instance
 gMainConfig = None
@@ -807,7 +811,7 @@ def copytree(src, dst, counter=0):
 #   GAME EVENTS
 # ==============================================================================
 def load():
-    global gMainConfig, gMainMenu, gMainCommand, gModulesLoading
+    global gMainConfig, gMainMenu, gMainCommand, gModulesLoading, gSettingExpireManager, gSettingPath
     es.dbgmsg(0, '[eXtensible Admin] Second loading part...')
     if not services.isRegistered('auth'):
         es.dbgmsg(0, '[eXtensible Admin] WARNING! Auth Provider required!')
@@ -837,6 +841,15 @@ def load():
     setting.executeConfiguration(None)
     es.dbgmsg(0, '[eXtensible Admin] Updating xamodules.cfg...')
     setting.writeConfiguration(None)
+    es.dbgmsg(0, '[eXtensible Admin] Removing any expired settings')
+    gSettingExpireManager = {}
+    gSettingPath = os.path.join(coredir(), "data", "settings_expire.db")
+    if os.path.exists(gSettingPath):
+        pathStream = open(gSettingPath, 'r')
+        gSettingExpireManager = cPickle.load(pathStream)
+        pathStream.close()
+        if es.ServerVar('eventscripts_currentmap') != "":
+            checkExpiredSettings()
     es.dbgmsg(0, '[eXtensible Admin] Finished loading')
 
 def unload():
@@ -857,6 +870,38 @@ def unload():
         del gMainCommand
     es.dbgmsg(0, '[eXtensible Admin] Finished unloading sequence')
     es.dbgmsg(0, '[eXtensible Admin] Modules will now unregister themself...')
+
+# ==============================================================================
+#    Expire Settings Manage
+# ==============================================================================
+
+def es_map_start(event_var):
+    checkExpiredSettings()
+    
+def player_activate(event_var):
+    gSettingExpireManager[playerlib.uniqueid(event_var['userid'], True)] = time.time()
+    saveSettingExpiredManager()
+
+def checkExpiredSettings():
+    print "checkExpiredSettings..."
+    print gSettingExpireManager
+    steamidsToRemove = []
+    for steamid, lastConnected in gSettingExpireManager.iteritems():
+        print "Testing steamid %s" % steamid
+        print "Days inactive: %s" % ((time.time() - lastConnected) / 86400)
+        print "Seconds inactive: %s" % (time.time() - lastConnected)
+        print "Is %s bigger than %s" % (((time.time() - lastConnected) / 86400), gCoreVariables['setting_expiry_days'])
+        if (time.time() - lastConnected) / 86400 >= gCoreVariables['setting_expiry_days']:
+            steamidsToRemove.append(steamid)
+    for steamid in steamidsToRemove:
+        del gSettingExpireManager[steamid]
+        playerdata.clearUsersSettings(steamid)
+    saveSettingExpiredManager()
+
+def saveSettingExpiredManager():
+    fileStream = open(gSettingPath, 'w')
+    cPickle.dump(gSettingExpireManager, fileStream)
+    fileStream.close()
 
 # ==============================================================================
 #   SERVER COMMANDS
@@ -1013,3 +1058,4 @@ def command(userid, args):
             es.dbgmsg(0, 'Syntax: xa module info <module-name> [level]')
     else:
         es.dbgmsg(0,'Invalid xa subcommand, see http://python.eventscripts.com/pages/XA for help')
+        
