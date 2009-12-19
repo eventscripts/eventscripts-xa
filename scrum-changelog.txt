@@ -15,3 +15,4 @@ Changelog for Xmas 2009 coding scrum
 [F] Fixed xarestrict bugs (#7)
 [F] Fixed xahighpingkick bug (#4)
 [F] Fixed xapunishments bugs (#6)
+[F] Fixed xavictimstats bug (#9)
