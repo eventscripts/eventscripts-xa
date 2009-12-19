@@ -7,4 +7,4 @@ Changelog for Xmas 2009 coding scrum
 
 [F] Fixed xaplayers unload error (#5)
 [F] Fixed xaadverts bugs (#48,#50)
-[F] Fixed xastats bug (#49)
+[F] Fixed xastats bugs (#8,#49)

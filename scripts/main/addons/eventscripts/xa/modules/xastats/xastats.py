@@ -736,8 +736,9 @@ def hostage_follows(event_var):
     sessions[event_var["userid"]]["hostagetouches"] += 1   
 
 def hostage_rescued(event_var):
-    sessions[event_var['userid']]["hostagerescues"] += 1
-    sessions[event_var['userid']]["points"] += int(bonusTable["hostagerescue"])
+    if event_var['userid'] > 0:
+        sessions[event_var['userid']]["hostagerescues"] += 1
+        sessions[event_var['userid']]["points"] += int(bonusTable["hostagerescue"])
     for each in filter(lambda x: es.getplayerteam(x) == 3, es.getUseridList()):
         sessions[each]["points"] += int(bonusTable["teamhostagerescue"])
 
