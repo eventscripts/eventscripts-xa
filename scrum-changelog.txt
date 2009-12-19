@@ -2,6 +2,7 @@
 
 Changelog for Xmas 2009 coding scrum
 
+[+] New Module: xacfgloader (allows you to execute cfg files stored in /cfg) (#13)
 [+] Added Scrum Changelog (#47)
 
 [F] Fixed xaplayers unload error (#5)
