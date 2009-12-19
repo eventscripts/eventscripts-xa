@@ -58,8 +58,8 @@ colors = {'{RED}': '255 0 0 255', '{BLUE}': '0 0 255 255', '{GREEN}': '0 255 0 2
 def load(): 
    # start timer 
    gamethread.delayedname(time_between_advert, 'adverts', display_advert) 
-
-   map_cycle()
+   
+   es_map_start({'mapname':es.ServerVar('eventscripts_currentmap')})
 
 def unload(): 
    # stop timer 
