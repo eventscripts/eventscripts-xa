@@ -312,6 +312,8 @@ def getPlayerList(players):
          elif acceptable_teams.has_key(players[1:]):
             players = (getTeam(acceptable_teams[players[1:]]),)
          else:
+            #bugfix: echo to users console (useful message)
+            usermsg.echo("#all",'xarestrict error: invalid tag \"%s\" [command accepts @all, @ct, @t]' % players)
             raise ValueError, 'Invalid team tag \"%s\"' % players
 
       elif players.startswith('#'):
@@ -321,6 +323,8 @@ def getPlayerList(players):
             team    = acceptable_teams[players[1:]]
             players = filter(lambda x: es.getplayerteam(x) == team, es.getUseridList())
          else:
+            #bugfix: echo to users console (useful message)
+            usermsg.echo("#all",'xarestrict error: invalid tag \"%s\" [command accepts #all, #ct, #t]' % players)
             raise ValueError, 'Invalid team tag \"%s\"' % players
 
          players = map(getPlayer, players)
@@ -328,6 +332,8 @@ def getPlayerList(players):
       else:
          userid = es.getuserid(players)
          if not userid:
+            #bugfix: echo to users console (useful message)
+            usermsg.echo("#all",'xarestrict error: invalid player \"%s\" [command accepts partial username, userid or steamid]' % players)
             raise ValueError, 'Invalid player \"%s\"' % players
 
          players = (getPlayer(userid),)

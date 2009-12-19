@@ -264,6 +264,12 @@ def player_activate(ev):
 
 def default(userid):
     PlayerList[userid] = Player(userid)
+    
+def get_player(userid):
+    userid = str(userid)
+    if userid not in PlayerList:
+        default(userid)
+    return PlayerList[userid]
 
 def player_disconnect(ev):
     userid = str(ev['userid'])
@@ -286,11 +292,11 @@ def player_hurt(ev):
     group = int(ev['hitgroup'])
     hitgroup = 2 if not group else group
     if usersteam != 'BOT':
-        victim = PlayerList[userid]
+        victim = get_player(userid)
         if victim.setting:
             victim.damageTaken(ev['es_attackername'],dmg_health,hitgroup)
     if steam == 'BOT': return
-    shooter = PlayerList[attacker]
+    shooter = get_player(attacker)
     if shooter.setting:
         shooter.damageGiven(ev['es_username'],dmg_health,hitgroup)
 
@@ -313,17 +319,17 @@ def player_death(ev):
         dist = feet if victimstats_distance == 1 else meters
         dist = str('%s (%s)'%(meters,feet)) if victimstats_distance == 3 else dist
         if usersteam != 'BOT':
-            victim = PlayerList[userid]
+            victim = get_player(userid)
             if victim.setting:
                 victim.sendStats((killtype,headshot,ev['es_attackername'],weapon,dist,ev['es_attackerhealth']))
         if steam == 'BOT': return
-        killer = PlayerList[attacker]
+        killer = get_player(attacker)
         if killer.setting and userteam != team in [2,3]:
             killer.playerKilled(ev['es_username'],weapon,headshot,dist)
 
 def round_end(ev):
     for userid in playerlib.getUseridList('#alive,#human'):
-        player = PlayerList[str(userid)]
+        player = get_player(userid)
         if player.setting:
             player.sendStats()
 
