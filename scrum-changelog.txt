@@ -3,3 +3,5 @@
 Changelog for Xmas 2009 coding scrum
 
 [+] Added Scrum Changelog (#47)
+
+[F] Fixed xaplayers unload error (#5)
