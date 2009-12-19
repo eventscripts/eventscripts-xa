@@ -31,8 +31,8 @@ def load():
 
 def unload(): 
     for userid in map(str, es.getUseridList()):
-        if repeat.status('hpk_track_' + userid) != 0:
-            repeat.find('hpk_track_' + userid).delete()
+        if repeat.status('hpk_track_' + str(userid)) != 0:
+            repeat.find('hpk_track_' + str(userid)).delete()
     xahighpingkick.unregister() 
 
 def player_activate(event_var):

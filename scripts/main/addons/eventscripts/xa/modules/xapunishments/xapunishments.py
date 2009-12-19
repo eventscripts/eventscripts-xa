@@ -4,6 +4,9 @@ import popuplib
 import gamethread
 from xa import xa
 
+#bugfix: need to import random!
+import random
+
 #plugin information
 info = es.AddonInfo()
 info.name           = "Player Punishments"
@@ -62,7 +65,7 @@ def unload():
     popuplib.delete("xapunishtargetmenu")
     popuplib.delete("xapunishsuremenu")
     for page in punishment_pmenus:
-        page.delete()
+        punishment_pmenus[page].delete()
     xapunishments.unregister()
     
 def _select_punishment(userid, choice, name):

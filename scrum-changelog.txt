@@ -12,3 +12,6 @@ Changelog for Xmas 2009 coding scrum
 [F] Fixed xaplayers unload error (#5)
 [F] Fixed xaadverts bugs (#48,#50)
 [F] Fixed xastats bugs (#8,#49)
+[F] Fixed xarestrict bugs (#7)
+[F] Fixed xahighpingkick bug (#4)
+[F] Fixed xapunishments bugs (#6)
