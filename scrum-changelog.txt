@@ -1,0 +1,13 @@
+[Changelog]
+
+Changelog for Xmas 2009 coding scrum
+
+[+] New Module: xacfgloader (allows you to execute cfg files stored in /cfg) (#13)
+[+] Added Scrum Changelog (#47)
+[+] Added clearUserSettings - after a set number of days old user settings are deleted
+[+] Added ability to customise Manimode admin command (#44)
+[+] Converted playerdata.py to use dicts not keyvalues (#1)
+
+[F] Fixed xaplayers unload error (#5)
+[F] Fixed xaadverts bugs (#48,#50)
+[F] Fixed xastats bugs (#8,#49)

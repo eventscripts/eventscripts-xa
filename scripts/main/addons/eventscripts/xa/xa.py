@@ -64,6 +64,7 @@ gCoreVariables['log']           = es.ServerVar('xa_log',            0,      'Act
 gCoreVariables['debug']         = es.ServerVar('xa_debug',          0,      'Activates the module/library debugging')
 gCoreVariables['debugprofile']  = es.ServerVar('xa_debugprofile',   0,      'Activates the module/library profiling')
 gCoreVariables['manimode']      = es.ServerVar('xa_manimode',       0,      'Is Mani compatibility mode active?')
+gCoreVariables['manimode_cmd']  = es.ServerVar('xa_manimode_command',       0,      'Admin console command to register when mani compatibility is on')
 gCoreVariables['sayprefix']     = es.ServerVar('xa_sayprefix',      '!',    'Say command prefix')
 gCoreVariables['setting_expiry_days'] = es.ServerVar('xa_setting_expiry_days',      14,    'Amount of days before settings are removed') 
 
@@ -602,7 +603,7 @@ class Admin_menu(object):
 
 class Admin_mani(object):
     def __init__(self):
-        self.admincmd = Admin_command('admin', sendMenu)
+        self.admincmd = Admin_command(gCoreVariables['manimode_cmd'], sendMenu)
         self.admincmd.register(['console'])
         self.config = configparser.getList(self, 'addons/eventscripts/xa/static/maniconfig.txt', True)
         self.permissions = configparser.getKeyList(self, 'addons/eventscripts/xa/static/manipermission.txt', True)
