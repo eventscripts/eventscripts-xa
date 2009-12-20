@@ -22,6 +22,7 @@ punishment_targetlist = {}
 punishment_pmenus = {}
 punishment_argc = {}
 punishment_cross_ref = {}
+punishment_ondead = {}
 dead_delayed = {}
 
 xapunishments               = xa.register(info.basename)
@@ -145,7 +146,7 @@ def _command_player():
 def _punish_player(userid, punishment, adminid, args = [], force = False):
     if adminid == 0 or xapunishments.isUseridAuthorized(adminid, punishment+"_player") or force:
         if (not xapunishments.isUseridAuthorized(userid, "immune_"+punishment)) or (userid == adminid) or force:
-            if userid in playerlib.getUseridList("#alive"):
+            if userid in playerlib.getUseridList("#alive") or True == punishment_ondead[punishment]:
                 if callable(punishment_method[punishment]):
                     xapunishments.logging.log("Player "+es.getplayername(adminid)+ " used punishment "+str(punishment)+" on player "+es.getplayername(userid))
                     try:
@@ -173,11 +174,12 @@ def _punish_player(userid, punishment, adminid, args = [], force = False):
         es.tell(adminid, xalanguage("not allowed", (), playerlib.getPlayer(adminid).get("lang")))
         return False
 
-def registerPunishment(module, punishment, name, method, argc = 0):
+def registerPunishment(module, punishment, name, method, argc = 0, activeOnDeadPlayers = False):
     if not punishment in punishment_method:
         punishment_method[punishment] = method
         punishment_display[punishment] = name
         punishment_argc[punishment] = argc
+        punishment_ondead[punishment] = activeOnDeadPlayers
         punishment_cross_ref['xa_'+punishment] = punishment
         xapunishmentmenu = popuplib.find("xapunishmentmenu")
         xapunishmentmenu.addoption(punishment, name, 1)
