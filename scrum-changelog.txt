@@ -4,7 +4,8 @@ Changelog for Xmas 2009 coding scrum
 
 [+] New Module: xacfgloader (allows you to execute cfg files stored in /cfg) (#13)
 [+] New Module: xaupdate (checks for updates and notifies via a menu) (#25)
-{+] New Module: xavotekickban (vote kick and vote ban for XA) (#10)
+[+] New Module: xavotekickban (vote kick and vote ban for XA) (#10)
+[+] New Module: xabrowse (clone of ma_browse, view websites in the motd) (#20)
 [+] Added Scrum Changelog (#47)
 [+] Added clearUserSettings - after a set number of days old user settings are deleted
 [+] Added ability to customise Manimode admin command (#44)
