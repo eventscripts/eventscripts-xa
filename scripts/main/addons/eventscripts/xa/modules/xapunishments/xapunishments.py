@@ -22,6 +22,7 @@ punishment_targetlist = {}
 punishment_pmenus = {}
 punishment_argc = {}
 punishment_cross_ref = {}
+dead_delayed = {}
 
 xapunishments               = xa.register(info.basename)
 xalanguage                  = xapunishments.language.getLanguage()
@@ -67,7 +68,19 @@ def unload():
     for page in punishment_pmenus:
         punishment_pmenus[page].delete()
     xapunishments.unregister()
-    
+
+def round_freeze_end(event_var):
+    remove = []
+    for userid in dead_delayed:
+        if es.getplayerteam(userid) != 1:
+            for punishment,adminid,args,force in dead_delayed[userid]:
+                _punish_player(userid,punishment,adminid,args,force)
+            remove.append(userid)
+        else:
+            xapunishments.logging.log("Player "+es.getplayername(userid)+" is in spectator mode and will be punished when he next spawns")
+    for userid in remove:
+        del dead_delayed[userid]
+        
 def _select_punishment(userid, choice, name):
     punishment_choice[userid] = choice
     if not userid in punishment_target:
@@ -147,6 +160,10 @@ def _punish_player(userid, punishment, adminid, args = [], force = False):
                     es.dbgmsg(0, "xapunishments.py: Cannot find method '"+str(punishment_method[punishment])+"'!")
                     return False
             else:
+                if userid not in dead_delayed:
+                    dead_delayed[userid] = []
+                dead_delayed[userid].append(punishment,adminid,args,force)
+                xapunishments.logging.log("Player "+es.getplayername(userid)+"will be punished when he next spawns")
                 es.tell(adminid, xalanguage("dead", {'username':es.getplayername(userid)}, playerlib.getPlayer(adminid).get("lang")))
                 return False
         else:
