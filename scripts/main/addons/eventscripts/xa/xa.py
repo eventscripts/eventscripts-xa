@@ -281,6 +281,7 @@ class Admin_module(object):
             if isinstance(self._xamod.__dict__[item], es.AddonInfo):
                 # Return the AddonInfo instance
                 return self._xamod.__dict__[item]
+        return None
                 
     def getCore(self):
         # Didn't we find the XA core reference yet?

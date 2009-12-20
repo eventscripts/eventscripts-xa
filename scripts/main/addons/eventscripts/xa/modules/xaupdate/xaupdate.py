@@ -16,28 +16,28 @@ info.author         = "Errant"
 info.basename       = "xaupdate"
 
 class Check(object):
-	#url = 'http://xa.eventscripts.com/api/version'
-	url = 'http://dev.xa.ojii.ch/api/version'
-	last = None
-	remote_version = None
-	# in seconds...
-	update_every = 86400
-	
-	def update(self):
-		try:
-			# try to open the check URL
-			u = urllib2.urlopen(self.url)
-			self.remote_version = u.read()
-			self.last = time.time()
-			logging.log('xaupdate','Retrieved latest version information from %s' %self.url)
-			logging.log('xaupdate','Latest version is %s' %self.remote_version)
-			if xa.info.version != self.remote_version:
-				logging.log('xaupdate','There is a newer version of XA available')
-			else:
-				logging.log('xaupdate','XA is up to date')
-		except HTTPError:
-			# error
-			logging.log('xaupdate','Unable to download version information')
+    #url = 'http://xa.eventscripts.com/api/version'
+    url = 'http://dev.xa.ojii.ch/api/version'
+    last = None
+    remote_version = None
+    # in seconds...
+    update_every = 86400
+    
+    def update(self):
+        try:
+            # try to open the check URL
+            u = urllib2.urlopen(self.url)
+            self.remote_version = u.read()
+            self.last = time.time()
+            logging.log('xaupdate','Retrieved latest version information from %s' %self.url)
+            logging.log('xaupdate','Latest version is %s' %self.remote_version)
+            if xa.info.version != self.remote_version:
+                logging.log('xaupdate','There is a newer version of XA available')
+            else:
+                logging.log('xaupdate','XA is up to date')
+        except HTTPError:
+            # error
+            logging.log('xaupdate','Unable to download version information')
 
 check = Check()
 
@@ -71,7 +71,7 @@ def create_menu():
         menu.addline('Current Release: %s' % check.remote_version)
     menu.addline(' ' )
     if None == check.last:
-		menu.addline('Last checked:    Never')
+        menu.addline('Last checked:    Never')
     else:
         menu.addline('Last checked:    %s' % time.strftime("%d/%m/%y %H:%M",time.gmtime(check.last)))
     menu.addline(' ')
