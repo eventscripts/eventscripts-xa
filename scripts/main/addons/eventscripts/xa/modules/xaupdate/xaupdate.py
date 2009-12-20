@@ -15,19 +15,40 @@ info.version        = "1"
 info.author         = "Errant"
 info.basename       = "xaupdate"
 
-#check_url = 'http://xa.eventscripts.com/api/version'
-check_url = 'http://dev.xa.ojii.ch/api/version'
-last_check = 'never'
-remote_version = None
-update_every = 86400
+class Check(object):
+	#url = 'http://xa.eventscripts.com/api/version'
+	url = 'http://dev.xa.ojii.ch/api/version'
+	last = None
+	remote_version = None
+	# in seconds...
+	update_every = 86400
+	
+	def update(self):
+		try:
+			# try to open the check URL
+			u = urllib2.urlopen(self.url)
+			self.remote_version = u.read()
+			self.last = time.time()
+			logging.log('xaupdate','Retrieved latest version information from %s' %self.url)
+			logging.log('xaupdate','Latest version is %s' %self.remote_version)
+			if xa.info.version != self.remote_version:
+				logging.log('xaupdate','There is a newer version of XA available')
+			else:
+				logging.log('xaupdate','XA is up to date')
+		except HTTPError:
+			# error
+			logging.log('xaupdate','Unable to download version information')
+
+check = Check()
 
 xamodule        = xa.register(info.basename)
 xalanguage      = xamodule.language.getLanguage()
 
 
+
 def load(): 
     # if we are loading xaupdate at the same time as server boot then we can safely run a check
-    if (str(es.ServerVar('eventscripts_currentmap')) != ""):
+    if es.ServerVar('eventscripts_currentmap') != "":
         es_map_start({})
     else:
         # otherwise just create a dummy menu
@@ -35,8 +56,8 @@ def load():
     xamodule.addMenu('xaupdate_menu', xalanguage['xaupdate'], 'xaupdate_menu', 'xaupdate_menu', 'ADMIN')
     
 def es_map_start():
-    if last_check == 'never' or (time.time()-last_check) > update_every:
-        update_version()
+    if check.last or (time.time()-last_check) > update_every:
+        check.update()
         create_menu()
     
 def create_menu():
@@ -44,17 +65,17 @@ def create_menu():
     menu.addline('XA Update Check')
     menu.addline(' ')
     menu.addline('XA Version:      %s' % xa.info.version)
-    if remote_version:
-        menu.addline('Current Release: %s' % remote_version)
+    if check.remote_version:
+        menu.addline('Current Release: %s' % check.remote_version)
     else:
-        menu.addline('Current Release: %s' % remote_version)
+        menu.addline('Current Release: %s' % check.remote_version)
     menu.addline(' ' )
-    if last_check == 'never':
-        menu.addline('Last checked:    %s' % last_check)
+    if None == check.last:
+		menu.addline('Last checked:    Never')
     else:
-        menu.addline('Last checked:    %s' % time.strftime("%d/%m/%y %H:%M",time.gmtime(last_check)))
+        menu.addline('Last checked:    %s' % time.strftime("%d/%m/%y %H:%M",time.gmtime(check.last)))
     menu.addline(' ')
-    if xa.info.version != remote_version:
+    if check.remote_version and xa.info.version != check.remote_version:
         menu.addline('A newer version is available!')
     else:
         menu.addline('XA is up to date')
@@ -63,19 +84,4 @@ def create_menu():
         
     
     
-def update_version():
-    global remote_version, last_check
-    try:
-        # try to open the check URL
-        u = urllib2.urlopen(check_url)
-        remote_version = u.read()
-        last_check = time.time()
-        logging.log('xaupdate','Retrieved latest version information from %s' %check_url)
-        logging.log('xaupdate','Latest version is %s' %remote_version)
-        if xa.info.version != remote_version:
-            logging.log('xaupdate','There is a newer version of XA available')
-        else:
-            logging.log('xaupdate','XA is up to date')
-    except HTTPError:
-        # error
-        logging.log('xaupdate','Unable to download version information')
+
