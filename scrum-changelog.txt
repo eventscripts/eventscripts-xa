@@ -10,11 +10,12 @@ Changelog for Xmas 2009 coding scrum
 [+] Added clearUserSettings - after a set number of days old user settings are deleted
 [+] Added ability to customise Manimode admin command (#44)
 [+] Added customisable ban times to xaplayers (#11)
-[+] Added functionality to xapunishments to allow dead people to be punished when they spawn
+[+] Added functionality to xapunishments to allow dead people to be punished when they spawn (#12)
 [+] Converted playerdata.py to use dicts not keyvalues (#1)
 [+] Changed xasay to allow non-admins to use @ to talk to admins (#34)
 [+] xavote now only uses a single permission (xa_vote) rather than 4 (#41)
 [+] Modified xa.register to allow modules to indicate game support; unsupported games will be disabled (#37)
+[+] xaadmingive now gives weapons from weaponlib meaning it'll work for any game
 
 
 [F] Fixed xaplayers unload error (#5)

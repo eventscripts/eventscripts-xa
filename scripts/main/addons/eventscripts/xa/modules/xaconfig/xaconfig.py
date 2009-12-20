@@ -66,8 +66,8 @@ def _moduleListMenu(userid):
     for module in sorted(xa.modules()):
         module = xa.find(module)
         if len(module.variables) > 0:
-			info = module.getAddonInfo()
-			if not info:
+            info = module.getAddonInfo()
+            if not info:
                 info = module
             modulemenu.addoption(str(module), xaconfig.language.createLanguageString(info.name))
     return modulemenu
