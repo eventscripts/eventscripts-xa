@@ -45,7 +45,9 @@ def load():
         es.addons.registerSayFilter(saywatcher)
 
     playerlib.registerPlayerListFilter("admin_say", admin_say_filter)
-    xasay.registerSayPrefix(str(say_admin_prefix), _admin_say, "admin_say", "ADMIN")
+    xasay.registerSayPrefix(str(say_admin_prefix), _admin_say)
+    # explicitly set the capability in case xaextendedsay is not loaded
+    xasay.registerCapability('admin_say', 'ADMIN')
     # ..
     # ..
 
@@ -130,15 +132,19 @@ def _admin_say(userid, message, teamonly):
   tokens = {}
   tokens['username'] = es.getplayername(userid)
   tokens['message']   = message
-  if teamonly:
-    admins = playerlib.getPlayerList("#admin_say")
-    for j in admins:
-      #  "#green[Admin Only]#lightgreen $username: #default$message" % (es.getplayername(userid), message)
-      es.tell(int(j), "#multi", text("admin only message", tokens))
-      play_admin_say_sound(int(j))
+  if xasay.isUseridAuthorized(userid, 'admin_say'):
+    if teamonly:
+      admins = playerlib.getPlayerList("#admin_say")
+      for j in admins:
+        #  "#green[Admin Only]#lightgreen $username: #default$message" % (es.getplayername(userid), message)
+        es.tell(int(j), "#multi", text("admin only message", tokens))
+        play_admin_say_sound(int(j))
+    else:
+      es.msg("#multi", text("admin say message", tokens))
+      play_admin_say_sound()
   else:
-    es.msg("#multi", text("admin say message", tokens))
-    play_admin_say_sound()
+    for player in playerlib.getPlayerList('#admin_say'): 
+      es.tell(int(player), '#multi', xalanguage('to admins message', tokens, player.get("lang"))) 
   # kill the message
   return (0, "", 0)
 

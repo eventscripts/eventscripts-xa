@@ -8,7 +8,11 @@ Changelog for Xmas 2009 coding scrum
 [+] Added Scrum Changelog (#47)
 [+] Added clearUserSettings - after a set number of days old user settings are deleted
 [+] Added ability to customise Manimode admin command (#44)
+[+] Added customisable ban times to xaplayers (#11)
 [+] Converted playerdata.py to use dicts not keyvalues (#1)
+[+] Changed xasay to allow non-admins to use @ to talk to admins (#34)
+[+] xavote now only uses a single permission (xa_vote) rather than 4 (#41)
+
 
 [F] Fixed xaplayers unload error (#5)
 [F] Fixed xaadverts bugs (#48,#50)
@@ -17,3 +21,4 @@ Changelog for Xmas 2009 coding scrum
 [F] Fixed xahighpingkick bug (#4)
 [F] Fixed xapunishments bugs (#6)
 [F] Fixed xavictimstats bug (#9)
+[F] Fixed xaconfig bug (#51)

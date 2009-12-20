@@ -50,11 +50,11 @@ def load():
     global vote_list
     xavotemenu = popuplib.easymenu("xavotemenu", "_vote_type", voteOption)
     xavotemenu.settitle(xalanguage["select vote"])
-    xavote.addMenu("xavotemenu", xalanguage["vote"], "xavotemenu", "start_vote", "ADMIN")
+    xavote.addMenu("xavotemenu", xalanguage["vote"], "xavotemenu", "xa_vote", "ADMIN")
     
     registerVoteMenu("create"  , xalanguage["create vote"]  , customVote, serverCmdFunction = customVoteCommand)
-    xavote.addCommand("xa_set_title",   customVoteTitle,     "set_a_title",     "ADMIN").register("console") 
-    xavote.addCommand("xa_set_options", customVoteQuestions, "set_vote_option", "ADMIN").register("console")
+    xavote.addCommand("xa_set_title",   customVoteTitle,     "xa_vote",     "ADMIN").register("console") 
+    xavote.addCommand("xa_set_options", customVoteQuestions, "xa_vote", "ADMIN").register("console")
     
     submenus = []
     if xavoterconlist:
@@ -196,7 +196,7 @@ def registerVoteMenu(shortName, displayName, returnFunction, submenus=[], server
         vote_list[shortName] = {}
         if serverCmdFunction:
             vote_list[shortName]['commandFunction'] = serverCmdFunction 
-            xavote.addCommand('xa_' + shortName + 'vote', voteCmd, 'vote_commands', permission).register(('server', 'console'))
+            xavote.addCommand('xa_' + shortName + 'vote', voteCmd, 'xa_vote', permission).register(('server', 'console'))
         vote_list[shortName]['display']  = displayName
         vote_list[shortName]['function'] = returnFunction
         vote_list[shortName]['type']     = 'mainmenu'
