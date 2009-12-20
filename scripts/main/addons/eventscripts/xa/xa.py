@@ -77,6 +77,9 @@ gMainCommand = None
 gModules = {}
 gModulesLoading = False
 
+# game name
+currentGame = es.getGameName()
+
 # ==============================================================================
 #   HELPER CLASSES
 # ==============================================================================
@@ -668,10 +671,14 @@ def debug(dbglvl, message):
     if int(gCoreVariables['debug']) >= dbglvl:
         es.dbgmsg(0, message)
 
-def register(pModuleid):
+def register(pModuleid,gameSupport=None):
     # Registers a new module with XA
     gModules[pModuleid] = Admin_module(pModuleid)
     es.dbgmsg(1, '[eXtensible Admin] Registered module "%s"' % gModules[pModuleid].name)
+    if gameSupport and currentGame not in gameSupport:
+        es.dbgmsg(1, '[eXtensible Admin] Module "%s" is not supported for this game and will be disabled' % gModules[pModuleid].name)
+        # delay unload to ensure it has loaded correctly
+        gamethread.delayed(1, xa_unload, (pModuleid,))
     return gModules[pModuleid]
 
 def unregister(pModuleid):

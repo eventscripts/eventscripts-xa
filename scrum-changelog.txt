@@ -14,6 +14,7 @@ Changelog for Xmas 2009 coding scrum
 [+] Converted playerdata.py to use dicts not keyvalues (#1)
 [+] Changed xasay to allow non-admins to use @ to talk to admins (#34)
 [+] xavote now only uses a single permission (xa_vote) rather than 4 (#41)
+[+] Modified xa.register to allow modules to indicate game support; unsupported games will be disabled (#37)
 
 
 [F] Fixed xaplayers unload error (#5)
