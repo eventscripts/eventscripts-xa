@@ -10,6 +10,15 @@ import cfglib
 import xa
 
 # ==============================================================================
+#   HELPER CLASSES
+# ==============================================================================
+class Command(object):
+    def __init__(self, commandName, description, usage):
+        self.name           = commandName
+        self.description    = description
+        self.usage          = usage
+
+# ==============================================================================
 #   MODULE API FUNCTIONS
 # ==============================================================================
 def createVariable(module, variable, defaultvalue=0, description=''):
@@ -32,6 +41,17 @@ def createVariable(module, variable, defaultvalue=0, description=''):
             return module.variables[variable]
     
     # Fallback, variable creation failed
+    return False
+    
+def createCommandSpace(module, command, usage='', description=''):
+    # ensure the module exists
+    if xa.exists(module):
+        # Find the module instance
+        module = xa.find(module)
+        
+        # Store the command instance into the module's command attribute 
+        module.commands[command] = Command(command, description, usage)
+        return True
     return False
 
 def deleteVariable(module, variable):
@@ -141,6 +161,16 @@ def writeConfiguration(module):
                 if variable.getName().replace('_', '').isalnum():
                     # Add our variable to the AddonCFG instance
                     config.cvar(variable.getName(), variable._def, variable._descr)
+            
+            # Loop through all commands of the module
+            for command in sorted(module.commands):
+                config.text('')
+                config.text(module.commands[command].usage)
+                config.text(module.commands[command].description)
+                config.text("Insert commands below the lines")
+                config.text('-' * 77)
+                config.command(command)
+                config.text('-' * 77)
     
     # Finally write the file to disk
     config.write()

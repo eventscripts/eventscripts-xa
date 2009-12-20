@@ -223,6 +223,9 @@ class Admin_module(object):
         
         # Variables created by this module
         self.variables = {}
+    
+        # Commands created by this module
+        self.commands = {}
         
         # Find the XA core reference
         self.getCore()
@@ -884,14 +887,8 @@ def player_activate(event_var):
     saveSettingExpiredManager()
 
 def checkExpiredSettings():
-    print "checkExpiredSettings..."
-    print gSettingExpireManager
     steamidsToRemove = []
     for steamid, lastConnected in gSettingExpireManager.iteritems():
-        print "Testing steamid %s" % steamid
-        print "Days inactive: %s" % ((time.time() - lastConnected) / 86400)
-        print "Seconds inactive: %s" % (time.time() - lastConnected)
-        print "Is %s bigger than %s" % (((time.time() - lastConnected) / 86400), gCoreVariables['setting_expiry_days'])
         if (time.time() - lastConnected) / 86400 >= gCoreVariables['setting_expiry_days']:
             steamidsToRemove.append(steamid)
     for steamid in steamidsToRemove:
