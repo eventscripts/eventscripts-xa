@@ -134,18 +134,18 @@ def _admin_say(userid, message, teamonly):
   tokens['message']   = message
   if xasay.isUseridAuthorized(userid, 'admin_say'):
     if teamonly:
-      xasay.logging.log("Admin %s has said '%s' in admin only chat" % (tokens['username'], message) )
+      xasay.logging.log("has said '%s' in admin only chat" % message, userid, True)
       admins = playerlib.getPlayerList("#admin_say")
       for j in admins:
         #  "#green[Admin Only]#lightgreen $username: #default$message" % (es.getplayername(userid), message)
         es.tell(int(j), "#multi", text("admin only message", tokens))
         play_admin_say_sound(int(j))
     else:
-      xasay.logging.log("Admin %s has said '%s' in global admin chat" % (tokens['username'], message) )
+      xasay.logging.log("has said '%s' in global admin chat" % message, userid, True)
       es.msg("#multi", text("admin say message", tokens))
       play_admin_say_sound()
   else:
-    xasay.logging.log("Player %s has said '%s' to the admins" % (tokens['username'], message) )
+    xasay.logging.log("has said '%s' to the admins" % message, userid)
     for player in playerlib.getPlayerList('#admin_say'): 
       es.tell(int(player), '#multi', xalanguage('to admins message', tokens, player.get("lang"))) 
   # kill the message

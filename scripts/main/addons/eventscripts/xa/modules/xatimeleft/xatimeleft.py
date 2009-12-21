@@ -82,7 +82,7 @@ def timeleft_cmd():
     remaining
     """
     userid = es.getcmduserid()
-    xatimeleft.logging.log('xatimeleft request by %s (%s)' % (es.getplayersteamid(userid), es.getplayername(userid)))
+    xatimeleft.logging.log('requested to see the time remaining in the round', userid)
     timeLeft = getTimeLeft()
     if timeLeft > -1:
         if timeLeft:

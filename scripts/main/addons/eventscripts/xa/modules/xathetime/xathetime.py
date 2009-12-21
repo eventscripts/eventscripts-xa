@@ -31,7 +31,7 @@ def unload():
 def show_time():
     """ """
     int_userid = es.getcmduserid()
-    xathetime.logging.log('xathetime request by %s (%s)' % (es.getplayersteamid(int_userid), es.getplayername(int_userid)))
+    xathetime.logging.log('requested the current time' % int_userid)
 
     tuple_time = time.localtime(time.time() + (60 * int(adjust_time)))
     if int(military_time):

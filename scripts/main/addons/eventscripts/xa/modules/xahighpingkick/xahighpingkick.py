@@ -53,6 +53,6 @@ def tracker(userid, info = None):
         if exceedlimit and gInfo[userid] >= int(exceedlimit):
             slowguy = playerlib.getPlayer(userid)
             slowguy.kick(reason=text('kick', {}, slowguy.get('lang')))
-            xahighpingkick.logging.log("User %s kicked for breaking the ping limit" % es.getplayername(userid))
+            xahighpingkick.logging.log("kicked for breaking the ping limit", userid)
     elif info is not None:
         info[0].delete()

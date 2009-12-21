@@ -103,14 +103,14 @@ def xamapmainmenu_handler(userid,choice,popupname):
 
 def mapmenu_handler(userid,choice,popupname):
     if gActions[userid] == 'changemap':
-        xamapmanagement.logging.log("Admin %s changed map to %s" % (es.getplayername(userid), choice) )
+        xamapmanagement.logging.log("changed map to %s" % choice, userid, True )
         es.server.queuecmd('changelevel '+choice)
     elif gActions[userid] == 'setnextmap':
         nextmapvar.set(choice)
         if str(xa_announce_setnextmap) == '1':
             for player in playerlib.getPlayerList():
                 es.tell(player.userid, xalanguage('new next map', {'mapname':choice}, player.get('lang')))
-        xamapmanagement.logging.log("Admin %s set next map set to %s" % (es.getplayername(es.getcmduserid()), choice) )
+        xamapmanagement.logging.log("set next map set to %s" % choice, userid, True )
     del gActions[userid]
 
 def set_nextmap():
@@ -120,7 +120,7 @@ def set_nextmap():
         if str(xa_announce_setnextmap) == '1':
             for player in playerlib.getPlayerList():
                 es.tell(player.userid, xalanguage('new next map', {'mapname':mapname}, player.get('lang')))
-        xamapmanagement.logging.log("Admin %s set next map set to %s" % (es.getplayername(es.getcmduserid()), mapname) )
+        xamapmanagement.logging.log("set next map set to %s" % mapname, es.getcmduserid(), True )
     else:
         userid = int(es.getcmduserid())
         if userid:

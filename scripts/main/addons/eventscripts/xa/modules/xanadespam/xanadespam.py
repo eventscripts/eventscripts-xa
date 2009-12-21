@@ -107,21 +107,21 @@ def _cc_filter(userid, args):
                     es.server.queuecmd('es_xfire %s player_weaponstrip kill' % int_userid)
                     es.server.queuecmd('es_xgive %s player_weaponstrip' % int_userid)
                     es.server.queuecmd('es_xfire %s player_weaponstrip strip' % int_userid)
-                    xanadespam.logging.log("Player %s stripped for nade spamming" % es.getplayername(userid))
+                    xanadespam.logging.log("stripped for nade spamming", userid)
 
                 if int(punish_cash):
                     player.set('cash', 0)
-                    xanadespam.logging.log("Player %s cash set to 0 for nade spamming" % es.getplayername(userid))
+                    xanadespam.logging.log("cash set to 0 for nade spamming", userid)
 
                 if int(punish_slay):
                     player.kill()
-                    xanadespam.logging.log("Player %s slayed for nade spamming" % es.getplayername(userid))
+                    xanadespam.logging.log("slayed for nade spamming", userid)
 
                 if int(punish_kick):
                     player.kick(func_lang_text('kick', {}, player_lang))
-                    xanadespam.logging.log("Player %s kicked for nade spamming" % es.getplayername(userid))
+                    xanadespam.logging.log("kicked for nade spamming", userid)
                 
-                xanadespam.logging.log("Player %s denied the rights to buy nades for nade spamming" % es.getplayername(userid))
+                xanadespam.logging.log("denied the rights to buy nades for nade spamming", userid)
 
                 return False
     return True

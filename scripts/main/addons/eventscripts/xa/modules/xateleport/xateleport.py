@@ -57,7 +57,7 @@ def sendFirstPlayer(userid, choice, popupid):
         lang    = playerlib.getPlayer(userid).get("lang")
         saveDatabase()
         es.tell(userid, "#green", xalanguage("location saved", {}, lang) )
-        xateleport.logging.log("Admin %s has updated their saved teleport location for map %s" % (es.getplayername(userid), str(es.ServerVar('eventscripts_currentmap')) ) )
+        xateleport.logging.log("has updated their saved teleport location for map %s" % str(es.ServerVar('eventscripts_currentmap') ), userid, True)
     elif 4 > choice > 1:
         lang = playerlib.getPlayer(userid).get("lang")
         popupMenu = popuplib.easymenu("xa_teleport_players", "_popup_choice", sendSecondMenu)
@@ -89,7 +89,7 @@ def sendSecondMenu(userid, choice, popupid):
             args["admin"]  = es.getplayername(userid)
             for player in playerlib.getPlayerList("#all"):
                 es.tell(int(player), xalanguage("teleport to location", args, player.get("lang") ) )
-        xateleport.logging.log("Admin %s has teleported player %s to their saved location" % (es.getplayername(userid), es.getplayername(target) ) )
+        xateleport.logging.log("has teleported user %s [%s] to their saved location" % (es.getplayername(target), es.getplayersteamid(target)), userid)
     else:
         lang = playerlib.getPlayer(userid).get("lang")
         popupMenu = popuplib.easymenu("xa_teleport_players", "_popup_choice", teleportPlayerToPlayer)
@@ -117,4 +117,4 @@ def teleportPlayerToPlayer(userid, choice, popupid):
         args["recipient"] = es.getplayername(recipient) 
         for player in playerlib.getPlayerList("#all"):
             es.tell(int(player), xalanguage("player sent to player", args, player.get("lang") ) )
-    xateleport.logging.log("Admin %s has teleported player %s to player %s" % (es.getplayername(userid), es.getplayername(target), es.getplayername(recipient) ) )
+    xateleport.logging.log("has teleported user %s [%s] to user %s [%s]" % (es.getplayername(target), es.getplayersteamid(target), es.getplayername(recipient), es.getplayersteamid(recipient) ), userid, True)

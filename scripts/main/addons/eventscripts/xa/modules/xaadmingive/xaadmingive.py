@@ -160,7 +160,7 @@ def giveObject(adminid, userid):
         tokens['item']  =  '#green%s #lightgreen%s' % (formattedStr, 'cash' if command.startswith('cash_') else 'health')
         for tellplayer in playerlib.getPlayerList('#human'):
             es.tell(int(tellplayer), '#multi', xalanguage('admin give', tokens, tellplayer.get("lang")))
-        xaadmingive.logging.log("Admin %s has given player %s %s" % (tokens['admin'], tokens['user'], tokens['item'])) 
+        xaadmingive.logging.log("has given player %s %s" % (tokens['user'], tokens['item']), adminid, True) 
     else:
         weaponName = _remove_prefix(command)
         fullName   = _prepend_prefix(command)
@@ -179,7 +179,7 @@ def giveObject(adminid, userid):
             for tellplayer in playerlib.getPlayerList('#human'):
                 tokens['item'] = '#greena #lightgreen%s' % weaponName
                 es.tell(int(tellplayer), '#multi', xalanguage('admin give', tokens, tellplayer.get("lang")))
-        xaadmingive.logging.log("Admin %s has given player %s %s" % (tokens['admin'], tokens['user'], tokens['item']))            
+        xaadmingive.logging.log("has given player %s %s" % (tokens['user'], tokens['item']), adminid, True)            
 
 def addInteger(popupInstance, integer, prefix=""):
     formattedStr = ""

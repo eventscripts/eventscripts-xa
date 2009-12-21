@@ -131,7 +131,7 @@ def voteKickCheck(userid, choice, popupid):
     if userid not in userids or steamid not in targets:
         """ One of the instances weren't avaiable, return early """
         return
-    xavotekickban.logging.log("Player %s has voted to kick player %s" % (es.getplayername(userid), es.getplayername(choice) ) )
+    xavotekickban.logging.log("has voted to kick user %s [%s]" % (es.getplayername(choice), es.getplayersteamid(choice) ), userid )
     userids[userid]["kicks"].append(choice)
     targets[steamid]["kicks"] += 1
     
@@ -145,14 +145,14 @@ def voteKickCheck(userid, choice, popupid):
         tokens['name'] = es.getplayername(choice)
         for player in playerlib.getPlayerList('#all'):
             es.tell(int(player), '#multi', xalanguage('player kicked', tokens, player.get("lang") ) )
-        xavotekickban.logging.log("Player %s has been vote kicked" % tokens['name'])
+        xavotekickban.logging.log("has been vote kicked" % choice)
     else:
         tokens = {}
         tokens['name']   = es.getplayername(choice)
         tokens['amount'] = kicksRemaining
         for player in playerlib.getPlayerList("#all"):
             es.tell( int(player), '#multi', xalanguage('player votes kicked', tokens, player.get("lang") ) )
-        xavotekickban.logging.log("Player %s needs %s more votes till they are kicked" % (tokens['name'], kicksRemaining) )
+        xavotekickban.logging.log("needs %s more votes till they are kicked" % kicksRemaining, choice)
         
 def voteBan():
     """
@@ -189,7 +189,7 @@ def voteBanCheck(userid, choice, popupid):
         """ One of the instances weren't avaiable, return early """
         return
         
-    xavotekickban.logging.log("Player %s has voted to ban player %s" % (es.getplayername(userid), es.getplayername(choice) ) )
+    xavotekickban.logging.log("has voted to ban user %s [%s]" % (es.getplayername(choice), es.getplayersteamid(choice) ), userid )
     userids[userid]["bans"].append(choice)
     targets[steamid]["bans"] += 1
     bansRemaining = getBansRemaining(steamid)
@@ -201,14 +201,14 @@ def voteBanCheck(userid, choice, popupid):
         tokens['name'] = es.getplayername(choice)
         for player in playerlib.getPlayerList('#all'):
             es.tell(int(player), '#multi', xalanguage('player banned', tokens, player.get("lang") ) )
-        xavotekickban.logging.log("Player %s has been vote banned" % tokens['name'])
+        xavotekickban.logging.log("has been vote banned", choice)
     else:
         tokens = {}
         tokens['name']   = es.getplayername(choice)
         tokens['amount'] = bansRemaining
         for player in playerlib.getPlayerList("#all"):
             es.tell( int(player), '#multi', xalanguage('player votes banned', tokens, player.get("lang") ) )
-        xavotekickban.logging.log("Player %s needs %s more votes till they are banned" % (tokens['name'], bansRemaining) )
+        xavotekickban.logging.log("needs %s more votes till they are banned" % bansRemaining, choice)
     
 def removePlayer(steamid):
     """

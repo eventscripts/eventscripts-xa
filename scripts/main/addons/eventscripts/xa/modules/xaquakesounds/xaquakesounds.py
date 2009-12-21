@@ -253,7 +253,8 @@ def _play_quakesound(soundfile, soundname, userid, attackerid, mode, visual_mode
     for userid in useridlist_sound:
         if int(xaplayerdata_quakesounds.get(userid)) == 1:
             es.playsound(userid, soundfile, 1.0)
-    xaquakesounds.logging.log("Player %s has had sound %s by killing player %s" % (es.getplayername(attackerid), soundname, es.getplayername(userid) ) )
+    #xaquakesounds.logging.log("Player %s has had sound %s by killing player %s" % (es.getplayername(attackerid), soundname, es.getplayername(userid) ) )
+    xaquakesounds.logging.log("has had sound %s by killing user %s [%s]" % (soundname, es.getplayername(userid), es.getplayersteamid(userid) ), attackerid )
     for userid in useridlist_text:
         if int(xaplayerdata_quakesounds.get(userid)) == 1:
             player = playerlib.getPlayer(userid)

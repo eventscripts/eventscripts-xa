@@ -78,7 +78,7 @@ def round_freeze_end(event_var):
                 _punish_player(userid,punishment,adminid,args,force)
             remove.append(userid)
         else:
-            xapunishments.logging.log("Player "+es.getplayername(userid)+" is in spectator mode and will be punished when he next spawns")
+            xapunishments.logging.log("is in spectator mode and will be punished when he next spawns", userid)
     for userid in remove:
         del dead_delayed[userid]
         
@@ -148,7 +148,7 @@ def _punish_player(userid, punishment, adminid, args = [], force = False):
         if (not xapunishments.isUseridAuthorized(userid, "immune_"+punishment)) or (userid == adminid) or force:
             if userid in playerlib.getUseridList("#alive") or True == punishment_ondead[punishment]:
                 if callable(punishment_method[punishment]):
-                    xapunishments.logging.log("Admin "+es.getplayername(adminid)+ " used punishment "+str(punishment)+" on player "+es.getplayername(userid))
+                    xapunishments.logging.log("used punishment %s on user %s [%s]" % (punishment, es.getplayername(userid), es.getplayersteamid(userid)), adminid, True)
                     try:
                         punishment_method[punishment](userid, adminid, args, force)
                     except TypeError:
@@ -164,7 +164,7 @@ def _punish_player(userid, punishment, adminid, args = [], force = False):
                 if userid not in dead_delayed:
                     dead_delayed[userid] = []
                 dead_delayed[userid].append(punishment,adminid,args,force)
-                xapunishments.logging.log("Player "+es.getplayername(userid)+"will be punished when he next spawns")
+                xapunishments.logging.log("will be punished when he next spawns", userid)
                 es.tell(adminid, xalanguage("dead", {'username':es.getplayername(userid)}, playerlib.getPlayer(adminid).get("lang")))
                 return False
         else:

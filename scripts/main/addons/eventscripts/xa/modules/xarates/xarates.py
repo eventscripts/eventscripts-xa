@@ -24,7 +24,7 @@ def unload():
 
 def xarates_cmd(): 
     int_userid = es.getcmduserid() 
-    xarates.logging.log('xarates request by %s (%s)' % (es.getplayersteamid(int_userid), es.getplayername(int_userid))) 
+    xarates.logging.log('requested xarates', int_userid) 
     dict_rates = {} 
     longest_name = 4 
     longest_rate = 4 

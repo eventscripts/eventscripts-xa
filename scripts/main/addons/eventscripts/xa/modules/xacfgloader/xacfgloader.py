@@ -43,6 +43,7 @@ def _select_cfg(userid, choice, name):
     elif os.path.isfile(os.path.join(cfg_dir, choice)):
         cfglib.AddonCFG(os.path.join(cfg_dir, choice)).execute()
         es.tell(userid,xalanguage("cfg executed", {'file':choice}, playerlib.Player(userid).get("lang")))
+        xacfgl.logging.log("Loaded config %s" % choice, userid, True)
     else:
         es.tell(userid,xalanguage("unrecognised", {'file':choice}, playerlib.Player(userid).get("lang")))
     menu = _create_menu()

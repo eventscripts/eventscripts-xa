@@ -147,14 +147,14 @@ def kickPlayer(ulib):
         # but also set them up for a kick in 15 seconds if they dont comply
         kick_delays.append(uid)
         gamethread.delayedname(15, 'res_redirect_%s' % uid, ulib.kick, (text("ip_kick_message",{"ip":ip},ulib.get("lang"))))
-        xareserveslots.logging.log("Player %s being redirected to %s for taking a reserve slot" % (es.getplayername(uid), ip) )
+        xareserveslots.logging.log("being redirected to %s for taking a reserve slot" % ip, uid)
     else:
         if str(xareserveslots.setting.getVariable("reserve_slots_kick_message")) == "0":
             # PLEASE use langlib :)
             msg = text("kick_message",None,ulib.get("lang"))
         else:
             msg = str(xareserveslots.setting.getVariable("reserve_slots_kick_message"))
-        xareserveslots.logging.log("Player %s being kicked for taking a reserve slot" % es.getplayername(uid))
+        xareserveslots.logging.log("being kicked for taking a reserve slot", uid)
         ulib.kick(msg)
 
     

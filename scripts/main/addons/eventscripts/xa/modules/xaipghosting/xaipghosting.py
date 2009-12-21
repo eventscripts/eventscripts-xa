@@ -108,7 +108,7 @@ def blindplayer(uid):
     # tell them
     blinded[uid].tell_blinded()
     # log that they were blinded
-    ghosting.logging.log("Blinded player %s (%s)" % (str(uid), es.getplayersteamid(uid)))
+    ghosting.logging.log("blinded for ghosting", uid)
                 
 def blindplayer_spec(uid):
     '''
@@ -124,7 +124,7 @@ def blindplayer_spec(uid):
     # tell them
     spec_blinded[uid].tell_blinded()
     # log that they were blinded
-    ghosting.logging.log("Blinded player %s (%s)" % (str(uid), es.getplayersteamid(uid)))
+    ghosting.logging.log("blinded for ghosting", uid)
     
 
 def checkplayer(uid):
@@ -171,7 +171,7 @@ def blind_con_com():
                 # can only use this if auto blinding is OFF
                 if checkplayer(int(target)):
                     es.msg("#green %s blinded %s till the end of the round for ghosting" % (admin.attributes["name"], target.attributes["name"]))
-                    ghosting.logging.log("Admin (%s) blinded player %s for ghosting " % (admin.attributes["name"], target.attributes["name"]))
+                    ghosting.logging.log("blinded user %s [%s] for ghosting" % (es.getplayername(id), es.getplayersteamid(id)), int(admin), True)
                     blindplayer(str(target))
                 else:
                     es.tell(int(admin), "#green %s was not IP ghosting" % (target.attributes["name"]))

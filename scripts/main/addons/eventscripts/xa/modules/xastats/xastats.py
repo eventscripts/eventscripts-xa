@@ -285,7 +285,7 @@ class Player(object):
             for name, value in tempAttributes:
                 self.currentAttributes[name] = value
             self.oldAttributes  = self.currentAttributes.copy()
-        xastats.logging.log("Refreshing player %s stats from sqlite database" % self.name)
+        xastats.logging.log("Refreshing player's stats from sqlite database", self.userid)
     
     def commitAttributes(self):
         for attribute, value in self.currentAttributes.iteritems():
@@ -294,7 +294,7 @@ class Player(object):
             elif value != self.oldAttributes[attribute]:
                 database.updateStatValue(self.dbUserid, attribute, value)
         self.oldAttributes = self.currentAttributes.copy()
-        xastats.logging.log("Committing player %s stats to sqlite database" % self.name)
+        xastats.logging.log("User %s [%s]: Committing player's stats to sqlite database" % (self.name, es.getplayersteamid(self.userid) ) )
         
     def __getitem__(self, item):
         if item in self.currentAttributes:
@@ -302,10 +302,6 @@ class Player(object):
         raise KeyError, "Item %s cannot be found in the player container" % item
         
     def __setitem__(self, item, value):
-        if self.__contains__(item):
-            xastats.logging.log("Player %s has had their stat %s changed from %s to %s" % (self.name, item, self.__getitem__(item), value) )
-        else:
-            xastats.logging.log("Player %s has had their stat %s changed from <nothing> to %s" % (self.name, item, value) )
         self.currentAttributes[item] = value
         
     def __contains__(self, item):
@@ -386,7 +382,7 @@ class RankManager(object):
         self.ranks = map(lambda x: x[0], database.cursor.fetchall() )
         self.size  = len(self.ranks)
         self.updateTopTen()
-        xastats.logging.log("Stats :: Updated all ranked positions")
+        xastats.logging.log("Updated all ranked positions")
         
     def updateTopTen(self):
         self.topTenStats = {}
@@ -406,7 +402,7 @@ class RankManager(object):
             database.cursor.execute("SELECT s.StatValue FROM Stat s, User u WHERE u.SteamID=? AND s.UserID=u.UserID AND s.StatName='points'",
                                            (SteamID,) )
             self.topTenStats[index + 1]['points'] = database.cursor.fetchone()[0]
-        xastats.logging.log("Stats :: Updated top 10 positions")  
+        xastats.logging.log("Updated top 10 positions")  
     
     def getTopTenStats(self):
         return self.topTenStats          

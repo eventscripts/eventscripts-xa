@@ -126,7 +126,7 @@ def nomination_result(userid, choice, popupname):
         players[steamid][1] = True
         if choice not in nominations:
             nominations.append(choice)
-        xartv.logging.log("User %s has nominated map %s for Rock The Vote" % (es.getplayername(userid), choice ) )            
+        xartv.logging.log("has nominated map %s for Rock The Vote" % choice, userid )            
         tokens = {}
         tokens['player']  = es.getplayername(userid)
         tokens['mapname'] = choice 
@@ -149,7 +149,7 @@ def rtv():
             tokens = {}
             tokens['time'] = int(float(vote_req_time) - int( time.time() - map_start_time ) ) 
             es.tell(userid, '#multi', lang('map_time', tokens, playerlib.getPlayer(userid).get('lang') ) )
-            xartv.logging.log("User %s has been denied the right to RTV as not enough time in the map has passed" % es.getplayername(userid) ) 
+            xartv.logging.log("has been denied the right to RTV as not enough time in the map has passed", userid ) 
         else: 
             if allowVoting:
                 players[steamid][0] = True
@@ -162,7 +162,7 @@ def rtv():
                         es.tell(user, '#multi', lang('player_started', tokens, playerlib.getPlayer(user).get('lang') ) ) 
                         popuplib.unsend("nomination_menu", user)
                 votes_in += 1
-                xartv.logging.log("User %s has rocked the vote, %s votes in" % ( es.getplayername(userid), votes_in) )
+                xartv.logging.log("has rocked the vote, %s votes in" % votes_in, userid )
                 
                 if votes_in >= int(vote_req_min): 
                     if votes_in >= vote_req_total:
@@ -186,7 +186,7 @@ def rtv():
             else: 
                 es.tell(userid, '#multi', lang('started', lang=playerlib.getPlayer(userid).get('lang') ) ) 
     else:
-        xartv.logging.log("User %s has attempted to RTV more than once" % es.getplayername(userid) ) 
+        xartv.logging.log("has attempted to RTV more than once", userid) 
         es.tell(userid, '#multi', lang('1vote', lang=playerlib.getPlayer(userid).get('lang') ) ) 
 
 ############################

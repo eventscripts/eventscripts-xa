@@ -422,7 +422,7 @@ def _buy_restrict(userid, args):
       player = getPlayer(userid)
       weapon = args[1].lower().replace('weapon_', '')
       if player.isRestricted(weapon):
-         xarestrict.logging.log("Player %s has been denied the right to buy weapon %s due to restrictions" % (es.getplayername(userid), weapon ) )
+         xarestrict.logging.log("has been denied the right to buy weapon %s due to restrictions" % weapon, userid)
          player.announceRestrictedPickup(weapon)
          return False
 
