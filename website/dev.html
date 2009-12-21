@@ -1,10 +1,22 @@
-<head>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" 
+	"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"> 
+<head> 
+	<title>eXtensible Admin :: Project Home</title> 
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<meta name="description" content="eXtensible Admin project website" /> 
+	<meta name="keywords" content="eXtensible Admin,XA,admin,server,python,eventscripts" /> 
+
     <style type="text/css" >
+        body { border: 0px; text-align: center; margin: 0px; font-family: verdana; }
         .wrapper { margin: auto; width: 900px; text-align: left; border-left: 1px solid #CCCCCC; border-right: 1px solid #CCCCCC; padding-left: 3px; padding-right: 3px; }
         
         .box { background-color: #F4F4F4; border: 1px solid #DDDDDD; padding: 10px; }
         
         #header { height: 140px; }
+        #header img { height: 100px; float: left; margin: 5px; }
+        #header #title { float: left; font-size: 2.1em; color: #2B372A; margin-left: 40px; margin-top: 20px; }
+        #header #title #byline { font-size: 0.5em; text-align: center; }
         
         #menu { border-bottom: 3px solid #457243; }
         #menu a { display: inline-block; text-decoration: none; padding: 5px; color: #457243; font-size: 1.2em; margin-right: 7px; margin-left: 5px; }
@@ -14,17 +26,26 @@
         #content { margin-top: 10px; }
         #content .left { float: left; margin: 10px; width: 580px; }
         #content .right { float: right; margin: 10px; width: 280px; }
-        #content h2 { display: block; border-bottom:2px solid #DDDDDD; font-size: 1.1em; color:  #2B372A; }
+        #content .right .box { padding-left: 20px; margin-bottom: 5px; }
+        #content .news { padding-left: 5px; margin-bottom: 4px; }
+        #content .news .byline { color: #7A7A7A; font-size: 0.8em; display: block; margin-bottom: 5px; }
+        #content h2 { display: block; border-bottom:2px solid #DDDDDD; font-size: 1.2em; color:  #2B372A; }
+        #content h3 { margin: 0px; margin-top: 15px; display: block; }
+        #content h4 { margin: 0px; display: block; font-size: 1.1em; color:  #457243; }
+        #content a { color: #2B372A; }
+        #content a:hover { color: #457243; }
+        
+        #footer { clear: both; text-align: center; font-size: 0.6em; color: #7A7A7A; padding-top: 15px; }
     </style>
 </head>
-<body style="border: 0px; text-align: center; margin: 0px; font-family: verdana;" >
+<body >
     <div class="wrapper" >
         
         <div id="header" >
-            <img src="http://mattie.net/images/xalogo.gif" style="height: 100px; float: left; margin: 5px; " />
-            <div style="float: left; font-size: 2.1em; color: #457243; margin-left: 40px; margin-top: 20px;" >
+            <img src="http://mattie.net/images/xalogo.gif" />
+            <div id="title" >
                 eXtensible Admin
-                <div style="font-size: 0.5em; text-align: center;" >
+                <div id="byline" >
                     The EventScripts Admin Tool
                 </div>
             </div> 
@@ -32,35 +53,70 @@
         <div id="menu" >
             <a href="http://xa.eventscripts.com" class="this" >Home</a>
             <a href="http://hg.errant.me.uk/eventscripts-xa/download" class="" >Download</a>
-            <a href="http://xa.eventscripts.com/documentation" class="" >Documentation</a>
+            <a href="http://hg.errant.me.uk/eventscripts-xa/wiki" class="" >Documentation</a>
             <a href="http://forums.eventscripts.com/viewforum.php?f=97" class="" >Forum</a>
-            <a href="http://http://addons.eventscripts.com/addons/tags/1006" class="" >Custom Modules</a>
+            <a href="http://addons.eventscripts.com/addons/tags/1006" class="" >Custom Modules</a>
             <a href="http://hg.errant.me.uk/eventscripts-xa/issues" class="" >Issue Tracker</a>
         </div>
         <div id="content"  >
             <div class="left" >
                 <h2>About</h2>
-                eXtensible Admin is...
+                eXtensible Admin is a fully featured admin framework built on the <a href="http://forums.eventscripts.com/viewforum.php?f=90" >EventScripts 2.x plugin</a> and written in <a href="http://www.python.org" >Python</a>.
+                XA comes with <a href="http://hg.errant.me.uk/eventscripts-xa/wiki/core_modules" >numerous core modules</a> to manage administration, commands, settings, languages, menus, Auth and more.
+                XA is fully customisable with a low barrier to entry: custom modules can be <a href="http://python.eventscripts.com/pages/Authoring_XA_Modules" >created and integrated</a> in minutes.<br /><br />
+                <div class="box" >
+                    Matties adverts go here!
+                </div>
                 <h2>News</h2>
-                News List
+                 <div class="news box" >
+                    <h4>V1.1 Released!</h4>
+                    <span class="byline" >Mon, 21 Dec 2009 3:15 p.m. by errant</span>
+                    Announcing Version 1.1.0.xxx of XA! And an awesome new website
+                </div>
+                <div class="news box" >
+                    <h4>We're working on it</h4>
+                    <span class="byline" >Sat, 19 Dec 2009 4:58 p.m. by ojii</span>
+                    The new site is being worked on! Please be patient
+                </div>
             </div>
             <div class="right" >
-                <div class="box" style="padding-left: 20px;" >
-                    <h3>Links</h3>
+                <div class="box" >
+                    <a href="http://hg.errant.me.uk/eventscripts-xa/download" class="" >About XA</a><br />
                     <a href="http://hg.errant.me.uk/eventscripts-xa/download" class="" >Download</a><br />
                     <a href="http://xa.eventscripts.com/documentation" class="" >Documentation</a><br />
+                    <a href="http://hg.errant.me.uk/eventscripts-xa/issues" class="" >Issue Tracker</a><br />
+                    <h3>Community</h3>
+                    <a href="http://hg.errant.me.uk/eventscripts-xa/wiki/dev_team" class="" >Developers</a><br />
                     <a href="http://forums.eventscripts.com/viewforum.php?f=97" class="" >Forum</a><br />
                     <a href="http://http://addons.eventscripts.com/addons/tags/1006" class="" >Custom Modules</a><br />
-                    <a href="http://hg.errant.me.uk/eventscripts-xa/issues" class="" >Issue Tracker</a><br />
                     <h3>Tools</h3>
                     <a href="" >Group Auth Creator</a>
+                    <h3>Guides</h3>
+                    <a href="http://hg.errant.me.uk/eventscripts-xa/wiki/installation" class="" >Installation Guide</a><br />
+                    <a href="http://python.eventscripts.com/pages/Authoring_XA_Modules" >Authoring custom Modules</a>
+                </div>
+                <div class="box" >
+                    <h3>Eventscripts</h3>
+                    <a href="http://www.eventscripts.com">Eventscripts Wiki/Home</a><br />
+                    <a href="http://forums.eventscripts.com">ES Forums</a><br />
+                    <a href="http://python.eventscripts.com">ESPython Wiki</a><br />
                 </div>
             </div>
             
-            <div style="clear: both;" >
-                
+            <div id="footer" >
+                Site developed by <a href="http://ojii.ch">Ojii</a>, Design by <a href="http://www.errant.me.uk/blog" >Errant</a>
             </div>
         </div>
     
     </div>
+    <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+        try {
+        var pageTracker = _gat._getTracker("UA-12154621-2");
+        pageTracker._trackPageview();
+        } catch(err) {}
+    </script>
 </body>
