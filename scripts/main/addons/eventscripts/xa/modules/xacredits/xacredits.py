@@ -28,7 +28,7 @@ def credits_cmd():
     usermsg.echo(userid,'Eventscripts:      Mattie')
     usermsg.echo(userid,' ')
     usermsg.echo(userid,'# Contributors')
-    usermsg.echo(userid,'Superdave,jeff91,juba_pornborn,Sumguy41')
+    usermsg.echo(userid,'Superdave,Venjax,jeff91,juba_pornborn,Sumguy41')
     usermsg.echo(userid,'HitThePipe,Undead,British.Assassin,101Satoon101')
     usermsg.echo(userid,'adminc,Soynuts,XE_ManUp,JoeyT2006,Omega_K2,colster')
     usermsg.echo(userid,'dajayguy,awuh0,AMMUT,chatcon,chrisber,chriske21')
