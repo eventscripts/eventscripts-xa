@@ -108,8 +108,9 @@ def send_prompt(int_userid, str_ip, int_kick, float_delay):
     global list_delays
 
     msglib.VguiDialog(title=str_ip, time=float_delay, mode=msglib.VguiMode.ASKCONNECT).send(int_userid)
-
+    xaredirect.logging.log("User %s is being redirected to %s" % (es.getplayername(int_userid), str_ip) )
     if int_kick:
+        xaredirect.logging.log("User will be kicked in %s seconds if they don't respond" % float_delay)
         if int_userid in list_delays:
             gamethread.cancelDelayed('xaredirect_%s' % int_userid)
         else:
@@ -123,7 +124,7 @@ def kick_player(int_userid, str_ip):
     Does not kick clients who are authorized to redirect others
     """
     global list_delays
-
+    xaredirect.logging.log("User %s has been kicked for not redirecting to the server" % es.getplayername(int_userid) )
     if es.exists('userid', int_userid):
         if not xaredirect.isUseridAuthorized(int_userid, 'redirect_client'):
             player_kick = playerlib.getPlayer(int_userid)

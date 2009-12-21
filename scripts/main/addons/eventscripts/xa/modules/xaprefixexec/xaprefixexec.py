@@ -68,6 +68,7 @@ def es_map_start(event_var):
         str_prefix = str_mapname.split('_')[0]
         if os.path.isfile(str_dir + '/%s.cfg' % str_prefix):
             es.server.queuecmd('es_xmexec xa/prefixexec/%s.cfg' % str_prefix)
+            xaprefixexec.logging.log("xa/prefixexec/%s.cfg executed due to map prefix %s" % (str_prefix, str_prefix) )
 
 
 def _check_directory(str_dir):

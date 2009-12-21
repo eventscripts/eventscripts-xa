@@ -148,7 +148,7 @@ def _punish_player(userid, punishment, adminid, args = [], force = False):
         if (not xapunishments.isUseridAuthorized(userid, "immune_"+punishment)) or (userid == adminid) or force:
             if userid in playerlib.getUseridList("#alive") or True == punishment_ondead[punishment]:
                 if callable(punishment_method[punishment]):
-                    xapunishments.logging.log("Player "+es.getplayername(adminid)+ " used punishment "+str(punishment)+" on player "+es.getplayername(userid))
+                    xapunishments.logging.log("Admin "+es.getplayername(adminid)+ " used punishment "+str(punishment)+" on player "+es.getplayername(userid))
                     try:
                         punishment_method[punishment](userid, adminid, args, force)
                     except TypeError:

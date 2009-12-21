@@ -100,6 +100,7 @@ def player_spawn(event_var):
             xaplayerdata_skin = skins[level + '_' + team + '_skin']
             model = xaplayerdata_skin.get(int(event_var['userid']))
             if str(model) != "None":
+                xaskins.logging.log("Player %s has had his skin changed to '%s'" % (es.getplayername(event_var['userid']), model) )
                 myPlayer = playerlib.getPlayer(event_var['userid'])
                 myPlayer.set('model', model)
                 
@@ -170,6 +171,7 @@ def _selectsubmenu(userid, choice, name):
         #xaplayerdata_skin.set(userid, choice)
         xaplayerdata_skin.set(userid, mynewskin)
         xaskins.playerdata.saveUserSetting()
+        xaskins.logging.log("User %s has changed his skin to %s" % (es.getplayername(userid), str(xaplayerdata_skin) ) )
     
 def add_skin_files(skinIndex):
     """ This function reads in the 7 main skin files and parses each one """

@@ -489,8 +489,10 @@ class VoteManager(object):
                 es.tell(player, '#green', xalanguage("stopped vote", tokens, playerlib.getPlayer(player).get("lang"))) 
         es.cexec_all('playgamesound ' + str(vote_start_sound) )
         self.display.Start()
+        xavote.logging.log("Voting :: Vote %s started" % self.shortName)
         
     def Stop(self):
+        xavote.logging.log("Voting :: Vote %s stopped" % self.shortName)
         self.vote.stop(True)
         
     def _Message(self, userid, votename, optionid, option):
@@ -500,6 +502,7 @@ class VoteManager(object):
         for player in playerlib.getPlayerList(): 
             es.tell(int(player),'#multi', xalanguage("vote message", tokens, player.get("lang")))
         self.display.ChangeDict(option, 1)
+        xavote.logging.log("Voting :: Player %s has submited option %s for vote %s" % (tokens['username'], option, self.shortName) )
         
     def _Win(self, popupid, optionid, choice, winner_votes, winner_percent, total_votes, was_tied, was_canceled):
         self.display.Stop()
@@ -524,9 +527,11 @@ class VoteManager(object):
                 
                 for player in playerlib.getPlayerList("#human"): 
                     es.tell(int(player),'#multi',xalanguage("vote win",tokens, player.get("lang")))
+                xavote.logging.log("Voting :: Option %s has won vote %s with %s%% %s/%s votes" % (choice, self.shortName, winner_percent, winner_votes, total_votes) )
             else:
                 for player in playerlib.getPlayerList("#human"): 
                     es.tell(int(player),'#green',xalanguage("vote no voters", {}, player.get("lang")))
+                xavote.logging.log("Voting :: No option has won vote %s due to no voters" % self.shortName )
              
         elif was_tied and not was_canceled:
             for player in playerlib.getPlayerList("#human"): 
@@ -554,6 +559,7 @@ class VoteManager(object):
                     self.params['percent']     = winner_percent
                     self.params['total votes'] = total_votes
                     self.option(self.params)
+            xavote.logging.log("Voting :: Voting for vote %s was a draw so option %s was randomly selected as the winner" % (self.shortName, winner ) )
         else: 
             for player in playerlib.getPlayerList("#human"): 
                 es.tell(int(player), '#green', xalanguage("vote canceled", player.get("lang") ) )

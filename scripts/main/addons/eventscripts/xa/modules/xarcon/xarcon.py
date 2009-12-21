@@ -64,14 +64,17 @@ def round_start(event_var):
 
 def rcon_cmd():
     """Appends the command to the end of the queue of server commands to execute"""
+    xarcon.logging.log("Admin %s used rcon command %s" % (es.getplayername(es.getcmduserid()), es.getargs() ) )
     es.server.queuecmd(es.getargs())
 
 
 def rcon_round_cmd():
     """Appends the command to the end of the queue of server commands to execute next round"""
+    xarcon.logging.log("Admin %s set the rcon command %s to be executed next round" % (es.getplayername(es.getcmduserid()), es.getargs() ) )
     list_round_rcon.append(es.getargs())
 
 
 def rcon_map_cmd():
     """Appends the command to the end of the queue of server commands to execute next map"""
+    xarcon.logging.log("Admin %s set the rcon command %s to be executed next map" % (es.getplayername(es.getcmduserid()), es.getargs() ) )
     list_map_rcon.append(es.getargs())

@@ -27,6 +27,7 @@ def floodcontrol(userid, message, teamonly):
         else:
          if time.time() - float(chat_flood_time) < timer[userid]:
              es.tell(userid, lang_text('chat flood', {}, playerlib.getPlayer(userid).get('lang')))
+             xafloodcontrol.logging.log("User %s has been stopped from talking due to flooding, %.2f seconds from last message" % (es.getplayername(userid), time.time() - timer[userid] ) )
              timer[userid] = time.time()
              return 0, message, teamonly
          else:

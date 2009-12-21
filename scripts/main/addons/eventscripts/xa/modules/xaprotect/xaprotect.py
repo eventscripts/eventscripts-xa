@@ -156,15 +156,19 @@ def player_hurt(event_var):
      [+] Spawn slay protection 
     ''' 
     if protect_reflect_damage and int(protect_reflect_damage): 
-        # were reflecting damage 
-        plist.reflect(event_var["es_attackerid"], event_var["userid"], event_var["damage"]) 
+        # were reflecting damage
+        damage = event_var['damage'] if event_var['damage'] not in ("", "0") else event_var['dmg_health'] 
+        plist.reflect(event_var["es_attackerid"], event_var["userid"], damage)
+        xaprotect.logging.log("Attacker %s has been reflected %s damage from %s due to the player being protected" % (es.getplayername(event_var['attacker']), damage,  es.getplayername(event_var['userid']) ) ) 
     if protect_spawn_slay and protect_spawn_slay_time and int(protect_spawn_slay): 
         timelimit = plist.getspawntime(event_var["userid"]) + int(protect_spawn_slay_time) 
         if time.time() < timelimit: 
             # oops! kill them 
-            plist.grab(event_var["attackerid"]).kill() 
+            plist.grab(event_var["attackerid"]).kill()
+            xaprotect.logging.log("Attacker %s has been slayed for spawn attacking" % es.getplayername(event_var['attacker']) ) 
     if protect_teamattack_slay and int(protect_teamattack_slay): 
         plist.team_killattack(event_var["es_attackerid"], event_var["userid"])
+        xaprotect.logging.log("Attacker %s has been slayed for team damaging" % es.getplayername(event_var['attacker']) )
        
 def player_death(event_var):
     '''
@@ -173,6 +177,7 @@ def player_death(event_var):
     '''
     if protect_teamkill_slay and int(protect_teamkill_slay) and protect_teamattack_slay and not int(protect_teamattack_slay): 
         plist.team_killattack(event_var["es_attackerid"], event_var["userid"])
+        xaprotect.logging.log("Attacker %s has been slayed for team damaging" % es.getplayername(event_var['attacker']) )
     
 def round_start(event_var):  
     global roundstatus, round_start_time 
