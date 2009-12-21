@@ -24,7 +24,7 @@ def load():
 def unload():
     xamodule.unregister()
     
-def brows_cmd():
+def browse_cmd():
     args = [es.getargv(x) for x in xrange(1, es.getargc())]
     if not len(args):
         xamodule.logging.log("Incorrect usage: xa_browse <url>")
@@ -33,7 +33,7 @@ def brows_cmd():
     if not url.startswith('http://'):
         url = 'http://'+url
     xamodule.logging.log("Opening url: %s" % url)
-    usermsg.motd(users, 2, "XA Browse", url)
+    usermsg.motd(es.getcmduserid(), 2, "XA Browse", url)
     
     
     
