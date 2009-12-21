@@ -302,7 +302,10 @@ class Player(object):
         raise KeyError, "Item %s cannot be found in the player container" % item
         
     def __setitem__(self, item, value):
-        xastats.logging.log("Player %s has had their stat %s change from %s to %s" % (self.name, item, self.__getitem__(item), value) )
+        if self.__contains__(item):
+            xastats.logging.log("Player %s has had their stat %s changed from %s to %s" % (self.name, item, self.__getitem__(item), value) )
+        else:
+            xastats.logging.log("Player %s has had their stat %s changed from <nothing> to %s" % (self.name, item, value) )
         self.currentAttributes[item] = value
         
     def __contains__(self, item):
