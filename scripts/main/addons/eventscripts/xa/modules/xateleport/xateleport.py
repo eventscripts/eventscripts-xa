@@ -57,6 +57,7 @@ def sendFirstPlayer(userid, choice, popupid):
         lang    = playerlib.getPlayer(userid).get("lang")
         saveDatabase()
         es.tell(userid, "#green", xalanguage("location saved", {}, lang) )
+        xateleport.logging.log("Admin %s has updated their saved teleport location for map %s" % (es.getplayername(userid), str(es.ServerVar('eventscripts_currentmap')) ) )
     elif 4 > choice > 1:
         lang = playerlib.getPlayer(userid).get("lang")
         popupMenu = popuplib.easymenu("xa_teleport_players", "_popup_choice", sendSecondMenu)
@@ -88,6 +89,7 @@ def sendSecondMenu(userid, choice, popupid):
             args["admin"]  = es.getplayername(userid)
             for player in playerlib.getPlayerList("#all"):
                 es.tell(int(player), xalanguage("teleport to location", args, player.get("lang") ) )
+        xateleport.logging.log("Admin %s has teleported player %s to their saved location" % (es.getplayername(userid), es.getplayername(target) ) )
     else:
         lang = playerlib.getPlayer(userid).get("lang")
         popupMenu = popuplib.easymenu("xa_teleport_players", "_popup_choice", teleportPlayerToPlayer)
@@ -104,8 +106,7 @@ def teleportPlayerToPlayer(userid, choice, popupid):
         
     if not es.exists('userid', target) or not es.exists('userid', recipient):
         """ One of the player's doesn't exists... Return early and break the function """
-        return
-        
+        return    
     x, y, z = es.getplayerlocation(recipient)
     z += 100
     es.server.queuecmd('es_xsetpos %s %s %s %s' % (target, x, y, z) )
@@ -116,3 +117,4 @@ def teleportPlayerToPlayer(userid, choice, popupid):
         args["recipient"] = es.getplayername(recipient) 
         for player in playerlib.getPlayerList("#all"):
             es.tell(int(player), xalanguage("player sent to player", args, player.get("lang") ) )
+    xateleport.logging.log("Admin %s has teleported player %s to player %s" % (es.getplayername(userid), es.getplayername(target), es.getplayername(recipient) ) )

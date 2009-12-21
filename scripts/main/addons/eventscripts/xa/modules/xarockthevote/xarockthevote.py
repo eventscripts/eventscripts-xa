@@ -126,7 +126,7 @@ def nomination_result(userid, choice, popupname):
         players[steamid][1] = True
         if choice not in nominations:
             nominations.append(choice)
-            
+        xartv.logging.log("User %s has nominated map %s for Rock The Vote" % (es.getplayername(userid), choice ) )            
         tokens = {}
         tokens['player']  = es.getplayername(userid)
         tokens['mapname'] = choice 
@@ -148,7 +148,8 @@ def rtv():
         if (time.time() - map_start_time) < float(vote_req_time):
             tokens = {}
             tokens['time'] = int(float(vote_req_time) - int( time.time() - map_start_time ) ) 
-            es.tell(userid, '#multi', lang('map_time', tokens, playerlib.getPlayer(userid).get('lang') ) ) 
+            es.tell(userid, '#multi', lang('map_time', tokens, playerlib.getPlayer(userid).get('lang') ) )
+            xartv.logging.log("User %s has been denied the right to RTV as not enough time in the map has passed" % es.getplayername(userid) ) 
         else: 
             if allowVoting:
                 players[steamid][0] = True
@@ -161,15 +162,18 @@ def rtv():
                         es.tell(user, '#multi', lang('player_started', tokens, playerlib.getPlayer(user).get('lang') ) ) 
                         popuplib.unsend("nomination_menu", user)
                 votes_in += 1
+                xartv.logging.log("User %s has rocked the vote, %s votes in" % ( es.getplayername(userid), votes_in) )
                 
                 if votes_in >= int(vote_req_min): 
-                    if votes_in >= vote_req_total: 
+                    if votes_in >= vote_req_total:
+                        xartv.logging.log("Rock the vote has passed, starting the vote") 
                         rtv_init() 
                     else: 
                         name   = es.getplayername(userid)
                         tokens = {}
                         tokens['player'] = name
-                        tokens['votes']  = vote_req_total - votes_in 
+                        tokens['votes']  = vote_req_total - votes_in
+                        xartv.logging.log("%s votes still needed to rock the vote" % (vote_req_total - votes_in) ) 
                         for user in es.getUseridList():
                             es.tell(user, '#multi', lang('req', tokens ,playerlib.getPlayer(user).get('lang') ) ) 
                 else: 
@@ -181,7 +185,8 @@ def rtv():
                         es.tell(user, '#multi', lang('req', tokens, playerlib.getPlayer(user).get('lang') ) ) 
             else: 
                 es.tell(userid, '#multi', lang('started', lang=playerlib.getPlayer(userid).get('lang') ) ) 
-    else: 
+    else:
+        xartv.logging.log("User %s has attempted to RTV more than once" % es.getplayername(userid) ) 
         es.tell(userid, '#multi', lang('1vote', lang=playerlib.getPlayer(userid).get('lang') ) ) 
 
 ############################
@@ -223,7 +228,7 @@ def rtv_init():
 
 def vote_win(args):
     """ Called when a winner has been chosen. """
-    xartv.logging.log('Changing map to %s...' % args['winner']) 
+    xartv.logging.log('Rock the vote has won, changing map to %s...' % args['winner']) 
     players.clear()
     winner = args['winner']
     es.set('eventscripts_nextmapoverride', winner)

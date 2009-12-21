@@ -110,6 +110,7 @@ def _play_sound(soundfile, soundname, userid):
         for userid in useridlist_sound:
             if int(xaplayerdata_sounds.get(userid)) == 1:
                 es.playsound(userid, soundfile, 1.0)
+        xasounds.logging.log("Player %s played sound %s" % (es.getplayername(userid), soundname ) )
         for userid in useridlist_sound:
             if int(xaplayerdata_sounds.get(userid)) == 1:
                 player = playerlib.getPlayer(userid)

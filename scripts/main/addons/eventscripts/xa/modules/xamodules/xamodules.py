@@ -71,10 +71,13 @@ def xamodulesmenu_handler(userid,choice,popupid):
         gMenus['reload'][userid].send(userid)
 
 def xaloadmodule_handler(userid,choice,popupid):
+    xamodules.logging.log("Admin %s has loaded modules %s" % (es.getplayername(userid), choice) )
     xa.xa_load(choice)
 
 def xaunloadmodule_handler(userid,choice,popupid):
+    xamodules.logging.log("Admin %s has unloaded modules %s" % (es.getplayername(userid), choice) )
     xa.xa_unload(choice)
 
 def xareloadmodule_handler(userid,choice,popupid):
+    xamodules.logging.log("Admin %s has reloaded modules %s" % (es.getplayername(userid), choice) )
     xa.xa_reload(choice)

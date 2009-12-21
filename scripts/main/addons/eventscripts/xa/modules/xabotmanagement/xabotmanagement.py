@@ -189,6 +189,7 @@ Adds a bot with team auto-assign
     es.server.queuecmd('bot_add')
     if old != 'ANY':
         cvar.set(old)
+    xabotmanagement.logging.log("Admin %s added a bot with auto-assignment" % es.getplayername(userid))
     return True
 
 def _action_add_2(userid, popupid):
@@ -196,6 +197,7 @@ def _action_add_2(userid, popupid):
 Adds a bot to team 2
     '''
     es.server.queuecmd('bot_add_t')
+    xabotmanagement.logging.log("Admin %s added a bot to terrorist team" % es.getplayername(userid))
     return True
 
 def _action_add_3(userid, popupid):
@@ -203,6 +205,7 @@ def _action_add_3(userid, popupid):
 Adds a bot to team 3
     '''
     es.server.queuecmd('bot_add_ct')
+    xabotmanagement.logging.log("Admin %s added a bot to counter-terrorist team" % es.getplayername(userid))
     return True
 
 def _action_kick_all(userid, popupid):
@@ -210,6 +213,7 @@ def _action_kick_all(userid, popupid):
 Kicks all bots
     '''
     es.server.queuecmd('bot_kick')
+    xabotmanagement.logging.log("Admin %s kicked all bots" % es.getplayername(userid))
     return True
 
 def _action_remove(userid, popupid):
@@ -241,6 +245,7 @@ Removes one bot, trying to conserve team balance
         if currentbot:
             # we found at least one bot...
             es.server.queuecmd('bot_kick '+currentbot.get('name'))
+            xabotmanagement.logging.log("Admin %s kicked bot %s" % (es.getplayername(userid), currentbot.get('name') ) )
             return True
     # TODO: Insert a message here telling that no bots on server
     # message string: remove_no_bots
@@ -252,6 +257,7 @@ def _action_kill_all(userid, popupid):
 Kills all bots
     '''
     es.server.queuecmd('bot_kill')
+    xabotmanagement.logging.log("Admin %s killed all bots" % es.getplayername(userid))
     return False
 
 def _action_difficulty_down(userid, popupid):
@@ -261,6 +267,7 @@ Makes bots easier
     cvar = es.ServerVar('bot_difficulty')
     if int(cvar) > 0:
         cvar.set(int(cvar)-1)
+    xabotmanagement.logging.log("Admin %s decreased bot difficulty" % es.getplayername(userid))
     return True
 
 def _action_difficulty_up(userid, popupid):
@@ -270,4 +277,5 @@ Makes bots harder
     cvar = es.ServerVar('bot_difficulty')
     if int(cvar) < 3:
         cvar.set(int(cvar)+1)
+    xabotmanagement.logging.log("Admin %s increased bot difficulty" % es.getplayername(userid))
     return True

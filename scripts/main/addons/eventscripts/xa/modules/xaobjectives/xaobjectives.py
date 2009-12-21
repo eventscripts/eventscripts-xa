@@ -25,6 +25,7 @@ def unload():
 def round_end(eventVar):
     if int(slay):
         if eventVar["winner"] == "2" and es.getlivingplayercount(3):
+            xaobjectives.logging.log("Counter-Terrorists slayed for failing to meet their objectives")
             cts, ts = getPlayerList("#ct"), getPlayerList("#t")
             for i in cts:
                 i.kill()
@@ -32,6 +33,7 @@ def round_end(eventVar):
             for i in ts:
                 es.tell(int(i), "#multi", text("won"))
         elif eventVar["winner"] == "3" and es.getlivingplayercount(2):
+            xaobjectives.logging.log("Terrorists slayed for failing to meet their objectives")
             ts, cts = getPlayerList("#t"), getPlayerList("#ct")
             for i in ts:
                 i.kill()

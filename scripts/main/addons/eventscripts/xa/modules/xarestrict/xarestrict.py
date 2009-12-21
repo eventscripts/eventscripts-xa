@@ -80,10 +80,12 @@ class RestrictedTeam:
 
       for userid in filter(lambda x: es.getplayerteam(x) == self.teamnum if not es.getplayerprop(x, 'CBasePlayer.pl.deadflag') else False, es.getUseridList()):
          getPlayer(userid).removeWeapon(weapon)
+      xarestrict.logging.log("Weapon %s has been restricted for team %s" % (weapon, self.teamnum) )
 
    def removeRestriction(self, weapon):
       """Removes the weapon from the set of restricted weapons"""
       self.restrictions = self.restrictions.difference((weapon.replace('weapon_', ''),))
+      xarestrict.logging.log("Weapon %s has been unrestricted for team %s" % (weapon, self.teamnum) )
 
    def isRestricted(self, weapon):
       """Returns True if the weapon is restricted otherwise returns False"""
@@ -139,6 +141,7 @@ class RestrictedPlayer:
       self.restrictions.add(weapon)
 
       self.removeWeapon(weapon)
+      xarestrict.logging.log("Weapon %s has been restricted for user %s" % (weapon, es.getplayername(self.userid) ) )
 
    def removeRestriction(self, weapon):
       """
@@ -148,6 +151,7 @@ class RestrictedPlayer:
       if weapon not in self.restrictions: return
 
       self.restrictions.remove(weapon)
+      xarestrict.logging.log("Weapon %s has been unrestricted for user %s" % (weapon, es.getplayername(self.userid) ) )
 
    def isRestricted(self, weapon):
       """Returns True if the weapon is restricted otherwise returns False"""
@@ -168,7 +172,7 @@ class RestrictedPlayer:
       Announces the restricted pickup
       """
       longname = 'weapon_' + weapon
-
+      xarestrict.logging.log("Weapon %s has been removed from user %s" % (weapon, es.getplayername(self.userid) ) )
       if es.createplayerlist(self.userid)[self.userid]['weapon'] == longname:
          es.cexec(self.userid, 'lastinv')
 
@@ -418,6 +422,7 @@ def _buy_restrict(userid, args):
       player = getPlayer(userid)
       weapon = args[1].lower().replace('weapon_', '')
       if player.isRestricted(weapon):
+         xarestrict.logging.log("Player %s has been denied the right to buy weapon %s due to restrictions" % (es.getplayername(userid), weapon ) )
          player.announceRestrictedPickup(weapon)
          return False
 

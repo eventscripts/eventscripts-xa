@@ -144,6 +144,7 @@ class Player:
                         popupid.addline('->%s. %s'%(y,xalang(z,self.lang)))
                     types[y]['popup'].submenu(x,popupid)
             main_popup.send(self.userid)
+        xavictimstats.logging.log("xavictimstats data sent to player %s" % es.getplayername(self.userid) )
     
     def createdata(self, type, statsPlayers):
         self.Data[type] = []

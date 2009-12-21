@@ -198,32 +198,44 @@ def _changesetting_select(userid,choice,popupid):
         if menu._xatype == 'int':
             value = int(variable)
             if int(choice) == 3:
+                xaconfig.logging.log("Admin %s just changed config %s from %s to %s" % (es.getplayername(userid), variable.getName(), value, value + 1) )
                 variable.set(value+1)
             elif int(choice) == 4:
-                variable.set(value-1)
+                xaconfig.logging.log("Admin %s just changed config %s from %s to %s" % (es.getplayername(userid), variable.getName(), value, value - 1) )
+                variable.set(value-1)                
             elif int(choice) == 5:
+                xaconfig.logging.log("Admin %s just changed config %s from %s to %s" % (es.getplayername(userid), variable.getName(), value, value + 10) )
                 variable.set(value+10)
             elif int(choice) == 6:
+                xaconfig.logging.log("Admin %s just changed config %s from %s to %s" % (es.getplayername(userid), variable.getName(), value, value - 10) )
                 variable.set(value-10)
             elif int(choice) == 7:
+                xaconfig.logging.log("Admin %s just changed config %s from %s to %s" % (es.getplayername(userid), variable.getName(), value, value + 100) )
                 variable.set(value+100)
             elif int(choice) == 8:
+                xaconfig.logging.log("Admin %s just changed config %s from %s to %s" % (es.getplayername(userid), variable.getName(), value, value - 100) )
                 variable.set(value-100)
             menu = _variableEditMenu(userid, module, variable, parent)
             menu.send(userid)
         elif menu._xatype == 'float':
             value = float(variable)
             if int(choice) == 3:
+                xaconfig.logging.log("Admin %s just changed config %s from %s to %s" % (es.getplayername(userid), variable.getName(), value, value + 0.1) )
                 variable.set(value+0.1)
             elif int(choice) == 4:
+                xaconfig.logging.log("Admin %s just changed config %s from %s to %s" % (es.getplayername(userid), variable.getName(), value, value - 0.1) )
                 variable.set(value-0.1)
             elif int(choice) == 5:
+                xaconfig.logging.log("Admin %s just changed config %s from %s to %s" % (es.getplayername(userid), variable.getName(), value, value + 1.0) )
                 variable.set(value+1.0)
             elif int(choice) == 6:
+                xaconfig.logging.log("Admin %s just changed config %s from %s to %s" % (es.getplayername(userid), variable.getName(), value, value - 1.0) )
                 variable.set(value-1.0)
             elif int(choice) == 7:
+                xaconfig.logging.log("Admin %s just changed config %s from %s to %s" % (es.getplayername(userid), variable.getName(), value, value + 10.0) )
                 variable.set(value+10.0)
             elif int(choice) == 8:
+                xaconfig.logging.log("Admin %s just changed config %s from %s to %s" % (es.getplayername(userid), variable.getName(), value, value - 10.0) )
                 variable.set(value-10.0)
             menu = _variableEditMenu(userid, module, variable, parent)
             menu.send(userid)
@@ -262,6 +274,7 @@ def _inputbox_handle():
                 if module and varname in module.variables:
                     var = module.variables[varname]
                     i = 4
+                    oldval = str(var)
                     newvalue = ''
                     while i < count:
                         newvalue = newvalue+' '+es.getargv(i)
@@ -271,5 +284,6 @@ def _inputbox_handle():
                     es.esctextbox(10, userid, "Changed '"+str(varname)+"' setting", "Changed '%s' to '%s'\nThe variable menu is open again.\nPress [ESC] a second time." %(varname,newvalue))
                     menu = _variableEditMenu(userid, module, var, parent)
                     menu.send(userid)
+                    xaconfig.logging.log("Admin %s just change config %s from %s to %s" % (es.getplayername(userid), varname, oldval, newvalue) )
     else:
         es.esctextbox(10, userid, "Invalid Entry", "<value>")
