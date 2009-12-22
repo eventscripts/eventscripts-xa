@@ -1,5 +1,5 @@
 from django.conf.urls.defaults import *
-from xa.groupauth.views import *
+from views import *
 
 urlpatterns = patterns('',
     (r'^$', overview),
