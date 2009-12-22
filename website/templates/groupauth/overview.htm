@@ -1,0 +1,19 @@
+{% extends "base.htm" %}
+
+{% block content %}
+<div class="item">
+  <h1>Your Configs</h1>
+  <ul>
+  {% if user.is_authenticated %}
+  {% for config in user.configs.all %}
+  <li><a href="{% url gauth:config config.id %}">{{ config.name }}</a></li>
+  {% empty %}
+  <li>You don't have any configs yet</li>
+  {% endfor %}
+  {% else %}
+  <li>You need to log in to see your configs.</li>
+  {% endif %}
+  </ul>
+  <a href="{% url gauth:new %}">Create new Config</a>
+</div>
+{% endblock %}

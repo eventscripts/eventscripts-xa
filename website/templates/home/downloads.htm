@@ -1,0 +1,11 @@
+{% extends "base.htm" %}
+{% load bbcode %}
+
+{% block content %}
+<div class="item">
+  <h1>Latest Version</h1>
+  <div class="descr">Version {{ release.version }} released on {{ release.releasedate|date:"D, j M Y P" }} </div>
+  {% bbcode release.info %}
+  <div class="descr"><a href="{{ release.file.url }}">Download</a></div>
+</div>
+{% endblock %}
