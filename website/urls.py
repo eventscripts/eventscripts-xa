@@ -19,10 +19,6 @@ urlpatterns = patterns('',
     url(r'^download/(?P<version>[^/]+)/?$', 'xa.home.views.download', name='download-old'),
     url(r'^releases/?$', 'xa.home.views.releases', name='release-list'),
     #===========================================================================
-    # Custom modules
-    #===========================================================================
-    (r'^custom/', include('xa.custom.urls', namespace='custom')),
-    #===========================================================================
     # API
     #===========================================================================
     (r'^api/', include('xa.api.urls', namespace='api')),
