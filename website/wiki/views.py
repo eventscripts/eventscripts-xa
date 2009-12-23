@@ -11,8 +11,8 @@ def category(request, name):
 
 @render_to
 def page(request, category_name, name):
-    return 'wiki/page.htm', {'page': Page.objects.get_or_404(name=name, category__name=category_name)}
+    return 'wiki/page.htm', {'page': Page.objects.get_or_404(name=name, categories__name=category_name)}
 
 @render_to
 def edit_page(request, category_name, name):
-    return 'wiki/edit.htm', {'page': Page.objects.get_or_404(name=name, category__name=category_name)}
+    return 'wiki/edit.htm', {'page': Page.objects.get_or_404(name=name, categories__name=category_name)}

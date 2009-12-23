@@ -5,7 +5,7 @@
 {% for item in news %}
 <div class="item">
   <h1>{{ item.title }}</h1>
-  <div class="descr">{{ item.post_date|date:"D, j M Y P" }} by {{ item.author.username }}</div>
+  <div class="descr">{{ item.postdate|date:"D, j M Y P" }} by {{ item.author.username }}</div>
   {% bbcode item.content %}
 </div>
 {% endfor %}

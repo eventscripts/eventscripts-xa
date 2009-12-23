@@ -13,11 +13,11 @@ class News(models.Model):
     author      = models.ForeignKey('auth.User', related_name='news')
     title       = models.CharField(max_length=255)
     content     = fields.BBCodeTextField()
-    post_date   = models.DateTimeField(auto_now_add=True)
+    postdate    = models.DateTimeField(auto_now_add=True)
     
     class Meta:
-        ordering = ['-post_date']
-        get_latest_by = 'post_date'
+        ordering = ['-postdate']
+        get_latest_by = 'postdate'
     
     def __unicode__(self):
         return self.title
@@ -33,8 +33,8 @@ class Release(models.Model):
     objects = BaseManager()
     
     class Meta:
-        ordering = ['-post_date']
-        get_latest_by = 'post_date'
+        ordering = ['-releasedate']
+        get_latest_by = 'releasedate'
     
     def __unicode__(self):
         return self.version

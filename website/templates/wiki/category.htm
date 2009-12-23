@@ -5,7 +5,7 @@
   <h1>{{ category.name }}</h1>
   <ul>
   {% for page in category.pages.all %}
-    <li><a href="{% url page name=page.name %}">{{ page.name }}</a></li>
+    <li><a href="{% url wiki:page name=page.name category_name=category.name %}">{{ page.name }}</a></li>
   {% endfor %}
   </ul>
 </div>
