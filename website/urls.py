@@ -3,6 +3,34 @@ from django.conf.urls.defaults import *
 from django.contrib import admin
 admin.autodiscover()
 
+password_patterns = patterns('',
+    url(r'^change/$',
+        'django.contrib.auth.views.password_change',
+       {'template_name': 'password/change.htm'},
+        name='auth_password_change'),
+    url(r'^change/done/?$',
+        'django.contrib.auth.views.password_change_done',
+       {'template_name': 'password/change_done.htm'},
+        name='auth_password_change_done'),
+    url(r'^reset/?$',
+        'django.contrib.auth.views.password_reset',
+       {'template_name': 'password/reset.htm',
+        'email_template_name': 'email/passwordresetter.email'},
+        name='auth_password_reset'),
+    url(r'^reset/confirm/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/?$',
+        'django.contrib.auth.views.password_reset_confirm',
+       {'template_name': 'password/reset_confirm.htm'},
+        name='auth_password_reset_confirm'),
+    url(r'^reset/complete/?$',
+        'django.contrib.auth.views.password_reset_complete',
+       {'template_name': 'password/reset_complete.htm'},
+        name='auth_password_reset_complete'),
+    url(r'^reset/done/?$',
+        'django.contrib.auth.views.password_reset_done',
+       {'template_name': 'password/reset_done.htm'},
+        name='auth_password_reset_done'),
+)
+
 urlpatterns = patterns('',
     #===========================================================================
     # Admin
@@ -38,6 +66,10 @@ urlpatterns = patterns('',
     url(r'^logout/?$', 'django.contrib.auth.views.logout',
         {'template_name': 'home/home.htm', 'next_page': '/'}, name='auth_logout'),
     #===========================================================================
+    # Profile
+    #===========================================================================
+    (r'profile/', include('xa.profile.urls', namespace='profile')),
+    #===========================================================================
     # django-registration
     #===========================================================================
     # Registration
@@ -53,30 +85,8 @@ urlpatterns = patterns('',
        'django.views.generic.simple.direct_to_template',
         {'template': 'register/complete.htm'},
         name='registration_complete'),
+    #===========================================================================
     # Password
-    url(r'^password/change/$',
-        'django.contrib.auth.views.password_change',
-       {'template_name': 'password/change/change.htm'},
-        name='auth_password_change'),
-    url(r'^password/change/done/?$',
-        'django.contrib.auth.views.password_change_done',
-       {'template_name': 'password/change/done.htm'},
-        name='auth_password_change_done'),
-    url(r'^password/reset/?$',
-        'django.contrib.auth.views.password_reset',
-       {'template_name': 'password/reset/reset.htm',
-        'email_template_name': 'email/passwordresetter.email'},
-        name='auth_password_reset'),
-    url(r'^password/reset/confirm/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/?$',
-        'django.contrib.auth.views.password_reset_confirm',
-       {'template_name': 'password/reset/confirm.htm'},
-        name='auth_password_reset_confirm'),
-    url(r'^password/reset/complete/?$',
-        'django.contrib.auth.views.password_reset_complete',
-       {'template_name': 'password/reset/complete.htm'},
-        name='auth_password_reset_complete'),
-    url(r'^password/reset/done/?$',
-        'django.contrib.auth.views.password_reset_done',
-       {'template_name': 'password/reset/done.htm'},
-        name='auth_password_reset_done'),
+    #===========================================================================
+    (r'^password/', include(password_patterns)),
 )

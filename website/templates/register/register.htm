@@ -1,7 +1,9 @@
 {% extends "base.htm" %}
 
-{% block site %}
-
+{% block content %}
+{% if user.is_authenticated %}
+You already have an account, after all you're logged in right now!
+{% else %}
 {% if regform.errors %}
 <ul class="error">
     <li class="title">The following Errors have occured.</li>
@@ -12,32 +14,32 @@
 </ul>
 {% endif %}
 
-<p>{% trans "Please note that you will need to enter a valid e-mail address before your account is activated. You will receive an e-mail at the address you provide that contains an account activation link." %}</p>
+<p>Please note that you will need to enter a valid e-mail address before your account is activated. You will receive an e-mail at the address you provide that contains an account activation link.</p>
 
 <form method="post" action="/register/" class="frm default">
     <fieldset class="align-horizontal">
         <ol>
             <li>
-                <label for="id_username">{% trans "Username" %}:</label>
+                <label for="id_username">Username:</label>
                 <div><input id="id_username" class="input_text{% if regform.username.errors %} error{% endif %}" type="text" name="username" value="{{ request.POST.username }}" maxlength="30" /></div>
             </li>
             <li>
-                <label for="id_password1"><br />{% trans "Password" %}:</label>
+                <label for="id_password1"><br />Password:</label>
                 <div>
-                    <span class="info">{% trans "Must be between 6 and 20 characters." %}</span>
+                    <span class="info">Must be between 6 and 20 characters.</span>
                     <input id="id_password1" type="password" class="input_text{% if regform.password1.errors %} error{% endif %}" name="password1" />
                     <input id="id_password2" type="password" class="input_text{% if regform.password2.errors %} error{% endif %}" name="password2" /> <small>&laquo; confirm</small>
                 </div>
             </li>
             <li class="email-c">
-                <label for="id_email">{% trans "E-Mail: (<strong>Please do not fill in anything here!</strong>)" %}</label>
+                <label for="id_email">E-Mail: (<strong>Please do not fill in anything here!</strong>)</label>
                 <div>
-                    <span class="info">{% trans "Please enter a valid e-mail address." %}</span>
+                    <span class="info">Please enter a valid e-mail address.</span>
                     <input id="id_email" type="text" class="input_text" name="email" maxlength="75" />
                 </div>
             </li>
             <li>
-                <label for="id_email1">{% trans "E-Mail Address" %}:</label>
+                <label for="id_email1">E-Mail Address:</label>
                 <div>
                     <input id="id_email1" type="text" class="input_text{% if regform.email1.errors %} error{% endif %}" name="email1" value="{{ request.POST.email1 }}" maxlength="75" />
                     <input id="id_email2" type="text" class="input_text{% if regform.email2.errors %} error{% endif %}" name="email2" value="{{ request.POST.email2 }}" maxlength="75" /> <small>&laquo; confirm</small>
@@ -47,26 +49,18 @@
                 <label>Site Rules</label>
                 <div>
                     <div class="rules">
-                        <p><strong>{% trans "Terms and Conditions" %}</strong></p>
-                        <p>{% blocktrans %}By accessing "<strong>SquareJunkies.com</strong>", you agree to be legally bound by the following terms. If you do not agree to be legally bound by all of the following terms then please do not access and/or use "SquareJunkies.com". We may change these at any time and we'll do our utmost in informing you, though it would be prudent to review this regularly yourself as your continued usage of "SquareJunkies.com" after changes mean you agree to be legally bound by these terms as they are updated and/or amended.{% endblocktrans %}</p>
-                        <p>{% blocktrans %}You agree not to post any abusive, obscene, vulgar, slanderous, hateful, threatening, sexually-orientated or any other material that may violate any laws be it of your country, the country where "SquareJunkies.com" is hosted or International Law. Doing so may lead to you being immediately and permanently banned, with notification of your Internet Service Provider if deemed required by us. The IP address of all posts are recorded to aid in enforcing these conditions. You agree that "SquareJunkies.com" have the right to remove, edit, move, close or put on moderation queue any topic at any time should we see fit based on the site wide rules as well as forum specific rules (published within the specific forums). You are also advised to read the <a href="/impressum/">forum rules</a>.{% endblocktrans %}</p>
-                        <p>{% blocktrans %}As a user you agree to any information you have entered to being stored in a database. While this information will not be disclosed to any third party without your consent, "SquareJunkies.com" is not held to be responsible for any hacking attempt that may lead to the data being compromised.{% endblocktrans %}</p>
+                        <p><strong>Terms and Conditions</strong></p>
+                        <p>Site Rules HERE</p>
                     </div>
-                    <input type="checkbox" class="input_check {% if regform.email1.toscheck %} error{% endif %}" name="toscheck"{% if request.POST.toscheck %} checked="checked"{% endif %} /> <small>{% trans "I agree to these terms" %}</small>
+                    <input type="checkbox" class="input_check {% if regform.email1.toscheck %} error{% endif %}" name="toscheck"{% if request.POST.toscheck %} checked="checked"{% endif %} /> <small>I agree to these terms</small>
                 </div>
             </li>
             <li>
                 <label>&nbsp;</label>
-                <div><span class="btn"><input type="submit" value="{% trans "Register" %}" /></span></div>
+                <div><span class="btn"><input type="submit" value="Register" /></span></div>
             </li>
         </ol>
     </fieldset>
 </form>
-
-<!--
-<p>&nbsp;</p>
-
-<h1>Connect with Facebook</h1>
-Disabled-->
-
+{% endif %}
 {% endblock %}

@@ -5,7 +5,7 @@
 {% if account %}
     <h1>Registration - Complete</h1>
     <p>You have successfully registered on our site.</p>
-    <p>&raquo; <a href="{% url edit-profile %}">Now visit your profile</a></p>
+    <p>&raquo; <a href="{% url profile:edit %}">Now visit your profile</a></p>
 {% else %}
     <h1>Registration - Error</h1>
     <p>Your account has already been activated.</p>

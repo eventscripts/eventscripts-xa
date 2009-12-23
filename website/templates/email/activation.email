@@ -1,0 +1,9 @@
+llo {{ username }},
+
+Link to your activation: http://dev.xa.ojii.ch/register/activate/{{ activation_key }}/"
+
+your activation key: {{ activation_key }}
+
+more infos:
+time to activate: {{ expiration_days }} days
+your email: {{ email }}
