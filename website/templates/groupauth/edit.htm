@@ -1,0 +1,43 @@
+{% extends "base.htm" %}
+{% load gauth %}
+
+{% block content %}
+<form action="." method="post">
+<div class="item" id="config">
+  <h1>Config</h1>
+  {% if config %}
+    <input type="text" id="cfgname" name="cfgname" value="{{ config.name }}" disabled="disabled" />
+  {% else %}
+    <input type="text" name="cfgname" id="cfgname" value="Config Name" />
+  {% endif %}
+</div>
+<div class="item" id="players_div">
+  <h1>Players</h1>
+  <ul id='players'>
+    <li id="player_adder">
+      <input type="text" id="new_player_name" value="Name" />
+      <input type="text" id="new_player_steamid" value="STEAM_1:2:3457890" />
+      <input type="button" id="new_player_button" value="Add Player" />
+      <span id="steamid_error" class="hidden error">Invalid Steamid</span>
+    </li>
+  </ul>
+</div>
+<div class="item" id="custom_flags">
+  <h1>Custom Flags</h1>
+  <input type="text" value="" name="custom_flag_field" id="custom_flag_field" /><input type="button" id="custom_flag_button" value="Add Custom Flag" />
+</div>
+<div class="item" id="groups">
+  <h1>Groups</h1>
+    <input type="text" id="new_group_name" value="GroupName" />
+    <input type="button" id="new_group_button" value="Add Group" />
+    <span id="group_error" class="hidden error">Invalid Group Name. Only letters, numbers, underscores and dashes are allowed.</span>
+</div>
+<div class="item" id="lastdiv">
+  <div id="hiddendiv">
+    <input type="hidden" name="groups" id="groups_field" value="" />
+  </div>
+  <input type="submit" id="save" value="Save" />
+</div>
+</form>
+{% endblock %}
+{% block javascript %}<script type="text/javascript">var gauth_flags={{ user|js_get_powers|safe }};var gauth_players={{ user|js_get_players|safe }};var gauth_groups={% if config %}{{ config|js_get_groups|safe }}{% else %}[]{% endif %};$(document).ready(function(){gauth_load();});</script>{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.htm" %}
+{% load bbcode %}
+
+{% block content %}
+<div class="item">
+  <h1>{{ page.name }}</h1>
+  {% bbcode page.content.content %}
+  <div class="descr">{% for category in page.categories.all %}{% if not forloop.first %},{% endif %}<a href="{% url wiki:category name=category.name %}">{{ category.name }}</a>{%endfor %}</div>
+</div>
+{% endblock %}

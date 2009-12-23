@@ -1,0 +1,12 @@
+{% extends "base.htm" %}
+
+{% block content %}
+<div class="item">
+  <h1>{{ category.name }}</h1>
+  <ul>
+  {% for page in category.pages.all %}
+    <li><a href="{% url wiki:page name=page.name category_name=category.name %}">{{ page.name }}</a></li>
+  {% endfor %}
+  </ul>
+</div>
+{% endblock %}

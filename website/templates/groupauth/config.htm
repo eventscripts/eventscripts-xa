@@ -1,0 +1,13 @@
+{% extends "base.htm" %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="/ss/pygments.css" />
+{% endblock %}
+
+{% block content %}
+<div class="item">
+  <h1>{{ config.name }}</h1>
+  <div class="descr"><a href="{% url gauth:download id=config.id %}">download</a> | <a href="{% url gauth:edit config=config.id %}">edit</a></div>
+  {{ config.render_nice|safe }}
+</div>
+{% endblock %}

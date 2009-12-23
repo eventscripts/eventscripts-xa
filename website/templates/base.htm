@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" dir="ltr"> 
+  <head> 
+    <title>XA dev - {{ title }}</title> 
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="/ss/style.css" />
+    {% block css %}
+    {% endblock %} 
+    <meta name="description" content="EventScripts Examples" /> 
+    <meta name="keywords" content="eventscripts, es, xa, python, extensible admin, admin, counter-strike source, css" /> 
+    <meta name="author" content="Jonas Obrist" />
+    <meta http-equiv="pragma" content="no-cache" /> 
+    <meta http-equiv="cache-control" content="no-cache" /> 
+  </head> 
+  <body> 
+  <div class="container">
+    <div class="main">
+      <div class="header">
+        <div class="title">
+          <h1>{{ bodytitle|default_if_none:"XA dev" }}</h1>
+        </div>
+      </div>
+      <div class="content">
+        {% block content %}
+        {% endblock %}
+      </div>
+      <div class="sidenav">
+        {% if user.is_authenticated %}
+        <h1>Welcome {{ user.username }}</h1>
+        <ul>
+          {% if user.is_superuser %}
+          <li><a href="/admin/">Admin Panel</a></li>
+          {% endif %}
+          <li><a href="/logout/">Logout</a></li>
+        </ul>
+        {% else %}
+        <h1>Login/Register</h1>
+        <ul>
+          <form method="post" action="/login/">
+            <li>
+              <label for="username">Username:</label>
+              <div><input type="text" name="username" class="input_text" id="username" /></div>
+            </li>
+            <li>
+              <label for="password">Password:</label>
+              <div><input type="password" name="password" class="input_text" id="password" /></div>
+            </li>
+            <li>
+              <div><input type="submit" value="Login" /></div>
+              <input type="hidden" name="next" value="/" />
+            </li>
+          </form>
+          <li><a href="/register/">Register</a></li>
+        </ul>
+        {% endif %}
+        <h1>Menu</h1>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="http://bitbucket.org/errant/eventscripts-xa/issues/">Bugs</a></li>
+          <li><a href="/download/">Download</a></li>
+          <li><a href="/docs/">Documentation</a></li>
+          <li><a href="/groupauth/">Group Auth</a></li>
+        </ul>
+      </div>
+      <div class="clearer"><span></span></div>
+    </div>
+    <div class="footer">&copy; 2009 Jonas Obrist. Template design by <a href="http://templates.arcsin.se">Arcsin</a>
+    </div>
+  </div>
+  <!-- Google Analytics Start -->
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-12137371-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+  <!-- Google Analytics End -->
+  <!-- JavaScript Libraries Start -->
+  {% for library in js_libraries %}
+    <script type="text/javascript" src="/js/{{ library }}.js"></script>
+  {% endfor %}
+  <!-- JavaScript Libraries End -->
+  <!-- JavaScript Code Start -->
+  {% block javascript %}
+  {% endblock %}
+  <!-- JavaScript Code End -->
+  </body>
+</html>

@@ -147,7 +147,9 @@ def _admin_say(userid, message, teamonly):
   else:
     xasay.logging.log("has said '%s' to the admins" % message, userid)
     for player in playerlib.getPlayerList('#admin_say'): 
-      es.tell(int(player), '#multi', xalanguage('to admins message', tokens, player.get("lang"))) 
+      es.tell(int(player), '#multi', xalanguage('to admins message', tokens, player.get("lang")))
+    # say to the user as well so they know it made it!
+    es.tell(userid, "#multi", text("to admins message", tokens))
   # kill the message
   return (0, "", 0)
 
