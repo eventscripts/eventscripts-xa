@@ -47,9 +47,9 @@ else:
     gimpphrases = xaextendedpunishments.configparser.getList('gimpphrase.txt')
 
 players    = {}
-muted      = {}
-
+  
 def load():
+    global mute
     xaextendedpunishments.addRequirement('xapunishments')
     # xaextendedpunishments.xapunishments.registerPunishment("punishment", xalanguage["punishment"], _callback_function) 
     xaextendedpunishments.xapunishments.registerPunishment("blind",      xalanguage["blind"]     , _blind      , 1) 
@@ -62,16 +62,21 @@ def load():
     xaextendedpunishments.xapunishments.registerPunishment("timebomb",   xalanguage["timebomb"]  , _time_bomb  , 1) 
     xaextendedpunishments.xapunishments.registerPunishment("firebomb",   xalanguage["firebomb"]  , _fire_bomb  , 1)
     xaextendedpunishments.xapunishments.registerPunishment("rocket",     xalanguage["rocket"]    , _rocket     , 1)
-    if int(xa_adminmute_on):
-        xaextendedpunishments.xapunishments.registerPunishment("mute",   xalanguage["mute"]      , _mute       , 1)
     gamethread.delayedname(1, 'blind_loop', _blind_loop)
+
+    mute = MuteManager()
+
+    # Add the notify flag to the Console Variable so server_cvar is executed
+    # upon alteration
+    gamethread.delayed(1, es.flags, ('add', 'notify' , 'xa_adminmute_enabled'))
+    gamethread.delayedname(1, 'load_mute', mute._checkMuteStatus)
     
     """ Make sure if XA is loaded late, add all players """
     for player in es.getUseridList():
-        player_activate({'userid' : player})
+        player_activate({'userid' : player, 'es_steamid' : es.getplayersteamid(player)})
         
-def player_activate(ev): 
-    userid = int(ev['userid']) 
+def player_activate(event_var): 
+    userid = int(event_var['userid']) 
     if userid in players: 
         del players[userid] 
     players[userid]                 = {} 
@@ -83,17 +88,21 @@ def player_activate(ev):
     players[userid]['timebombed']   = 0 
     players[userid]['beaconed']     = 0 
     players[userid]['noclipped']    = 0
-    gamethread.cancelDelayed('unmute_%s'%es.getplayersteamid(userid))
+    if mute.checkIfSteamidExists(event_var['es_steamid']):
+        mute.muted.add(event_var['userid'])
+        gamethread.cancelDelayed('unmute_%s' % event_var['es_steamid'])
 
-def player_disconnect(ev): 
-    userid = int(ev['userid']) 
+def player_disconnect(event_var): 
+    userid = int(event_var['userid']) 
     if userid in players: 
         del players[userid]
 
-    if userid in map(int, muted): 
-        gamethread.delayedname(int(xa_adminmute_deletetime), 'unmute_%s'%ev['networkid'], _unmute, ev['networkid'])
+    if userid in mute.muted:
+        mute.addSteamidToWaitingList(event_var['networkid']) 
+        gamethread.delayedname(int(xa_adminmute_deletetime), 'unmute_%s' % event_var['networkid'], mute.removeSteamidFromWaitingList, event_var['networkid'])
+        mute.muted.remove(userid)
 
-def round_end(ev): 
+def round_end(event_var): 
     for userid in es.getUseridList(): 
         if not es.getplayerprop(userid, 'CBasePlayer.pl.deadflag'):
             if not players.has_key(userid):
@@ -112,8 +121,8 @@ def round_end(ev):
             es.setplayerprop(userid, "CBaseEntity.movetype", 2)
             es.setplayerprop(userid, 'CBasePlayer.m_iDefaultFOV', 90)
 
-def player_death(ev): 
-    userid = int(ev['userid'])
+def player_death(event_var): 
+    userid = int(event_var['userid'])
     if not userid in players:
         players[userid] = {}
         players[userid]['gimped']   = 0 
@@ -130,6 +139,16 @@ def player_death(ev):
     gamethread.cancelDelayed('firebomb_%s'%userid) 
     es.setplayerprop(userid, "CBaseEntity.movetype", 2)
     es.setplayerprop(userid, 'CBasePlayer.m_iDefaultFOV', 90)
+
+def server_cvar(event_var):
+    """ Executed when a notified enabled cvar changes - check for enabling / disabling the mute """
+    for i in xrange(5):
+        print "server_cvar(%s)" % event_var['cvarname']
+    if event_var['cvarname'].replace('ma_', '').replace('xa_', '') == "adminmute_enabled":
+        if event_var['cvarvalue'] == '1':
+            mute.registerMute()
+        else:
+            mute.unregisterMute()
 
 def _blind(userid, adminid, args): 
     blind = players[userid]['blind'] 
@@ -438,33 +457,79 @@ def rocketEffectLoop(userid, time):
         es.server.queuecmd('es_xfire %s env_explosion explode' % userid)
         es.server.queuecmd('damage %s %s' % (userid, es.getplayerprop(userid, 'CBasePlayer.m_iHealth') ) )
         es.emitsound('player', userid, 'ambient/explosions/exp3.wav', '1.0', '0.4')
-            
-def _mute(userid, adminid, args):
-    steamid = es.getplayersteamid(userid)
-    if userid in muted:
-        del muted[userid]
-        status = 'unmuted'
-    else:
-        muted[userid] = steamid
-        status = 'muted'
-    if str(xa_adminmute_anonymous) == '0':
-        tokens = {}
-        tokens['admin']  = es.getplayername(adminid)
-        tokens['user']   = es.getplayername(userid)
-        for player in playerlib.getPlayerList('#human'):
-            tokens['state'] = xalanguage(status, lang=player.get("lang"))
-            es.tell(int(player), '#multi', xalanguage('admin state', tokens, player.get("lang")))
+
+class MuteManager(object):
+    """ Class instance to manage mute objects """
+    DISABLED     = 0
+    ENABLED      = 1
+    UNREGISTERED = 2
+    REGISTERED   = 4
     
-def _unmute(steamid):
-    tUserid = None
-    for userid in muted:
-        if muted[userid] == steamid:
-            tUserid = userid
-    if tUserid:
-        del muted[tUserid]
+    def __init__(self):
+        self.muted     = set()
+        self.steamids  = set()
+        self.currentStatus = self.DISABLED
+        self.tickStatus    = self.UNREGISTERED
         
-def tick():
-    for player in muted:
-        for listener in players:
-            es.voicechat('nolisten', listener, player)
-es.addons.registerTickListener(tick)
+    def __del__(self):
+        gamethread.cancelDelayed('load_mute')
+    
+    def registerMute(self):
+        if self.currentStatus == self.DISABLED:
+            xaextendedpunishments.xapunishments.registerPunishment("mute", xalanguage["mute"], self.mute, 1, True)
+            self.currentStatus = self.ENABLED
+            
+    def unregisterMute(self):
+        if self.currentStatus == self.ENABLED:
+            if self.tickStatus == self.REGISTERED:
+                es.addons.unregisterTickListener(self._tickListener)
+            xaextendedpunishments.xapunishments.unregisterPunishment("mute")
+            self.currentStatus = self.DISABLED
+            self.muted.clear()
+            for steamid in self.steamids:
+                gamethread.cancelDelayed('unmute_%s' % steamid)
+            self.steamids.clear()
+        
+    def _checkMuteStatus(self):
+        if int(xa_adminmute_on):
+            self.registerMute()
+             
+    def _tickListener(self):
+        for player in self.muted:
+            for listener in players:
+                es.voicechat('nolisten', listener, player)
+    
+    def mute(self, userid, adminid, args):
+        userid  = int(userid)
+        steamid = es.getplayersteamid(userid)
+        if userid in self.muted:
+            self.muted.remove(userid)
+            del self.steamids[userid]
+            status = 'unmuted'
+            if not bool(self.muted):
+                es.addons.unregisterTickListener(self._tickListener)
+                self.tickStatus = self.UNREGISTERED
+        else:
+            if not bool(self.muted):
+                es.addons.registerTickListener(self._tickListener)
+                self.tickStatus = self.REGISTERED
+            self.steamids[userid] = steamid
+            self.muted.add(userid)
+            status = 'muted'
+        if str(xa_adminmute_anonymous) == '0':
+            tokens = {}
+            tokens['admin']  = es.getplayername(adminid)
+            tokens['user']   = es.getplayername(userid)
+            for player in playerlib.getPlayerList('#human'):
+                tokens['state'] = xalanguage(status, lang=player.get("lang"))
+                es.tell(int(player), '#multi', xalanguage('admin state', tokens, player.get("lang")))
+    
+    def addSteamidToWaitingList(self, steamid):
+        self.steamids.add(steamid)
+    
+    def checkIfSteamidExists(self, steamid):
+        return bool(steamid in self.steamids)
+        
+    def removeSteamidFromWaitingList(self, steamid):
+        if self.checkIfSteamidExists(steamid):
+            self.steamids.remove(steamid)
