@@ -2,5 +2,16 @@
 {% load bbcode %}
 
 {% block content %}
-I hate forms!
+<div class="item">
+  <h1>{% if page %}Edit {{ page.name }}{% else %} Create {{ pagename }}{% endif %}</h1>
+  <form method="post" action=".">
+  <!-- What do we do with name? Do we allow that to be changed -->
+  <textarea name="content">
+    {{ page.content }}
+  </textarea>
+  <!-- JS this? -->
+  <input type="text" name="categories" value="{{ categories|join:"," }}{% if category_name %},{{ category_name }}{% endif %}" />
+  <input type="submit" value="Save" />
+  </form>
+</div>
 {% endblock %}
