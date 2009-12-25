@@ -22,6 +22,16 @@ class Command(object):
 #   MODULE API FUNCTIONS
 # ==============================================================================
 def createVariable(module, variable, defaultvalue=0, description=''):
+    """
+        Create a server variable
+        
+        module:         module name (usually automatically provided)
+        variable:       the name of the cvar
+        defaultvalue:   default value
+        description:    text description of the cvar
+        
+        return:         (bool) true (false if module does not exist)
+    """
     # Does the module exist?
     if xa.exists(module):
         # Find the module instance
@@ -44,6 +54,16 @@ def createVariable(module, variable, defaultvalue=0, description=''):
     return False
     
 def createCommandSpace(module, command, usage='', description=''):
+    """
+        Create a server command section in the cfg
+        
+        module:         module name (usually automatically provided)
+        command:        the command
+        usage:          usually a longer section of text describing usage
+        description:    text description of the command
+        
+        return:         (bool) true (false if module does not exist)
+    """
     # ensure the module exists
     if xa.exists(module):
         # Find the module instance
@@ -55,6 +75,14 @@ def createCommandSpace(module, command, usage='', description=''):
     return False
 
 def deleteVariable(module, variable):
+    """
+        Delete a variable
+        
+        module:         module name (usually automatically provided)
+        variable:       the name of the cvar to delete
+        
+        return:         (bool) true (false if variable/module does not exist)
+    """
     # Does the module exist?
     if xa.exists(module):
         # Find the module instance
@@ -70,8 +98,19 @@ def deleteVariable(module, variable):
             
             # Remove the variable from our module
             del module.variables[variable]
+            
+            return True
+    return False
 
 def getVariable(module, variable):
+    """
+        Retrieve a ServerVar reference to variable
+        
+        module:         module name (usually automatically provided)
+        variable:       the name of the cvar to retrieve
+        
+        return:         ServerVar instance (False if no variable or module)
+    """
     # Does the module exist?
     if xa.exists(module):
         # Find the module instance
@@ -84,11 +123,20 @@ def getVariable(module, variable):
         if variable in module.variables:
             # Return our existing variable instance
             return module.variables[variable]
-    
+
     # Fallback, couldn't find variable instance
     return False
 
 def getVariableName(module, variable):
+    """
+        Retrieve the name of a variable that XA registered (with the xa_ prefix)
+        
+        module:         module name (usually automatically provided)
+        variable:       the name of the cvar name to retrieve
+        
+        return:         str variable name
+    
+    """
     # xa_ prefix should not be used inside variable names
     if str(variable).startswith('xa_'):
         variable = str(variable)[3:]
@@ -102,6 +150,21 @@ def getVariableName(module, variable):
     return 'xa_%s' % variable
 
 def getVariables(module, submodule = None):
+    """
+        Retrieve a list of the variables registered to a module
+        
+        module:         module name (usually automatically provided)
+        submodule:      used to specify another module to retrieve variables from
+        
+        return:         list of ServerVar instances
+        
+        Because of how this is used you usually call:
+          <xa instance>.settings.getVariables()
+        to retrieve your own module's variables. And:
+          <xa instance>.settings.getVariables("othermodule")
+        to retrieve another modules variables.
+    
+    """
     # Return variable
     varlist = []
     
@@ -132,6 +195,14 @@ def getVariables(module, submodule = None):
     return varlist
 
 def writeConfiguration(module):
+    """
+        Uses Cfglib to write module configuration to disk
+        
+        module:         module name (usually automatically provided)
+        
+        return:         nothing
+        
+    """
     # Write our configuration to disk using cfglib
     config = cfglib.AddonCFG('%s/cfg/xamodules.cfg' % xa.gamedir())
     config.text('******************************')
@@ -176,6 +247,14 @@ def writeConfiguration(module):
     config.write()
 
 def executeConfiguration(module):
+    """
+        Uses Cfglib to execute a modules cfg file
+        
+        module:         module name (usually automatically provided)
+        
+        return:         nothing
+
+    """
     # Execute our configuration using cfglib
     config = cfglib.AddonCFG('%s/cfg/xamodules.cfg' % xa.gamedir())
     config.execute()
