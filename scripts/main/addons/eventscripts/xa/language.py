@@ -13,6 +13,12 @@ import xa
 #   HELPER CLASSES
 # ==============================================================================
 class LanguageDict(dict):
+    """
+        XA's Language class 
+        
+        One of these is created for each strings.ini entry
+
+    """
     # Class variables
     languages = langlib.getLanguages()
     abbreviations = map(langlib.getLangAbbreviation, languages)
@@ -145,10 +151,29 @@ class LanguageDict(dict):
 #   MODULE API FUNCTIONS
 # ==============================================================================
 def createLanguageString(module, text):
+    """
+        Create a language string
+        
+        (im not sure what this is for?)
+    """
     # Create a new pseudo dict from only one string
     return LanguageDict(text.lower(), text)
 
 def getLanguage(module, filename = None):
+    """
+        Retrieve a modules language file
+        
+        module:         module name (usually automatically provided)
+        filename:       optional filename (if different from the default strings.ini)
+        
+        return:         a dictionary style object containing language strings
+        
+        Handle's retrieving and accessing a modules strings.ini file
+        To use this you need to  create a strings.ini file inside your
+        module folder containing a VALID set of language strings.
+        
+        <xa instance>.language.getLanguage()
+    """
     # Create a new pseudo dict from a language INI file
     # Did we specify a custom filename?
     if filename:
