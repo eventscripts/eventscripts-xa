@@ -5,13 +5,13 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 
-@login_required
 @render_to
+@login_required
 def overview(request):
     return 'groupauth/overview.htm', {}
 
-@login_required
 @render_to
+@login_required
 def edit(request, config):
     if config:
         cfg = Config.objects.get_or_404(id=config, owner=request.user)
@@ -77,8 +77,8 @@ def save_edit(request, cfg):
             g.powers.add(f)
     return HttpResponseRedirect(reverse('gauth:config', kwargs={'id': cfg.id}))
 
-@login_required
 @render_to
+@login_required
 def config(request, id, msg=''):
     cfg = Config.objects.get_or_404(id=id, owner=request.user)
     return 'groupauth/config.htm', {'config': cfg}

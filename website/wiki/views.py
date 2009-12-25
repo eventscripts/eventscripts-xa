@@ -29,8 +29,8 @@ def page(request, category_name, name):
         return create_page(category_name, name)
     return 'wiki/page.htm', {'page': thispage}
 
-@login_required
 @render_to
+@login_required
 def edit_page(request, category_name, name):
     try:
         thispage = Page.objects.get(name=name, categories__name=category_name)
@@ -43,8 +43,8 @@ def edit_page(request, category_name, name):
 def bbhelp(request):
     return 'bbcode/help.htm', {}
 
-@login_required
 @render_to
+@login_required
 def create_page(request, category_name, name):
     if request.method == 'POST':
         return create_page_save(request, category_name, name)
@@ -52,7 +52,7 @@ def create_page(request, category_name, name):
         return create_page_form(request, category_name, name)
     
 def create_page_form(request, category_name, name):
-    form = WikiForm({'content': '', 'categories': '%s' % categoy_name})
+    form = WikiForm({'content': '', 'categories': '%s' % category_name})
     return 'wiki/edit.htm', {'form': form,
                              'page_name': name,
                              'available_categories': js_available_categories()}
