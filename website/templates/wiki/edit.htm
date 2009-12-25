@@ -16,9 +16,7 @@
     </ul>
     {% endif %}
     <p>
-      <textarea name="content">
-        {{ form.content.data }}
-      </textarea>
+      {{ form.content }}
     </p>
     <!-- JS this? -->
     {% if form.categories.errors %}
@@ -29,7 +27,7 @@
     </ul>
     {% endif %}
     <p>
-      <input type="text" name="categories" value="{{ form.categories.data }}" />
+      {{ form.categories }}
     </p>
     <p>
       <input type="submit" value="Save" />

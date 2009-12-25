@@ -36,6 +36,13 @@ class Page(models.Model):
     @property
     def content(self):
         return self.versions.all().order_by('-postdate')[0]
+
+    @property
+    def category_list(self):
+        return ','.join(map(lambda x: x[0], self.categories.all().values_list('name')))
+    
+    def update_content(self, author, content):
+        return Content.objects.create(author=author, page=self, content=content)
     
     
 class Content(models.Model):
