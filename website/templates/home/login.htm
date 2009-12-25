@@ -1,0 +1,23 @@
+{% extends "base.htm" %}
+
+{% block content %}
+<div class="item">
+  <h1>Please log in</h1>
+  <ul>
+    <form method="post" action="/login/">
+      <li>
+        <label for="username">Username:</label>
+        <div><input type="text" name="username" class="input_text" id="username" /></div>
+      </li>
+      <li>
+        <label for="password">Password:</label>
+        <div><input type="password" name="password" class="input_text" id="password" /></div>
+      </li>
+      <li>
+        <div><input type="submit" value="Login" /></div>
+        <input type="hidden" name="next" value="{{ next }}" />
+      </li>
+    </form>
+  </ul>
+</div>
+{% endblock %}
