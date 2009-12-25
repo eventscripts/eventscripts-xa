@@ -40,6 +40,7 @@ class Page(models.Model):
     
 class Content(models.Model):
     id          = models.AutoField(primary_key=True)
+    author      = models.ForeignKey('auth.User', related_name='wiki_pages')
     page        = models.ForeignKey(Page, related_name='versions')
     content     = fields.BBCodeTextField()
     postdate    = models.DateTimeField(auto_now_add=True)

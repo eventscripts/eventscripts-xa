@@ -6,12 +6,18 @@
   <h1>{% if page %}Edit {{ page.name }}{% else %} Create {{ pagename }}{% endif %}</h1>
   <form method="post" action=".">
   <!-- What do we do with name? Do we allow that to be changed -->
+  <p>
   <textarea name="content">
     {{ page.content }}
   </textarea>
+  </p>
   <!-- JS this? -->
+  <p>
   <input type="text" name="categories" value="{{ categories|join:"," }}{% if category_name %},{{ category_name }}{% endif %}" />
+  </p>
+  <p>
   <input type="submit" value="Save" />
+  </p>
   </form>
 </div>
 {% endblock %}

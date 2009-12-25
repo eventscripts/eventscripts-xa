@@ -1,6 +1,7 @@
 from models import Category, Page
 from django.core.exceptions import ObjectDoesNotExist
 from xa.utils import render_to
+from django.contrib.auth.decorators import login_required
 from django.utils.simplejson import dumps
 
 def js_available_categories():
@@ -22,6 +23,7 @@ def page(request, category_name, name):
         return create_page(category_name, name)
     return 'wiki/page.htm', {'page': thispage}
 
+@login_required
 @render_to
 def edit_page(request, category_name, name):
     try:
@@ -31,7 +33,8 @@ def edit_page(request, category_name, name):
     return 'wiki/edit.htm', {'page': thispage,
                              'categories': thispage.categories.all(),
                              'available_categories': js_available_categories()}
-    
+
+@login_required    
 @render_to
 def create_page(request, category_name, name):
     if request.method == 'POST':
@@ -45,3 +48,7 @@ def create_page_form(requets, category_name, name):
                              'pagename': name,
                              'category_name': category_name,
                              'available_categories': js_available_categories()}
+    
+    
+def create_page_save(request, category_name, name):
+    pass
