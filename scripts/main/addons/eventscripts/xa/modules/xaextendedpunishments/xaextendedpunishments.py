@@ -105,8 +105,8 @@ def player_disconnect(event_var):
 def round_end(event_var): 
     for userid in es.getUseridList(): 
         if not es.getplayerprop(userid, 'CBasePlayer.pl.deadflag'):
-            if not players.has_key(userid):
-                player_activate({'userid':userid})
+            if userid not in players:
+                player_activate({'userid':userid, 'es_steamid':es.getplayersteamid(userid)})
             players[userid]['timebombed']   = 0 
             players[userid]['freezebombed'] = 0 
             players[userid]['firebombed']   = 0 
@@ -142,8 +142,6 @@ def player_death(event_var):
 
 def server_cvar(event_var):
     """ Executed when a notified enabled cvar changes - check for enabling / disabling the mute """
-    for i in xrange(5):
-        print "server_cvar(%s)" % event_var['cvarname']
     if event_var['cvarname'].replace('ma_', '').replace('xa_', '') == "adminmute_enabled":
         if event_var['cvarvalue'] == '1':
             mute.registerMute()
@@ -220,7 +218,7 @@ def _say_filter(userid, text, team):
                 else:
                     return (userid, "I have been gimped", team)
     
-            if userid in map(int, muted):
+            if userid in map(int, mute.muted):
                 es.tell(userid,'#multi', xalanguage("you are muted", lang=playerlib.getPlayer(userid).get("lang")))
                 return (0, None, 0)
 
@@ -499,12 +497,12 @@ class MuteManager(object):
             for listener in players:
                 es.voicechat('nolisten', listener, player)
     
-    def mute(self, userid, adminid, args):
+    def mute(self, userid, adminid, args = None):
         userid  = int(userid)
         steamid = es.getplayersteamid(userid)
         if userid in self.muted:
             self.muted.remove(userid)
-            del self.steamids[userid]
+            self.steamids.remove(userid)
             status = 'unmuted'
             if not bool(self.muted):
                 es.addons.unregisterTickListener(self._tickListener)
@@ -513,7 +511,7 @@ class MuteManager(object):
             if not bool(self.muted):
                 es.addons.registerTickListener(self._tickListener)
                 self.tickStatus = self.REGISTERED
-            self.steamids[userid] = steamid
+            self.steamids.add(steamid)
             self.muted.add(userid)
             status = 'muted'
         if str(xa_adminmute_anonymous) == '0':
