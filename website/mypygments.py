@@ -1,7 +1,7 @@
 from pygments.lexer import RegexLexer, bygroups
-from pygments.token import * 
-import re               
-
+from pygments.token import *
+import re
+    
 
 class EventScriptsLexer(RegexLexer):
     """
