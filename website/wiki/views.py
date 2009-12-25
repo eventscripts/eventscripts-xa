@@ -1,8 +1,14 @@
 from models import Category, Page
-from django.core.exceptions import ObjectDoesNotExist
+from forms import WikiForm
 from xa.utils import render_to
+
+import bbcode
+
+from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.utils.simplejson import dumps
+from django.core.exceptions import ObjectDoesNotExist
+
 
 def js_available_categories():
     return dumps(map(lambda x: x[0], Category.objects.all().values_list('name')))
@@ -45,13 +51,18 @@ def create_page(request, category_name, name):
     else: 
         return create_page_form(request, category_name, name)
     
-def create_page_form(requets, category_name, name):
-    return 'wiki/edit.htm', {'page': None,
-                             'categories': [],
-                             'pagename': name,
-                             'category_name': category_name,
+def create_page_form(request, category_name, name):
+    form = WikiForm({'content': '', 'categories': '%s' % categoy_name})
+    return 'wiki/edit.htm', {'form': form,
+                             'page_name': name,
                              'available_categories': js_available_categories()}
     
     
 def create_page_save(request, category_name, name):
-    pass
+    form = WikiForm(request.POST)
+    if not form.is_valid():
+        return 'wiki/edit.htm', {'form': form,
+                                 'page_name': name,
+                                 'available_categories': js_available_categories()}
+    else:
+        return HttpResponseRedirect('/')

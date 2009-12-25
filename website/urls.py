@@ -3,6 +3,9 @@ from django.conf.urls.defaults import *
 from django.contrib import admin
 admin.autodiscover()
 
+import bbcode
+bbcode.autodiscover()
+
 password_patterns = patterns('',
     url(r'^change/$',
         'django.contrib.auth.views.password_change',
@@ -66,7 +69,7 @@ urlpatterns = patterns('',
     url(r'^login/?$', 'django.contrib.auth.views.login',
         {'template_name':'home/login.htm'}, name='auth_login'),
     url(r'^logout/?$', 'django.contrib.auth.views.logout',
-        {'template_name': 'home/home.htm', 'next_page': '/'}, name='auth_logout'),
+        {'next_page': '/'}, name='auth_logout'),
     #===========================================================================
     # Profile
     #===========================================================================
