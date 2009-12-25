@@ -13,6 +13,18 @@ import xa
 #   MODULE API FUNCTIONS
 # ==============================================================================
 def log(module, text, userid=None, admin=False):
+    """
+        XA logging
+        
+        module:         module name (usually automatically provided)
+        test:           text string to log
+        userid:         optionally provide a userid as reference
+        admin:          set to true if this is an admin action
+        
+        Appends a line to the module's log file (found in the xa/logs directory).
+        
+        Includes ability to reference a specific player and also flag as an admin action
+    """
     # Is logging enabled and does our module exist?
     if int(es.ServerVar('xa_log')) and xa.exists(module):
         # Was a valid source userid specified?
