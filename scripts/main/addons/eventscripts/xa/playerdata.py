@@ -26,6 +26,11 @@ if os.path.exists(gPathDir):
 #   HELPER CLASSES
 # ==============================================================================
 class UserSetting(object):
+    """
+        UserSetting
+        
+        Module is stores per-steamid values for a particular module->setting.
+    """
     def __init__(self, module, pref):
         # Create our setting object
         self.module  = str(module)
@@ -57,6 +62,9 @@ class UserSetting(object):
         return steamid in gPlayerData[self.module][self.name]
 
     def set(self, userid, value):
+        """
+            Set the setting value for an individual player
+        """
         # Get the userid's uniqueid
         steamid = playerlib.uniqueid(userid, True)
         
@@ -67,6 +75,9 @@ class UserSetting(object):
         return gPlayerData[self.module][self.name][steamid] == value
         
     def get(self, userid):
+        """
+            Get the set value for an individual player
+        """
         # Check if our user's setting has a value
         if self.exists(userid):
             # Get the userid's uniqueid
@@ -74,22 +85,34 @@ class UserSetting(object):
 
             # Return the user's setting value
             return gPlayerData[self.module][self.name][steamid]
+        return None
 
 # ==============================================================================
 #   MODULE API FUNCTIONS
 # ==============================================================================
 def createUserSetting(module, pref):
-    # Create a new setting object
+    """
+        Create and return a new setting object for module/setting
+        
+        module: the name of the relevant module
+        pref:   the name of your preference
+    """
     return UserSetting(module, pref)
 
 def saveUserSetting(module=None):
-    # Save all user settings
+    """
+        Save all user settings to disk
+        
+        module: (optional) specific module settings to save (currently unused!)
+    """
     fileStream = open(gPathDir, 'w')
     cPickle.dump(gPlayerData, fileStream)
     fileStream.close()
     
 def clearUsersSettings(module, value = None):
-    """ The value could either be a userid or steamid """
+    """ 
+        Clear all user settings for a specific player
+    """
     if value == None:
         value = module
     if es.exists('userid', value):
@@ -106,6 +129,9 @@ def clearUsersSettings(module, value = None):
     saveUserSetting()
     
 def convertOldDatabase():
+    """
+        Converts old style keyvalue based databases (pre 1.1) to 1.1 style dict based database
+    """
     import keyvalues
     oldPlayerSettings = keyvalues.KeyValues(name='playerdata.txt')
     oldPlayerSettings.load('%s/data/playerdata.txt' % es.getAddonPath('xa'))
