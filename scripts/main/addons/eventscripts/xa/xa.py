@@ -647,31 +647,68 @@ class Admin_mani(object):
 #   MODULE API FUNCTIONS
 # ==============================================================================
 def xa_load(pModuleid):
+    """
+        Loads an XA module
+        
+        pModuleid:      the name of the module
+    """
     # Loads a module if loading is enabled
     if gModulesLoading:
         es.server.cmd('es_xload xa/modules/%s' % pModuleid)
 
 def xa_unload(pModuleid):
+    """
+        Unloads an XA module
+        
+        pModuleid:      the name of the module
+    """
     # Unloads a module if loading is enabled
     if gModulesLoading:
         es.server.cmd('es_xunload xa/modules/%s' % pModuleid)
 
 def xa_reload(pModuleid):
+    """
+        Reloads an XA module
+        
+        pModuleid:      the name of the module
+    """
     # Reloads a module if loading is enabled
     if gModulesLoading:
         es.server.cmd('es_xunload xa/modules/%s' % pModuleid)
         es.server.queuecmd('es_xload xa/modules/%s' % pModuleid)
 
 def xa_runconfig():
+    """
+        Executes the main XA config file
+    """
     # Runs XA configuration file
     setting.executeConfiguration(None)
 
 def debug(dbglvl, message):
+    """
+        Debugs messages to console
+        
+        Wrapper on es.dbgmsg (using an xa dbglvl variable)
+    """
     # Debugs a message to console
     if int(gCoreVariables['debug']) >= dbglvl:
         es.dbgmsg(0, message)
 
 def register(pModuleid,gameSupport=None):
+    """
+        Registers a module with XA
+        
+        pModuleid:      the name of the module
+        gameSupport:    optional list of supported games (e.g. cstrike, tf2)
+        
+        return:         Admin_Module instance
+        
+        Use this function within your module to register it with XA and retrieve the
+        a module specific instance.
+        
+        The optional game support list disables the module for unsupported game types 
+        (passing None is taken as implicit support of all games, recommended)
+    """
     # Registers a new module with XA
     gModules[pModuleid] = Admin_module(pModuleid)
     es.dbgmsg(1, '[eXtensible Admin] Registered module "%s"' % gModules[pModuleid].name)
@@ -682,6 +719,16 @@ def register(pModuleid,gameSupport=None):
     return gModules[pModuleid]
 
 def unregister(pModuleid):
+    """
+        Unregisters the modules
+        
+        pModuleid:      the name of the module
+        
+        Removes all references of the module in XA's internal structure
+        
+        Also dereferences the Admin_Module from gModules dictionary - so take care 
+        using it after unregistering!
+    """
     # Unregisters the module from XA
     if exists(pModuleid):
         module = find(pModuleid)
@@ -711,41 +758,74 @@ def unregister(pModuleid):
         del gModules[module.name]
 
 def modules():
-    # Returns the list of registered modules
+    """
+        Returns the list of registered modules
+    """
     return gModules.keys()
     
 def corevars():
-    # Returns the list of core server variables
+    """
+        Returns the list of core server variables
+    """
     return gCoreVariables.values()
 
 def exists(pModuleid):
-    # Checks if the module is registered with XA Core
+    """
+        Checks if the module is registered with XA Core
+        
+        pModuleid:      the name of the module
+    """
     return str(pModuleid) in modules()
 
 def find(pModuleid):
-    # Returns the class instance of the named module
+    """
+        Returns the class instance of the named module
+        
+        pModuleid:      the name of the module
+    """
     if exists(pModuleid):
         return gModules[str(pModuleid)]
 
 def isRequired(pModuleid):
-    # Checks if the module is required by other modules
+    """
+        Checks if the module is required by other modules
+        
+        pModuleid:      the name of the module
+    """
     if exists(pModuleid):
         return bool(find(pModuleid).required)
 
 def findMenu(pModuleid, pMenuid):
-    # Returns the class instance a menu in the named module
+    """
+        Returns the class instance a menu in the named module
+        
+        pModuleid:      the name of the module
+        pMenuid:        the name of the menu
+        
+    """
     if exists(pModuleid):
         if pMenuid in find(pModuleid).subMenus:
             return find(pModuleid).subMenus[pMenuid]
+    return None
 
 def findCommand(pModuleid, pCommandid):
-    # Returns the class instance a command in the named module
+    """
+        Returns the class instance a command in the named module
+        
+        pModuleid:      the name of the module
+        pCommandid:     the name of the command
+    """
     if exists(pModuleid):
         if pCommandid in find(pModuleid).subCommands:
             return find(pModuleid).subCommands[pCommandid]
+    return None
 
 def isManiMode():
-    # Checks if Mani mode is enabled
+    """
+        Checks if Mani mode is enabled
+        
+        return:     (bool) True/False
+    """
     return bool(int(gCoreVariables['manimode']))
 
 def getLevel(auth_capability):
