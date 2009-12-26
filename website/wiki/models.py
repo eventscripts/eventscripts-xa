@@ -24,6 +24,7 @@ class Page(models.Model):
     id          = models.AutoField(primary_key=True)
     name        = models.SlugField(max_length=255, unique=True)
     categories  = models.ManyToManyField(Category, related_name='pages')
+    parent      = models.ForeignKey('self', related_name='children', null=True, blank=True)
     
     objects = BaseManager()
     
@@ -32,6 +33,12 @@ class Page(models.Model):
     
     class Meta:
         ordering = ['name']
+
+    def save(self, *args, **kwargs):
+        if not self.parent and Content.objects.exclude(id=self.id).filter(parent=None):
+            return
+        else:
+            Content.save(self, *args, **kwargs)
     
     @property
     def content(self):
@@ -53,7 +60,6 @@ class Content(models.Model):
     page        = models.ForeignKey(Page, related_name='versions')
     content     = fields.BBCodeTextField()
     postdate    = models.DateTimeField(auto_now_add=True)
-    parent      = models.ForeignKey('self', related_name='children', null=True, blank=True)
     
     objects = BaseManager()
 
@@ -63,12 +69,6 @@ class Content(models.Model):
     
     def __unicode__(self):
         return '%s (%s)' % (self.page.name, self.postdate)
-
-    def save(self, *args, **kwargs):
-        if not self.parent and Content.objects.exclude(id=self.id).filter(parent=None):
-            return
-        else:
-            Content.save(self, *args, **kwargs)
 
     def get_next(self):
         """
