@@ -4,6 +4,7 @@
 {% block content %}
 <div class="item">
   <h1>{{ page.name }}</h1>
+  <div class="descr">Version from {{ page.content.postdate }} by {{ page.content.author.username }} | <a href="{% url wiki:history-overview name=page.name category_name=category_name %}">history</a> | <a href="{% url wiki:edit name=page.name category_name=category_name %}">edit</a></div>
   {% bbcode page.content.content %}
   <div class="descr">{% for category in page.categories.all %}{% if not forloop.first %},{% endif %}<a href="{% url wiki:category name=category.name %}">{{ category.name }}</a>{%endfor %}</div>
 </div>

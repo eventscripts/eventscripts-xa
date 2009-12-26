@@ -1,4 +1,4 @@
-from models import Category, Page
+from models import Category, Page, Content
 from forms import WikiForm
 from xa.utils import render_to
 
@@ -9,6 +9,8 @@ from django.contrib.auth.decorators import login_required
 from django.utils.simplejson import dumps
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
+
+from datetime import datetime
 
 
 def js_available_categories():
@@ -28,7 +30,8 @@ def page(request, category_name, name):
         thispage = Page.objects.get(name=name, categories__name=category_name)
     except ObjectDoesNotExist:
         return create_page(category_name, name)
-    return 'wiki/page.htm', {'page': thispage}
+    return 'wiki/page.htm', {'page': thispage,
+                             'category_name': category_name}
 
 @render_to
 @login_required
@@ -89,3 +92,18 @@ def create_page_save(request, category_name, name):
         page.categories.add(*categories)
         page.update_content(request.user, content)
         return HttpResponseRedirect(reverse('wiki:page', kwargs={'category_name':category_name, 'name':name}))
+
+@render_to
+def page_history_overview(request, category_name, name):
+    thispage = Page.objects.get_or_404(name=name, categories__name=category_name)
+    return 'wiki/history_overview.htm', {'page': thispage,
+                                         'category_name': category_name}
+
+@render_to
+def page_history(request, category_name, name, dt):
+    postdate = datetime.strptime(dt, '%Y%m%d%H%M%S')
+    content = Content.objects.get_or_404(postdate=postdate,
+                                         page__name=name,
+                                         page__categories__name=category_name)
+    return 'wiki/history.htm', {'content': content,
+                                'category_name': category_name}

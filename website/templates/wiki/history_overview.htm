@@ -1,0 +1,12 @@
+{% extends "base.htm" %}
+
+{% block content %}
+<div class="item">
+  <h1>History of <a href="{% url wiki:page category_name=category_name name=page.name %}">{{ page.name }}</a></h1>
+  <ul>
+  {% for version in page.versions.all %}
+    <li><a href="{% url wiki:history name=page.name category_name=category_name dt=version.get_dt %}">{{ version.postdate }} by {{ version.author.username }}</a></li>
+  {% endfor %}
+  </ul>
+</div>
+{% endblock %}

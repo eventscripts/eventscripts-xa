@@ -35,7 +35,9 @@ class Page(models.Model):
     
     @property
     def content(self):
-        return self.versions.all().order_by('-postdate')[0]
+        if not hasattr(self, '__content_cache'):
+            self.__content_cache = self.versions.all().order_by('-postdate')[0]
+        return self.__content_cache
 
     @property
     def category_list(self):
@@ -56,7 +58,35 @@ class Content(models.Model):
     
     def __unicode__(self):
         return '%s (%s)' % (self.page.name, self.postdate)
+
+    def get_next(self):
+        """
+        Get the next content in this content's page history
+        """
+        nexts = Content.objects.filter(page=self.page,
+                                       postdate__gt=self.postdate)
+        nexts = nexts.order_by('postdate')
+        if nexts:
+            return nexts[0]
+        return None
+
+    def get_prev(self):
+        """
+        Get the previous content in this content's page history
+        """
+        prevs = Content.objects.filter(page=self.page,
+                                       postdate__lt=self.postdate)
+        prevs = prevs.order_by('-postdate')
+        if prevs:
+            return prevs[0]
+        return None
     
     class Meta:
         ordering = ['-postdate']
         get_latest_by = 'postdate'
+
+    def get_dt(self):
+        return self.postdate.strftime('%Y%m%d%H%M%S')
+
+    def source(self):
+        return '[code lang=bbdocs linenos=0]%s[/code]' % self.content

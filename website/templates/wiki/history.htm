@@ -1,0 +1,19 @@
+{% extends "base.htm" %}
+
+{% load bbcode %}
+
+{% block content %}
+<div class="item">
+    <h1><a href="{% url wiki:page category_name=category_name name=content.page.name %}">{{ content.page.name }}</a> - {{ content.postdate }}</h1>
+    <div class="descr">by {{ content.author.username }}</div>
+    {% bbcode content.content %}
+    <h3>Source</h3>
+    {% bbcode content.source %}
+    {% with content.get_next as next %}
+    <div class="descr" style="float:left">{% if next %}&laquo;<a href="{% url wiki:history name=content.page.name category_name=category_name dt=next.get_dt %}">Next version from {{ next.postdate }} by {{ next.author.username }}</a>{% endif %}</div>
+    {% endwith %}
+    {% with content.get_prev as prev %}
+    <div class="descr" style="float:right">{% if prev %} <a href="{% url wiki:history name=content.page.name category_name=category_name dt=prev.get_dt %}">Previous version from {{ prev.postdate }} by {{ prev.author.username }}</a>&raquo;{% endif %}</div>
+    {% endwith %}
+</div>
+{% endblock %}
