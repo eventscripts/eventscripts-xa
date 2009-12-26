@@ -20,6 +20,7 @@ def log(module, text, userid=None, admin=False, loglvl=0):
         test:           text string to log
         userid:         optionally provide a userid as reference
         admin:          set to true if this is an admin action
+        loglvl:         an optional level - messages with lower xa_log values will not be recorded
         
         Appends a line to the module's log file (found in the xa/logs directory).
         

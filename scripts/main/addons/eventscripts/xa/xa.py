@@ -829,19 +829,46 @@ def isManiMode():
     return bool(int(gCoreVariables['manimode']))
 
 def getLevel(auth_capability):
-    # Returns the Auth Provider level by name
+    """
+        Returns the Auth Provider level by name
+        
+        auth_capability:    capability name
+       
+        return:     int permission level
+    """
     return cmdlib.permissionToInteger(auth_capability)
 
 def registerCapability(auth_capability, auth_recommendedlevel):
-    # Registers an auth capability with the recommended level
+    """
+        Registers an auth capability with the recommended level
+        
+        auth_capability:            capability name
+        auth_recommendedlevel:      int level (e.g. ADMIN)
+        
+        return:     (bool) True/False
+    """
     return services.use('auth').registerCapability(auth_capability, getLevel(auth_recommendedlevel))
 
 def isUseridAuthorized(auth_userid, auth_capability):
-    # Checks if a userid is authorized or not
+    """
+        Checks if a userid is authorized or not
+        
+        auth_userid:        userid to test
+        auth_capability:    capability name to check
+        
+        return:     (bool) True/False
+    """
     return services.use('auth').isUseridAuthorized(auth_userid, auth_capability)
 
 def sendMenu(userid=None, choice=10, name=None):
-    # Shows the main menu to the specified player
+    """
+        Sends the main menu to specified player
+        
+        userid:     player to send menu to
+        choice:     unused
+        name:       unused
+        
+    """
     if choice != 10:
         return None
     if userid:
@@ -863,6 +890,16 @@ def sendMenu(userid=None, choice=10, name=None):
             gMainMenu[userid].send(userid)
 
 def incomingMenu(userid, choice, name):
+    """
+        Send a specific submenu to the user
+        
+        userid:     user to send menu too
+        choice:     menu to send
+        name:       unused
+        
+        This is usually called automatically by popuplib (but can safely be used seperately)
+        
+    """
     for module in modules():
         module = find(module)
         if choice in module.subMenus:
@@ -870,19 +907,47 @@ def incomingMenu(userid, choice, name):
                 module.subMenus[choice].menuobj.send(userid)
 
 def addondir():
+    """
+        Get the ES Addon Dir
+        
+        Wrapper on eventscripts_addondir cvar
+        
+        return:     str dir path
+    """
     return str(es.ServerVar('eventscripts_addondir')).replace("\\", "/")
 
 def gamedir():
+    """
+        Get the ES Game Dir
+        
+        Wrapper on eventscripts_gamedir cvar
+        
+        return:     str dir path
+    """
     return str(es.ServerVar('eventscripts_gamedir')).replace("\\", "/")
 
 def coredir():
+    """
+        Get the XA core path
+        
+        return:     str dir path
+    """
     return str(es.getAddonPath('xa')).replace("\\", "/")
 
 def moduledir(pModuleid):
+    """
+        Get the XA modules path
+        
+        return:     str dir path
+    """
     return str('%smodules/%s' % (es.getAddonPath('xa'), pModuleid)).replace("\\", "/")
 
 def copytree(src, dst, counter=0):
-    # modified Python 2.6 shutil.copytree method that ignores existing files
+    """
+        Modified Python 2.6 shutil.copytree method that ignores existing files
+        
+        This is used to copy the cfg files from cfg/xa/_default tp cfg/xa/
+    """
     if not os.path.exists(dst):
         os.makedirs(dst)
     for name in os.listdir(src):
