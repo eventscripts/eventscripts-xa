@@ -53,11 +53,22 @@ class Content(models.Model):
     page        = models.ForeignKey(Page, related_name='versions')
     content     = fields.BBCodeTextField()
     postdate    = models.DateTimeField(auto_now_add=True)
+    parent      = models.ForeignKey('self', related_name='children', null=True, blank=True)
     
     objects = BaseManager()
+
+    class Meta:
+        ordering = ['-postdate']
+        get_latest_by = 'postdate'
     
     def __unicode__(self):
         return '%s (%s)' % (self.page.name, self.postdate)
+
+    def save(self, *args, **kwargs):
+        if not self.parent and Content.objects.exclude(id=self.id).filter(parent=None):
+            return
+        else:
+            Content.save(self, *args, **kwargs)
 
     def get_next(self):
         """
@@ -80,10 +91,6 @@ class Content(models.Model):
         if prevs:
             return prevs[0]
         return None
-    
-    class Meta:
-        ordering = ['-postdate']
-        get_latest_by = 'postdate'
 
     def get_dt(self):
         return self.postdate.strftime('%Y%m%d%H%M%S')
