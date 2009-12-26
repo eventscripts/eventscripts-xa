@@ -12,7 +12,7 @@ import xa
 # ==============================================================================
 #   MODULE API FUNCTIONS
 # ==============================================================================
-def log(module, text, userid=None, admin=False):
+def log(module, text, userid=None, admin=False, loglvl=0):
     """
         XA logging
         
@@ -26,7 +26,7 @@ def log(module, text, userid=None, admin=False):
         Includes ability to reference a specific player and also flag as an admin action
     """
     # Is logging enabled and does our module exist?
-    if int(es.ServerVar('xa_log')) and xa.exists(module):
+    if int(es.ServerVar('xa_log')) and int(es.ServerVar('xa_log')) >= loglvl and xa.exists(module):
         # Was a valid source userid specified?
         if userid and es.exists('userid', int(userid)):
             # Is this userid an admin?
