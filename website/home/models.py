@@ -18,6 +18,7 @@ class News(models.Model):
     class Meta:
         ordering = ['-postdate']
         get_latest_by = 'postdate'
+        verbose_name_plural = 'News'
     
     def __unicode__(self):
         return self.title

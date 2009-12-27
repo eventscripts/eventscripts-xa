@@ -7,6 +7,12 @@ class BaseManager(models.Manager):
         return get_object_or_404(self, *args, **kwargs)
 
 
+class Language(models.Model):
+    id          = models.AutoField(primary_key=True)
+    short       = models.CharField(max_length=2)
+    long        = models.CharField(max_length=50)
+
+
 class Category(models.Model):
     id          = models.AutoField(primary_key=True)
     name        = models.SlugField(max_length=50, unique=True)
@@ -18,13 +24,13 @@ class Category(models.Model):
     
     class Meta:
         ordering = ['name']
+        verbose_name_plural = 'Categories'
     
 
 class Page(models.Model):
     id          = models.AutoField(primary_key=True)
     name        = models.SlugField(max_length=255, unique=True)
     categories  = models.ManyToManyField(Category, related_name='pages')
-    parent      = models.ForeignKey('self', related_name='children', null=True, blank=True)
     
     objects = BaseManager()
     
@@ -33,12 +39,13 @@ class Page(models.Model):
     
     class Meta:
         ordering = ['name']
-
-    def save(self, *args, **kwargs):
+    """
+    def save(self, *domi, **quark):
         if not self.parent and Content.objects.exclude(id=self.id).filter(parent=None):
             return
         else:
-            Content.save(self, *args, **kwargs)
+            Content.save(self, *domi, **quark)
+    """
     
     @property
     def content(self):
@@ -50,8 +57,9 @@ class Page(models.Model):
     def category_list(self):
         return ','.join(map(lambda x: x[0], self.categories.all().values_list('name')))
     
-    def update_content(self, author, content):
-        return Content.objects.create(author=author, page=self, content=content)
+    def update_content(self, author, content, language):
+        return Content.objects.create(author=author, page=self, content=content,
+                                      language=language)
     
     
 class Content(models.Model):
@@ -60,12 +68,14 @@ class Content(models.Model):
     page        = models.ForeignKey(Page, related_name='versions')
     content     = fields.BBCodeTextField()
     postdate    = models.DateTimeField(auto_now_add=True)
+    language    = models.ForeignKey(Language, related_name='wiki_content')
     
     objects = BaseManager()
 
     class Meta:
         ordering = ['-postdate']
         get_latest_by = 'postdate'
+        verbose_name_plural = 'Page Content'
     
     def __unicode__(self):
         return '%s (%s)' % (self.page.name, self.postdate)

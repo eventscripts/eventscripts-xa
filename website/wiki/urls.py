@@ -1,11 +1,15 @@
 from django.conf.urls.defaults import *
 from views import *
 
+wikipages = ('',
+    url(r'^$', page, name='page'),
+    url(r'^+edit/?$', edit_page, name='edit'),
+    url(r'^+history/?$', page_history_overview, name='history-overview'),
+    url(r'^+history/(?P<dt>\d{14})/?$', page_history, name='history'),
+)
+
 urlpatterns = patterns('',
-    url(r'^(?P<path>[a-zA-Z0-9/_:.-]+?)/?$', page, name='page'),
-    url(r'^(?P<path>[a-zA-Z0-9/_:.-]+?)/+edit/?$', edit_page, name='edit'),
-    url(r'^(?P<path>[a-zA-Z0-9/_:.-]+?)/+history/?$', page_history_overview, name='history-overview'),
-    url(r'^(?P<path>[a-zA-Z0-9/_:.-]+?)/+history/(?P<dt>\d{14})/?$', page_history, name='history'),
+    (r'^(?P<lang>[a-z]{2})/(?P<path>[a-zA-Z0-9/_:.-]+?)/', include(wikipages),
 )
 
 """
