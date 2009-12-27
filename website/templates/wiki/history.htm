@@ -1,6 +1,6 @@
 {% extends "base.htm" %}
 
-{% load bbcode %}
+{% load bbcode wiki %}
 
 {% block content %}
 <div class="item">
@@ -9,11 +9,17 @@
     {% bbcode content.content %}
     <h3>Source</h3>
     {% bbcode content.source %}
-    {% with content.get_next as next %}
-    <div class="descr" style="float:left">{% if next %}&laquo;<a href="{% url wiki:history path=content.page.name lang=language dt=next.get_dt %}">Next version from {{ next.postdate }} by {{ next.author.username }}</a>{% endif %}</div>
-    {% endwith %}
-    {% with content.get_prev as prev %}
-    <div class="descr" style="float:right">{% if prev %} <a href="{% url wiki:history path=content.page.name lang=language dt=prev.get_dt %}">Previous version from {{ prev.postdate }} by {{ prev.author.username }}</a>&raquo;{% endif %}</div>
-    {% endwith %}
+    {% call content.get_next language as next %}
+    {% if next %}
+      <div class="descr" style="float:left">
+        &laquo;<a href="{% url wiki:history path=content.page.name lang=language dt=next.get_dt %}">Next version from {{ next.postdate }} by {{ next.author.username }}</a>
+      </div>
+    {% endif %}
+    {% call content.get_prev language as prev %}
+    {% if prev %}
+      <div class="descr" style="float:right">
+        <a href="{% url wiki:history path=content.page.name lang=language dt=prev.get_dt %}">Previous version from {{ prev.postdate }} by {{ prev.author.username }}</a>&raquo;
+      </div>
+    {% endif %}
 </div>
 {% endblock %}

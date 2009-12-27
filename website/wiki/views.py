@@ -36,9 +36,9 @@ def page(request, path, lang):
 @login_required
 def edit_page(request, path, lang):
     try:
-        thispage = Page.objects.get(name=name)
+        thispage = Page.objects.get(name=path)
     except ObjectDoesNotExist:
-        return create_page(request, name, lang)
+        return create_page(request, path, lang)
     if request.method == 'POST':
         form = WikiForm(request.POST)
         if form.is_valid():
@@ -47,7 +47,7 @@ def edit_page(request, path, lang):
             categories = map(lambda x: Category.objects.get_or_create(name=x.strip())[0],data['categories'].split(','))
             thispage.categories.add(*categories)
             thispage.save()
-            return HttpResponseRedirect(reverse('wiki:page', kwargs={'name': name, 'category_name': category_name}))
+            return HttpResponseRedirect(reverse('wiki:page', kwargs={'path': path, 'lang': lang}))
         else:
             return 'wiki/edit.htm', {'form': form,
                                      'page_name': name,

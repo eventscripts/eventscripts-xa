@@ -93,7 +93,7 @@ class Content(models.Model):
             return nexts[0]
         return None
 
-    def get_prev(self):
+    def get_prev(self, language):
         """
         Get the previous content in this content's page history
         """
