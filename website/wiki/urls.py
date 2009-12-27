@@ -9,10 +9,8 @@ wikipages = patterns('',
 )
 
 urlpatterns = patterns('',
-    url(r'^$', home, name='home'),
+    url(r'^$', home, {'lang':None}, name='home',),
+    url(r'^(?P<lang>[a-z]{2})/?$', home, name='home'),
     (r'^(?P<lang>[a-z]{2})/(?P<path>[a-zA-Z0-9/_:.-]+?)/',
     include(wikipages)),
-    (r'^(?P<path>[a-zA-Z0-9/_:.-]+?)/',
-    include(wikipages),
-    {'lang':None}),
 )

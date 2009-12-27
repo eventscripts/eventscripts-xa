@@ -43,11 +43,14 @@ class Page(models.Model):
             Content.save(self, *domi, **quark)
     """
     
-    @property
-    def content(self):
-        if not hasattr(self, '__content_cache'):
-            self.__content_cache = self.versions.all().order_by('-postdate')[0]
-        return self.__content_cache
+    def content(self, language):
+        versions = self.versions.filter(language=language)
+        if versions:
+            return versions.order_by('-postdate')[0]
+        versions = self.versions.filter(language='en')
+        if version:
+            return versions.order_by('-postdate')[0]
+        return self.versions.all().order_by('-postdate')[0]
 
     @property
     def category_list(self):
@@ -56,7 +59,9 @@ class Page(models.Model):
     def update_content(self, author, content, language):
         return Content.objects.create(author=author, page=self, content=content,
                                       language=language)
-    
+
+    def get_available_languages(self):
+        return set(map(lambda x: (x.language, x.get_language_display()),Content.objects.filter(page=self).only('language')))
     
 class Content(models.Model):
     id          = models.AutoField(primary_key=True)
@@ -76,12 +81,13 @@ class Content(models.Model):
     def __unicode__(self):
         return '%s (%s)' % (self.page.name, self.postdate)
 
-    def get_next(self):
+    def get_next(self, language):
         """
         Get the next content in this content's page history
         """
         nexts = Content.objects.filter(page=self.page,
-                                       postdate__gt=self.postdate)
+                                       postdate__gt=self.postdate,
+                                       language=language)
         nexts = nexts.order_by('postdate')
         if nexts:
             return nexts[0]
@@ -92,7 +98,8 @@ class Content(models.Model):
         Get the previous content in this content's page history
         """
         prevs = Content.objects.filter(page=self.page,
-                                       postdate__lt=self.postdate)
+                                       postdate__lt=self.postdate,
+                                       language=language)
         prevs = prevs.order_by('-postdate')
         if prevs:
             return prevs[0]
