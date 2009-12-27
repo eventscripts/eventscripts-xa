@@ -16,6 +16,9 @@ from datetime import datetime
 def js_available_categories():
     return dumps(map(lambda x: x[0], Category.objects.all().values_list('name')))
 
+def home(request):
+    pass
+
 @render_to
 def overview(request):
     return 'wiki/overview.htm', {'categories': Category.objects.all()}
