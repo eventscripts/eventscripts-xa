@@ -31,6 +31,10 @@ class Power(models.Model):
     users       = models.ManyToManyField('auth.User', related_name='custom_powers', blank=True)
 
     objects = PowerManager()
+
+    class Meta:
+        verbose_name = 'Power Flag'
+        verbose_name_plural = 'Power Flags'
     
     def __unicode__(self):
         return self.name

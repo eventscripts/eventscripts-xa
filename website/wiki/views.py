@@ -16,30 +16,29 @@ from datetime import datetime
 def js_available_categories():
     return dumps(map(lambda x: x[0], Category.objects.all().values_list('name')))
 
-@render_to
-def overview(request):
-    return 'wiki/overview.htm', {'categories': Category.objects.all()}
+def home(request, lang):
+    return HttpResponseRedirect(reverse('wiki:page', kwargs={'path':Page.objects.get_or_404(is_home=True).name, 'lang': lang or 'en'}))
 
 @render_to
 def category(request, name):
     return 'wiki/category.htm', {'category': Category.objects.get_or_404(name=name)}
 
 @render_to
-def page(request, category_name, name):
+def page(request, path, lang):
     try:
-        thispage = Page.objects.get(name=name, categories__name=category_name)
+        thispage = Page.objects.get(name=path)
     except ObjectDoesNotExist:
-        return create_page(category_name, name)
+        return create_page(path)
     return 'wiki/page.htm', {'page': thispage,
-                             'category_name': category_name}
+                             'language': lang or 'en'}
 
 @render_to
 @login_required
-def edit_page(request, category_name, name):
+def edit_page(request, path, lang):
     try:
-        thispage = Page.objects.get(name=name, categories__name=category_name)
+        thispage = Page.objects.get(name=path)
     except ObjectDoesNotExist:
-        return create_page(request, category_name, name)
+        return create_page(request, path, lang)
     if request.method == 'POST':
         form = WikiForm(request.POST)
         if form.is_valid():
@@ -48,7 +47,7 @@ def edit_page(request, category_name, name):
             categories = map(lambda x: Category.objects.get_or_create(name=x.strip())[0],data['categories'].split(','))
             thispage.categories.add(*categories)
             thispage.save()
-            return HttpResponseRedirect(reverse('wiki:page', kwargs={'name': name, 'category_name': category_name}))
+            return HttpResponseRedirect(reverse('wiki:page', kwargs={'path': path, 'lang': lang}))
         else:
             return 'wiki/edit.htm', {'form': form,
                                      'page_name': name,
@@ -65,7 +64,7 @@ def bbhelp(request):
 
 @render_to
 @login_required
-def create_page(request, category_name, name):
+def create_page(request, category_name, name, lang):
     if request.method == 'POST':
         return create_page_save(request, category_name, name)
     else: 
@@ -94,16 +93,15 @@ def create_page_save(request, category_name, name):
         return HttpResponseRedirect(reverse('wiki:page', kwargs={'category_name':category_name, 'name':name}))
 
 @render_to
-def page_history_overview(request, category_name, name):
-    thispage = Page.objects.get_or_404(name=name, categories__name=category_name)
+def page_history_overview(request, path, lang):
+    thispage = Page.objects.get_or_404(name=path)
     return 'wiki/history_overview.htm', {'page': thispage,
-                                         'category_name': category_name}
+                                         'language': lang}
 
 @render_to
-def page_history(request, category_name, name, dt):
+def page_history(request, path, dt, lang):
     postdate = datetime.strptime(dt, '%Y%m%d%H%M%S')
     content = Content.objects.get_or_404(postdate=postdate,
-                                         page__name=name,
-                                         page__categories__name=category_name)
+                                         page__name=path)
     return 'wiki/history.htm', {'content': content,
-                                'category_name': category_name}
+                                'language': lang}

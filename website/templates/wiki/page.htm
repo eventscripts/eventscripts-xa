@@ -1,11 +1,13 @@
 {% extends "base.htm" %}
-{% load bbcode %}
+{% load bbcode wiki i18n %}
 
 {% block content %}
 <div class="item">
   <h1>{{ page.name }}</h1>
-  <div class="descr">Version from {{ page.content.postdate }} by {{ page.content.author.username }} | <a href="{% url wiki:history-overview name=page.name category_name=category_name %}">history</a> | <a href="{% url wiki:edit name=page.name category_name=category_name %}">edit</a></div>
-  {% bbcode page.content.content %}
-  <div class="descr">{% for category in page.categories.all %}{% if not forloop.first %},{% endif %}<a href="{% url wiki:category name=category.name %}">{{ category.name }}</a>{%endfor %}</div>
+  <div class="descr">Version from {{ page.content.postdate }} by {{ page.content.author.username }} | <a href="{% url wiki:history-overview path=page.name lang=language %}">history</a> | <a href="{% url wiki:edit path=page.name lang=language %}">edit</a></div>
+  {% with page|get_content:language as content %}
+  {% bbcode content.content %}
+  {% endwith %}
+  <div class="descr">View page in: {% for short, long in page.get_available_languages %}<a href="{% url wiki:page path=page.name lang=short %}">{% trans long %}</a>{% if not forloop.last %},{% endif %}{% endfor %}</div>
 </div>
 {% endblock %}
