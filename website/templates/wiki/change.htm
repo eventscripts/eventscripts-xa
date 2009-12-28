@@ -2,8 +2,8 @@
 
 {% block content %}
 <div class="item">
-  <h1>{% if page %}Edit{% else %} Create{% endif %} {{ page_name }}</h1>
-  <form method="post" action=".">
+  <h1>{% if create %}Edit{% else %} Create{% endif %} {{ path }}</h1>
+  <form method="post" action="{% url wiki:edit lang=lang path=path %}">
     <!-- What do we do with name? Do we allow that to be changed -->
     <p>
       You may use bbcode-style formatting on this page. See the <a href="{% url bbhelp %}">documentation</a> of the bbcode tags supported on this site.

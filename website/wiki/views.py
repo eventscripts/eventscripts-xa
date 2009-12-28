@@ -4,7 +4,7 @@ from xa.utils import render_to
 
 import bbcode
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
@@ -28,11 +28,13 @@ def page(request, path, lang):
     Render a wiki page for given path (and if possible given language)
     """
     # Try to get the page
-    try:
-        thispage = Page.objects.get(name=path)
-    except ObjectDoesNotExist:
+    thispage = Page.objects.filter(name=path, versions__language=lang)
+    if not thispage:
         # If it does not exist, send the create form
-        return change_page(request, path, lang)
+        return HttpResponseRedirect(reverse('wiki:edit',
+                                            kwargs={'path': path,
+                                                    'lang': lang}))
+    thispage = thispage[0] # we can't use Page.objects.get because of __language.
     return 'wiki/page.htm', {'page': thispage,
                              'language': lang or 'en'}
 
@@ -41,7 +43,10 @@ def page_history_overview(request, path, lang):
     """
     Show a list of versions of a wiki page for a given language.
     """
-    thispage = Page.objects.get_or_404(name=path)
+    thispage = Page.objects.filter(name=path, versions__language=lang)
+    if not thispage:
+        raise Http404
+    thispage = thispage[0]
     return 'wiki/history_overview.htm', {'page': thispage,
                                          'language': lang}
 
@@ -53,7 +58,8 @@ def page_history(request, path, dt, lang):
     """
     postdate = datetime.strptime(dt, '%Y%m%d%H%M%S')
     content = Content.objects.get_or_404(postdate=postdate,
-                                         page__name=path)
+                                         page__name=path,
+                                         language=lang)
     return 'wiki/history.htm', {'content': content,
                                 'language': lang}
 
@@ -83,16 +89,19 @@ def change_page_form(request, path, lang, oldpage):
     """
     Send the form to change (edit/create) a page.
     """
-    data = {'language': lang or 'en'}
+    data = {'language': lang,
+            'content': ''}
     # If oldpage exists, fill the content into the dictionary.
     if oldpage:
-        content = oldpage.get_content(lang)
-        data['content'] = content.content
+        content = oldpage.get_content(lang, strict=True)
+        if content:
+            data['content'] = content.content
+            data['language'] = content.language
         data['categories'] = oldpage.category_list
-        data['language'] = content.language
     # Construct the form
     form = WikiForm(initial=data)
-    return 'wiki/change.htm', {'form': form, 'path': path}
+    return 'wiki/change.htm', {'form': form, 'path': path,
+                               'create': bool(data['content']), 'lang': lang}
 
 def change_page_save(request, path, lang, oldpage):
     """
@@ -118,4 +127,4 @@ def change_page_save(request, path, lang, oldpage):
                                                     'lang': data['language']}))
     else:
         # If the form is invalid, we re-send the form page.
-        return 'wiki/change.htm', {'form': form, 'path': path}
+        return 'wiki/change.htm', {'form': form, 'path': path, 'lang': lang}

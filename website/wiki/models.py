@@ -44,18 +44,34 @@ class Page(models.Model):
     class Meta:
         ordering = ['name']
     
-    def get_content(self, language):
+    def get_content(self, language, strict=False):
         """
         Get the content for a given language (if possible), otherwise try English
         as fallback language. If that fails, just get any language.
+        If strict it only tries given language
         """
         versions = self.versions.filter(language=language)
         if versions:
             return versions.order_by('-postdate')[0]
+        if strict:
+            return None
         versions = self.versions.filter(language='en')
-        if version:
+        if versions:
             return versions.order_by('-postdate')[0]
         return self.versions.all().order_by('-postdate')[0]
+        
+    def get_versions(self, language):
+        """
+        Get a list (! not query set) of versions
+        """
+        return list(self.versions.filter(language=language))
+
+    def get_available_languages(self):
+        """
+        Get a list of tuples of (unique) languages this page is available in.
+        The tuples are: (shortform, verbose name)
+        """
+        return set(map(lambda x: (x.language, x.get_language_display()),Content.objects.filter(page=self).only('language')))
     
     def add_category(self, category):
         """
@@ -64,13 +80,6 @@ class Page(models.Model):
         # get_or_create returns a tuple!
         cat,_ = Category.objects.get_or_create(name=category)
         self.categories.add(cat)
-
-    @property
-    def category_list(self):
-        """
-        Return a comma delimited list of category names of this page.
-        """
-        return ','.join(map(lambda x: x[0], self.categories.all().values_list('name')))
     
     def update_content(self, author, content, language):
         """
@@ -79,12 +88,12 @@ class Page(models.Model):
         return Content.objects.create(author=author, page=self, content=content,
                                       language=language)
 
-    def get_available_languages(self):
+    @property
+    def category_list(self):
         """
-        Get a list of tuples of (unique) languages this page is available in.
-        The tuples are: (shortform, verbose name)
+        Return a comma delimited list of category names of this page.
         """
-        return set(map(lambda x: (x.language, x.get_language_display()),Content.objects.filter(page=self).only('language')))
+        return ','.join(map(lambda x: x[0], self.categories.all().values_list('name')))
 
     
 class Content(models.Model):
