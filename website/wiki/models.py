@@ -9,8 +9,12 @@ class BaseManager(models.Manager):
 
 
 class Category(models.Model):
+    """
+    A wiki category
+    """
     id          = models.AutoField(primary_key=True)
     name        = models.SlugField(max_length=50, unique=True)
+    # pages FK from wiki.Page
     
     objects = BaseManager()
     
@@ -23,10 +27,14 @@ class Category(models.Model):
     
 
 class Page(models.Model):
+    """
+    A wiki page
+    """
     id          = models.AutoField(primary_key=True)
     name        = models.SlugField(max_length=255, unique=True)
     categories  = models.ManyToManyField(Category, related_name='pages')
     is_home     = models.BooleanField(default=False)
+    # versions FK from wiki.Content
     
     objects = BaseManager()
     
@@ -35,15 +43,12 @@ class Page(models.Model):
     
     class Meta:
         ordering = ['name']
-    """
-    def save(self, *domi, **quark):
-        if not self.parent and Content.objects.exclude(id=self.id).filter(parent=None):
-            return
-        else:
-            Content.save(self, *domi, **quark)
-    """
     
-    def content(self, language):
+    def get_content(self, language):
+        """
+        Get the content for a given language (if possible), otherwise try English
+        as fallback language. If that fails, just get any language.
+        """
         versions = self.versions.filter(language=language)
         if versions:
             return versions.order_by('-postdate')[0]
@@ -51,19 +56,44 @@ class Page(models.Model):
         if version:
             return versions.order_by('-postdate')[0]
         return self.versions.all().order_by('-postdate')[0]
+    
+    def add_category(self, category):
+        """
+        Add a category to this page
+        """
+        # get_or_create returns a tuple!
+        cat,_ = Category.objects.get_or_create(name=category)
+        self.categories.add(cat)
 
     @property
     def category_list(self):
+        """
+        Return a comma delimited list of category names of this page.
+        """
         return ','.join(map(lambda x: x[0], self.categories.all().values_list('name')))
     
     def update_content(self, author, content, language):
+        """
+        Update the content of this page (add a new version/translation)
+        """
         return Content.objects.create(author=author, page=self, content=content,
                                       language=language)
 
     def get_available_languages(self):
+        """
+        Get a list of tuples of (unique) languages this page is available in.
+        The tuples are: (shortform, verbose name)
+        """
         return set(map(lambda x: (x.language, x.get_language_display()),Content.objects.filter(page=self).only('language')))
+
     
 class Content(models.Model):
+    """
+    Content/Version/Translation of a wiki page.
+    This model is used for translating pages (using the language field),
+    versioning (using postdate field) and holding content (content field).
+    It also associates content to users (author field).
+    """
     id          = models.AutoField(primary_key=True)
     author      = models.ForeignKey('auth.User', related_name='wiki_pages')
     page        = models.ForeignKey(Page, related_name='versions')
@@ -106,7 +136,13 @@ class Content(models.Model):
         return None
 
     def get_dt(self):
+        """
+        Get the timestamp as used in urls.
+        """
         return self.postdate.strftime('%Y%m%d%H%M%S')
 
     def source(self):
+        """
+        Get the source as bbcode string.
+        """
         return '[code lang=bbdocs linenos=0]%s[/code]' % self.content

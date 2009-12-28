@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="item">
-  <h1>{% if page %}Edit {% else %} Create {% endif %}{{ page_name }}</h1>
+  <h1>{% if page %}Edit{% else %} Create{% endif %} {{ page_name }}</h1>
   <form method="post" action=".">
     <!-- What do we do with name? Do we allow that to be changed -->
     <p>
@@ -18,7 +18,6 @@
     <p>
       {{ form.content }}
     </p>
-    <!-- JS this? -->
     {% if form.categories.errors %}
     <ul class="error">
       {% for error in form.categories.errors %}
@@ -28,6 +27,16 @@
     {% endif %}
     <p>
       {{ form.categories }}
+    </p>
+    {% if form.language.errors %}
+    <ul class="error">
+      {% for error in form.language.errors %}
+        <li><strong>{{ error|escape }}</strong></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    <p>
+      {{ form.language }}
     </p>
     <p>
       <input type="submit" value="Save" />

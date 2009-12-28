@@ -3,13 +3,5 @@
 {% load bbcode %}
 
 {% block content %}
-{% bbhelp as tags %}
-{% for tag in tags %}
-{% if tag %}
-<div class="item">
-  <h1>{{ tag.name }}</h1>
-  {{ tag.docstring|safe }}
-</div>
-{% endif %}
-{% endfor %}
+{% bbhelp using "bbcode/tag.htm" %}
 {% endblock %}

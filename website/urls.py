@@ -58,7 +58,7 @@ urlpatterns = patterns('',
     #===========================================================================
     (r'^docs/', include('xa.wiki.urls', namespace='wiki')),
     # bbcode help
-    url(r'^bbcode/', 'xa.wiki.views.bbhelp', name='bbhelp'),
+    url(r'^bbcode/', 'bbcode.views.help', {'template_name': 'bbcode/help.htm'} , name='bbhelp'),
     #===========================================================================
     # Groupauth
     #===========================================================================
