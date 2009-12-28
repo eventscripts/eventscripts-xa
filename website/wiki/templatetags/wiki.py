@@ -60,7 +60,7 @@ class CallNode(template.Node):
             real = self.resolve(value, context)
             if real is BAD:
                 return ''
-            realkwargs[key] = value
+            realkwargs[str(key)] = value
         try:
             retvalue = realfunc(*realargs, **realkwargs)
         except: # yes we really want to except ANY exception
