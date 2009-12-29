@@ -5,7 +5,7 @@
 {% block content %}
 <div class="item">
   {% url wiki:page lang=language path=page.name as pageurl %}
-  <h1>{% blocktrans with pagurl as url and page.name as pagename %}History of <a href="{{ url }}">{{ pagename }}</a></h1>
+  <h1>{% blocktrans with pagurl as url and page.name as pagename %}History of <a href="{{ url }}">{{ pagename }}</a>{% endblocktrans %}</h1>
   <ul>
   {% call page.get_versions language as versions %}
   {% for version in versions %}

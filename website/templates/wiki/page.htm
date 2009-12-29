@@ -10,7 +10,7 @@
   {% call page.get_content language as content %}
   {% bbcode content.content %}
   <div class="descr">
-    {% trans "View page in:" %} {% for short, long in page.get_available_languages %}{% ifnotequal language short %}<a href="{% url wiki:page path=page.name lang=short %}">{% trans long %}</a>{% else %}{% trans long %}{% endifnotequal %}{% if not forloop.last %},{% endif %}{% endfor %} {% url wiki:translate path=page.name lang=language as transurl %}{% blocktrans with transurl as url %}or <a href="{{ url }}">translate it</a>!{% blocktrans %}
+    {% trans "View page in:" %} {% for short, long in page.get_available_languages %}{% ifnotequal language short %}<a href="{% url wiki:page path=page.name lang=short %}">{% trans long %}</a>{% else %}{% trans long %}{% endifnotequal %}{% if not forloop.last %},{% endif %}{% endfor %} {% url wiki:translate path=page.name lang=language as transurl %}{% blocktrans with transurl as url %}or <a href="{{ url }}">translate it</a>!{% endblocktrans %}
   </div>
   <div class="descr">
     {% trans "Categories:" %} {% for category in page.get_category_list %}<a href="{% url wiki:category category=category lang=language %}">{{ category }}</a>{% if not forloop.last %},{% endif %}{% endfor %} 
