@@ -4,6 +4,7 @@ from views import *
 wikipages = patterns('',
     url(r'^$', page, name='page'),
     url(r'^\+edit/?$', edit_page, name='edit'),
+    url(r'^\+translate/?$', translate, name='translate'),
     url(r'^\+history/?$', page_history_overview, name='history-overview'),
     url(r'^\+history/(?P<dt>\d{14})/?$', page_history, name='history'),
 )

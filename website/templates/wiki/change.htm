@@ -1,9 +1,11 @@
 {% extends "base.htm" %}
 
+{% load wiki bbcode %}
+
 {% block content %}
 <div class="item">
-  <h1>{% if create %}Edit{% else %} Create{% endif %} {{ path }}</h1>
-  <form method="post" action="{% url wiki:edit lang=lang path=path %}">
+  <h1>{% if translate %}Translate {% else %}{% if create %}Edit{% else %} Create{% endif %}{% endif %} {{ path }}</h1>
+  <form method="post" action="{% if translate %}{% url wiki:translate lang=lang path=path %}{% else %}{% url wiki:edit lang=lang path=path %}{% endif %}">
     <!-- What do we do with name? Do we allow that to be changed -->
     <p>
       You may use bbcode-style formatting on this page. See the <a href="{% url bbhelp %}">documentation</a> of the bbcode tags supported on this site.
@@ -14,6 +16,12 @@
         <li><strong>{{ error|escape }}</strong></li>
       {% endfor %}
     </ul>
+    {% endif %}
+    {% if translate %}
+    <p>
+      <h3>Original</h3>
+      {% bbcode translate.content %}
+    </p>
     {% endif %}
     <p>
       {{ form.content }}
@@ -28,16 +36,18 @@
     <p>
       {{ form.categories }}
     </p>
-    {% if form.language.errors %}
-    <ul class="error">
-      {% for error in form.language.errors %}
-        <li><strong>{{ error|escape }}</strong></li>
-      {% endfor %}
-    </ul>
+    {% if translate %}
+      {% if form.language.errors %}
+      <ul class="error">
+        {% for error in form.language.errors %}
+          <li><strong>{{ error|escape }}</strong></li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      <p>
+        {{ form.language }}
+      </p>
     {% endif %}
-    <p>
-      {{ form.language }}
-    </p>
     <p>
       <input type="submit" value="Save" />
     </p>

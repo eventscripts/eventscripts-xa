@@ -4,9 +4,13 @@ from bbcode import fields
 
 class WikiForm(forms.Form):
     """
-    The base form for editing/translating/changing wiki pages. Think of this as
-    the wiki's Swiss Army Form.
+    The base form for editing/changing wiki pages.
     """
     content     = fields.BBCodeFormField(widget=forms.Textarea)
-    language    = forms.ChoiceField(choices=settings.LANGUAGES)
     categories  = forms.CharField()
+    
+class WikiTranslateForm(WikiForm):
+    """
+    Form to translate wiki pages
+    """
+    language    = forms.ChoiceField(choices=settings.LANGUAGES)

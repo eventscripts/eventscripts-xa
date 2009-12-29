@@ -7,6 +7,6 @@
   <div class="descr">Version from {{ page.content.postdate }} by {{ page.content.author.username }} | <a href="{% url wiki:history-overview path=page.name lang=language %}">history</a> | <a href="{% url wiki:edit path=page.name lang=language %}">edit</a></div>
   {% call page.get_content language as content %}
   {% bbcode content.content %}
-  <div class="descr">View page in: {% for short, long in page.get_available_languages %}<a href="{% url wiki:page path=page.name lang=short %}">{% trans long %}</a>{% if not forloop.last %},{% endif %}{% endfor %}</div>
+  <div class="descr">View page in: {% for short, long in page.get_available_languages %}<a href="{% url wiki:page path=page.name lang=short %}">{% trans long %}</a>{% if not forloop.last %},{% endif %}{% endfor %} or <a href="{% url wiki:translate path=page.name lang=language %}">translate it</a>!</div>
 </div>
 {% endblock %}
