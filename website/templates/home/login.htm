@@ -1,20 +1,22 @@
 {% extends "base.htm" %}
 
+{% load i18n %}
+
 {% block content %}
 <div class="item">
-  <h1>Please log in</h1>
+  <h1>{% trans "Please log in" %}</h1>
   <ul>
     <form method="post" action="/login/">
       <li>
-        <label for="username">Username:</label>
+        <label for="username">{% trans "Username:" %}</label>
         <div><input type="text" name="username" class="input_text" id="username" /></div>
       </li>
       <li>
-        <label for="password">Password:</label>
+        <label for="password">{% trans "Password:" %}</label>
         <div><input type="password" name="password" class="input_text" id="password" /></div>
       </li>
       <li>
-        <div><input type="submit" value="Login" /></div>
+        <div><input type="submit" value="{% trans "Login" %}" /></div>
         <input type="hidden" name="next" value="{{ next }}" />
       </li>
     </form>

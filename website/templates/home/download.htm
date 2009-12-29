@@ -1,11 +1,12 @@
 {% extends "base.htm" %}
-{% load bbcode %}
+
+{% load bbcode i18n %}
 
 {% block content %}
 <div class="item">
-  <h1>Latest Version</h1>
-  <div class="descr">Version {{ release.version }} released on {{ release.releasedate|date:"D, j M Y P" }} </div>
+  <h1>{% trans "Latest Version" %}</h1>
+  <div class="descr">{% blocktrans with release.version as version and release.releasedate|date:"D, j M Y P" as releasedate %}Version {{ version }} released on {{ releasedate }}{% endblocktrans %}</div>
   {% bbcode release.info %}
-  <div class="descr"><a href="{{ release.file.url }}">Download</a></div>
+  <div class="descr"><a href="{{ release.file.url }}">{% trans "Download" %}</a></div>
 </div>
 {% endblock %}

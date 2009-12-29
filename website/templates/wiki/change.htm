@@ -1,14 +1,14 @@
 {% extends "base.htm" %}
 
-{% load wiki bbcode %}
+{% load wiki bbcode i18n %}
 
 {% block content %}
 <div class="item">
-  <h1>{% if translate %}Translate {% else %}{% if create %}Edit{% else %} Create{% endif %}{% endif %} {{ path }}</h1>
+  <h1>{% if translate %}{% trans "Translate" %} {% else %}{% if create %}{% trans "Edit" %}{% else %} {% trans "Create" %}{% endif %}{% endif %} {{ path }}</h1>
   <form method="post" action="{% if translate %}{% url wiki:translate lang=language path=path %}{% else %}{% url wiki:edit lang=language path=path %}{% endif %}">
-    <!-- What do we do with name? Do we allow that to be changed -->
     <p>
-      You may use bbcode-style formatting on this page. See the <a href="{% url bbhelp %}">documentation</a> of the bbcode tags supported on this site.
+      {% url bbhelp as bbhelpurl %}
+      {% blocktrans with bbhelpurl as url %}You may use bbcode-style formatting on this page. See the <a href="{{ url }}">documentation</a> of the bbcode tags supported on this site.{% endblocktrans %}
     </p>
     {% if form.content.errors %}
     <ul class="error">
@@ -19,7 +19,7 @@
     {% endif %}
     {% if translate %}
     <p>
-      <h3>Original</h3>
+      <h3>{% trans "Original" %}</h3>
       {% bbcode translate.content %}
     </p>
     {% endif %}
@@ -49,7 +49,7 @@
       </p>
     {% endif %}
     <p>
-      <input type="submit" value="Save" />
+      <input type="submit" value="{% trans "Save" %}" />
     </p>
   </form>
 </div>

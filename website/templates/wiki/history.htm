@@ -1,24 +1,24 @@
 {% extends "base.htm" %}
 
-{% load bbcode wiki %}
+{% load bbcode wiki i18n %}
 
 {% block content %}
 <div class="item">
     <h1><a href="{% url wiki:page path=content.page.name lang=language %}">{{ content.page.name }}</a> - {{ content.postdate }}</h1>
-    <div class="descr">by {{ content.author.username }}</div>
+    <div class="descr">{% blocktrans with content.author.username as username %}by {{ username }}{% endblocktrans %}</div>
     {% bbcode content.content %}
-    <h3>Source</h3>
+    <h3>{% trans "Source" %}</h3>
     {% bbcode content.source %}
     {% call content.get_next language as next %}
     {% if next %}
       <div class="descr" style="float:left">
-        &laquo;<a href="{% url wiki:history path=content.page.name lang=language dt=next.get_dt %}">Next version from {{ next.postdate }} by {{ next.author.username }}</a>
+        &laquo;<a href="{% url wiki:history path=content.page.name lang=language dt=next.get_dt %}">{% blocktrans with next.postdate as postdate and next.author.username as username %}Next version from {{ postdate }} by {{ username }}{% endblocktrans %}</a>
       </div>
     {% endif %}
     {% call content.get_prev language as prev %}
     {% if prev %}
       <div class="descr" style="float:right">
-        <a href="{% url wiki:history path=content.page.name lang=language dt=prev.get_dt %}">Previous version from {{ prev.postdate }} by {{ prev.author.username }}</a>&raquo;
+        <a href="{% url wiki:history path=content.page.name lang=language dt=prev.get_dt %}">{% blocktrans with prev.postdate as postdate and prev.author.username as username %}Previous version from {{ postdate }} by {{ username }}{% endblocktrans %}</a>&raquo;
       </div>
     {% endif %}
 </div>

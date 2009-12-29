@@ -1,14 +1,16 @@
 {% extends "base.htm" %}
 
+{% load i18n %}
+
 {% block content %}
 
 {% if account %}
-    <h1>Registration - Complete</h1>
-    <p>You have successfully registered on our site.</p>
-    <p>&raquo; <a href="{% url profile:edit %}">Now visit your profile</a></p>
+    <h1>{% trans "Registration - Complete" %}</h1>
+    <p>{% trans "You have successfully registered on our site." %}</p>
+    <p>&raquo; <a href="{% url profile:edit %}">{% trans "Now visit your profile" %}</a></p>
 {% else %}
-    <h1>Registration - Error</h1>
-    <p>Your account has already been activated.</p>
+    <h1>{% trans "Registration - Error" %}</h1>
+    <p>{% trans "Your account has already been activated." %}</p>
 {% endif %}
 
 {% endblock %}

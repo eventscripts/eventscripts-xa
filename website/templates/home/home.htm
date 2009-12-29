@@ -1,11 +1,14 @@
 {% extends "base.htm" %}
-{% load bbcode %}
+
+{% load bbcode i18n %}
 
 {% block content %}
 {% for item in news %}
 <div class="item">
   <h1>{{ item.title }}</h1>
-  <div class="descr">{{ item.postdate|date:"D, j M Y P" }} by {{ item.author.username }}</div>
+  <div class="descr">
+  {% blocktrans with item.postdate|date:"D, j M Y P" as postdate and item.author.username as username %}{{ postdate }} by {{ username }}{% endblocktrans %}
+  </div>
   {% bbcode item.content %}
 </div>
 {% endfor %}

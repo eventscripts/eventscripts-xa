@@ -1,14 +1,15 @@
 {% extends "base.htm" %}
 
-{% load wiki %}
+{% load wiki i18n %}
 
 {% block content %}
 <div class="item">
-  <h1>History of <a href="{% url wiki:page lang=language path=page.name %}">{{ page.name }}</a></h1>
+  {% url wiki:page lang=language path=page.name as pageurl %}
+  <h1>{% blocktrans with pagurl as url and page.name as pagename %}History of <a href="{{ url }}">{{ pagename }}</a></h1>
   <ul>
   {% call page.get_versions language as versions %}
   {% for version in versions %}
-    <li><a href="{% url wiki:history path=page.name lang=language dt=version.get_dt %}">{{ version.postdate }} by {{ version.author.username }}</a></li>
+    <li><a href="{% url wiki:history path=page.name lang=language dt=version.get_dt %}">{% blocktrans with version.postdate as postdate and version.author.username as username %}{{ postdate }} by {{ username }}{% endblocktrans %}</a></li>
   {% endfor %}
   </ul>
 </div>

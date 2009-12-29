@@ -4,14 +4,16 @@
 {% block content %}
 <div class="item">
   <h1>{{ page.name }}</h1>
-  <div class="descr">Version from {{ page.content.postdate }} by {{ page.content.author.username }} | <a href="{% url wiki:history-overview path=page.name lang=language %}">history</a> | {% if user.is_authenticated %}<a href="{% url wiki:edit path=page.name lang=language %}">edit</a>{% else %}<a href="{% url auth_login %}">login to edit this page</a>{% endif %}</div>
+  <div class="descr">
+  {% blocktrans with page.content.postdate as postdate and page.content.author.username as username %} Version from {{ postdate }} by {{ username }}{% endblocktrans %} | <a href="{% url wiki:history-overview path=page.name lang=language %}">{% trans "history" %}</a> | {% if user.is_authenticated %}<a href="{% url wiki:edit path=page.name lang=language %}">{% trans "edit" %}</a>{% else %}<a href="{% url auth_login %}">{% trans "login to edit this page" %}</a>{% endif %}
+  </div>
   {% call page.get_content language as content %}
   {% bbcode content.content %}
   <div class="descr">
-    View page in: {% for short, long in page.get_available_languages %}{% ifnotequal language short %}<a href="{% url wiki:page path=page.name lang=short %}">{% trans long %}</a>{% else %}{% trans long %}{% endifnotequal %}{% if not forloop.last %},{% endif %}{% endfor %} or <a href="{% url wiki:translate path=page.name lang=language %}">translate it</a>!
+    {% trans "View page in:" %} {% for short, long in page.get_available_languages %}{% ifnotequal language short %}<a href="{% url wiki:page path=page.name lang=short %}">{% trans long %}</a>{% else %}{% trans long %}{% endifnotequal %}{% if not forloop.last %},{% endif %}{% endfor %} {% url wiki:translate path=page.name lang=language as transurl %}{% blocktrans with transurl as url %}or <a href="{{ url }}">translate it</a>!{% blocktrans %}
   </div>
   <div class="descr">
-    Categories: {% for category in page.get_category_list %}<a href="{% url wiki:category category=category lang=language %}">{{ category }}</a>{% if not forloop.last %},{% endif %}{% endfor %} 
+    {% trans "Categories:" %} {% for category in page.get_category_list %}<a href="{% url wiki:category category=category lang=language %}">{{ category }}</a>{% if not forloop.last %},{% endif %}{% endfor %} 
   </div>
 </div>
 {% endblock %}

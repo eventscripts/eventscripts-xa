@@ -79,7 +79,7 @@ def call(parser, token):
     """
     Calls a function with arguments.
     
-    {% call myobj.mymethod [arg1,arg2] [kwarg1=value1,kwarg2=value2] [as retvalue] %}
+    {% call myobj.mymethod [arg1 [arg2 [...]]] [kwarg1=value1 [kwarg2=value2 [...]]] [as retvalue] %}
     """
     bits = token.split_contents()
     tagname = bits.pop(0)
