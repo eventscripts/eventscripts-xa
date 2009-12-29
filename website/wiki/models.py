@@ -72,6 +72,9 @@ class Page(models.Model):
         The tuples are: (shortform, verbose name)
         """
         return set(map(lambda x: (x.language, x.get_language_display()),Content.objects.filter(page=self).only('language')))
+
+    def get_category_list(self):
+        return map(lambda x: x[0], self.categories.all().values_list('name'))
     
     def add_category(self, category):
         """
@@ -92,8 +95,9 @@ class Page(models.Model):
     def category_list(self):
         """
         Return a comma delimited list of category names of this page.
+        Used for the edit page.
         """
-        return ','.join(map(lambda x: x[0], self.categories.all().values_list('name')))
+        return ','.join(self.get_category_list())
 
     
 class Content(models.Model):

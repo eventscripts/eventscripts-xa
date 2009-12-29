@@ -23,6 +23,23 @@ def home(request, lang):
                                                 'lang': lang or 'en'}))
 
 @render_to
+def category(request, lang, category):
+    """
+    Display a category overview of all pages in this category.
+    """
+    # Get the category or raise a 404
+    cat = Category.objects.get_or_404(name=category)
+    # Let's do the heavy lifiting here
+    pages = []
+    for page in cat.pages.all().order_by('name'):
+        tmp = {}
+        tmp['obj'] = page
+        tmp['langs'] = filter(lambda x: x[0] != lang, page.get_available_languages())
+        pages.append(tmp)
+    return 'wiki/category.htm', {'language': lang, 'category': category,
+                                 'pages': pages, 'catobj': cat}
+
+@render_to
 def page(request, path, lang):
     """
     Render a wiki page for given path (and if possible given language)
@@ -36,7 +53,7 @@ def page(request, path, lang):
                                                     'lang': lang}))
     thispage = thispage[0] # we can't use Page.objects.get because of __language.
     return 'wiki/page.htm', {'page': thispage,
-                             'language': lang or 'en'}
+                             'language': lang}
 
 @render_to
 def page_history_overview(request, path, lang):
@@ -113,7 +130,8 @@ def change_page_form(request, path, lang, oldpage, translate):
     # Construct the form
     form = WikiTranslateForm(initial=data) if translate else WikiForm(initial=data)
     return 'wiki/change.htm', {'form': form, 'path': path,
-                               'create': bool(data['content']), 'lang': lang,
+                               'create': bool(data['content']),
+                               'language': lang,
                                'translate': oldpage.get_content(lang) if translate else False}
 
 def change_page_save(request, path, lang, oldpage, translate):
@@ -140,6 +158,7 @@ def change_page_save(request, path, lang, oldpage, translate):
                                                     'lang': data['language'] if translate else lang}))
     else:
         # If the form is invalid, we re-send the form page.
-        return 'wiki/change.htm', {'form': form, 'path': path, 'lang': lang, 
+        return 'wiki/change.htm', {'form': form, 'path': path,
+                                   'language': lang, 
                                   'translate': oldpage.get_content(lang) if translate else False,
                                   'create': bool(oldpage)}
