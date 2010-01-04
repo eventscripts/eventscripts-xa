@@ -103,3 +103,13 @@ class Paginator(list):
         
     def mkurl(self, page):
         return self.urls.base + str(page)
+
+def get_installed_languages():
+    """
+    Get all languages having translations for the site.
+    """
+    import os
+    return os.listdir(os.path.join(os.path.dirname(__file__), 'locale'))
+    
+    
+installed_languages = get_installed_languages()
