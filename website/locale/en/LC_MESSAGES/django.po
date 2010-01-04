@@ -8,13 +8,77 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-12-29 18:02+0000\n"
+"POT-Creation-Date: 2010-01-04 00:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: templates/base.htm:37
+#, python-format
+msgid "Welcome %(username)s"
+msgstr ""
+
+#: templates/base.htm:40
+msgid "Admin Panel"
+msgstr ""
+
+#: templates/base.htm:42
+msgid "Logout"
+msgstr ""
+
+#: templates/base.htm:45
+msgid "Login/Register"
+msgstr ""
+
+#: templates/base.htm:49 templates/home/login.htm:11
+#: templates/register/register.htm:25
+msgid "Username:"
+msgstr ""
+
+#: templates/base.htm:53 templates/home/login.htm:15
+#: templates/register/register.htm:29
+msgid "Password:"
+msgstr ""
+
+#: templates/base.htm:57 templates/home/login.htm:19
+msgid "Login"
+msgstr ""
+
+#: templates/base.htm:61 templates/register/register.htm:62
+msgid "Register"
+msgstr ""
+
+#: templates/base.htm:64
+msgid "Menu"
+msgstr ""
+
+#: templates/base.htm:66
+msgid "Home"
+msgstr ""
+
+#: templates/base.htm:67
+msgid "Bugs"
+msgstr ""
+
+#: templates/base.htm:68 templates/home/download.htm:10
+#: templates/home/releases.htm:9
+msgid "Download"
+msgstr ""
+
+#: templates/base.htm:69 templates/wiki/overview.htm:7
+msgid "Documentation"
+msgstr ""
+
+#: templates/base.htm:70
+msgid "Group Auth"
+msgstr ""
+
+#: templates/base.htm:71
+msgid "Website Sourecode"
+msgstr ""
 
 #: templates/email/activation.email:2
 #, python-format
@@ -143,10 +207,6 @@ msgstr ""
 msgid "Version %(version)s released on %(releasedate)s"
 msgstr ""
 
-#: templates/home/download.htm:10 templates/home/releases.htm:9
-msgid "Download"
-msgstr ""
-
 #: templates/home/home.htm:10 templates/wiki/history_overview.htm:12
 #, python-format
 msgid "%(postdate)s by %(username)s"
@@ -154,18 +214,6 @@ msgstr ""
 
 #: templates/home/login.htm:7
 msgid "Please log in"
-msgstr ""
-
-#: templates/home/login.htm:11 templates/register/register.htm:25
-msgid "Username:"
-msgstr ""
-
-#: templates/home/login.htm:15 templates/register/register.htm:29
-msgid "Password:"
-msgstr ""
-
-#: templates/home/login.htm:19
-msgid "Login"
 msgstr ""
 
 #: templates/password/change/change.htm:6
@@ -366,10 +414,6 @@ msgstr ""
 msgid "I agree to these terms"
 msgstr ""
 
-#: templates/register/register.htm:62
-msgid "Register"
-msgstr ""
-
 #: templates/wiki/category.htm:8
 msgid "Pages in this category:"
 msgstr ""
@@ -423,10 +467,6 @@ msgstr ""
 #: templates/wiki/history_overview.htm:8
 #, python-format
 msgid "History of <a href=\"%(url)s\">%(pagename)s</a>"
-msgstr ""
-
-#: templates/wiki/overview.htm:7
-msgid "Documentation"
 msgstr ""
 
 #: templates/wiki/page.htm:8

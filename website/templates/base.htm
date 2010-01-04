@@ -1,3 +1,4 @@
+{% load utils i18n %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"> 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" dir="ltr"> 
   <head> 
@@ -20,6 +21,12 @@
         <div class="title">
           <h1>{% block bodytitle %}{{ bodytitle|default:"XA" }}{% endblock %}</h1>
         </div>
+        {% get_installed_languages as langs %}
+        <ul>
+          {% for lang in langs %}
+          <li><a href="{% url set_language lang %}">{{ lang }}</a></li>
+          {% endfor %}
+        </ul>
       </div>
       <div class="content">
         {% block content %}
@@ -27,41 +34,41 @@
       </div>
       <div class="sidenav">
         {% if user.is_authenticated %}
-        <h1>Welcome {{ user.username }}</h1>
+        <h1>{% blocktrans with user.username as username %}Welcome {{ username }}{% endblocktrans %}</h1>
         <ul>
           {% if user.is_superuser %}
-          <li><a href="/admin/">Admin Panel</a></li>
+          <li><a href="/admin/">{% trans "Admin Panel" %}</a></li>
           {% endif %}
-          <li><a href="/logout/">Logout</a></li>
+          <li><a href="/logout/">{% trans "Logout" %}</a></li>
         </ul>
         {% else %}
-        <h1>Login/Register</h1>
+        <h1>{% trans "Login/Register" %}</h1>
         <ul>
           <form method="post" action="/login/">
             <li>
-              <label for="username">Username:</label>
+              <label for="username">{% trans "Username:" %}</label>
               <div><input type="text" name="username" class="input_text" id="username" /></div>
             </li>
             <li>
-              <label for="password">Password:</label>
+              <label for="password">{% trans "Password:" %}</label>
               <div><input type="password" name="password" class="input_text" id="password" /></div>
             </li>
             <li>
-              <div><input type="submit" value="Login" /></div>
+              <div><input type="submit" value="{% trans "Login" %}" /></div>
               <input type="hidden" name="next" value="/" />
             </li>
           </form>
-          <li><a href="/register/">Register</a></li>
+          <li><a href="/register/">{% trans "Register" %}</a></li>
         </ul>
         {% endif %}
-        <h1>Menu</h1>
+        <h1>{% trans "Menu" %}</h1>
         <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="http://bitbucket.org/errant/eventscripts-xa/issues/">Bugs</a></li>
-          <li><a href="/download/">Download</a></li>
-          <li><a href="/docs/">Documentation</a></li>
-          <li><a href="/groupauth/">Group Auth</a></li>
-          <li><a href="http://bitbucket.org/errant/eventscripts-xa/src/tip/website/" target="_blank">Website Sourecode</a></li>
+          <li><a href="/">{% trans "Home" %}</a></li>
+          <li><a href="http://bitbucket.org/errant/eventscripts-xa/issues/">{% trans "Bugs" %}</a></li>
+          <li><a href="/download/">{% trans "Download" %}</a></li>
+          <li><a href="/docs/">{% trans "Documentation" %}</a></li>
+          <li><a href="/groupauth/">{% trans "Group Auth" %}</a></li>
+          <li><a href="http://bitbucket.org/errant/eventscripts-xa/src/tip/website/" target="_blank">{% trans "Website Sourecode" %}</a></li>
         </ul>
       </div>
       <div class="clearer"><span></span></div>
