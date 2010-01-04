@@ -57,7 +57,7 @@ colors = {'{RED}': '255 0 0 255', '{BLUE}': '0 0 255 255', '{GREEN}': '0 255 0 2
 # ==============================================================================
 def load(): 
    # start timer 
-   gamethread.delayedname(time_between_advert, 'adverts', display_advert) 
+   gamethread.delayedname(float(time_between_advert), 'adverts', display_advert) 
    
    es_map_start({'mapname':es.ServerVar('eventscripts_currentmap')})
 
@@ -100,7 +100,7 @@ def display_advert():
    global next_advert 
     
    # repeat the timer 
-   gamethread.delayedname(time_between_advert, 'adverts', display_advert) 
+   gamethread.delayedname(float(time_between_advert), 'adverts', display_advert) 
     
    if adverts and xaadvertlist and es.ServerVar('eventscripts_currentmap') != '': 
       # start at the beginning 
