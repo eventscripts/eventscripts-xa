@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-01-04 00:42+0000\n"
+"POT-Creation-Date: 2010-01-04 13:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -73,13 +73,17 @@ msgid "Documentation"
 msgstr "Dokumentation"
 
 #: templates/base.htm:70
-#, 
 msgid "Group Auth"
 msgstr "Group Auth"
 
 #: templates/base.htm:71
 msgid "Website Sourecode"
 msgstr "Website Quelltext"
+
+#: templates/base.htm:72
+#, fuzzy
+msgid "Translate Website"
+msgstr "Übersetzte"
 
 #: templates/email/activation.email:2
 #, python-format
@@ -159,15 +163,15 @@ msgstr "Bearbeiten"
 msgid "Powers"
 msgstr ""
 
-#: templates/groupauth/config.txt:10 templates/groupauth/edit.htm:31
+#: templates/groupauth/config.txt:9 templates/groupauth/edit.htm:31
 msgid "Groups"
 msgstr "Gruppen"
 
-#: templates/groupauth/config.txt:13
+#: templates/groupauth/config.txt:12
 msgid "Group"
 msgstr "Gruppe"
 
-#: templates/groupauth/config.txt:21
+#: templates/groupauth/config.txt:19
 msgid "Admins"
 msgstr "Administratoren"
 
