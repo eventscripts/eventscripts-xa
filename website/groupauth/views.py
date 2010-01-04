@@ -14,7 +14,7 @@ def overview(request):
 @login_required
 def edit(request, config):
     if config:
-        cfg = Config.objects.get_or_404(id=config, owner=request.user)
+        cfg = Config.objects.get_or_404(id=config, owner=request.user).select_related()
     else:
         cfg = None
     if request.method == 'POST':
@@ -80,11 +80,11 @@ def save_edit(request, cfg):
 @render_to
 @login_required
 def config(request, id, msg=''):
-    cfg = Config.objects.get_or_404(id=id, owner=request.user)
+    cfg = Config.objects.get_or_404(id=id, owner=request.user).select_related()
     return 'groupauth/config.htm', {'config': cfg}
 
 @login_required
 @response
 def download(request, id):
-    cfg = Config.objects.get_or_404(id=id)
+    cfg = Config.objects.get_or_404(id=id).select_related()
     return cfg.render_plain(), 'plain/text'

@@ -16,7 +16,7 @@ def home(request, lang):
     The view redirecting users who access /docs/.
     """
     # Get the home page.
-    home_page = Page.objects.get_or_404(is_home=True)
+    home_page = Page.objects.select_related().get_or_404(is_home=True)
     # Redirec the user to the wiki page which is the home page. 
     return HttpResponseRedirect(reverse('wiki:page',
                                         kwargs={'path': home_page.name,
@@ -28,13 +28,14 @@ def category(request, lang, category):
     Display a category overview of all pages in this category.
     """
     # Get the category or raise a 404
-    cat = Category.objects.get_or_404(name=category)
+    cat = Category.objects.select_related().get_or_404(name=category)
     # Let's do the heavy lifiting here
     pages = []
     for page in cat.pages.all().order_by('name'):
         tmp = {}
         tmp['obj'] = page
-        tmp['langs'] = filter(lambda x: x[0] != lang, page.get_available_languages())
+        tmp['langs'] = filter(lambda x: x[0] != lang,
+                              page.get_available_languages())
         pages.append(tmp)
     return 'wiki/category.htm', {'language': lang, 'category': category,
                                  'pages': pages, 'catobj': cat}
@@ -45,7 +46,9 @@ def page(request, path, lang):
     Render a wiki page for given path (and if possible given language)
     """
     # Try to get the page
-    thispage = Page.objects.filter(name=path, versions__language=lang)
+    thispage = Page.objects.select_related().filter(
+        name=path, versions__language=lang
+    )
     if not thispage:
         # If it does not exist, send the create form
         return HttpResponseRedirect(reverse('wiki:edit',
@@ -60,7 +63,9 @@ def page_history_overview(request, path, lang):
     """
     Show a list of versions of a wiki page for a given language.
     """
-    thispage = Page.objects.filter(name=path, versions__language=lang)
+    thispage = Page.objects.select_related().filter(
+        name=path, versions__language=lang
+    )
     if not thispage:
         raise Http404
     thispage = thispage[0]
@@ -74,9 +79,9 @@ def page_history(request, path, dt, lang):
     'dt' is a short timestamp in the format: YYYYMMDDhhmmss
     """
     postdate = datetime.strptime(dt, '%Y%m%d%H%M%S')
-    content = Content.objects.get_or_404(postdate=postdate,
-                                         page__name=path,
-                                         language=lang)
+    content = Content.objects.select_related().get_or_404(
+        postdate=postdate, page__name=path, language=lang
+    )
     return 'wiki/history.htm', {'content': content,
                                 'language': lang}
 

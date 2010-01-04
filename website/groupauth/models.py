@@ -10,12 +10,6 @@ class BaseManager(models.Manager):
     def get_or_404(self, *args, **kwargs):
         return get_object_or_404(self, *args, **kwargs)
 
-    def get_or_none(self, *args, **kwargs):
-        try:
-            return self.get(*args, **kwargs)
-        except self.model.DoesNotExist:
-            return None
-    
 
 class PowerManager(BaseManager):
     def get_or_create(self, name, user):
