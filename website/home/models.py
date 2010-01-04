@@ -1,12 +1,8 @@
 from django.db import models
-from django.shortcuts import get_object_or_404
 from bbcode import fields
+from xa.utils import BaseManager
 
 bbhelptext = 'You may use BBCode Syntax in this field. For further information read the <a href="/bbcode/">documentation</a>.'
-
-class BaseManager(models.Manager):
-    def get_or_404(self, *args, **kwargs):
-        return get_object_or_404(self, *args, **kwargs)
 
 
 class News(models.Model):

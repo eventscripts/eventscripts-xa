@@ -16,7 +16,7 @@ def home(request, lang):
     The view redirecting users who access /docs/.
     """
     # Get the home page.
-    home_page = Page.objects.select_related().get_or_404(is_home=True)
+    home_page = Page.objects.get_or_404(is_home=True)
     # Redirec the user to the wiki page which is the home page. 
     return HttpResponseRedirect(reverse('wiki:page',
                                         kwargs={'path': home_page.name,
@@ -28,7 +28,7 @@ def category(request, lang, category):
     Display a category overview of all pages in this category.
     """
     # Get the category or raise a 404
-    cat = Category.objects.select_related().get_or_404(name=category)
+    cat = Category.objects.get_or_404(name=category)
     # Let's do the heavy lifiting here
     pages = []
     for page in cat.pages.all().order_by('name'):
@@ -79,7 +79,7 @@ def page_history(request, path, dt, lang):
     'dt' is a short timestamp in the format: YYYYMMDDhhmmss
     """
     postdate = datetime.strptime(dt, '%Y%m%d%H%M%S')
-    content = Content.objects.select_related().get_or_404(
+    content = Content.objects.get_or_404(
         postdate=postdate, page__name=path, language=lang
     )
     return 'wiki/history.htm', {'content': content,

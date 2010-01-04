@@ -14,7 +14,7 @@ def overview(request):
 @login_required
 def edit(request, config):
     if config:
-        cfg = Config.objects.get_or_404(id=config, owner=request.user).select_related()
+        cfg = Config.objects.get_or_404(id=config, owner=request.user)
     else:
         cfg = None
     if request.method == 'POST':
@@ -32,7 +32,9 @@ def save_edit(request, cfg):
         if cfg.name != data['cfgname']:
             return HttpResponse('cfgname mismatch')
     else:
-        cfg,_ = Config.objects.get_or_create(name=data['cfgname'], owner=request.user)
+        cfg,_ = Config.objects.get_or_create(
+            name=data['cfgname'], owner=request.user
+        )
     # Check groups/aliases info
     groups = data['groups'].split(',')
     realgroups = {}
@@ -47,7 +49,9 @@ def save_edit(request, cfg):
              if steamid not in aliases:
                  name = request.POST.get(steamid.replace(':','_'), None)
                  if name is None:
-                     return HttpResponse('missing steamid alias for %s' % steamid)
+                     return HttpResponse(
+                         'missing steamid alias for %s' % steamid
+                     )
                  aliases[steamid] = name
         # get flags 
         groupflags = request.POST.getlist('%s_flags' % group)
@@ -64,7 +68,9 @@ def save_edit(request, cfg):
             player,_ = Player.objects.get_or_create(steamid=steamid)
             _cache[steamid] = player
         if not request.user.known_players.filter(id=player.id):
-            relation = PlayerRelation(player=player, user=request.user, name=name)
+            relation = PlayerRelation(
+                player=player, user=request.user, name=name
+            )
             relation.save()
     # And add the groups
     for name, steamids in realgroups.iteritems():
@@ -80,11 +86,11 @@ def save_edit(request, cfg):
 @render_to
 @login_required
 def config(request, id, msg=''):
-    cfg = Config.objects.get_or_404(id=id, owner=request.user).select_related()
+    cfg = Config.objects.get_or_404(id=id, owner=request.user)
     return 'groupauth/config.htm', {'config': cfg}
 
 @login_required
 @response
 def download(request, id):
-    cfg = Config.objects.get_or_404(id=id).select_related()
+    cfg = Config.objects.get_or_404(id=id)
     return cfg.render_plain(), 'plain/text'

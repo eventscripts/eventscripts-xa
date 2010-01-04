@@ -5,16 +5,12 @@ es_xload examples/auth/group_auth
 {% for power in config|get_powers %}es gauth power create "{{ power.name }}" server_var(AUTHSERVICE_ADMIN)
 {% endfor %} 
 
-
 // {% trans "Groups" %} 
 
-{% for group in config.groups.all %}
-// {% trans "Group" %} {{ group.name }}
+{% for group in config.groups.all %}// {% trans "Group" %} {{ group.name }}
 es gauth group create "{{ group.name }}" server_var(AUTHSERVICE_ADMIN)
 {% for power in group.powers.all %}gauth power give "{{ power.name }}" "{{ group.name }}"
-{% endfor %}
-{% endfor %}
-
+{% endfor %}{% endfor %}
 
 // {% trans "Admins" %} 
 {% for admin in config.players %}{% with admin|get_name:config.owner as admin_name %}gauth user create "{{ admin_name }}" "{{ admin.steamid }}"

@@ -1,14 +1,10 @@
 from django.db import models
-from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 
 from pygments import highlight
 from xa.mypygments import EventScriptsLexer
+from xa.utils import BaseManager
 from pygments.formatters import HtmlFormatter
-
-class BaseManager(models.Manager):
-    def get_or_404(self, *args, **kwargs):
-        return get_object_or_404(self, *args, **kwargs)
 
 
 class PowerManager(BaseManager):

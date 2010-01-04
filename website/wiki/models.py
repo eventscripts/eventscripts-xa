@@ -1,11 +1,7 @@
 from django.db import models
-from django.shortcuts import get_object_or_404
 from django.conf import settings
 from bbcode import fields
-
-class BaseManager(models.Manager):
-    def get_or_404(self, *args, **kwargs):
-        return get_object_or_404(self, *args, **kwargs)
+from xa.utils import BaseManager
 
 
 class Category(models.Model):

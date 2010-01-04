@@ -1,5 +1,6 @@
 from django.core import paginator
-from django.shortcuts import render_to_response
+from django.db import models
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.utils import simplejson
@@ -113,3 +114,14 @@ def get_installed_languages():
     
     
 installed_languages = get_installed_languages()
+
+
+class BaseManager(models.Manager):
+    def get_or_404(self, *args, **kwargs):
+        return get_object_or_404(self.select_related(), *args, **kwargs)
+
+    def get_or_none(self, *args, **kwargs):
+        try:
+            return self.select_related().get(*args, **kwargs)
+        except self.model.DoesNotExist:
+            return None

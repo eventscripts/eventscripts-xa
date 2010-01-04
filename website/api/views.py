@@ -9,7 +9,7 @@ def version(request):
 
 @response
 def gauth(request, configid):
-    cfg = Config.objects.get_or_none(id=configid).select_related()
+    cfg = Config.objects.get_or_none(id=configid)
     if not cfg:
         return 'Config Not Found', 'text/plain'
     context = RequestContext(request, {
