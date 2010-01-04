@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.conf.urls.defaults import patterns, url, include
 
 from django.contrib import admin
 admin.autodiscover()
@@ -44,12 +44,14 @@ urlpatterns = patterns('',
     #===========================================================================
     (r'^$', 'xa.home.views.home'),
     # Set Language
-    url(r'language/(?P<lang>[a-zA-Z]{2})/?', 'xa.home.views.set_language', name='set_language'),
+    url(r'language/(?P<lang>[a-zA-Z]{2})/?', 'xa.home.views.set_language',
+        name='set_language'),
     #===========================================================================
     # Releases
     #===========================================================================
     url(r'^download/?$', 'xa.home.views.download', name='download-newest'),
-    url(r'^download/(?P<version>[^/]+)/?$', 'xa.home.views.download', name='download-old'),
+    url(r'^download/(?P<version>[^/]+)/?$', 'xa.home.views.download',
+        name='download-old'),
     url(r'^releases/?$', 'xa.home.views.releases', name='release-list'),
     #===========================================================================
     # API
@@ -60,7 +62,8 @@ urlpatterns = patterns('',
     #===========================================================================
     (r'^docs/', include('xa.wiki.urls', namespace='wiki')),
     # bbcode help
-    url(r'^bbcode/', 'bbcode.views.help', {'template_name': 'bbcode/help.htm'} , name='bbhelp'),
+    url(r'^bbcode/', 'bbcode.views.help', {'template_name': 'bbcode/help.htm'},
+        name='bbhelp'),
     #===========================================================================
     # Groupauth
     #===========================================================================

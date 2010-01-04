@@ -1,8 +1,11 @@
-from bbcode import *
+from bbcode import ArgumentTagNode, register, patterns 
 import re
 from django.core.urlresolvers import reverse
 
 def get_url(name, **kwargs):
+    """
+    Wrapper or reverse
+    """
     return reverse(name, kwargs=kwargs)
 
 class Page(ArgumentTagNode):
@@ -39,7 +42,8 @@ class Page(ArgumentTagNode):
             inner = ''
             for node in self.nodes:
                 if not node.is_text_node:
-                    return soft_raise("Page tag cannot have nested tags without an argument.")
+                    return self.soft_raise("Page tag cannot have nested tags "
+                                           "without an argument.")
                 else:
                     inner += node.raw_content
             url = get_url('wiki:page', lang=self.lang, path=inner)
@@ -80,7 +84,8 @@ class Category(ArgumentTagNode):
             inner = ''
             for node in self.nodes:
                 if not node.is_text_node:
-                    return soft_raise("Category tag cannot have nested tags without an argument.")
+                    return self.soft_raise("Category tag cannot have nested "
+                                           "tags without an argument.")
                 else:
                     inner += node.raw_content
             url = get_url('wiki:category', lang=self.lang, category=inner)

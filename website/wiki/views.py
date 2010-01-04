@@ -54,7 +54,8 @@ def page(request, path, lang):
         return HttpResponseRedirect(reverse('wiki:edit',
                                             kwargs={'path': path,
                                                     'lang': lang}))
-    thispage = thispage[0] # we can't use Page.objects.get because of __language.
+    # we can't use Page.objects.get because of __language.
+    thispage = thispage[0]
     return 'wiki/page.htm', {'page': thispage,
                              'language': lang}
 
@@ -110,16 +111,16 @@ def translate(request, path, lang):
     thispage = thispage[0]
     return change_page(request, path, lang, thispage, True)
 
-def change_page(request, path, lang, oldpage=None, translate=False):
+def change_page(request, path, lang, oldpage=None, dotranslate=False):
     """
     Proxy which either calls the form constructor or tries to save the content.
     """
     if request.method == 'POST':
-        return change_page_save(request, path, lang, oldpage, translate)
+        return change_page_save(request, path, lang, oldpage, dotranslate)
     else:
-        return change_page_form(request, path, lang, oldpage, translate)
+        return change_page_form(request, path, lang, oldpage, dotranslate)
     
-def change_page_form(request, path, lang, oldpage, translate):
+def change_page_form(request, path, lang, oldpage, dotranslate):
     """
     Send the form to change (edit/create) a page.
     """
@@ -133,18 +134,25 @@ def change_page_form(request, path, lang, oldpage, translate):
             data['language'] = content.language
         data['categories'] = oldpage.category_list
     # Construct the form
-    form = WikiTranslateForm(initial=data) if translate else WikiForm(initial=data)
-    return 'wiki/change.htm', {'form': form, 'path': path,
-                               'create': bool(data['content']),
-                               'language': lang,
-                               'translate': oldpage.get_content(lang) if translate else False}
+    if dotranslate:
+        form = WikiTranslateForm(initial=data)
+    else:
+        form = WikiForm(initial=data)
+    context = {'form': form, 'path': path,
+               'create': bool(data['content']),
+               'language': lang,
+               'translate': oldpage.get_content(lang) if dotranslate else False}
+    return 'wiki/change.htm', context
 
-def change_page_save(request, path, lang, oldpage, translate):
+def change_page_save(request, path, lang, oldpage, dotranslate):
     """
     Try to save changes to a page if the submitted form is valid
     """
     # Construct the form
-    form = WikiTranslateForm(request.POST) if translate else WikiForm(request.POST)
+    if dotranslate:
+        form = WikiTranslateForm(request.POST)
+    else:
+         WikiForm(request.POST)
     # Validity check
     if form.is_valid():
         # Get 'clean' data
@@ -154,16 +162,17 @@ def change_page_save(request, path, lang, oldpage, translate):
         for category in data['categories'].split(','):
             oldpage.add_category(category)
         # Add new content
-        oldpage.update_content(request.user, data['content'], data['language'] if translate else lang)
+        oldpage.update_content(request.user, data['content'],
+                               data['language'] if dotranslate else lang)
         # Explicit save, is this required?
         oldpage.save()
         # Redirect user to the page they edited.
         return HttpResponseRedirect(reverse('wiki:page',
-                                            kwargs={'path': path,
-                                                    'lang': data['language'] if translate else lang}))
+            kwargs={'path': path,
+                    'lang': data['language'] if dotranslate else lang}))
     else:
         # If the form is invalid, we re-send the form page.
         return 'wiki/change.htm', {'form': form, 'path': path,
-                                   'language': lang, 
-                                  'translate': oldpage.get_content(lang) if translate else False,
-                                  'create': bool(oldpage)}
+            'language': lang, 
+            'translate': oldpage.get_content(lang) if dotranslate else False,
+            'create': bool(oldpage)}

@@ -1,9 +1,12 @@
-from models import *
+"""
+Register groupauth models with the admin panel
+"""
+from models import Power, Player, Config, Group
 from django.contrib import admin
 
-r = admin.site.register
+register = admin.site.register
 
-r(Power)
-r(Player)
-r(Config)
-r(Group)
+register(Power)
+register(Player)
+register(Config)
+register(Group)

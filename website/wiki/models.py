@@ -42,8 +42,8 @@ class Page(models.Model):
     
     def get_content(self, language, strict=False):
         """
-        Get the content for a given language (if possible), otherwise try English
-        as fallback language. If that fails, just get any language.
+        Get the content for a given language (if possible), otherwise try
+        English as fallback language. If that fails, just get any language.
         If strict it only tries given language
         """
         versions = self.versions.filter(language=language)
@@ -67,7 +67,8 @@ class Page(models.Model):
         Get a list of tuples of (unique) languages this page is available in.
         The tuples are: (shortform, verbose name)
         """
-        return set(map(lambda x: (x.language, x.get_language_display()),Content.objects.filter(page=self).only('language')))
+        return set(map(lambda x: (x.language, x.get_language_display()), 
+                       Content.objects.filter(page=self).only('language')))
 
     def get_category_list(self):
         return map(lambda x: x[0], self.categories.all().values_list('name'))

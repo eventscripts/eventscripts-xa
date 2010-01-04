@@ -1,5 +1,8 @@
-from django.conf.urls.defaults import *
-from views import *
+from django.conf.urls.defaults import patterns, url, include
+from views import (
+    page, edit_page, translate, page_history_overview, page_history, home, 
+    category
+)
 
 wikipages = patterns('',
     url(r'^$', page, name='page'),

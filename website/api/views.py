@@ -5,10 +5,16 @@ from xa.groupauth.models import Config
 
 @response
 def version(request):
+    """
+    Latest version of XA
+    """
     return '1.0.0.500', 'text/plain'
 
 @response
 def gauth(request, configid):
+    """
+    A plain gauth config (for xawebsync)
+    """
     cfg = Config.objects.get_or_none(id=configid)
     if not cfg:
         return 'Config Not Found', 'text/plain'

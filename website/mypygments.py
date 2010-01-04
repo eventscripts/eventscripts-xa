@@ -1,5 +1,7 @@
 from pygments.lexer import RegexLexer, bygroups
-from pygments.token import *
+from pygments.token import (
+    Keyword, Comment, Name, Punctuation, Number, Generic, String
+)
 import re
     
 
@@ -23,13 +25,20 @@ class EventScriptsLexer(RegexLexer):
             (r'e(ventscript)?s(_| )\w+', Keyword),
             (r'est_\w+', Keyword.Pseudo),
             (r'(event_var)(\()(\w+)(\))',
-             bygroups(Keyword.Constant, Punctuation, Name.Variabel, Punctuation)),
+             bygroups(
+                Keyword.Constant, Punctuation, Name.Variabel, Punctuation
+            )),
             (r'(server_var)(\()(\w+)(\))',
              bygroups(Keyword.Constant, Punctuation, Generic, Punctuation)),
             (r'\d+\.?\d*', Number),
             (r'"[^"]+"', String.Double),
             (r'(true|false)', Keyword.Constant),
-            (r'(average|cheatexec|clientcmd|damage|downloadable|if|else|do|then|esnq|forcecase|foreach|getbotname|getplayercount|getplayerinfo|getrandplayer|ifx|inrange|isnull|isnumerical|keyfilter|keygrouprand|keygroupremove|keygroupsort|keymath|keymenu|popup|vecmath|sqlx|stack|statlog|usermsg|while|playerget|playerset|queue|linkedlist|nearcord|profile|profilecmd)', Keyword),
+            (r'(average|cheatexec|clientcmd|damage|downloadable|if|else|do|then'
+             '|esnq|forcecase|foreach|getbotname|getplayercount|getplayerinfo|g'
+             'etrandplayer|ifx|inrange|isnull|isnumerical|keyfilter|keygroupran'
+             'd|keygroupremove|keygroupsort|keymath|keymenu|popup|vecmath|sqlx|'
+             'stack|statlog|usermsg|while|playerget|playerset|queue|linkedlist|'
+             'nearcord|profile|profilecmd)', Keyword),
             (r'.', Generic),
         ],
     }

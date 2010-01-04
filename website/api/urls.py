@@ -1,5 +1,5 @@
-from django.conf.urls.defaults import *
-from xa.api.views import *
+from django.conf.urls.defaults import patterns
+from views import version, gauth
 
 urlpatterns = patterns('',
     (r'^version/$', version),

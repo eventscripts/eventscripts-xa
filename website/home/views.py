@@ -6,10 +6,16 @@ from django.utils.translation import check_for_language
 
 @render_to
 def home(request):
+    """
+    Render the homepage with the latest 5 news posts
+    """
     return 'home/home.htm', {'news': News.objects.all()[:5]}
 
 @render_to
 def download(request, version=None):
+    """
+    Render the download inormation page
+    """
     if version is None:
         release = Release.objects.all().latest()
     else:
@@ -18,9 +24,15 @@ def download(request, version=None):
 
 @render_to
 def releases(request):
+    """
+    Render a list of all releases
+    """
     return 'home/releases.htm', {'releases': Release.objects.all()}
     
 def set_language(request, lang):
+    """
+    Change the language for a user
+    """
     next = request.META.get('HTTP_REFERER', None)
     if not next:
         next = '/'

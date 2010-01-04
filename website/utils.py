@@ -8,16 +8,24 @@ from django.utils import simplejson
 from cStringIO import StringIO
 
 def json_dump(data):
+    """
+    Dump data into a string (json)
+    """
     sio = StringIO()
     simplejson.dump(data, sio)
     return sio.getvalue()
 
 def render_to(func):
+    """
+    Function should return a tuple (template, context) or an instance of
+    HttpResponse.
+    Renders template/context with Request context.
+    """
     def deco(request, *args, **kwargs):
-        response = func(request, *args, **kwargs)
-        if isinstance(response, HttpResponse):
-            return response
-        tpl, data = response
+        resp = func(request, *args, **kwargs)
+        if isinstance(resp, HttpResponse):
+            return resp
+        tpl, data = resp
         return render_to_response(tpl, data, RequestContext(request))
     deco.__name__ = func.__name__
     deco.__doc__ = func.__doc__
@@ -25,6 +33,9 @@ def render_to(func):
 
 
 def response(func):
+    """
+    Wraps a string and a mimetype to a response
+    """
     def deco(request, *args, **kwargs):
         response = func(request, *args, **kwargs)
         if isinstance(response, HttpResponse):
@@ -37,11 +48,17 @@ def response(func):
 
 
 class AttributeNamespace(object):
+    """
+    Just a namespace class
+    """
     def __setattr__(self, attr, value):
         object.__setattr__(self, attr, value)
 
 
 class Paginator(list):
+    """
+    A higher level paginator above the django paginator. Cache-ready.
+    """
     def __init__(self, baseurl, objects, perpage, page, bullets=5):
         # Namespaces
         self.urls = AttributeNamespace()
@@ -53,11 +70,11 @@ class Paginator(list):
         # Django paginator
         pgntr = paginator.Paginator(objects, perpage)
         try:
-            pg = pgntr.page(page)
+            thepage = pgntr.page(page)
             self.page.this = page
             self.urls.this = self.mkurl(page)
         except (paginator.EmptyPage, paginator.InvalidPage):
-            pg = pgntr.page(pgntr.num_pages)
+            thepage = pgntr.page(pgntr.num_pages)
             self.page.this = page
             self.urls.this = self.mkurl(page)
         # Set up some page number attributes
@@ -72,9 +89,10 @@ class Paginator(list):
         self.urls.next = self.mkurl(self.page.next)
         self.urls.prev = self.mkurl(self.page.prev)
         # Set up hash for caching
-        self.page.hash = '%s::%s::%s::%s' % (baseurl, perpage, page, pgntr.num_pages)
+        self.page.hash = '%s::%s::%s::%s' % (baseurl, perpage, page,
+                                             pgntr.num_pages)
         # Set up object list
-        self.object_list = pg.object_list
+        self.object_list = thepage.object_list
         # Set up the list
         pagelist = [(self.page.this, self.mkurl(self.page.this), True)]
         diff     = 1
@@ -103,6 +121,9 @@ class Paginator(list):
         list.__init__(self, pagelist)
         
     def mkurl(self, page):
+        """
+        Return a url for a page
+        """
         return self.urls.base + str(page)
 
 def get_installed_languages():
@@ -117,10 +138,19 @@ installed_languages = get_installed_languages()
 
 
 class BaseManager(models.Manager):
+    """
+    Custom base manager with two helpful methods
+    """
     def get_or_404(self, *args, **kwargs):
+        """
+        Get the object or raise a 404
+        """
         return get_object_or_404(self.select_related(), *args, **kwargs)
 
     def get_or_none(self, *args, **kwargs):
+        """
+        Get the object or return None
+        """
         try:
             return self.select_related().get(*args, **kwargs)
         except self.model.DoesNotExist:

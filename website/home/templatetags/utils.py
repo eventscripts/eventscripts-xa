@@ -5,6 +5,9 @@ from django import template
 register = template.Library()
 
 class InstalledLanguagesNode(template.Node):
+    """
+    Node to set the installed languages context var
+    """
     def __init__(self, varname):
         self.varname = varname
         
@@ -14,6 +17,9 @@ class InstalledLanguagesNode(template.Node):
 
 @register.tag
 def get_installed_languages(parser, token):
+    """
+    {% get_installed_languages as varname %}
+    """
     bits = token.split_contents()
     if len(bits) != 3:
         raise template.TemplateSyntaxError(

@@ -783,13 +783,14 @@ class Admin_command(object):
         @param int userid The ID of the person who executed the command
         @param mixed args A list of arguments following the original command 
         """
-        try:
-            self.block(userid, args)
-        except TypeError:
-            try:
-                self.block()
-            except TypeError:
-                es.doblock(self.block)
+        #try:
+        #    self.block(userid, args)
+        #except TypeError:
+        #    try:
+        #        self.block()
+        #    except TypeError:
+        #        es.doblock(self.block)
+        self.block()
                 
     def incomingServer(self, args):
         """

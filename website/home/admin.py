@@ -1,7 +1,10 @@
-from models import *
+"""
+Register news and releases with the admin panel, no customization
+"""
+from models import News, Release
 from django.contrib import admin
 
-r = admin.site.register
+register = admin.site.register
 
-r(News)
-r(Release)
+register(News)
+register(Release)
