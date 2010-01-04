@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import patterns, url, include
 from views import (
     page, edit_page, translate, page_history_overview, page_history, home, 
-    category
+    category, download
 )
 
 wikipages = patterns('',
@@ -13,7 +13,9 @@ wikipages = patterns('',
 )
 
 urlpatterns = patterns('',
-    url(r'^$', home, {'lang':None}, name='home',),
+    url(r'^$', home, {'lang':None}, name='home'),
+    url(r'^(?P<lang>[a-z]{2})/+download/(?P<frmt>tgz|tbz2|zip)/?$',
+        download, name='download'),
     url(r'^(?P<lang>[a-z]{2})/?$', home, name='home'),
     url(r'^(?P<lang>[a-z]{2})/Category:(?P<category>[a-zA-Z0-9/_.-]+)$',
         category, name='category'),

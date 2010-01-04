@@ -1,6 +1,7 @@
 {% extends "base.htm" %}
 
 {% load i18n %}
+{% if is_download %}{% load wikidownload %}{% endif %}
 
 {% block content %}
 <div class="item">
@@ -9,7 +10,7 @@
   <ul>
   {% for page in pages %}
     <li>
-      <a href="{% url wiki:page path=page.obj.name lang=language %}">{{ page.obj.name }}</a>{% if page.langs %} ({% trans "Also available in:" %} {% for short,long in page.langs %}<a href="{% url wiki:page path=page.obj.name lang=short %}">{% trans long %}</a>{% if not forloop.last %},{% endif %}{% endfor %}){% endif %}
+      <a href="{% url wiki:page path=page.obj.name lang=language %}">{{ page.obj.name }}</a>{% if not is_download %}{% if page.langs %} ({% trans "Also available in:" %} {% for short,long in page.langs %}<a href="{% url wiki:page path=page.obj.name lang=short %}">{% trans long %}</a>{% if not forloop.last %},{% endif %}{% endfor %}){% endif %}{% endif %}
     </li>
   {% endfor %}
   </ul>

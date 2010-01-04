@@ -1,6 +1,7 @@
 from models import Category, Page, Content
 from forms import WikiForm, WikiTranslateForm
-from xa.utils import render_to
+from download import build_download
+from xa.utils import render_to, response
 
 import bbcode
 
@@ -176,3 +177,11 @@ def change_page_save(request, path, lang, oldpage, dotranslate):
             'language': lang, 
             'translate': oldpage.get_content(lang) if dotranslate else False,
             'create': bool(oldpage)}
+
+@response
+def download(request, lang, frmt):
+    """
+    Download the whole wiki for a certain language
+    """
+    archive, mimetype = build_download(request, lang, frmt)
+    return archive, mimetype
