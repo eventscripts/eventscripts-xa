@@ -5,7 +5,6 @@ import cfglib
 from xa import xa
 
 import os
-import glob
 
 #plugin information
 info = es.AddonInfo()
