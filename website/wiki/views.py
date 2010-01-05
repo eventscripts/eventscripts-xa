@@ -39,7 +39,8 @@ def category(request, lang, category):
                               page.get_available_languages())
         pages.append(tmp)
     return 'wiki/category.htm', {'language': lang, 'category': category,
-                                 'pages': pages, 'catobj': cat}
+                                 'pages': pages, 'catobj': cat,
+                                 'is_download': False}
 
 @render_to
 def page(request, path, lang):
@@ -58,7 +59,8 @@ def page(request, path, lang):
     # we can't use Page.objects.get because of __language.
     thispage = thispage[0]
     return 'wiki/page.htm', {'page': thispage,
-                             'language': lang}
+                             'language': lang,
+                             'is_download': False}
 
 @render_to
 def page_history_overview(request, path, lang):
@@ -183,5 +185,8 @@ def download(request, lang, frmt):
     """
     Download the whole wiki for a certain language
     """
-    archive, mimetype = build_download(request, lang, frmt)
-    return archive, mimetype
+    try:
+        archive, mimetype = build_download(request, lang, frmt)
+        return archive, mimetype
+    except Exception, e:
+        return e.message, 'text/plain'

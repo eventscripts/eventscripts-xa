@@ -2,11 +2,11 @@ from django.conf import settings
 
 DEFAULTS = {
     'WIKI_SS_PATH': None,
-    'WIKI_SS_URL_PREFIX': 'SS',
+    'WIKI_SS_URL_PREFIX': 'ss',
     'WIKI_GFX_PATH': None,
-    'WIKI_GFX_URL_PREFIX': 'JS',
+    'WIKI_GFX_URL_PREFIX': 'js',
     'WIKI_JS_PATH': None,
-    'WIKI_JS_URL_PREFIX': 'GFX',
+    'WIKI_JS_URL_PREFIX': 'gfx',
 }
 
 def get(key, default=None):

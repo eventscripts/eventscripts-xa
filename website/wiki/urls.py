@@ -14,7 +14,7 @@ wikipages = patterns('',
 
 urlpatterns = patterns('',
     url(r'^$', home, {'lang':None}, name='home'),
-    url(r'^(?P<lang>[a-z]{2})/+download/(?P<frmt>tgz|tbz2|zip)/?$',
+    url(r'^(?P<lang>[a-z]{2})/\+download/(?P<frmt>(tgz|tbz2|zip))/?$',
         download, name='download'),
     url(r'^(?P<lang>[a-z]{2})/?$', home, name='home'),
     url(r'^(?P<lang>[a-z]{2})/Category:(?P<category>[a-zA-Z0-9/_.-]+)$',

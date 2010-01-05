@@ -1,7 +1,12 @@
 {% extends "base.htm" %}
 
 {% load bbcode wiki i18n %}
-{% if is_download %}{% load wikidownload %}{% endif %}
+
+{% block sidenav %}
+{% if not is_download %}
+{{ block.super }}
+{% endif %}
+{% endblock %}
 
 {% block content %}
 <div class="item">
