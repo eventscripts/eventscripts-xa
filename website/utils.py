@@ -131,7 +131,13 @@ def get_installed_languages():
     Get all languages having translations for the site.
     """
     import os
-    return os.listdir(os.path.join(os.path.dirname(__file__), 'locale'))
+    languages = []
+    localesdir = os.path.join(os.path.dirname(__file__), 'locale')
+    for lang in os.listdir(localesdir):
+        mofile = os.path.join(localesdir, lang, 'LC_MESSAGES', 'django.mo')
+        if os.path.exists(mofile):
+            languages.append(lang)
+    return languages
     
     
 installed_languages = get_installed_languages()
