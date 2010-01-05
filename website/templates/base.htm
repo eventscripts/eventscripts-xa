@@ -32,6 +32,7 @@
         {% block content %}
         {% endblock %}
       </div>
+      {% block sidenav %}
       <div class="sidenav">
         {% if user.is_authenticated %}
         <h1>{% blocktrans with user.username as username %}Welcome {{ username }}{% endblocktrans %}</h1>
@@ -72,6 +73,7 @@
           <li><a href="http://www.transifex.net/projects/p/xa/c/xa/" target="_blank">{% trans "Translate Website" %}</a><li>
         </ul>
       </div>
+      {% endblock %}
       <div class="clearer"><span></span></div>
     </div>
     <div class="footer">&copy; 2009 Jonas Obrist. Template design by <a href="http://templates.arcsin.se">Arcsin</a>
