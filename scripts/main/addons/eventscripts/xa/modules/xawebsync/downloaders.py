@@ -40,13 +40,18 @@ class Urllib2DownloadManager(object):
     """
     class DownloaderThread(Thread):
         def __init__(self, queue):
+            es.dbgmsg(1, "Urllib2DownloadManager: Initializing Thread")
             self.queue = queue
-            self.running = True
+            self.running = False
             Thread.__init__(self)
             
         def run(self):
+            es.dbgmsg(1, "Urllib2DownloadManager: Running Thread")
+            self.running = True
             while self.running:
                 request = self.queue.get()
+                es.dbgmsg(1, "Urllib2DownloadManager: handling request: %s"
+                             % request.path)
                 success = False
                 try:
                     u = urllib2.urlopen(request.path,
@@ -67,9 +72,12 @@ class Urllib2DownloadManager(object):
     def download(self, url, data={}, callback=lambda x,y: None):
         request = Request(url, data, callback)
         self.queue.put(request)
+        if not self.thread.running:
+            self.thread.start()
         
     def cleanup(self):
         self.queue = Queue()
+        self.thread.running = False
 
 
 class WgetDownloadManager(object):
