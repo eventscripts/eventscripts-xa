@@ -55,8 +55,7 @@ class Urllib2DownloadManager(object):
                 success = False
                 try:
                     u = urllib2.urlopen(request.path,
-                                        request.querystring,
-                                        30)
+                                        request.querystring)
                     value   = u.read()
                     success = True
                 except urllib2.URLError, e:
@@ -65,11 +64,15 @@ class Urllib2DownloadManager(object):
                                     request)
                 request.callback(response)
                 
-    def __init__(self):
+    def __init__(self, timeout=30):
         self.queue = Queue()
         self.thread = self.DownloaderThread(self.queue)
+        self.set_timeout(timeout)
         
-    def download(self, url, data={}, callback=lambda x,y: None):
+    def set_timeout(self, timeout):
+        socket.setdefaulttimeout(timeout)
+        
+    def download(self, url, callback, data={}):
         request = Request(url, data, callback)
         self.queue.put(request)
         if not self.thread.running:
@@ -89,12 +92,16 @@ class WgetDownloadManager(object):
     tpl += ' --timeout=30 --post-data=%s %s'
     gtname = 'xawebsyncgt'
     
-    def __init__(self):
+    def __init__(self, timeout=30):
         self.queue = Queue()
         self.nextcallback = None
         self.request = None
+        self.set_timeout(timeout)
         
-    def download(self, url, data={}, callback=lambda x,y: None):
+    def set_timeout(self, timeout):
+        self.default_timeout = timeout
+        
+    def download(self, url, callback, data={}):
         es.dbgmsg(1, "WgetDownloadManager: Scheduling %s" % url)
         request = Request(url, data, callback)
         if self.request is None:
@@ -109,7 +116,7 @@ class WgetDownloadManager(object):
             os.remove(TEMP_DL_FILE)
         os.system(self.tpl % (request.querystring, request.path))
         self.request = request
-        self.timeout = 31
+        self.timeout = self.default_timeout
         gamethread.delayedname(1, self.gtname, self._check)
         es.dbgmsg(1, "WgetDownloadManager: Download started: %s" % request.path)
         

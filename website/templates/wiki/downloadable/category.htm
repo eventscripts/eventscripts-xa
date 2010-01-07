@@ -1,0 +1,17 @@
+{% extends "wiki/downloadable/base.htm" %}
+
+{% load i18n %}
+
+{% block content %}
+<div class="item">
+  <h1>{{ category }}</h1>
+  {% trans "Pages in this category:" %}
+  <ul>
+  {% for page in pages %}
+    <li>
+      <a href="{{ page.obj.name }}.html">{{ page.obj.name }}</a>
+    </li>
+  {% endfor %}
+  </ul>
+</div>
+{% endblock %}

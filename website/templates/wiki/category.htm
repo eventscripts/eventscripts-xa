@@ -2,12 +2,6 @@
 
 {% load i18n %}
 
-{% block sidenav %}
-{% if not is_download %}
-{{ block.super }}
-{% endif %}
-{% endblock %}
-
 {% block content %}
 <div class="item">
   <h1>{{ category }}</h1>
@@ -15,7 +9,7 @@
   <ul>
   {% for page in pages %}
     <li>
-      <a href="{% url wiki:page path=page.obj.name lang=language %}">{{ page.obj.name }}</a>{% if not is_download %}{% if page.langs %} ({% trans "Also available in:" %} {% for short,long in page.langs %}<a href="{% url wiki:page path=page.obj.name lang=short %}">{% trans long %}</a>{% if not forloop.last %},{% endif %}{% endfor %}){% endif %}{% endif %}
+      <a href="{% url wiki:page path=page.obj.name lang=language %}">{{ page.obj.name }}</a>{% if page.langs %} ({% trans "Also available in:" %} {% for short,long in page.langs %}<a href="{% url wiki:page path=page.obj.name lang=short %}">{% trans long %}</a>{% if not forloop.last %},{% endif %}{% endfor %}){% endif %}
     </li>
   {% endfor %}
   </ul>
