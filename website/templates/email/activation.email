@@ -1,12 +1,10 @@
 {% load i18n %}
-{% blocktrans %}
-Hello {{ username }},
+{% blocktrans with username as username %}Hello {{ username }}{% endblocktrans %}
 
-Link to your activation: http://dev.xa.ojii.ch/register/activate/{{ activation_key }}/"
+{% trans "Link to your activation:" %} http://xa.eventscripts.com/register/activate/{{ activation_key }}/
 
-your activation key: {{ activation_key }}
+{% trans "Your activation key:"%} {{ activation_key }}
 
-more infos:
-time to activate: {{ expiration_days }} days
-your email: {{ email }}
-{% endblocktrans %}
+{% trans "More information:" %}
+{% blocktrans with expiration_days as days %}Time to activate: {{ expiration_days }} days{% endblocktrans %}
+{% trans "Your email:"%} {{ email }}

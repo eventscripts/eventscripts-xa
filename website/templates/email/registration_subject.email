@@ -1,2 +1,2 @@
 {% load i18n %}
-{% trans "[XA] Your registration on dev.xa.ojii.ch" %}
+{% trans "[XA] Your registration on xa.eventscripts.com" %}
