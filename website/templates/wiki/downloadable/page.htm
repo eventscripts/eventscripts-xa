@@ -1,0 +1,20 @@
+{% extends "wik/downloadable/base.htm" %}
+
+{% load bbcode wiki i18n %}
+
+{% block content %}
+<div class="item">
+  <h1>{{ page.name }}</h1>
+  <div class="descr">
+  {% blocktrans with page.content.postdate as postdate and page.content.author.username as username %} Version from {{ postdate }} by {{ username }}{% endblocktrans %}
+  </div>
+  {% call page.get_content language as content %}
+  {% with "lorem ipsum" as wiki_downloadable %}
+  {% bbcode content.content %}
+  {% endwith %}
+  {% endif %}
+  <div class="descr">
+    {% trans "Categories:" %} {% for category in page.get_category_list %}<a href="Category-{{ category.name }}.html">{{ category }}</a>{% if not forloop.last %},{% endif %}{% endfor %} 
+  </div>
+</div>
+{% endblock %}

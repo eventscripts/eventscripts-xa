@@ -75,18 +75,15 @@ def build_download(request, lang, frmt):
     # Add Homepage
     homepage = Page.objects.get(is_home=True)
     context = RequestContext(request, {'page': homepage,
-                                       'language': lang,
-                                       'is_download': True})
-    rendered = render_to_string('wiki/page.htm', context)
-    archive.add_file(rendered, reverse('wiki:home'))
+                                       'language': lang})
+    rendered = render_to_string('wiki/downloadable/page.htm', context)
+    archive.add_file(rendered, 'index.html')
     # Add all pages
     for page in Page.objects.all():
         context = RequestContext(request, {'page': page,
-                                           'language': lang,
-                                           'is_download': True})
-        rendered = render_to_string('wiki/page.htm', context)
-        path = reverse('wiki:page', kwargs={'path':page.name, 'lang':lang})
-        archive.add_file(rendered, path)
+                                           'language': lang})
+        rendered = render_to_string('wiki/downloadable/page.htm', context)
+        archive.add_file(rendered, '%s.html' % page.name)
     # Add category pages
     for category in Category.objects.all():
         pages = []
@@ -99,12 +96,9 @@ def build_download(request, lang, frmt):
         context = RequestContext(request, {'language': lang,
                                            'category': category.name,
                                            'pages': pages,
-                                           'catobj': category,
-                                           'is_download': True})
-        rendered = render_to_string('wiki/category.htm', context)
-        path = reverse('wiki:category', kwargs={'lang': lang,
-                                                'category': category.name})
-        archive.add_file(rendered, path)
+                                           'catobj': category})
+        rendered = render_to_string('wiki/downloadable/category.htm', context)
+        archive.add_file(rendered, 'Category-%s.html' % category.name)
     # Add media
     for media in ('js', 'ss', 'gfx'):
         rootdir = get('WIKI_%s_PATH' % media.upper())

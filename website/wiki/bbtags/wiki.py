@@ -36,7 +36,10 @@ class Page(ArgumentTagNode):
                     inner += node.raw_content
                 else:
                     inner += node.parse()
-            url = get_url('wiki:page', lang=self.lang, path=self.argument)
+            if self.context.get('wiki_downloadable', None) == 'lorem ipsum':
+                url = '%s.html' % self.argument
+            else:
+                url = get_url('wiki:page', lang=self.lang, path=self.argument)
             return '<a href="%s">%s</a>' % (url, inner)
         else:
             inner = ''
@@ -46,7 +49,10 @@ class Page(ArgumentTagNode):
                                            "without an argument.")
                 else:
                     inner += node.raw_content
-            url = get_url('wiki:page', lang=self.lang, path=inner)
+            if self.context.get('wiki_downloadable', None) == 'lorem ipsum':
+                url = '%s.html' % inner
+            else:
+                url = get_url('wiki:page', lang=self.lang, path=inner)
             return '<a href="%s">%s</a>' % (url, inner)
 
 
@@ -78,7 +84,10 @@ class Category(ArgumentTagNode):
                     inner += node.raw_content
                 else:
                     inner += node.parse()
-            url = get_url('wiki:category', lang=self.lang, category=self.argument)
+            if self.context.get('wiki_downloadable', None) == 'lorem ipsum':
+                url = 'Category-%s.html' % self.argument
+            else:
+                url = get_url('wiki:category', lang=self.lang, category=self.argument)
             return '<a href="%s">%s</a>' % (url, inner)
         else:
             inner = ''
@@ -88,7 +97,10 @@ class Category(ArgumentTagNode):
                                            "tags without an argument.")
                 else:
                     inner += node.raw_content
-            url = get_url('wiki:category', lang=self.lang, category=inner)
+            if self.context.get('wiki_downloadable', None) == 'lorem ipsum':
+                url = 'Category-%s.html' % inner
+            else:
+                url = get_url('wiki:category', lang=self.lang, category=inner)
             return '<a href="%s">%s</a>' % (url, inner)
 
 register(Page)
