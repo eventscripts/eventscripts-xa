@@ -5,7 +5,7 @@ from xa.utils import render_to, response
 
 import bbcode
 
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
@@ -186,7 +186,9 @@ def download(request, lang, frmt):
     Download the whole wiki for a certain language
     """
     try:
-        archive, mimetype = build_download(request, lang, frmt)
-        return archive, mimetype
+        archive, mimetype, filext = build_download(request, lang, frmt)
+        response = HttpResponse(archive, content_type=mimetype)
+        response['Content-Disposition'] = 'attachment; filename=xa_documentation.%s' % filext
+        return response
     except Exception, e:
         return e.message, 'text/plain'

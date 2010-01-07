@@ -6,10 +6,7 @@ from settings import get
 import os
 import tarfile
 import zipfile
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+from StringIO import StringIO
 
 def rel_walkdir(rootdir):
     file_list = []
@@ -30,9 +27,11 @@ class Tar(object):
         """
         Add a file to the archive
         """
-        tinfo = tarfile.TarInfo(path)
-        tinfo.size = len(data)
-        self.tar.addfile(tinfo, StringIO(data))
+        sio = StringIO(data)
+        sio.seek(0)
+        info = tarfile.TarInfo(name=path)
+        info.size = len(sio.buf)
+        self.tar.addfile(info, fileobj=sio)
         
     def get_archive(self):
         self.tar.close()
@@ -51,7 +50,9 @@ class Zip(object):
         """
         Add a file to the archive
         """
-        self.zfile.writestr(path, data)
+        info = zipfile.ZipInfo(path)
+        info.external_attr = 0777 << 16L
+        self.zfile.writestr(info, data)
         
     def get_archive(self):
         self.zfile.close()
@@ -59,9 +60,9 @@ class Zip(object):
         
         
 FORMATS = {
-    'tgz': (Tar, ('gz',), 'application/x-tar-gz'),
-    'tbz2': (Tar, ('bz2',), 'application/x-bzip2'),
-    'zip': (Zip, (), 'application/x-zip-compressed'),
+    'tgz': (Tar, ('gz',), 'application/x-tar-gz', 'tar.gz'),
+    'tbz2': (Tar, ('bz2',), 'application/x-bzip2', 'tar.bz2'),
+    'zip': (Zip, (), 'application/x-zip-compressed', 'zip'),
 }
 
 
@@ -69,7 +70,7 @@ def build_download(request, lang, frmt):
     """
     Build a downloadable archive of the wiki for given language in given format.
     """
-    archive_class, archive_args, mimetype = FORMATS[frmt]
+    archive_class, archive_args, mimetype, filext = FORMATS[frmt]
     archive = archive_class(*archive_args)
     # Get actual files
     # Add Homepage
@@ -100,7 +101,7 @@ def build_download(request, lang, frmt):
         rendered = render_to_string('wiki/downloadable/category.htm', context)
         archive.add_file(rendered, 'Category-%s.html' % category.name)
     # Add media
-    for media in ('js', 'ss', 'gfx'):
+    for media in ('ss', 'gfx'):
         rootdir = get('WIKI_%s_PATH' % media.upper())
         prefix = get('WIKI_%s_URL_PREFIX' % media.upper())
         if not rootdir:
@@ -111,4 +112,4 @@ def build_download(request, lang, frmt):
             data = fobj.read()
             fobj.close()
             archive.add_file(data, path)
-    return archive.get_archive(), mimetype
+    return archive.get_archive(), mimetype, filext
