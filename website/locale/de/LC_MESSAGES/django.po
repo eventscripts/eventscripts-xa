@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-01-07 19:42+0000\n"
+"POT-Creation-Date: 2010-01-08 03:50+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,7 +21,8 @@ msgid ""
 "You may use BBCode Syntax in this field. For further information read the <a "
 "href=\"/bbcode/\">documentation</a>."
 msgstr ""
-"Du kannst auf dieser seite BBCode Formatierung benutzen. Eine Liste unterstützter Tags findest du in der  <a href=\"%(url)s\">Dokumentation</a>."
+"Du kannst auf dieser seite BBCode Formatierung benutzen. Eine Liste "
+"unterstützter Tags findest du in der  <a href=\"%(url)s\">Dokumentation</a>."
 
 #: templates/base.htm:38
 #, python-format
@@ -40,13 +41,13 @@ msgstr "Ausloggen"
 msgid "Login/Register"
 msgstr "Anmelden/Registrieren"
 
-#: templates/base.htm:50 templates/home/login.htm:11
-#: templates/register/register.htm:25
+#: templates/base.htm:50 templates/email/registration.email:9
+#: templates/home/login.htm:11 templates/register/register.htm:25
 msgid "Username:"
 msgstr "Benutzername:"
 
-#: templates/base.htm:54 templates/home/login.htm:15
-#: templates/register/register.htm:29
+#: templates/base.htm:54 templates/email/registration.email:10
+#: templates/home/login.htm:15 templates/register/register.htm:29
 msgid "Password:"
 msgstr "Passwort:"
 
@@ -91,6 +92,22 @@ msgstr "Website Quelltext"
 msgid "Translate Website"
 msgstr "Übersetze Website"
 
+#: templates/pagination.htm:5
+msgid "First"
+msgstr ""
+
+#: templates/pagination.htm:8
+msgid "Previous"
+msgstr ""
+
+#: templates/pagination.htm:14
+msgid "Next"
+msgstr ""
+
+#: templates/pagination.htm:17
+msgid "Last"
+msgstr ""
+
 #: templates/email/activation.email:2
 #, python-format
 msgid "Hello %(username)s"
@@ -129,9 +146,10 @@ msgstr ""
 "\n"
 "Dies ist eine automatisierte Nachricht von xa.eventscripts.com.\n"
 "\n"
-"Wenn du nicht weisst, weshalb du diese E-Mail bekommen hast, ignoriere sie einfach."
-"\n"
-"Wenn du dich auf xa.eventscripts.com registriert hast, hier sind deine Anmelde Informationen:"
+"Wenn du nicht weisst, weshalb du diese E-Mail bekommen hast, ignoriere sie "
+"einfach.\n"
+"Wenn du dich auf xa.eventscripts.com registriert hast, hier sind deine "
+"Anmelde Informationen:"
 
 #: templates/email/registration.email:12
 msgid ""
@@ -143,7 +161,8 @@ msgid ""
 "PS: Please don't reply to this email\n"
 msgstr ""
 "\n"
-"Bitte logge dich auf http://xa.eventscripts.com/login ein und ändere dein Passwort!\n"
+"Bitte logge dich auf http://xa.eventscripts.com/login ein und ändere dein "
+"Passwort!\n"
 "\n"
 "Das XA Entwicklungs Team\n"
 "\n"
@@ -209,8 +228,12 @@ msgid "Add Group"
 msgstr "Gruppe hinzufügen"
 
 #: templates/groupauth/edit.htm:34
-msgid "Invalid Group Name. Only letters, numbers, underscores and dashes are allowed."
-msgstr "Unerlaubter Gruppen Name. Nur Buchstaben, Zahlen, Unter- und Bindestriche sind erlaubt."
+msgid ""
+"Invalid Group Name. Only letters, numbers, underscores and dashes are "
+"allowed."
+msgstr ""
+"Unerlaubter Gruppen Name. Nur Buchstaben, Zahlen, Unter- und Bindestriche "
+"sind erlaubt."
 
 #: templates/groupauth/edit.htm:40 templates/wiki/change.htm:52
 msgid "Save"
@@ -241,22 +264,27 @@ msgstr "Neuste Version"
 msgid "Version %(version)s released on %(releasedate)s"
 msgstr "Version %(version)s veröffentlicht am %(releasedate)s"
 
-#: templates/home/home.htm:10 templates/wiki/history_overview.htm:12
-#, python-format
-msgid "%(postdate)s by %(username)s"
-msgstr "%(postdate)s von %(username)s"
-
 #: templates/home/login.htm:7
 msgid "Please log in"
 msgstr "Bitte logge dich ein"
+
+#: templates/home/news.htm:12 templates/home/newsitem.htm:9
+#: templates/wiki/history_overview.htm:12
+#, python-format
+msgid "%(postdate)s by %(username)s"
+msgstr "%(postdate)s von %(username)s"
 
 #: templates/password/change/change.htm:6
 msgid "Change Password"
 msgstr "Ändere dein Passwort"
 
 #: templates/password/change/change.htm:8
-msgid "Please enter your old password, for security's sake, and then enter your new password twice so we can verify you typed it in correctly."
-msgstr "Gib nun dein altes Passwort und das neue Passwort (aus Sicherheitsgründen) zweimal ein."
+msgid ""
+"Please enter your old password, for security's sake, and then enter your new "
+"password twice so we can verify you typed it in correctly."
+msgstr ""
+"Gib nun dein altes Passwort und das neue Passwort (aus Sicherheitsgründen) "
+"zweimal ein."
 
 #: templates/password/change/change.htm:12
 #: templates/password/reset/reset.htm:14 templates/register/register.htm:11
@@ -307,7 +335,9 @@ msgid "Enter new password"
 msgstr "Gib ein neues Passwort ein"
 
 #: templates/password/reset/confirm.htm:10
-msgid "Please enter your new password twice so we can verify you typed it in correctly."
+msgid ""
+"Please enter your new password twice so we can verify you typed it in "
+"correctly."
 msgstr "Gib nun dein neues Passwort (aus Sicherheitsgründen) zweimal ein."
 
 #: templates/password/reset/confirm.htm:20
@@ -315,8 +345,12 @@ msgid "Password reset unsuccessful"
 msgstr "Passwort konnte nicht zurückgesetzt werden"
 
 #: templates/password/reset/confirm.htm:22
-msgid "The password reset link was invalid, possibly because it has already been used.  Please request a new password reset."
-msgstr "Der Link um das Passwort zurückzusetzen ist nicht gültig. Bitte verlange eine erneute Zurücksetzung deines Passworts."
+msgid ""
+"The password reset link was invalid, possibly because it has already been "
+"used.  Please request a new password reset."
+msgstr ""
+"Der Link um das Passwort zurückzusetzen ist nicht gültig. Bitte verlange "
+"eine erneute Zurücksetzung deines Passworts."
 
 #: templates/password/reset/done.htm:7
 msgid "Password reset successful"
@@ -325,12 +359,14 @@ msgstr "Passwort erfolgreich zurückgesetzt."
 #: templates/password/reset/done.htm:9
 msgid ""
 "\n"
-"  <p>We've e-mailed you instructions for setting your password to the e-mail address you submitted.</p>\n"
+"  <p>We've e-mailed you instructions for setting your password to the e-mail "
+"address you submitted.</p>\n"
 "  <p>You should be receiving it shortly.</p>\n"
 "  "
 msgstr ""
 "\n"
-"<p>Eine Anleitung um das Passwort zu ändern wurde an die eingegebene E-Mail Adresse gesendet.</p>\n"
+"<p>Eine Anleitung um das Passwort zu ändern wurde an die eingegebene E-Mail "
+"Adresse gesendet.</p>\n"
 "<p>Du solltest sie bald erhalten.</p>\n"
 "  "
 
@@ -339,8 +375,12 @@ msgid "Password reset"
 msgstr "Password zurücksetzten."
 
 #: templates/password/reset/reset.htm:9
-msgid "Forgotten your password? Enter your e-mail address below, and we'll e-mail instructions for setting a new one."
-msgstr "Hast du dein Passwort vergessen? Gib deine E-Mail Addresse unten ein und wir werden dir Instruktionen, um ein neues Passwort zu Ã¤ndern, zuschicken."
+msgid ""
+"Forgotten your password? Enter your e-mail address below, and we'll e-mail "
+"instructions for setting a new one."
+msgstr ""
+"Hast du dein Passwort vergessen? Gib deine E-Mail Addresse unten ein und wir "
+"werden dir Instruktionen, um ein neues Passwort zu Ã¤ndern, zuschicken."
 
 #: templates/password/reset/reset.htm:15
 msgid "This field is required."
@@ -383,8 +423,12 @@ msgid "Registration Completed"
 msgstr "Registrierung erfolgreich"
 
 #: templates/register/complete.htm:8
-msgid "Please check your email inbox. You should have an account activation confirmation email. Please also check your spam filter."
-msgstr "Bitte Überprüfe deine E-Mail Inbox. Du solltest eine Bestätigungs E-Mail erhalten haben. Bitte schau auch in deinem Spam Ordner nach."
+msgid ""
+"Please check your email inbox. You should have an account activation "
+"confirmation email. Please also check your spam filter."
+msgstr ""
+"Bitte Überprüfe deine E-Mail Inbox. Du solltest eine Bestätigungs E-Mail "
+"erhalten haben. Bitte schau auch in deinem Spam Ordner nach."
 
 #: templates/register/register.htm:7
 msgid "You already have an account, after all you're logged in right now!"
@@ -392,7 +436,14 @@ msgstr "Du hast bereits einen Account, schliesslich bist du ja eingeloggt!"
 
 #: templates/register/register.htm:12
 msgid "The username you entered is not valid or already taken."
-msgstr "Der Benutzername, den du eingegeben hast, ist nicht gültig oder wird bereits verwendet."
+msgstr ""
+"Der Benutzername, den du eingegeben hast, ist nicht gültig oder wird bereits "
+"verwendet."
+
+#: templates/register/register.htm:13
+#, fuzzy
+msgid "The passwords you entered are not valid or do not match."
+msgstr "Die E-Mail Addressen sind ungültig oder stimmen nicht überein."
 
 #: templates/register/register.htm:14
 msgid "The e-mails you entered are not valid or do not match."
@@ -403,8 +454,13 @@ msgid "Please accept our Terms and Conditions."
 msgstr "Bitte akzeptiere unsere Bedingungen."
 
 #: templates/register/register.htm:19
-msgid "Please note that you will need to enter a valid e-mail address before your account is activated. You will receive an e-mail at the address you provide that contains an account activation link."
-msgstr "Du musst eine gültige E-Mail addresse eingeben, um deinen Account aktivieren zu können."
+msgid ""
+"Please note that you will need to enter a valid e-mail address before your "
+"account is activated. You will receive an e-mail at the address you provide "
+"that contains an account activation link."
+msgstr ""
+"Du musst eine gültige E-Mail addresse eingeben, um deinen Account aktivieren "
+"zu können."
 
 #: templates/register/register.htm:31
 msgid "Must be between 6 and 20 characters."
@@ -434,11 +490,11 @@ msgstr "Bedingungen"
 msgid "I agree to these terms"
 msgstr "Ich akzeptiere diese Bedingungen."
 
-#: templates/wiki/category.htm:14
+#: templates/wiki/category.htm:8 templates/wiki/downloadable/category.htm:8
 msgid "Pages in this category:"
 msgstr "Seiten in dieser Kategorie:"
 
-#: templates/wiki/category.htm:18
+#: templates/wiki/category.htm:12
 msgid "Also available in:"
 msgstr "Auch verfügbar in:"
 
@@ -456,8 +512,12 @@ msgstr "Erstelle"
 
 #: templates/wiki/change.htm:11
 #, python-format
-msgid "You may use bbcode-style formatting on this page. See the <a href=\"%(url)s\">documentation</a> of the bbcode tags supported on this site."
-msgstr "Du kannst auf dieser seite BBCode Formatierung benutzen. Eine Liste unterstützter Tags findest du in der  <a href=\"%(url)s\">Dokumentation</a>."
+msgid ""
+"You may use bbcode-style formatting on this page. See the <a href=\"%(url)s"
+"\">documentation</a> of the bbcode tags supported on this site."
+msgstr ""
+"Du kannst auf dieser seite BBCode Formatierung benutzen. Eine Liste "
+"unterstützter Tags findest du in der  <a href=\"%(url)s\">Dokumentation</a>."
 
 #: templates/wiki/change.htm:22
 msgid "Original"
@@ -487,28 +547,28 @@ msgstr "Vorherige Version vom %(postdate)s von %(username)s"
 msgid "History of <a href=\"%(url)s\">%(pagename)s</a>"
 msgstr "Geschichte von <a href=\"%(url)s\">%(pagename)s</a>"
 
-#: templates/wiki/page.htm:15
+#: templates/wiki/page.htm:10 templates/wiki/downloadable/page.htm:10
 #, python-format
 msgid " Version from %(postdate)s by %(username)s"
 msgstr " Version vom %(postdate)s von %(username)s"
 
-#: templates/wiki/page.htm:15
+#: templates/wiki/page.htm:10
 msgid "history"
 msgstr "Geschichte"
 
-#: templates/wiki/page.htm:15
+#: templates/wiki/page.htm:10
 msgid "login to edit this page"
 msgstr "Melde dich an um diese Seite zu bearbeiten"
 
-#: templates/wiki/page.htm:21
+#: templates/wiki/page.htm:14
 msgid "View page in:"
 msgstr "Diese Seite in:"
 
-#: templates/wiki/page.htm:21
+#: templates/wiki/page.htm:14
 #, python-format
 msgid "or <a href=\"%(url)s\">translate it</a>!"
 msgstr "oder <a href=\"%(url)s\">übersetze sie</a>!"
 
-#: templates/wiki/page.htm:25
+#: templates/wiki/page.htm:17 templates/wiki/downloadable/page.htm:16
 msgid "Categories:"
 msgstr "Kategorien:"

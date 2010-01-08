@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-01-07 19:44+0000\n"
+"POT-Creation-Date: 2010-01-08 03:50+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -88,6 +88,22 @@ msgstr ""
 
 #: templates/base.htm:73
 msgid "Translate Website"
+msgstr ""
+
+#: templates/pagination.htm:5
+msgid "First"
+msgstr ""
+
+#: templates/pagination.htm:8
+msgid "Previous"
+msgstr ""
+
+#: templates/pagination.htm:14
+msgid "Next"
+msgstr ""
+
+#: templates/pagination.htm:17
+msgid "Last"
 msgstr ""
 
 #: templates/email/activation.email:2
@@ -227,13 +243,14 @@ msgstr ""
 msgid "Version %(version)s released on %(releasedate)s"
 msgstr ""
 
-#: templates/home/home.htm:10 templates/wiki/history_overview.htm:12
-#, python-format
-msgid "%(postdate)s by %(username)s"
-msgstr ""
-
 #: templates/home/login.htm:7
 msgid "Please log in"
+msgstr ""
+
+#: templates/home/news.htm:12 templates/home/newsitem.htm:9
+#: templates/wiki/history_overview.htm:12
+#, python-format
+msgid "%(postdate)s by %(username)s"
 msgstr ""
 
 #: templates/password/change/change.htm:6
