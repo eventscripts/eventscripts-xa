@@ -9,7 +9,7 @@ def news(request, page):
     """
     Render the homepage with some news items
     """
-    thepage = Paginator('/news/', News.objects.all(), 5, page, bullets=5)
+    thepage = Paginator('/news/', News.objects.all(), 5, int(page), bullets=5)
     return 'home/news.htm', {'page': thepage}
 
 @render_to

@@ -5,13 +5,14 @@
 {% block content %}
 {% paginate page as pagination %}
 {{ pagination }}
-{% for object in page.objects_list %}
+{% for object in page.object_list %}
 <div class="item">
-  <h1>{{ object.title }}</h1>
+  <h1><a href="{% url news-item slug=object.slug %}">{{ object.title }}</a></h1>
   <div class="descr">
   {% blocktrans with object.postdate|date:"D, j M Y P" as postdate and object.author.username as username %}{{ postdate }} by {{ username }}{% endblocktrans %}
   </div>
-  {% bbcode object.content %}
+  {% bbcode object.content as newscontent %}
+  {{ newscontent|truncatewords_html:50 }}
 </div>
 {% endfor %}
 {{ pagination }}

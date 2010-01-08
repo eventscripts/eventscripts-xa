@@ -35,8 +35,9 @@ class PaginationNode(template.Node):
         self.varname = varname
         
     def render(self, context):
-        context[self.varname] = render_to_string('paginatation.htm',
+        context[self.varname] = render_to_string('pagination.htm',
             {'page': self.pageobj.resolve(context)})
+        return ''
 
 
 @register.tag
