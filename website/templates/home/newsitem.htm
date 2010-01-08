@@ -3,7 +3,6 @@
 {% load bbcode i18n %}
 
 {% block content %}
-{% for item in news %}
 <div class="item">
   <h1>{{ item.title }}</h1>
   <div class="descr">
@@ -11,5 +10,4 @@
   </div>
   {% bbcode item.content %}
 </div>
-{% endfor %}
 {% endblock %}

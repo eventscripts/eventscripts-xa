@@ -42,7 +42,11 @@ urlpatterns = patterns('',
     #===========================================================================
     # Home
     #===========================================================================
-    (r'^$', 'xa.home.views.home'),
+    url(r'^$', 'xa.home.views.news', kwargs={'page': 1}, name='home'),
+    url(r'^news/?$', 'xa.home.views.news', kwargs={'page': 1}, name='news'),
+    url(r'^news/(?P<page>\d+)/?$', 'xa.home.views.news', name='news'),
+    url(r'^news/(?P<page>[a-zA-Z0-9_-]+)/?$', 'xa.home.views.news_item',
+        name='news-item'),
     # Set Language
     url(r'language/(?P<lang>[a-zA-Z]{2})/?', 'xa.home.views.set_language',
         name='set_language'),

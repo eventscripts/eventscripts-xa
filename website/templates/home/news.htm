@@ -1,0 +1,18 @@
+{% extends "base.htm" %}
+
+{% load bbcode i18n utils %}
+
+{% block content %}
+{% paginate page as pagination %}
+{{ pagination }}
+{% for object in page.objects_list %}
+<div class="item">
+  <h1>{{ object.title }}</h1>
+  <div class="descr">
+  {% blocktrans with object.postdate|date:"D, j M Y P" as postdate and object.author.username as username %}{{ postdate }} by {{ username }}{% endblocktrans %}
+  </div>
+  {% bbcode object.content %}
+</div>
+{% endfor %}
+{{ pagination }}
+{% endblock %}

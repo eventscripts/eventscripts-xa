@@ -17,6 +17,7 @@ class News(models.Model):
     id          = models.AutoField(primary_key=True)
     author      = models.ForeignKey('auth.User', related_name='news')
     title       = models.CharField(max_length=255)
+    slug        = models.SlugField(max_length=64, unique=True)
     content     = fields.BBCodeTextField(help_text=bbhelptext)
     postdate    = models.DateTimeField(auto_now_add=True)
     

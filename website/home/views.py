@@ -1,15 +1,24 @@
 from models import News, Release
-from xa.utils import render_to
+from xa.utils import render_to, Paginator
 from django.http import HttpResponseRedirect
 from django.conf import settings
 from django.utils.translation import check_for_language
 
 @render_to
-def home(request):
+def news(request, page):
     """
-    Render the homepage with the latest 5 news posts
+    Render the homepage with some news items
     """
-    return 'home/home.htm', {'news': News.objects.all()[:5]}
+    thepage = Paginator('/news/', News.objects.all(), 5, page, bullets=5)
+    return 'home/news.htm', {'page': thepage}
+
+@render_to
+def news_item(request, slug):
+    """
+    Render a single news item
+    """
+    item = News.objects.get_or_404(slug=slug)
+    return 'home/newsitem.htm', {'item': item}
 
 @render_to
 def download(request, version=None):

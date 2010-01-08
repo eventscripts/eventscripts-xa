@@ -6,5 +6,8 @@ from django.contrib import admin
 
 register = admin.site.register
 
-register(News)
+class NewsAdmin(admin.ModelAdmin):
+    prepopulated_fields = {"slug": ("title",)}
+
+register(NewsAdmin)
 register(Release)
