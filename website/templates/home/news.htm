@@ -2,6 +2,11 @@
 
 {% load bbcode i18n utils %}
 
+{% block meta %}
+<link rel="alternate" type="application/rss+xml" href="{% url news-feed "rss" %}" title="eXtensible Admin news feed (RSS)" />
+<link rel="alternate" type="application/atom+xml" href="{% url news-feed "atom" %}" title="eXtensible Admin news feed (Atom)" />
+{% endblock %}
+
 {% block content %}
 {% paginate page as pagination %}
 {{ pagination }}

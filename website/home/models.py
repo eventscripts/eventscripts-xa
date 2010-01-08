@@ -3,6 +3,7 @@
 """
 from django.db import models
 from django.utils.translation import ugettext as _
+from django.core.urlresolvers import reverse
 from bbcode import fields
 from xa.utils import BaseManager
 
@@ -33,6 +34,9 @@ class News(models.Model):
     
     def __unicode__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return reverse('news-item', kwargs={'slug': self.slug})
 
 
 class Release(models.Model):

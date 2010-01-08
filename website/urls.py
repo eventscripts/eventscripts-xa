@@ -1,10 +1,16 @@
 from django.conf.urls.defaults import patterns, url, include
+from xa.home.feeds import NewsFeedRSS, NewsFeedAtom
 
 from django.contrib import admin
 admin.autodiscover()
 
 import bbcode
 bbcode.autodiscover()
+
+feeds = {
+    'rss': NewsFeedRSS,
+    'atom': NewsFeedAtom,
+}
 
 password_patterns = patterns('',
     url(r'^change/$',
@@ -47,6 +53,13 @@ urlpatterns = patterns('',
     url(r'^news/(?P<page>\d+)/?$', 'xa.home.views.news', name='news'),
     url(r'^news/(?P<slug>[a-zA-Z0-9_-]+)/?$', 'xa.home.views.news_item',
         name='news-item'),
+    url(r'^newsfeed/?$',
+        'django.contrib.syndication.views.feed',
+        kwargs={'feed_dict': feeds, 'url': 'rss'}),
+    url(r'^newsfeed/(?P<url>rss|atom)/?$',
+        'django.contrib.syndication.views.feed',
+        kwargs={'feed_dict': feeds},
+        name='news-feed'),
     # Set Language
     url(r'language/(?P<lang>[a-zA-Z]{2})/?', 'xa.home.views.set_language',
         name='set_language'),
