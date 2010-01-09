@@ -9,6 +9,7 @@ from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
+from django.views.decorators.cache import cache_page
 
 from datetime import datetime
 
@@ -180,15 +181,21 @@ def change_page_save(request, path, lang, oldpage, dotranslate):
             'translate': oldpage.get_content(lang) if dotranslate else False,
             'create': bool(oldpage)}
 
-@response
+@render_to
+def download_overview(request, lang):
+    """
+    Tell the user what formats they can have the download in
+    """
+    return 'wiki/download.htm', {'language': lang}
+
+@cache_page(60 * 60 * 24 * 7) # 1 week
 def download(request, lang, frmt):
     """
     Download the whole wiki for a certain language
     """
-    try:
-        archive, mimetype, filext = build_download(request, lang, frmt)
-        response = HttpResponse(archive, content_type=mimetype)
-        response['Content-Disposition'] = 'attachment; filename=xa_documentation.%s' % filext
-        return response
-    except Exception, e:
-        return e.message, 'text/plain'
+    archive, mimetype, filext = build_download(request, lang, frmt)
+    response = HttpResponse(archive, content_type=mimetype)
+    response['Content-Disposition'] = (
+        'attachment; filename=xa_documentation.%s' % filext
+    )
+    return response

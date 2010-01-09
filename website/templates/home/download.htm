@@ -8,5 +8,6 @@
   <div class="descr">{% blocktrans with release.version as version and release.releasedate|date:"D, j M Y P" as releasedate %}Version {{ version }} released on {{ releasedate }}{% endblocktrans %}</div>
   {% bbcode release.info %}
   <div class="descr"><a href="{{ release.file.url }}">{% trans "Download" %}</a></div>
+  <div class="descr"><a href="{% url release-list %}">{% trans "Older Versions" %}</a></div>
 </div>
 {% endblock %}

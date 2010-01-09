@@ -7,7 +7,7 @@
 {% if account %}
     <h1>{% trans "Registration - Complete" %}</h1>
     <p>{% trans "You have successfully registered on our site." %}</p>
-    <p>&raquo; <a href="{% url profile:edit %}">{% trans "Now visit your profile" %}</a></p>
+    <p>&raquo; <a href="{% url auth_password_change %}">{% trans "You might want to change your password now." %}</a></p>
 {% else %}
     <h1>{% trans "Registration - Error" %}</h1>
     <p>{% trans "Your account has already been activated." %}</p>

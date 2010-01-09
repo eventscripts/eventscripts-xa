@@ -45,6 +45,7 @@ class Release(models.Model):
     """
     id          = models.AutoField(primary_key=True)
     version     = models.CharField(max_length=20)
+    slug        = models.SlugField(max_length=20)
     file        = models.FileField(upload_to='releases/')
     info        = fields.BBCodeTextField(help_text=bbhelptext)
     releasedate = models.DateTimeField(auto_now_add=True)

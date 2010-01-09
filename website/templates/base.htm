@@ -40,14 +40,14 @@
         <h1>{% blocktrans with user.username as username %}Welcome {{ username }}{% endblocktrans %}</h1>
         <ul>
           {% if user.is_superuser %}
-          <li><a href="/admin/">{% trans "Admin Panel" %}</a></li>
+          <li><a href="{% url admin:index %}">{% trans "Admin Panel" %}</a></li>
           {% endif %}
-          <li><a href="/logout/">{% trans "Logout" %}</a></li>
+          <li><a href="{% url auth_logout %}">{% trans "Logout" %}</a></li>
         </ul>
         {% else %}
         <h1>{% trans "Login/Register" %}</h1>
         <ul>
-          <form method="post" action="/login/">
+          <form method="post" action="{% url auth_login %}">
             <li>
               <label for="username">{% trans "Username:" %}</label>
               <div><input type="text" name="username" class="input_text" id="username" /></div>
@@ -58,19 +58,19 @@
             </li>
             <li>
               <div><input type="submit" value="{% trans "Login" %}" /></div>
-              <input type="hidden" name="next" value="/" />
+              <input type="hidden" name="next" value="{% url home %}" />
             </li>
           </form>
-          <li><a href="/register/">{% trans "Register" %}</a></li>
+          <li><a href="{% url registration_register %}">{% trans "Register" %}</a></li>
         </ul>
         {% endif %}
         <h1>{% trans "Menu" %}</h1>
         <ul>
           <li><a href="/">{% trans "Home" %}</a></li>
           <li><a href="http://bitbucket.org/errant/eventscripts-xa/issues/">{% trans "Bugs" %}</a></li>
-          <li><a href="/download/">{% trans "Download" %}</a></li>
-          <li><a href="/docs/">{% trans "Documentation" %}</a></li>
-          <li><a href="/groupauth/">{% trans "Group Auth" %}</a></li>
+          <li><a href="{% url download-newest %}">{% trans "Download" %}</a></li>
+          <li><a href="{% url wiki:home %}">{% trans "Documentation" %}</a></li>
+          <li><a href="{% url gauth:index %}">{% trans "Group Auth" %}</a></li>
           <li><a href="http://bitbucket.org/errant/eventscripts-xa/src/tip/website/" target="_blank">{% trans "Website Sourecode" %}</a></li>
           <li><a href="http://www.transifex.net/projects/p/xa/c/xa/" target="_blank">{% trans "Translate Website" %}</a><li>
         </ul>

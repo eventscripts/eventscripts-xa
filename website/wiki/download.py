@@ -1,12 +1,17 @@
 from django.template.loader import render_to_string
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
+from django.utils.encoding import force_unicode
 from models import Category, Page
 from settings import get
 import os
 import tarfile
 import zipfile
 from StringIO import StringIO
+
+class MyStringIO(StringIO):
+    def close(self):
+        pass
 
 def rel_walkdir(rootdir):
     file_list = []
@@ -20,7 +25,7 @@ def rel_walkdir(rootdir):
     
 class Tar(object):
     def __init__(self, mode):
-        self.fileobj = StringIO()
+        self.fileobj = MyStringIO()
         self.tar = tarfile.open(fileobj=self.fileobj, mode='w:%s' % mode)
         
     def add_file(self, data, path):
@@ -78,13 +83,13 @@ def build_download(request, lang, frmt):
     context = RequestContext(request, {'page': homepage,
                                        'language': lang})
     rendered = render_to_string('wiki/downloadable/page.htm', context)
-    archive.add_file(rendered, 'index.html')
+    archive.add_file(rendered.encode('utf8'), 'index.html')
     # Add all pages
     for page in Page.objects.all():
         context = RequestContext(request, {'page': page,
                                            'language': lang})
         rendered = render_to_string('wiki/downloadable/page.htm', context)
-        archive.add_file(rendered, '%s.html' % page.name)
+        archive.add_file(rendered.encode('utf8'), '%s.html' % page.name)
     # Add category pages
     for category in Category.objects.all():
         pages = []
@@ -99,7 +104,7 @@ def build_download(request, lang, frmt):
                                            'pages': pages,
                                            'catobj': category})
         rendered = render_to_string('wiki/downloadable/category.htm', context)
-        archive.add_file(rendered, 'Category-%s.html' % category.name)
+        archive.add_file(rendered.encode('utf8'), 'Category-%s.html' % category.name)
     # Add media
     for media in ('ss', 'gfx'):
         rootdir = get('WIKI_%s_PATH' % media.upper())

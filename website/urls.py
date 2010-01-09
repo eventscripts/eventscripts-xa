@@ -66,10 +66,10 @@ urlpatterns = patterns('',
     #===========================================================================
     # Releases
     #===========================================================================
-    url(r'^download/?$', 'xa.home.views.download', name='download-newest'),
-    url(r'^download/(?P<version>[^/]+)/?$', 'xa.home.views.download',
+    url(r'^releases/?$', 'xa.home.views.download', name='download-newest'),
+    url(r'^release/(?P<slug>[^/]+)/?$', 'xa.home.views.download',
         name='download-old'),
-    url(r'^releases/?$', 'xa.home.views.releases', name='release-list'),
+    url(r'^releases/archive/?$', 'xa.home.views.releases', name='release-list'),
     #===========================================================================
     # API
     #===========================================================================
@@ -92,10 +92,6 @@ urlpatterns = patterns('',
         {'template_name':'home/login.htm'}, name='auth_login'),
     url(r'^logout/?$', 'django.contrib.auth.views.logout',
         {'next_page': '/'}, name='auth_logout'),
-    #===========================================================================
-    # Profile
-    #===========================================================================
-    (r'profile/', include('xa.profile.urls', namespace='profile')),
     #===========================================================================
     # django-registration
     #===========================================================================

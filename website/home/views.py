@@ -21,14 +21,14 @@ def news_item(request, slug):
     return 'home/newsitem.htm', {'item': item}
 
 @render_to
-def download(request, version=None):
+def download(request, slug=None):
     """
-    Render the download inormation page
+    Render the latest version information.
     """
-    if version is None:
+    if slug is None:
         release = Release.objects.all().latest()
     else:
-        release = Release.objects.get_or_404(version=version)
+        release = Release.objects.get_or_404(slug=slug)
     return 'home/download.htm', {'release': release}
 
 @render_to

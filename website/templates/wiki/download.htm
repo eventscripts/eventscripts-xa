@@ -1,0 +1,15 @@
+{% extends "base.htm" %}
+
+
+{% load i18n %}
+
+{% block content %}
+<div class="item">
+  <h1>{% trans "Download Documentation"%}</h1>
+  <ul>
+    <li><a href="{% url wiki:download lang=language frmt="tgz" %}" target="_blank">tar.gz</a></li>
+    <li><a href="{% url wiki:download lang=language frmt="tbz2" %}" target="_blank">tar.bz2</a></li>
+    <li><a href="{% url wiki:download lang=language frmt="zip" %}" target="_blank">zip</a></li>
+  </ul>
+</div>
+{% endblock %}

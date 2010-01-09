@@ -9,5 +9,8 @@ register = admin.site.register
 class NewsAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("title",)}
 
+class ReleaseAdmin(admin.ModelAdmin):
+    prepopulated_fields = {"slug": ("version",)}
+
 register(News, NewsAdmin)
-register(Release)
+register(Release, ReleaseAdmin)
