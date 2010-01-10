@@ -17,7 +17,7 @@ class NewsFeedAtom(NewsFeedRSS):
     feed_type = Atom1Feed
     subtitle = NewsFeedRSS.description
 
-class ReleaseFeedRSS(Feed):
+class ReleasesFeedRSS(Feed):
     title = 'eExtensible Admin releases'
     link  = '/releases/'
     description = 'Releases of the eXtensible Admin project.'
@@ -28,6 +28,6 @@ class ReleaseFeedRSS(Feed):
         return Release.objects.order_by('-releasedate')[:10]
 
 
-class ReleaseFeedAtom(ReleaseFeedRSS):
+class ReleasesFeedAtom(ReleasesFeedRSS):
     feed_type = Atom1Feed
-    subtitle = ReleaseFeedRSS.description
+    subtitle = ReleasesFeedRSS.description

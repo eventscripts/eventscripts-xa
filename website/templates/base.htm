@@ -67,6 +67,10 @@
         <h1>{% trans "Menu" %}</h1>
         <ul>
           <li><a href="/">{% trans "Home" %}</a></li>
+          {% get_sidebar_pages as pages %}
+          {% for slug,title in pages %}
+            <li><a href="{% url static-page slug=slug %}">{{ title }}</a></li>
+          {% endfor %}
           <li><a href="http://bitbucket.org/errant/eventscripts-xa/issues/">{% trans "Bugs" %}</a></li>
           <li><a href="{% url download-newest %}">{% trans "Download" %}</a></li>
           <li><a href="{% url wiki:home %}">{% trans "Documentation" %}</a></li>

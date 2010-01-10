@@ -1,5 +1,7 @@
 from django.conf.urls.defaults import patterns, url, include
-from xa.home.feeds import NewsFeedRSS, NewsFeedAtom
+from xa.home.feeds import (
+    NewsFeedRSS, NewsFeedAtom, ReleasesFeedRSS, ReleasesFeedAtom
+)
 
 from django.contrib import admin
 admin.autodiscover()
@@ -7,9 +9,13 @@ admin.autodiscover()
 import bbcode
 bbcode.autodiscover()
 
-feeds = {
+newsfeeds = {
     'rss': NewsFeedRSS,
     'atom': NewsFeedAtom,
+}
+releasesfeeds = {
+    'rss': ReleasesFeedRSS,
+    'atom': ReleasesFeedAtom,
 }
 
 password_patterns = patterns('',
@@ -55,11 +61,18 @@ urlpatterns = patterns('',
         name='news-item'),
     url(r'^newsfeed/?$',
         'django.contrib.syndication.views.feed',
-        kwargs={'feed_dict': feeds, 'url': 'rss'}),
+        kwargs={'feed_dict': newsfeeds, 'url': 'rss'}),
     url(r'^newsfeed/(?P<url>rss|atom)/?$',
         'django.contrib.syndication.views.feed',
-        kwargs={'feed_dict': feeds},
+        kwargs={'feed_dict': newsfeeds},
         name='news-feed'),
+    url(r'^releasesfeed/?$',
+        'django.contrib.syndication.views.feed',
+        kwargs={'feed_dict': releasesfeeds, 'url': 'rss'}),
+    url(r'^releasesfeed/(?P<url>rss|atom)/?$',
+        'django.contrib.syndication.views.feed',
+        kwargs={'feed_dict': releasesfeeds},
+        name='releases-feed'),
     # Set Language
     url(r'language/(?P<lang>[a-zA-Z]{2})/?', 'xa.home.views.set_language',
         name='set_language'),
@@ -70,6 +83,11 @@ urlpatterns = patterns('',
     url(r'^release/(?P<slug>[^/]+)/?$', 'xa.home.views.download',
         name='download-old'),
     url(r'^releases/archive/?$', 'xa.home.views.releases', name='release-list'),
+    #===========================================================================
+    # Static Pages
+    #===========================================================================
+    url(r'^static/(?P<slug>[^/]+)/?$', 'xa.home.views.static_page',
+        name='static-page'),
     #===========================================================================
     # API
     #===========================================================================

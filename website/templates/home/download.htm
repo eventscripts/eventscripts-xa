@@ -2,6 +2,11 @@
 
 {% load bbcode i18n %}
 
+{% block meta %}
+<link rel="alternate" type="application/rss+xml" href="{% url releases-feed "rss" %}" title="eXtensible Admin releases feed (RSS)" />
+<link rel="alternate" type="application/atom+xml" href="{% url releases-feed "atom" %}" title="eXtensible Admin releases feed (Atom)" />
+{% endblock %}
+
 {% block content %}
 <div class="item">
   <h1>{% trans "Latest Version" %}</h1>

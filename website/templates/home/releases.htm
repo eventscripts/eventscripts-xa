@@ -2,11 +2,16 @@
 
 {% load bbcode i18n %}
 
+{% block meta %}
+<link rel="alternate" type="application/rss+xml" href="{% url releases-feed "rss" %}" title="eXtensible Admin releases feed (RSS)" />
+<link rel="alternate" type="application/atom+xml" href="{% url releases-feed "atom" %}" title="eXtensible Admin releases feed (Atom)" />
+{% endblock %}
+
 {% block content %}
 {% for release in releases %}
 <div class="item">
   <h1>{% blocktrans with release.version as version and release.releasedate|date:"D, j M Y P" as releasedate %}Version {{ version }} released on {{ releasedate }}{% endblocktrans %}</h1>
-  <div class="descr"><a href="{% url download-old slug=release.version %}">{% trans "Download" %}</a></div>
+  <div class="descr"><a href="{% url download-old slug=release.slug %}">{% trans "Download" %}</a></div>
 </div>
 {% endfor %}
 {% endblock %}

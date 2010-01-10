@@ -1,0 +1,10 @@
+{% extends "base.htm" %}
+
+{% load bbcode %}
+
+{% block content %}
+<div class="item">
+  <h1>{{ translation.title }}</h1>
+  {% bbcode translation.content %}
+</div>
+{% endblock %}

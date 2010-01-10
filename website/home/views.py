@@ -1,4 +1,4 @@
-from models import News, Release
+from models import News, Release, StaticPage
 from xa.utils import render_to, Paginator
 from django.http import HttpResponseRedirect
 from django.conf import settings
@@ -19,6 +19,12 @@ def news_item(request, slug):
     """
     item = News.objects.get_or_404(slug=slug)
     return 'home/newsitem.htm', {'item': item}
+
+@render_to
+def static_page(request, slug):
+    page = StaticPage.objects.get_or_404(slug=slug)
+    translation = page.get_translation(request.LANGUAGE_CODE[:2])
+    return 'home/staticpage.htm', {'page': page, 'translation': translation}
 
 @render_to
 def download(request, slug=None):
