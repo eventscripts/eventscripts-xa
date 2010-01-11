@@ -82,7 +82,7 @@ def call(parser, token):
     {% call myobj.mymethod [arg1 [arg2 [...]]] [kwarg1=value1 [kwarg2=value2 [...]]] [as retvalue] %}
     """
     bits = token.split_contents()
-    tagname = bits.pop(0)
+    bits.pop(0)
     if not bits:
         raise template.TemplateSyntaxError, "call tag requires at least one argument"
     func = bits.pop(0)

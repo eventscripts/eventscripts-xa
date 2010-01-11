@@ -1,4 +1,4 @@
-{% load utils i18n %}
+{% load i18n %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"> 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" dir="ltr"> 
   <head> 
@@ -23,9 +23,8 @@
         <div class="title">
           <h1>{% block bodytitle %}{{ bodytitle|default:"XA" }}{% endblock %}</h1>
         </div>
-        {% get_installed_languages as langs %}
         <ul>
-          {% for lang in langs %}
+          {% for lang in installed_languages %}
           <li><a href="{% url set_language lang %}">{{ lang }}</a></li>
           {% endfor %}
         </ul>
@@ -67,8 +66,7 @@
         <h1>{% trans "Menu" %}</h1>
         <ul>
           <li><a href="/">{% trans "Home" %}</a></li>
-          {% get_sidebar_pages as pages %}
-          {% for slug,title in pages %}
+          {% for slug,title in sidebar_pages %}
             <li><a href="{% url static-page slug=slug %}">{{ title }}</a></li>
           {% endfor %}
           <li><a href="http://bitbucket.org/errant/eventscripts-xa/issues/">{% trans "Bugs" %}</a></li>

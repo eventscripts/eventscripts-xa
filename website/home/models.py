@@ -85,12 +85,14 @@ class StaticPage(models.Model):
 
     def get_translation(self, lang_code):
         try:
-            return self.translations.get(lang_code=lang_code)
+            return Translation.objects.get(staticpage=self,
+                                           lang_code=lang_code)
         except Translation.DoesNotExist:
             try:
-                return self.translations.get(lang_code='en')
+                return Translation.objects.get(staticpage=self,
+                                               lang_code='en')
             except Translation.DoesNotExist:
-                return self.translations.all()[0]
+                return Translation.objects.filter(staticpage=self)[0]
 
 
 class Translation(models.Model):
@@ -103,7 +105,7 @@ class Translation(models.Model):
     objects     = BaseManager()
 
     class Meta:
-        unique_together = [('staticpage', 'lang_code'),]
+        unique_together = [('staticpage', 'lang_code')]
 
     def __unicode__(self):
         return self.title 

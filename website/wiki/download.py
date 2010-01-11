@@ -1,7 +1,5 @@
 from django.template.loader import render_to_string
 from django.template import RequestContext
-from django.core.urlresolvers import reverse
-from django.utils.encoding import force_unicode
 from models import Category, Page
 from settings import get
 import os

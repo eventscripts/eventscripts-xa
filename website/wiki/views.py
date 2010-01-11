@@ -1,9 +1,7 @@
 from models import Category, Page, Content
 from forms import WikiForm, WikiTranslateForm
 from download import build_download
-from xa.utils import render_to, response
-
-import bbcode
+from xa.utils import render_to
 
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.contrib.auth.decorators import login_required
