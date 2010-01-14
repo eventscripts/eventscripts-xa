@@ -8,11 +8,11 @@
 {% endblock %}
 
 {% block content %}
-<div class="item">
-  <h1>{% trans "Latest Version" %}</h1>
-  <div class="descr">{% blocktrans with release.version as version and release.releasedate|date:"D, j M Y P" as releasedate %}Version {{ version }} released on {{ releasedate }}{% endblocktrans %}</div>
-  {% bbcode release.info %}
-  <div class="descr"><a href="{{ release.file.url }}">{% trans "Download" %}</a></div>
-  <div class="descr"><a href="{% url release-list %}">{% trans "Older Versions" %}</a></div>
-</div>
+<h1>{% trans "Latest Version" %}</h1>
+<p class="date">{% blocktrans with release.version as version and release.releasedate|date:"D, j M Y P" as releasedate %}Version {{ version }} released on {{ releasedate }}{% endblocktrans %}</p>
+<div class="content">{% bbcode release.info %}</div>
+<p>
+	<a href="{{ release.file.url }}"><span>&raquo;</span> {% trans "Download" %}</a><br />
+	<a href="{% url release-list %}"><span>&raquo;</span> {% trans "Older Versions" %}</a>
+</p>
 {% endblock %}

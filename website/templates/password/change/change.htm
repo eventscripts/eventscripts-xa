@@ -4,37 +4,36 @@
 
 {% block content %}
 <h1>{% trans "Change Password" %}</h1>
-
 <p>{% trans "Please enter your old password, for security's sake, and then enter your new password twice so we can verify you typed it in correctly." %}</p>
 
 {% if form.errors %}
 <ul class="error">
-  <li class="title">{% trans "The following Errors have occured." %}</li>
-  {% for error in form.errors %}
-    <li>{{ error }}</li>
-  {% endfor %}
-  </ul>
+	<li class="title">{% trans "The following Errors have occured." %}</li>
+	{% for error in form.errors %}
+	<li>{{ error }}</li>
+	{% endfor %}
+</ul>
 {% endif %}
-<form method="post" action="#" class="frm default columns">
-  <fieldset class="align-horizontal clearfix">
-  <ol>
-    <li>
-      <label for="id_old_password">{% trans "Old password:" %}</label>
-      <div>{{ form.old_password }}</div>
-    </li>
-    <li>
-      <label for="id_new_password1">{% trans "New password:" %}</label>
-      <div>{{ form.new_password1 }}</div>
-    </li>
-    <li>
-      <label for="id_new_password2">{% trans "Confirm password:" %}</label>
-      <div>{{ form.new_password2 }}</div>
-    </li>
-    <li>
-      <label>&nbsp;</label>
-      <div><span class="btn"><input type="submit" value="{% trans "Change my password" %}" /></span></div>
-    </li>
-  </ol>
-  </fieldset>
+<form method="post" action="#" class="frm">
+	<fieldset class="align-horizontal clearfix">
+		<ol>
+			<li>
+				<label for="id_old_password">{% trans "Old password" %}</label>
+				<div>{{ form.old_password }}</div>
+			</li>
+			<li>
+				<label for="id_new_password1">{% trans "New password" %}</label>
+				<div>{{ form.new_password1 }}</div>
+			</li>
+			<li>
+				<label for="id_new_password2">{% trans "Confirm password" %}</label>
+				<div>{{ form.new_password2 }}</div>
+			</li>
+			<li>
+				<label>&nbsp;</label>
+				<div><span class="btn"><input type="submit" value="{% trans "Change my password" %}" /></span></div>
+			</li>
+		</ol>
+	</fieldset>
 </form>
 {% endblock %}

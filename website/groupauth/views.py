@@ -4,6 +4,9 @@ from xa.utils import render_to, response
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext as _
+
+from breadcrumbs.base import lib
 
 @render_to
 @login_required
@@ -12,10 +15,11 @@ def overview(request):
     Show the overview groupauth page for a user
     """
     return 'groupauth/overview.htm', {}
+lib.register(overview, _('Groupauth Editor'))
 
 @render_to
 @login_required
-def edit(request, cfgid):
+def edit(request, cfgid=None):
     """
     Edit (or save changes) a config
     """
@@ -26,6 +30,11 @@ def edit(request, cfgid):
     if request.method == 'POST':
         return save_edit(request, cfg)
     return 'groupauth/edit.htm', {'js_libraries': ['jquery', 'ui', 'gauth'], 'config': cfg}
+
+def get_edit_name(path, args, kwargs):
+    return _('Edit') if not kwargs.get('cfgid', False) else None
+
+lib.register(edit, get_edit_name)
 
 
 def save_edit(request, cfg):
@@ -100,6 +109,12 @@ def config(request, cfgid, msg=''):
     """
     cfg = Config.objects.get_or_404(id=cfgid, owner=request.user)
     return 'groupauth/config.htm', {'config': cfg}
+
+def get_config_name(path, args, kwargs):
+    cfg = Config.objects.get(id=kwargs['cfgid'])
+    return cfg.name
+
+lib.register(config, get_config_name)
 
 @login_required
 @response

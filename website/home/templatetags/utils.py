@@ -52,3 +52,35 @@ def paginate(parser, token):
             "paginate tag must have 3 arguments!"
         )
     return PaginationNode(bits[1], bits[3])
+
+class IfActiveNode(template.Node):
+    path = template.Variable('request.path')
+    def __init__(self, var, nodelist_true, nodelist_false):
+        self.var = var
+        self.nodelist_true, self.nodelist_false = nodelist_true, nodelist_false
+
+    def __repr__(self):
+        return "<IfActiveNode>"
+
+    def render(self, context):
+        val = self.var.resolve(context, True)
+        path = self.path.resolve(context)
+        if path.startswith(val):
+            return self.nodelist_true.render(context)
+        return self.nodelist_false.render(context)
+        
+@register.tag
+def ifactive(parser, token):
+    bits = list(token.split_contents())
+    if len(bits) != 2:
+        raise template.TemplateSyntaxError, "%r takes one arguments" % bits[0]
+    end_tag = 'end' + bits[0]
+    nodelist_true = parser.parse(('else', end_tag))
+    token = parser.next_token()
+    if token.contents == 'else':
+        nodelist_false = parser.parse((end_tag,))
+        parser.delete_first_token()
+    else:
+        nodelist_false = template.NodeList()
+    var = parser.compile_filter(bits[1])
+    return IfActiveNode(var, nodelist_true, nodelist_false)

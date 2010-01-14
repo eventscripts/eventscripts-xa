@@ -9,9 +9,8 @@
 
 {% block content %}
 {% for release in releases %}
-<div class="item">
-  <h1>{% blocktrans with release.version as version and release.releasedate|date:"D, j M Y P" as releasedate %}Version {{ version }} released on {{ releasedate }}{% endblocktrans %}</h1>
-  <div class="descr"><a href="{% url download-old slug=release.slug %}">{% trans "Download" %}</a></div>
-</div>
+<h1>{% trans "Releases" %}</h1>
+<p class="date">{% blocktrans with release.version as version and release.releasedate|date:"D, j M Y P" as releasedate %}Version {{ version }} released on {{ releasedate }}{% endblocktrans %}</p>
+<p><a href="{% url download-old slug=release.slug %}"><span>&raquo;</span> {% trans "Download" %}</a></p>
 {% endfor %}
 {% endblock %}

@@ -3,66 +3,67 @@
 {% load i18n %}
 
 {% block content %}
+<h1>{% trans "Registration" %}</h1>
 {% if user.is_authenticated %}
-{% trans "You already have an account, after all you're logged in right now!" %}
+<p>{% trans "You already have an account, after all you're logged in right now!" %}</p>
 {% else %}
 {% if regform.errors %}
 <ul class="error">
-    <li class="title">{% trans "The following Errors have occured." %}</li>
-    {% if regform.username.errors %}<li>{% trans "The username you entered is not valid or already taken." %}</li>{% endif %}
-    {% if regform.password1.errors or regform.password2.errors %}<li>{% trans "The passwords you entered are not valid or do not match." %}</li>{% endif %}
-    {% if regform.email1.errors or regform.email2.errors %}<li>{% trans "The e-mails you entered are not valid or do not match." %}</li>{% endif %}
-    {% if regform.email1.toscheck %}<li>{% trans "Please accept our Terms and Conditions." %}</li>{% endif %}
+	<li class="title">{% trans "The following Errors have occured." %}</li>
+	{% if regform.username.errors %}<li>{% trans "The username you entered is not valid or already taken." %}</li>{% endif %}
+	{% if regform.password1.errors or regform.password2.errors %}<li>{% trans "The passwords you entered are not valid or do not match." %}</li>{% endif %}
+	{% if regform.email1.errors or regform.email2.errors %}<li>{% trans "The e-mails you entered are not valid or do not match." %}</li>{% endif %}
+	{% if regform.email1.toscheck %}<li>{% trans "Please accept our Terms and Conditions." %}</li>{% endif %}
 </ul>
 {% endif %}
 
 <p>{% trans "Please note that you will need to enter a valid e-mail address before your account is activated. You will receive an e-mail at the address you provide that contains an account activation link." %}</p>
 
 <form method="post" action="/register/" class="frm default">
-    <fieldset class="align-horizontal">
-        <ol>
-            <li>
-                <label for="id_username">{% trans "Username:" %}</label>
-                <div><input id="id_username" class="input_text{% if regform.username.errors %} error{% endif %}" type="text" name="username" value="{{ request.POST.username }}" maxlength="30" /></div>
-            </li>
-            <li>
-                <label for="id_password1"><br />{% trans "Password:" %}</label>
-                <div>
-                    <span class="info">{% trans "Must be between 6 and 20 characters." %}</span>
-                    <input id="id_password1" type="password" class="input_text{% if regform.password1.errors %} error{% endif %}" name="password1" />
-                    <input id="id_password2" type="password" class="input_text{% if regform.password2.errors %} error{% endif %}" name="password2" /> <small>&laquo; {% trans "confirm" %}</small>
-                </div>
-            </li>
-            <li class="email-c">
-                <label for="id_email">E-Mail: (<strong>Please do not fill in anything here!</strong>)</label>
-                <div>
-                    <span class="info">{% trans "Please enter a valid e-mail address." %}</span>
-                    <input id="id_email" type="text" class="input_text" name="email" maxlength="75" />
-                </div>
-            </li>
-            <li>
-                <label for="id_email1">{% trans "E-Mail Address:" %}</label>
-                <div>
-                    <input id="id_email1" type="text" class="input_text{% if regform.email1.errors %} error{% endif %}" name="email1" value="{{ request.POST.email1 }}" maxlength="75" />
-                    <input id="id_email2" type="text" class="input_text{% if regform.email2.errors %} error{% endif %}" name="email2" value="{{ request.POST.email2 }}" maxlength="75" /> <small>&laquo; {% trans "confirm" %}</small>
-                </div>
-            </li>
-            <li>
-                <label>{% trans "Site Rules" %}</label>
-                <div>
-                    <div class="rules">
-                        <p><strong>{% trans "Terms and Conditions" %}</strong></p>
-                        <p>Site Rules HERE</p>
-                    </div>
-                    <input type="checkbox" class="input_check {% if regform.email1.toscheck %} error{% endif %}" name="toscheck"{% if request.POST.toscheck %} checked="checked"{% endif %} /> <small>{% trans "I agree to these terms" %}</small>
-                </div>
-            </li>
-            <li>
-                <label>&nbsp;</label>
-                <div><span class="btn"><input type="submit" value="{% trans "Register" %}" /></span></div>
-            </li>
-        </ol>
-    </fieldset>
+	<fieldset class="align-horizontal">
+		<ol>
+			<li>
+				<label for="id_username">{% trans "Username:" %}</label>
+				<div><input id="id_username" class="input_text{% if regform.username.errors %} error{% endif %}" type="text" name="username" value="{{ request.POST.username }}" maxlength="30" /></div>
+			</li>
+			<li>
+				<label for="id_password1"><br />{% trans "Password:" %}</label>
+				<div>
+					<input id="id_password1" type="password" class="input_text{% if regform.password1.errors %} error{% endif %}" name="password1" />
+					<input id="id_password2" type="password" class="input_text{% if regform.password2.errors %} error{% endif %}" name="password2" /> <small>&laquo; {% trans "confirm" %}</small><br />
+					<span class="info">{% trans "Must be between 6 and 20 characters." %}</span>
+				</div>
+			</li>
+			<li class="email-c">
+				<label for="id_email">E-Mail:</label>
+				<div>
+					<input id="id_email" type="text" class="input_text" name="email" maxlength="75" /><br />
+					<span class="info">{% trans "Please enter a valid e-mail address." %}</span><br />(<strong>Please do not fill in anything here!</strong>)
+				</div>
+			</li>
+			<li>
+				<label for="id_email1">{% trans "E-Mail Address:" %}</label>
+				<div>
+					<input id="id_email1" type="text" class="input_text{% if regform.email1.errors %} error{% endif %}" name="email1" value="{{ request.POST.email1 }}" maxlength="75" />
+					<input id="id_email2" type="text" class="input_text{% if regform.email2.errors %} error{% endif %}" name="email2" value="{{ request.POST.email2 }}" maxlength="75" /> <small>&laquo; {% trans "confirm" %}</small>
+				</div>
+			</li>
+			<li>
+				<label>{% trans "Site Rules" %}</label>
+				<div>
+					<div class="rules">
+						<p><strong>{% trans "Terms and Conditions" %}</strong></p>
+						<p>Site Rules HERE</p>
+						<input type="checkbox" class="input_check {% if regform.email1.toscheck %} error{% endif %}" name="toscheck"{% if request.POST.toscheck %} checked="checked"{% endif %} /> <small>{% trans "I agree to these terms" %}</small>
+					</div>
+				</div>
+			</li>
+			<li>
+				<label>&nbsp;</label>
+				<div><br /><span class="btn"><input type="submit" value="{% trans "Register" %}" /></span></div>
+			</li>
+		</ol>
+	</fieldset>
 </form>
 {% endif %}
 {% endblock %}

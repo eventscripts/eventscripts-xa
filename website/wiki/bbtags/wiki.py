@@ -27,6 +27,7 @@ class Page(ArgumentTagNode):
             self.lang = self.context.get('language', 'en')
         else:
             self.lang = 'en'
+            self.context = {'wiki_downloadable': None}
 
     def parse(self):
         if self.argument:
@@ -40,7 +41,7 @@ class Page(ArgumentTagNode):
                 url = '%s.html' % self.argument
             else:
                 url = get_url('wiki:page', lang=self.lang, path=self.argument)
-            return '<a href="%s">%s</a>' % (url, inner)
+            return '<a class="internal_wiki_link" href="%s">%s</a>' % (url, inner)
         else:
             inner = ''
             for node in self.nodes:
@@ -53,7 +54,8 @@ class Page(ArgumentTagNode):
                 url = '%s.html' % inner
             else:
                 url = get_url('wiki:page', lang=self.lang, path=inner)
-            return '<a href="%s">%s</a>' % (url, inner)
+            return '<a class="internal_wiki_link" href="%s">%s</a>' % (url, inner)
+
 
 
 class Category(ArgumentTagNode):
@@ -75,6 +77,7 @@ class Category(ArgumentTagNode):
             self.lang = self.context.get('language', 'en')
         else:
             self.lang = 'en'
+            self.context = {'wiki_downloadable': None}
 
     def parse(self):
         if self.argument:
@@ -88,7 +91,7 @@ class Category(ArgumentTagNode):
                 url = 'Category-%s.html' % self.argument
             else:
                 url = get_url('wiki:category', lang=self.lang, category=self.argument)
-            return '<a href="%s">%s</a>' % (url, inner)
+            return '<a class="internal_wiki_link" href="%s">%s</a>' % (url, inner)
         else:
             inner = ''
             for node in self.nodes:
@@ -101,7 +104,7 @@ class Category(ArgumentTagNode):
                 url = 'Category-%s.html' % inner
             else:
                 url = get_url('wiki:category', lang=self.lang, category=inner)
-            return '<a href="%s">%s</a>' % (url, inner)
+            return '<a class="internal_wiki_link" href="%s">%s</a>' % (url, inner)
 
 register(Page)
 register(Category)

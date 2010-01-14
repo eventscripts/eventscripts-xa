@@ -3,11 +3,9 @@
 {% load bbcode i18n %}
 
 {% block content %}
-<div class="item">
-  <h1>{{ item.title }}</h1>
-  <div class="descr">
-  {% blocktrans with item.postdate|date:"D, j M Y P" as postdate and item.author.username as username %}{{ postdate }} by {{ username }}{% endblocktrans %}
-  </div>
-  {% bbcode item.content %}
+<div class="news-item">
+	<h1>{{ item.title }}</h1>
+	<p class="date">{% blocktrans with item.postdate|date:"D, j M Y P" as postdate and item.author.username as username %}{{ postdate }} by {{ username }}{% endblocktrans %}</p>
+	<div class="content">{% bbcode item.content %}</div>
 </div>
 {% endblock %}

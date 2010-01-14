@@ -8,6 +8,9 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.views.decorators.cache import cache_page
+from django.utils.translation import ugettext as _
+
+from breadcrumbs.base import lib
 
 from datetime import datetime
 
@@ -21,6 +24,7 @@ def home(request, lang):
     return HttpResponseRedirect(reverse('wiki:page',
                                         kwargs={'path': home_page.name,
                                                 'lang': lang or 'en'}))
+lib.register(home, lambda path, args, kwargs: None)
 
 @render_to
 def category(request, lang, category):
@@ -41,6 +45,13 @@ def category(request, lang, category):
                                  'pages': pages, 'catobj': cat,
                                  'is_download': False}
 
+def get_category_name(path, args, kwargs):
+    name = Category.objects.get(name=kwargs['category'].strip('/')).name
+    return _(
+        'Category %(name)s' % {'name': name}
+    )
+lib.register(category, get_category_name)
+
 @render_to
 def page(request, path, lang):
     """
@@ -60,6 +71,14 @@ def page(request, path, lang):
     return 'wiki/page.htm', {'page': thispage,
                              'language': lang,
                              'is_download': False}
+
+def get_page_name(path, args, kwargs):
+    try:
+        name = Page.objects.get(name=kwargs['path'].strip('/')).name
+    except Page.DoesNotExist:
+        name = ' '.join([s.capitalize() for s in kwargs['path'].split('_')])
+    return _('Page %(name)s' % {'name': name})
+lib.register(page, get_page_name)
 
 @render_to
 def page_history_overview(request, path, lang):
@@ -99,6 +118,8 @@ def edit_page(request, path, lang):
         thispage = Page.objects.get(name=path)
     except ObjectDoesNotExist:
         return change_page(request, path, lang)
+    if thispage.locked:
+        return page(request, path, lang)
     return change_page(request, path, lang, thispage)
     
 @render_to
@@ -154,7 +175,7 @@ def change_page_save(request, path, lang, oldpage, dotranslate):
     if dotranslate:
         form = WikiTranslateForm(request.POST)
     else:
-         WikiForm(request.POST)
+        form = WikiForm(request.POST)
     # Validity check
     if form.is_valid():
         # Get 'clean' data

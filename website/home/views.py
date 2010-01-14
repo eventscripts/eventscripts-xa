@@ -4,6 +4,8 @@ from django.http import HttpResponseRedirect
 from django.conf import settings
 from django.utils.translation import check_for_language
 
+from breadcrumbs.base import lib
+
 @render_to
 def news(request, page):
     """
@@ -11,6 +13,7 @@ def news(request, page):
     """
     thepage = Paginator('/news/', News.objects.all(), 5, int(page), bullets=5)
     return 'home/news.htm', {'page': thepage}
+lib.register(news, lambda path, args, kwargs: None)
 
 @render_to
 def news_item(request, slug):
@@ -20,11 +23,19 @@ def news_item(request, slug):
     item = News.objects.get_or_404(slug=slug)
     return 'home/newsitem.htm', {'item': item}
 
+def get_news_item_name(path, args, kwargs):
+    return News.objects.get(slug=kwargs['slug']).title
+lib.register(news_item, get_news_item_name)
+
 @render_to
 def static_page(request, slug):
     page = StaticPage.objects.get_or_404(slug=slug)
     translation = page.get_translation(request.LANGUAGE_CODE[:2])
     return 'home/staticpage.htm', {'page': page, 'translation': translation}
+
+def get_static_page_name(path, args, kwargs):
+   return ' '.join([bit.capitalize() for bit in kwargs['slug'].split('-')]) 
+lib.register(static_page, get_static_page_name)
 
 @render_to
 def download(request, slug=None):

@@ -3,23 +3,23 @@
 {% load i18n %}
 
 {% block content %}
-<div class="item">
-  <h1>{% trans "Please log in" %}</h1>
-  <ul>
-    <form method="post" action="/login/">
-      <li>
-        <label for="username">{% trans "Username:" %}</label>
-        <div><input type="text" name="username" class="input_text" id="username" /></div>
-      </li>
-      <li>
-        <label for="password">{% trans "Password:" %}</label>
-        <div><input type="password" name="password" class="input_text" id="password" /></div>
-      </li>
-      <li>
-        <div><input type="submit" value="{% trans "Login" %}" /></div>
-        <input type="hidden" name="next" value="{{ next }}" />
-      </li>
-    </form>
-  </ul>
-</div>
+<h1>{% trans "Please log in" %}</h1>
+<form method="post" action="/login/" class="frm frm-login">
+	<fieldset>
+		<ol>
+			<li>
+				<label for="username">{% trans "Username" %}</label>
+				<div><input type="text" name="username" class="input_text" id="username" /></div>
+			</li>
+				<li>
+				<label for="password">{% trans "Password" %}</label>
+				<div>
+					<input type="password" name="password" class="input_text" id="password" />
+					<span class="btn"><input type="submit" value="{% trans "Login" %}" /></span>
+					<input type="hidden" name="next" value="{{ next }}" />
+				</div>
+			</li>
+		</ol>
+	</fieldset>
+</form>
 {% endblock %}

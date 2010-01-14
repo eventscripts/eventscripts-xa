@@ -30,6 +30,8 @@ class Page(models.Model):
     name        = models.SlugField(max_length=255, unique=True)
     categories  = models.ManyToManyField(Category, related_name='pages')
     is_home     = models.BooleanField(default=False)
+    locked      = models.BooleanField(default=False)
+    in_sidebar  = models.BooleanField(default=False)
     # versions FK from wiki.Content
     
     objects = BaseManager()

@@ -1,22 +1,17 @@
-{% extends "base" %}
+{% extends "base.htm" %}
 
 {% load i18n %}
 
 {% block content %}
-<div class="item">
-  <h1>{% trans "Password reset" %}</h1>
-  
-  <p>{% trans "Forgotten your password? Enter your e-mail address below, and we'll e-mail instructions for setting a new one." %}</p>
-  
-  <form action="/" method="post">
-  	{% if form.errors %}
-  	<ul class="error">
-  		<li class="title">{% trans "The following Errors have occured." %}</li>
-  		{% if form.email.errors %}<li>{% trans "This field is required." %}</li>{% endif %}
-  	</ul>
-  	{% endif %}
-  	
-  	<p><label for="id_email">{% trans "E-mail address:" %}</label> {{ form.email }} <span class="btn"><input type="submit" value="{% trans "Reset my password" %}" /></span></p>
-  </form>
-</div>
+<h1>{% trans "Password reset" %}</h1>
+<p>{% trans "Forgotten your password? Enter your e-mail address below, and we'll e-mail instructions for setting a new one." %}</p>
+<form action="/" method="post">
+	{% if form.errors %}
+	<ul class="error">
+		<li class="title">{% trans "The following Errors have occured." %}</li>
+		{% if form.email.errors %}<li>{% trans "This field is required." %}</li>{% endif %}
+	</ul>
+	{% endif %}
+	<p><label for="id_email">{% trans "E-mail address:" %}</label> {{ form.email }} <span class="btn"><input type="submit" value="{% trans "Reset my password" %}" /></span></p>
+</form>
 {% endblock %}
