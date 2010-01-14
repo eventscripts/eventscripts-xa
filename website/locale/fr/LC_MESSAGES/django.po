@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-01-08 03:50+0000\n"
+"POT-Creation-Date: 2010-01-14 21:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,78 +16,163 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: home/models.py:9
+#: groupauth/views.py:18
+msgid "Groupauth Editor"
+msgstr ""
+
+#: groupauth/views.py:35 templates/wiki/change.htm:6
+msgid "Edit"
+msgstr ""
+
+#: home/models.py:10
 msgid ""
 "You may use BBCode Syntax in this field. For further information read the <a "
 "href=\"/bbcode/\">documentation</a>."
 msgstr ""
 
-#: templates/base.htm:38
+#: home/models.py:74
+msgid "Used for the generation of URLs"
+msgstr ""
+
+#: templates/base.htm:45
+msgid ""
+"eXtensible <sup>Admin</sup> is a fully featured admin framework written in "
+"Python and provided with EventScripts 2.0 Beta 2. The XA core provides "
+"libraries to manage administration type modules, commands, settings, "
+"languages, menus, Auth and more - whilst custom modules provide server "
+"admins with all the functionality they could ever need (and more)!"
+msgstr ""
+
+#: templates/base.htm:58
 #, python-format
 msgid "Welcome %(username)s"
 msgstr ""
 
-#: templates/base.htm:41
+#: templates/base.htm:61
 msgid "Admin Panel"
 msgstr ""
 
-#: templates/base.htm:43
+#: templates/base.htm:63 templates/password/change/change.htm:6
+msgid "Change Password"
+msgstr ""
+
+#: templates/base.htm:64
 msgid "Logout"
 msgstr ""
 
-#: templates/base.htm:46
+#: templates/base.htm:67
 msgid "Login/Register"
 msgstr ""
 
-#: templates/base.htm:50 templates/email/registration.email:9
-#: templates/home/login.htm:11 templates/register/register.htm:25
-msgid "Username:"
+#: templates/base.htm:72 templates/home/login.htm:11
+msgid "Username"
 msgstr ""
 
-#: templates/base.htm:54 templates/email/registration.email:10
-#: templates/home/login.htm:15 templates/register/register.htm:29
-msgid "Password:"
+#: templates/base.htm:76 templates/home/login.htm:15
+msgid "Password"
 msgstr ""
 
-#: templates/base.htm:58 templates/home/login.htm:19
+#: templates/base.htm:79 templates/home/login.htm:18
 msgid "Login"
 msgstr ""
 
-#: templates/base.htm:62 templates/register/register.htm:62
+#: templates/base.htm:87 templates/register/register.htm:63
 msgid "Register"
 msgstr ""
 
-#: templates/base.htm:65
+#: templates/base.htm:88
+msgid "Forgot Password?"
+msgstr ""
+
+#: templates/base.htm:94
 msgid "Menu"
 msgstr ""
 
-#: templates/base.htm:67
+#: templates/base.htm:96 templates/breadcrumbs.htm:2
 msgid "Home"
 msgstr ""
 
-#: templates/base.htm:68
+#: templates/base.htm:101
 msgid "Bugs"
 msgstr ""
 
-#: templates/base.htm:69 templates/home/download.htm:10
-#: templates/home/releases.htm:9
+#: templates/base.htm:102 templates/home/download.htm:15
+#: templates/home/releases.htm:14
 msgid "Download"
 msgstr ""
 
-#: templates/base.htm:70
+#: templates/base.htm:103
 msgid "Documentation"
 msgstr ""
 
-#: templates/base.htm:71
+#: templates/base.htm:107
+msgid "Tools"
+msgstr ""
+
+#: templates/base.htm:109
 msgid "Group Auth"
 msgstr ""
 
-#: templates/base.htm:72
+#: templates/base.htm:113
+msgid "Community"
+msgstr ""
+
+#: templates/base.htm:115
+msgid "XA Forums"
+msgstr ""
+
+#: templates/base.htm:116
+msgid "Custom Modules"
+msgstr ""
+
+#: templates/base.htm:118
+msgid "Developers"
+msgstr ""
+
+#: templates/base.htm:123
+msgid "Guides"
+msgstr ""
+
+#: templates/base.htm:132
+msgid "EventScripts"
+msgstr ""
+
+#: templates/base.htm:134
+msgid "ES Wiki/Home"
+msgstr ""
+
+#: templates/base.htm:135
+msgid "Download ES"
+msgstr ""
+
+#: templates/base.htm:136
+msgid "ES Forums"
+msgstr ""
+
+#: templates/base.htm:140
+msgid "Website"
+msgstr ""
+
+#: templates/base.htm:142
 msgid "Website Sourecode"
 msgstr ""
 
-#: templates/base.htm:73
+#: templates/base.htm:143
 msgid "Translate Website"
+msgstr ""
+
+#: templates/base.htm:155
+msgid ""
+"Copyright &copy; 2010 Jonas Obrist. Design &amp; Programming by <a href="
+"\"http://www.coreshock.ch\">coreshock.ch</a>"
+msgstr ""
+
+#: templates/base.htm:158
+msgid "Team"
+msgstr ""
+
+#: templates/base.htm:159
+msgid "Impressum"
 msgstr ""
 
 #: templates/pagination.htm:5
@@ -104,6 +189,14 @@ msgstr ""
 
 #: templates/pagination.htm:17
 msgid "Last"
+msgstr ""
+
+#: templates/bbcode/help.htm:7
+msgid "BBCode Help"
+msgstr ""
+
+#: templates/bbcode/help.htm:18
+msgid "Jump to top"
 msgstr ""
 
 #: templates/email/activation.email:2
@@ -142,6 +235,14 @@ msgid ""
 "If you registered on xa.eventscripts.com here are your login details:"
 msgstr ""
 
+#: templates/email/registration.email:9 templates/register/register.htm:26
+msgid "Username:"
+msgstr ""
+
+#: templates/email/registration.email:10 templates/register/register.htm:30
+msgid "Password:"
+msgstr ""
+
 #: templates/email/registration.email:12
 msgid ""
 "\n"
@@ -156,11 +257,11 @@ msgstr ""
 msgid "[XA] Your registration on xa.eventscripts.com"
 msgstr ""
 
-#: templates/groupauth/config.htm:12
+#: templates/groupauth/config.htm:11
 msgid "download"
 msgstr ""
 
-#: templates/groupauth/config.htm:12 templates/wiki/page.htm:10
+#: templates/groupauth/config.htm:11 templates/wiki/page.htm:9
 msgid "edit"
 msgstr ""
 
@@ -168,7 +269,7 @@ msgstr ""
 msgid "Powers"
 msgstr ""
 
-#: templates/groupauth/config.txt:8 templates/groupauth/edit.htm:31
+#: templates/groupauth/config.txt:8
 msgid "Groups"
 msgstr ""
 
@@ -180,189 +281,201 @@ msgstr ""
 msgid "Admins"
 msgstr ""
 
-#: templates/groupauth/edit.htm:8
-msgid "Config"
-msgstr ""
-
-#: templates/groupauth/edit.htm:16
-msgid "Players"
-msgstr ""
-
-#: templates/groupauth/edit.htm:21
-msgid "Add Player"
+#: templates/groupauth/edit.htm:7
+msgid "Config Title"
 msgstr ""
 
 #: templates/groupauth/edit.htm:22
-msgid "Invalid Steamid"
-msgstr ""
-
-#: templates/groupauth/edit.htm:27
-msgid "Custom Flags"
+msgid "Player Management"
 msgstr ""
 
 #: templates/groupauth/edit.htm:28
+msgid "Add Player"
+msgstr ""
+
+#: templates/groupauth/edit.htm:29
+msgid "Invalid Steamid"
+msgstr ""
+
+#: templates/groupauth/edit.htm:40
+msgid "Add Custom Flags"
+msgstr ""
+
+#: templates/groupauth/edit.htm:44
 msgid "Add Custom Flag"
 msgstr ""
 
-#: templates/groupauth/edit.htm:33
+#: templates/groupauth/edit.htm:49
+msgid "Group Management"
+msgstr ""
+
+#: templates/groupauth/edit.htm:53
 msgid "Add Group"
 msgstr ""
 
-#: templates/groupauth/edit.htm:34
+#: templates/groupauth/edit.htm:54
 msgid ""
 "Invalid Group Name. Only letters, numbers, underscores and dashes are "
 "allowed."
 msgstr ""
 
-#: templates/groupauth/edit.htm:40 templates/wiki/change.htm:52
+#: templates/groupauth/edit.htm:61 templates/wiki/change.htm:33
 msgid "Save"
 msgstr ""
 
-#: templates/groupauth/overview.htm:7
+#: templates/groupauth/overview.htm:6
 msgid "Your Configs"
 msgstr ""
 
-#: templates/groupauth/overview.htm:13
+#: templates/groupauth/overview.htm:12
 msgid "You don't have any configs yet."
 msgstr ""
 
-#: templates/groupauth/overview.htm:16
+#: templates/groupauth/overview.htm:15
 msgid "You need to log in to see your configs."
 msgstr ""
 
-#: templates/groupauth/overview.htm:19
+#: templates/groupauth/overview.htm:18
 msgid "Create new Config"
 msgstr ""
 
-#: templates/home/download.htm:7
+#: templates/home/download.htm:11
 msgid "Latest Version"
 msgstr ""
 
-#: templates/home/download.htm:8 templates/home/releases.htm:8
+#: templates/home/download.htm:12 templates/home/releases.htm:13
 #, python-format
 msgid "Version %(version)s released on %(releasedate)s"
 msgstr ""
 
-#: templates/home/login.htm:7
+#: templates/home/download.htm:16
+msgid "Older Versions"
+msgstr ""
+
+#: templates/home/login.htm:6
 msgid "Please log in"
 msgstr ""
 
-#: templates/home/news.htm:12 templates/home/newsitem.htm:9
-#: templates/wiki/history_overview.htm:12
+#: templates/home/news.htm:16 templates/home/newsitem.htm:8
 #, python-format
 msgid "%(postdate)s by %(username)s"
 msgstr ""
 
-#: templates/password/change/change.htm:6
-msgid "Change Password"
+#: templates/home/releases.htm:12
+msgid "Releases"
 msgstr ""
 
-#: templates/password/change/change.htm:8
+#: templates/password/change/change.htm:7
 msgid ""
 "Please enter your old password, for security's sake, and then enter your new "
 "password twice so we can verify you typed it in correctly."
 msgstr ""
 
-#: templates/password/change/change.htm:12
-#: templates/password/reset/reset.htm:14 templates/register/register.htm:11
+#: templates/password/change/change.htm:11
+#: templates/password/reset/reset.htm:11 templates/register/register.htm:12
 msgid "The following Errors have occured."
 msgstr ""
 
-#: templates/password/change/change.htm:22
-msgid "Old password:"
+#: templates/password/change/change.htm:21
+msgid "Old password"
 msgstr ""
 
-#: templates/password/change/change.htm:26
+#: templates/password/change/change.htm:25
+msgid "New password"
+msgstr ""
+
+#: templates/password/change/change.htm:29
+msgid "Confirm password"
+msgstr ""
+
+#: templates/password/change/change.htm:34
 #: templates/password/reset/confirm.htm:14
-msgid "New password:"
-msgstr ""
-
-#: templates/password/change/change.htm:30
-#: templates/password/reset/confirm.htm:16
-msgid "Confirm password:"
-msgstr ""
-
-#: templates/password/change/change.htm:35
-#: templates/password/reset/confirm.htm:17
 msgid "Change my password"
 msgstr ""
 
-#: templates/password/change/done.htm:7
+#: templates/password/change/done.htm:6
 msgid "Password changed"
 msgstr ""
 
-#: templates/password/change/done.htm:8
+#: templates/password/change/done.htm:7
 msgid "Your password has been successfully changed."
 msgstr ""
 
-#: templates/password/reset/complete.htm:7
+#: templates/password/reset/complete.htm:6
 msgid "Password reset complete"
 msgstr ""
 
-#: templates/password/reset/complete.htm:9
+#: templates/password/reset/complete.htm:7
 msgid "Your password has been set. You may go ahead and log in now."
 msgstr ""
 
-#: templates/password/reset/complete.htm:11
+#: templates/password/reset/complete.htm:8
 msgid "Log in"
 msgstr ""
 
-#: templates/password/reset/confirm.htm:8
+#: templates/password/reset/confirm.htm:7
 msgid "Enter new password"
 msgstr ""
 
-#: templates/password/reset/confirm.htm:10
+#: templates/password/reset/confirm.htm:8
 msgid ""
 "Please enter your new password twice so we can verify you typed it in "
 "correctly."
 msgstr ""
 
-#: templates/password/reset/confirm.htm:20
+#: templates/password/reset/confirm.htm:11
+msgid "New password:"
+msgstr ""
+
+#: templates/password/reset/confirm.htm:13
+msgid "Confirm password:"
+msgstr ""
+
+#: templates/password/reset/confirm.htm:17
 msgid "Password reset unsuccessful"
 msgstr ""
 
-#: templates/password/reset/confirm.htm:22
+#: templates/password/reset/confirm.htm:19
 msgid ""
 "The password reset link was invalid, possibly because it has already been "
 "used.  Please request a new password reset."
 msgstr ""
 
-#: templates/password/reset/done.htm:7
+#: templates/password/reset/done.htm:6
 msgid "Password reset successful"
 msgstr ""
 
-#: templates/password/reset/done.htm:9
+#: templates/password/reset/done.htm:7
 msgid ""
 "\n"
-"  <p>We've e-mailed you instructions for setting your password to the e-mail "
+"<p>We've e-mailed you instructions for setting your password to the e-mail "
 "address you submitted.</p>\n"
-"  <p>You should be receiving it shortly.</p>\n"
-"  "
+"<p>You should be receiving it shortly.</p>\n"
 msgstr ""
 
-#: templates/password/reset/reset.htm:7
+#: templates/password/reset/reset.htm:6
 msgid "Password reset"
 msgstr ""
 
-#: templates/password/reset/reset.htm:9
+#: templates/password/reset/reset.htm:7
 msgid ""
 "Forgotten your password? Enter your e-mail address below, and we'll e-mail "
 "instructions for setting a new one."
 msgstr ""
 
-#: templates/password/reset/reset.htm:15
+#: templates/password/reset/reset.htm:12
 msgid "This field is required."
 msgstr ""
 
-#: templates/password/reset/reset.htm:19
+#: templates/password/reset/reset.htm:15
 msgid "E-mail address:"
 msgstr ""
 
-#: templates/password/reset/reset.htm:19
+#: templates/password/reset/reset.htm:15
 msgid "Reset my password"
 msgstr ""
 
-#: templates/profile/edit.htm:7
+#: templates/profile/edit.htm:6
 msgid "Change your password"
 msgstr ""
 
@@ -375,7 +488,7 @@ msgid "You have successfully registered on our site."
 msgstr ""
 
 #: templates/register/activate.htm:10
-msgid "Now visit your profile"
+msgid "You might want to change your password now."
 msgstr ""
 
 #: templates/register/activate.htm:12
@@ -386,64 +499,68 @@ msgstr ""
 msgid "Your account has already been activated."
 msgstr ""
 
-#: templates/register/complete.htm:7
+#: templates/register/complete.htm:6
 msgid "Registration Completed"
 msgstr ""
 
-#: templates/register/complete.htm:8
+#: templates/register/complete.htm:7
 msgid ""
 "Please check your email inbox. You should have an account activation "
 "confirmation email. Please also check your spam filter."
 msgstr ""
 
-#: templates/register/register.htm:7
+#: templates/register/register.htm:6
+msgid "Registration"
+msgstr ""
+
+#: templates/register/register.htm:8
 msgid "You already have an account, after all you're logged in right now!"
 msgstr ""
 
-#: templates/register/register.htm:12
+#: templates/register/register.htm:13
 msgid "The username you entered is not valid or already taken."
 msgstr ""
 
-#: templates/register/register.htm:13
+#: templates/register/register.htm:14
 msgid "The passwords you entered are not valid or do not match."
 msgstr ""
 
-#: templates/register/register.htm:14
+#: templates/register/register.htm:15
 msgid "The e-mails you entered are not valid or do not match."
 msgstr ""
 
-#: templates/register/register.htm:15
+#: templates/register/register.htm:16
 msgid "Please accept our Terms and Conditions."
 msgstr ""
 
-#: templates/register/register.htm:19
+#: templates/register/register.htm:20
 msgid ""
 "Please note that you will need to enter a valid e-mail address before your "
 "account is activated. You will receive an e-mail at the address you provide "
 "that contains an account activation link."
 msgstr ""
 
-#: templates/register/register.htm:31
-msgid "Must be between 6 and 20 characters."
-msgstr ""
-
-#: templates/register/register.htm:33 templates/register/register.htm.py:47
+#: templates/register/register.htm:33 templates/register/register.htm.py:48
 msgid "confirm"
 msgstr ""
 
-#: templates/register/register.htm:39
+#: templates/register/register.htm:34
+msgid "Must be between 6 and 20 characters."
+msgstr ""
+
+#: templates/register/register.htm:41
 msgid "Please enter a valid e-mail address."
 msgstr ""
 
-#: templates/register/register.htm:44
+#: templates/register/register.htm:45
 msgid "E-Mail Address:"
 msgstr ""
 
-#: templates/register/register.htm:51
+#: templates/register/register.htm:52
 msgid "Site Rules"
 msgstr ""
 
-#: templates/register/register.htm:54
+#: templates/register/register.htm:55
 msgid "Terms and Conditions"
 msgstr ""
 
@@ -451,38 +568,46 @@ msgstr ""
 msgid "I agree to these terms"
 msgstr ""
 
-#: templates/wiki/category.htm:8 templates/wiki/downloadable/category.htm:8
+#: templates/wiki/category.htm:7 templates/wiki/downloadable/category.htm:8
 msgid "Pages in this category:"
 msgstr ""
 
-#: templates/wiki/category.htm:12
+#: templates/wiki/category.htm:11
 msgid "Also available in:"
 msgstr ""
 
-#: templates/wiki/change.htm:7
+#: templates/wiki/change.htm:6
 msgid "Translate"
 msgstr ""
 
-#: templates/wiki/change.htm:7
-msgid "Edit"
-msgstr ""
-
-#: templates/wiki/change.htm:7
+#: templates/wiki/change.htm:6
 msgid "Create"
 msgstr ""
 
-#: templates/wiki/change.htm:11
+#: templates/wiki/change.htm:9
 #, python-format
 msgid ""
 "You may use bbcode-style formatting on this page. See the <a href=\"%(url)s"
 "\">documentation</a> of the bbcode tags supported on this site."
 msgstr ""
 
-#: templates/wiki/change.htm:22
+#: templates/wiki/change.htm:23
 msgid "Original"
 msgstr ""
 
-#: templates/wiki/history.htm:8
+#: templates/wiki/change.htm:26
+msgid "Content"
+msgstr ""
+
+#: templates/wiki/change.htm:28
+msgid "Categories"
+msgstr ""
+
+#: templates/wiki/download.htm:7
+msgid "Download Documentation"
+msgstr ""
+
+#: templates/wiki/history.htm:7
 #, python-format
 msgid "by %(username)s"
 msgstr ""
@@ -491,43 +616,66 @@ msgstr ""
 msgid "Source"
 msgstr ""
 
-#: templates/wiki/history.htm:15
+#: templates/wiki/history.htm:16
 #, python-format
-msgid "Next version from %(postdate)s by %(username)s"
+msgid "Previous <span>version from %(postdate)s by %(username)s</span>"
 msgstr ""
 
-#: templates/wiki/history.htm:21
+#: templates/wiki/history.htm:22
 #, python-format
-msgid "Previous version from %(postdate)s by %(username)s"
+msgid "Next <span>version from %(postdate)s by %(username)s</span>"
 msgstr ""
 
-#: templates/wiki/history_overview.htm:8
+#: templates/wiki/history_overview.htm:7
 #, python-format
-msgid "History of <a href=\"%(url)s\">%(pagename)s</a>"
+msgid "History of <a href=\"%(pageurl)s\">%(pagename)s</a>"
 msgstr ""
 
-#: templates/wiki/page.htm:10 templates/wiki/downloadable/page.htm:10
+#: templates/wiki/history_overview.htm:11
+#, python-format
+msgid "%(postdate)s</span> by %(username)s"
+msgstr ""
+
+#: templates/wiki/page.htm:9 templates/wiki/downloadable/page.htm:10
 #, python-format
 msgid " Version from %(postdate)s by %(username)s"
 msgstr ""
 
-#: templates/wiki/page.htm:10
+#: templates/wiki/page.htm:9
 msgid "history"
 msgstr ""
 
-#: templates/wiki/page.htm:10
+#: templates/wiki/page.htm:9
+msgid "page locked"
+msgstr ""
+
+#: templates/wiki/page.htm:9
 msgid "login to edit this page"
 msgstr ""
 
-#: templates/wiki/page.htm:14
+#: templates/wiki/page.htm:13
 msgid "View page in:"
 msgstr ""
 
-#: templates/wiki/page.htm:14
+#: templates/wiki/page.htm:13
 #, python-format
 msgid "or <a href=\"%(url)s\">translate it</a>!"
 msgstr ""
 
-#: templates/wiki/page.htm:17 templates/wiki/downloadable/page.htm:16
+#: templates/wiki/page.htm:14 templates/wiki/downloadable/page.htm:16
 msgid "Categories:"
+msgstr ""
+
+#: wiki/views.py:51
+#, python-format
+msgid "Category %(name)s"
+msgstr ""
+
+#: wiki/views.py:51 wiki/views.py:80
+msgid "name"
+msgstr ""
+
+#: wiki/views.py:80
+#, python-format
+msgid "Page %(name)s"
 msgstr ""
