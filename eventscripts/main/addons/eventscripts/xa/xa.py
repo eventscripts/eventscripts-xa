@@ -26,7 +26,7 @@ import cfglib
 # ==============================================================================
 
 # Version info
-__version__ = '1.0.0.419'
+__version__ = '1.1.0.552'
 es.ServerVar('eventscripts_xa', __version__, 'eXtensible Admin').makepublic()
 es.dbgmsg(0, '[eXtensible Admin] Version: %s' % __version__)
 es.dbgmsg(0, '[eXtensible Admin] Begin loading...')
