@@ -1,2 +1,0 @@
-{% load i18n %}
-<p class="breadcrumb">{% if breadcrumbs %}<a href="{% url home %}">{% trans "Home" %}</a>{% else %}<span>{% trans "Home" %}</span>{% endif %}{% for crumb in breadcrumbs %} &raquo; {% if forloop.last %}<span>{{ crumb.name }}</span>{% else %}<a href="{{ crumb.url }}">{{ crumb.name }}</a>{% endif %}{% endfor %}</p>
