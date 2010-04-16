@@ -1176,9 +1176,9 @@ def unregister(pModuleid):
                 submodule.requiredFrom.remove(module.name)
                 module.required -= 1
                 module.requiredList.remove(submodule.name)
-        for command in module.subCommands:
+        for command in module.subCommands.copy():
             module.delCommand(command)
-        for menu in module.subMenus:
+        for menu in module.subMenus.copy():
             module.delMenu(menu)
         es.dbgmsg(1, '[eXtensible Admin] Unregistered module "%s"' % module.name)
         del gModules[module.name]
