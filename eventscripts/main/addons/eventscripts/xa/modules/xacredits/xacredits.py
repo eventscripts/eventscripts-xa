@@ -33,4 +33,4 @@ def credits_cmd():
     usermsg.echo(userid,'adminc,Soynuts,XE_ManUp,JoeyT2006,Omega_K2,colster')
     usermsg.echo(userid,'dajayguy,awuh0,AMMUT,chatcon,chrisber,chriske21')
     usermsg.echo(userid,'claridon,Einlanzers,GODJonez,JAMES,rio,thekiller')
-    usermsg.echo(userid,'tim3port')
+    usermsg.echo(userid,'tim3port,Brettonawak')
