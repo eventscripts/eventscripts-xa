@@ -100,6 +100,15 @@ class LanguageDict(dict):
         # Return something we can loop through
         return self.abbreviations.__iter__()
         
+    def itervalues(self):
+        return self.text.itervalues()
+        
+    def iterkeys(self):
+        return self.text.iterkeys()
+    
+    def iteritems(self):
+        return self.text.items()
+        
     def __contains__(self, key):
         # Is this a valid key for our pseudo dict?
         return key in self.abbreviations

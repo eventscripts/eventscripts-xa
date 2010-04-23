@@ -106,7 +106,8 @@ Registers a new bot management action to be included in the menu
             menu_actions[identifier] = method
             try:
                 xabmmenu.setoption(identifier, text, 1)
-            except IndexError:
+            except (IndexError, KeyError):
+                """ IndexError is for popuplib, KeyError for popuplib2 """
                 xabmmenu.addoption(identifier, text)
             return True
     return False
@@ -145,7 +146,14 @@ Private method that is called by popuplib to update the display line
         newdesc = _superconcat(newdesc, newstuff, " | ")
     if dostate:
         xabmmenu.setdescription(newdesc)
-        xabmmenu.recache(userid)
+        try:
+            xabmmenu.recache(userid)
+        except AttributeError:
+            """
+            Popuplib2 wraper has no attribute recache for Easymenu, instead we
+            execute the update function.
+            """
+            xabmmenu.update(userid)
 
 
 def _superconcat(older, newer, sep, override=True):

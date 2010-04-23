@@ -1016,7 +1016,6 @@ def statPopup():
     pop.addline("Wins as CT: %i/%i (%0.2f%%)" % (ctwins, ctrounds, ctpct ) )
     pop.addline("Total Rounds: %i" % rounds)
     pop.addline("->2. Weapon Stats")
-    pop.timeout("view", int(stats_poptime))
     if stat:
         pop.select(2, sendWeaponStats)
     else:
@@ -1062,7 +1061,6 @@ def viewTop():
         kills, deaths, points, name = cTop['kills'], cTop['deaths'], cTop['points'], cTop['name']
         pop.addline("%s %s=%s KDR=%0.2f" % (index, name, points, (float(max(kills, 1)) / max(deaths, 1) ) ) )
                     
-    pop.timeout("view", int(stats_poptime))
     pop.send(userid)
 
 def hitboxPopup():
@@ -1115,7 +1113,6 @@ def hitboxPopup():
     pop.addline("Right Leg: %0.2f%%" % (getPercent(rightleg, hit) * 100) )
     pop.addline("%s" % ("|" * int(getPercent(rightleg, hit) * length ) ) )
            
-    pop.timeout("view", int(stats_poptime))
     pop.send(userid)
     
 def timestring(sec): # this function take a number of seconds and turns it into time

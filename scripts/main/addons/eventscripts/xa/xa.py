@@ -974,7 +974,12 @@ class Admin_menu(object):
         
         @return Whether or not the back button was successfully added.
         """
-        if isinstance(self.menuobj, popuplib.Popup_easymenu):
+        isInstance = False
+        try:
+            isInstance = isinstance(self.menuobj, popuplib.Popup_easymenu)
+        except AttributeError:
+            isInstance = isinstance(self.menuobj, popuplib.Easymenu)
+        if isInstance:
             """ The menu object is a popup menu, alter the sub menu. """
             self.menuobj.menuselect = sendMenu
             self.menuobj.c_exitformat = '0. Back'

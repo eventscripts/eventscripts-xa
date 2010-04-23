@@ -35,9 +35,6 @@ xa_adminfirebomb_anonymous     = xaextendedpunishments.setting.createVariable('a
 xa_adminfirebomb_countdown     = xaextendedpunishments.setting.createVariable('adminfirebomb_countdown',   10                 , "The countdown of the fuse (in seconds)") 
 xa_adminfirebomb_duration      = xaextendedpunishments.setting.createVariable('adminfirebomb_duration',    15                 , "How long the players will stay on fire for after a fire bomb (in seconds)")
 xa_adminrocket_anonymous       = xaextendedpunishments.setting.createVariable('adminrocket_anonymous',     0                  , "When an admin rockets a player, will a message be sent? 1 = no, 0 = yes")
-
-""" MUTE """
-xa_adminmute_on                = xaextendedpunishments.setting.createVariable('adminmute_enabled',         0                  , "Whether or not mute is on\n// WARNING!!! This has been known to cause lag, so if you are experiencing lag, turn this off\n// 0 = Mute is not enabled\n// 1 = Mute is enabled")
 xa_adminmute_anonymous         = xaextendedpunishments.setting.createVariable('adminmute_anonymous',       0                  , "When an admin mutes a player, will a message be sent? 1 = yes, 0 = no")
 xa_adminmute_deletetime        = xaextendedpunishments.setting.createVariable('adminmute_deletetime',      600                , "How long after a person disconnects from the server that they will be able to reconnect and be unmuted (in seconds)\n// E.G If it was 600, then 10 minutes after they left, they'd be able to rejoin unmuted again.\n// If they joined before the 10 minutes were up, they'd still be muted")
 
@@ -50,6 +47,7 @@ players    = {}
   
 def load():
     global mute
+    mute = MuteManager()
     xaextendedpunishments.addRequirement('xapunishments')
     # xaextendedpunishments.xapunishments.registerPunishment("punishment", xalanguage["punishment"], _callback_function) 
     xaextendedpunishments.xapunishments.registerPunishment("blind",      xalanguage["blind"]     , _blind      , 1) 
@@ -62,14 +60,8 @@ def load():
     xaextendedpunishments.xapunishments.registerPunishment("timebomb",   xalanguage["timebomb"]  , _time_bomb  , 1) 
     xaextendedpunishments.xapunishments.registerPunishment("firebomb",   xalanguage["firebomb"]  , _fire_bomb  , 1)
     xaextendedpunishments.xapunishments.registerPunishment("rocket",     xalanguage["rocket"]    , _rocket     , 1)
+    xaextendedpunishments.xapunishments.registerPunishment("mute",       xalanguage["mute"]      , mute.mute   , 1, True)
     gamethread.delayedname(1, 'blind_loop', _blind_loop)
-
-    mute = MuteManager()
-
-    # Add the notify flag to the Console Variable so server_cvar is executed
-    # upon alteration
-    gamethread.delayed(1, es.flags, ('add', 'notify' , 'xa_adminmute_enabled'))
-    gamethread.delayedname(1, 'load_mute', mute._checkMuteStatus)
     
     """ Make sure if XA is loaded late, add all players """
     for player in es.getUseridList():
@@ -466,16 +458,11 @@ class MuteManager(object):
     def __init__(self):
         self.muted     = set()
         self.steamids  = set()
-        self.currentStatus = self.DISABLED
+        self.currentStatus = self.ENABLED
         self.tickStatus    = self.UNREGISTERED
         
     def __del__(self):
         gamethread.cancelDelayed('load_mute')
-    
-    def registerMute(self):
-        if self.currentStatus == self.DISABLED:
-            xaextendedpunishments.xapunishments.registerPunishment("mute", xalanguage["mute"], self.mute, 1, True)
-            self.currentStatus = self.ENABLED
             
     def unregisterMute(self):
         if self.currentStatus == self.ENABLED:
@@ -502,7 +489,7 @@ class MuteManager(object):
         steamid = es.getplayersteamid(userid)
         if userid in self.muted:
             self.muted.remove(userid)
-            self.steamids.remove(userid)
+            self.steamids.remove(steamid)
             status = 'unmuted'
             if not bool(self.muted):
                 es.addons.unregisterTickListener(self._tickListener)

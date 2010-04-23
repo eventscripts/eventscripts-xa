@@ -465,6 +465,10 @@ class VoteManager(object):
         self.option    = None
         self.shortName = name
         
+    def __del__(self):
+        self.vote.Stop()
+        del self.vote
+        
     def CreateVote(self, question, command=None):
         self.vote      = votelib.create(self.shortName, self._Win, self._Message)
         self.option    = command
@@ -494,6 +498,7 @@ class VoteManager(object):
     def Stop(self):
         xavote.logging.log("vote %s stopped" % self.shortName)
         self.vote.stop(True)
+        self.display.Stop()
         
     def _Message(self, userid, votename, optionid, option):
         tokens = {} 
@@ -635,6 +640,9 @@ class HudHint(object):
         self.votes = votes
         self.name = uniquename
         
+    def __del__(self):
+        self.Stop()
+        
     def Start(self):
         self.starttime = time.time()
         if not self.running:
@@ -656,7 +664,8 @@ class HudHint(object):
         for player in es.getUseridList(): 
             es.usermsg("send", self.name, player, 0) 
         es.usermsg("delete", self.name)
-        gamethread.delayedname(1, self.name, self.Loop) 
+        if time_left:
+            gamethread.delayedname(1, self.name, self.Loop) 
         
     def SortDict(self):
         return sorted(self.votes, lambda x,y : -1 if self.votes[x]['votes'] > self.votes[y]['votes'] else 0 if self.votes[x]['votes'] == self.votes[y]['votes'] else 1)
