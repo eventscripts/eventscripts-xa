@@ -16,6 +16,7 @@ previousMaps   = []
 round_count    = {}
 change_map     = None
 startTime      = time.time()
+reset          = False
 
 info                = es.AddonInfo() 
 info.name           = "Vote" 
@@ -123,8 +124,11 @@ def player_disconnect(event_var):
         del vote_players[event_var['userid']] 
         
 def round_end(event_var):
+    global reset
     if change_map == 2:
         EndMap()
+    elif event_var['reason'] == '16':
+        reset = True
     elif not change_map:
         round_count['round_counting'] += 1
         winlimit = int(es.ServerVar('mp_winlimit')) - int(rounds_before_mp_winlimit)
@@ -134,23 +138,56 @@ def round_end(event_var):
         elif event_var['winner'] == '3':
             round_count['c_wins'] += 1
         if (round_count['round_counting'] >= roundlimit) and roundlimit > 0:
-            EndOfMapVote()
+            EndOfMapVote('mp_maxrounds')
         elif (round_count['c_wins'] >= winlimit or round_count['t_wins'] >= winlimit) and winlimit > 0:
-            EndOfMapVote()
+            EndOfMapVote('mp_winlimit')
+            
+def round_start(event_var):
+    global reset
+    global startTime
+    if reset:
+        reset = False
+        round_count.clear()
+        round_count['round_counting'] = 0
+        round_count['t_wins']     = 0
+        round_count['c_wins']     = 0
+        round_count['frag_kills'] = 0
+        startTime = time.time()
             
 def server_cvar(event_var):
-    if event_var['cvarname'] == "mp_timelimit" and startTime is not None and int(time_before_end_of_map_vote):
+    value = event_var['cvarvalue']
+    name  = event_var['cvarname']
+    
+    if name == "mp_timelimit" and startTime is not None and int(time_before_end_of_map_vote):
         gamethread.cancelDelayed('votemap_timer')
-        delay = es.ServerVar('mp_timelimit') * 60 - int(time_before_end_of_map_vote) - (time.time() - startTime)
-        if delay:
-            gamethread.delayedname(delay, 'votemap_timer', EndOfMapVote)
-        else:
-            EndOfMapVote()
+        timeLimit = int(value) * 60
+        if timeLimit:
+            delay = timeLimit - int(time_before_end_of_map_vote) - (time.time() - startTime)
+            if delay:
+                gamethread.delayedname(delay, 'votemap_timer', EndOfMapVote, "mp_timelimit changing")
+            else:
+                EndOfMapVote('mp_timelimit changing')
+                
+    if name == "mp_maxrounds" and int(rounds_before_mp_maxrounds):
+        maxRounds = int(value)
+        if maxRounds:
+            maxrounds = maxRounds - int(rounds_before_mp_maxrounds)
+            if round_count['round_counting'] >= maxrounds:
+                EndOfMapVote('mp_maxrounds')
+                
+    if name == "mp_winlimit" and int(rounds_before_mp_winlimit):
+        winlimit = int(value)
+        if winlimit:
+            winlimit = winlimit - int(rounds_before_mp_winlimit)
+            maxwins = max(round_count['t_wins'], round_count['c_wins'])
+            if maxwins >= winlimit:
+                EndOfMapVote('mp_winlimit')
         
 def es_map_start(event_var):
     global map_list
     global startTime
-    global round_count
+    global change_map
+    change_map = None
     mapfilename = str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/' + str(vote_map_file)
     if os.path.exists(mapfilename):    
       map_file       = open(mapfilename, 'r')
@@ -160,7 +197,7 @@ def es_map_start(event_var):
       es.dbgmsg(0, "xavote.py: Note: Cannot find maplist file '"+mapfilename+"'")
     
     gamethread.cancelDelayed('votemap_timer')
-    round_count = {}
+    round_count.clear()
     round_count['round_counting'] = 0
     round_count['t_wins']     = 0
     round_count['c_wins']     = 0
@@ -412,10 +449,15 @@ def RandomCommand(args):
     
 def DelayTimer():
     gamethread.cancelDelayed('votemap_timer')
-    delay = int(es.ServerVar('mp_timelimit')) * 60 - int(time_before_end_of_map_vote) - 10
-    gamethread.delayedname(delay, 'votemap_timer', EndOfMapVote)
+    timeLimit = int(es.ServerVar('mp_timelimit')) * 60
+    if timeLimit:
+        delay = timeLimit - int(time_before_end_of_map_vote) - 10
+        gamethread.delayedname(delay, 'votemap_timer', EndOfMapVote, "timelimit")
     
-def EndOfMapVote():
+def EndOfMapVote(type):
+    print "*" * 80
+    print "Calling map vote, we got this from %s" % type
+    print "*" * 80
     if not change_map and int(end_of_map_vote):
         string = ""
         for ignoremap in previousMaps:
