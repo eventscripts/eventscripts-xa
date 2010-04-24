@@ -167,7 +167,7 @@ def player_hurt(event_var):
             plist.grab(event_var["attacker"]).kill()
             xaprotect.logging.log("has been slayed for spawn attacking", event_var['attacker']) 
     if protect_teamattack_slay and int(protect_teamattack_slay): 
-        plist.team_killattack(event_var["es_attackerid"], event_var["userid"])
+        plist.team_killattack(event_var["attacker"], event_var["userid"])
         xaprotect.logging.log("has been slayed for team damaging", event_var['attacker'])
        
 def player_death(event_var):
