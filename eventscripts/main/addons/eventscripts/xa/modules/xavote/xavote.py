@@ -188,11 +188,14 @@ def es_map_start(event_var):
     global startTime
     global change_map
     change_map = None
-    mapfilename = str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/' + str(vote_map_file)
+    gameDir = str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/'
+    mapfilename = gameDir + str(vote_map_file)
     if os.path.exists(mapfilename):    
-      map_file       = open(mapfilename, 'r')
-      map_list       = filter(lambda x: False if x == '' or x.startswith('//') else os.path.isfile(str(es.ServerVar('eventscripts_gamedir')).replace('\\','/') + '/maps/%s.bsp'%x), map(lambda x: x.replace('\n',''), map_file.readlines()))
+      map_file  = open(mapfilename, 'r')
+      map_lines = map(lambda x: x.strip(), map_file.readlines())
       map_file.close()
+      map_lines = filter(lambda x: not x.startswith('//') and len(x), map_lines)
+      map_list  = filter(lambda x: os.path.isfile(gameDir + 'maps/%s.bsp' % x), map_lines)
     else:
       es.dbgmsg(0, "xavote.py: Note: Cannot find maplist file '"+mapfilename+"'")
     
@@ -455,9 +458,6 @@ def DelayTimer():
         gamethread.delayedname(delay, 'votemap_timer', EndOfMapVote, "timelimit")
     
 def EndOfMapVote(type):
-    print "*" * 80
-    print "Calling map vote, we got this from %s" % type
-    print "*" * 80
     if not change_map and int(end_of_map_vote):
         string = ""
         for ignoremap in previousMaps:
@@ -729,5 +729,4 @@ def getGlobalVariable( APIAccessorFunctionTest, variableNameTest=None ):
         variableName = APIAccessorFunctionTest
     if variableName not in globals().keys():
         raise AttributeError, "Variable name %s is not inside xavote" % variableName
-        return 0
     return globals()[variableName]
