@@ -76,9 +76,10 @@ def es_map_start(event_var):
          currentmap = mapcycle.index(event_var['mapname'])
       else:
          currentmap += 1
+         if currentmap >= len(mapcycle):
+            currentmap = 0
    else:
       currentmap = -1
-   es.msg('currentmap: %s' % currentmap)
 
 # ==============================================================================
 #   HELPER METHODS
@@ -126,7 +127,10 @@ def display_advert():
       if str(es.ServerVar('eventscripts_nextmapoverride')) != '': 
          advert_text = advert_text.replace('{NEXTMAP}', str(es.ServerVar('eventscripts_nextmapoverride'))) 
       else: 
-         advert_text = advert_text.replace('{NEXTMAP}', mapcycle[currentmap+1]) 
+         if len(mapcycle) == 1:
+             advert_text = advert_text.replace('{NEXTMAP}', str(es.ServerVar('eventscripts_currentmap')))
+         else:
+             advert_text = advert_text.replace('{NEXTMAP}', mapcycle[currentmap+1]) 
           
       advert_text = advert_text.replace('{CURRENTMAP}', str(es.ServerVar('eventscripts_currentmap'))) 
       advert_text = advert_text.replace('{TICKRATE}', 'UNKNOWN') 
