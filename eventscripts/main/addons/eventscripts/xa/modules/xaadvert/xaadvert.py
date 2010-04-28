@@ -72,12 +72,7 @@ def es_map_start(event_var):
    global currentmap
    map_cycle()
    if event_var['mapname'] in mapcycle:
-      if not currentmap or (mapcycle.index(event_var['mapname']) != currentmap+1):
-         currentmap = mapcycle.index(event_var['mapname'])
-      else:
-         currentmap += 1
-         if currentmap >= len(mapcycle):
-            currentmap = 0
+      currentmap = mapcycle.index(event_var['mapname'])
    else:
       currentmap = -1
 
@@ -129,6 +124,9 @@ def display_advert():
       else: 
          if len(mapcycle) == 1:
              advert_text = advert_text.replace('{NEXTMAP}', str(es.ServerVar('eventscripts_currentmap')))
+         elif currentmap+1 > len(mapcycle):
+             # fix for when we are at the end of the maplist
+             advert_text = advert_text.replace('{NEXTMAP}', mapcycle[0]) 
          else:
              advert_text = advert_text.replace('{NEXTMAP}', mapcycle[currentmap+1]) 
           
