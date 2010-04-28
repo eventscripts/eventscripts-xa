@@ -514,6 +514,8 @@ class VoteManager(object):
     def CreateVote(self, question, command=None):
         self.vote      = votelib.create(self.shortName, self._Win, self._Message)
         self.option    = command
+        # clear the options (fixes #62)
+        self.options   = {}
         self.vote.setquestion(question)
         
     def AddOption(self, option, winner = False):
