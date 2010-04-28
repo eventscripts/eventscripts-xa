@@ -65,7 +65,7 @@ def load():
     for weaponType, weaponSet in weapons.iteritems():
         popupmenu = popuplib.easymenu("admingive%s" % weaponType, "_tempcore", _give)
         for weapon in weaponSet:
-            popupmenu.addoption(weapon, _remove_prefix(weapon), lang="en")
+            popupmenu.addoption(weapon, _remove_prefix(weapon))
         popupmenu.submenu(10, 'admingiveweapon')
         popupmenu.settitle(xalanguage[weaponType])
     
