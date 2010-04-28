@@ -14,7 +14,7 @@ info.basename       = "xabrowse"
 
 
 xamodule             = xa.register(info.basename)
-xalanguage           = xamodule.language.getLanguage()
+#xalanguage           = xamodule.language.getLanguage()
 
 
 
