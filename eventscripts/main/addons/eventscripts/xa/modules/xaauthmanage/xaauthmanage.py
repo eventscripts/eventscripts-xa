@@ -624,6 +624,8 @@ def _playerlist(userid):
     playermenu = popuplib.easymenu('playermenu',None,_manage_player)
     for player in players:
         name = player.get('name')
+	# bug 29 - strip special chars from names
+	name = names.translate(None,'\'\\"/- #')
         playermenu.addoption(name,utfcode(name))
     playermenu.settitle(lang['current players'])
     playermenu.send(userid)
