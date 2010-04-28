@@ -61,17 +61,18 @@ def load():
     if xavoterconlist:
         for line in xavoterconlist: 
             if not line.startswith('//') and line != '': 
-                line = line.split('"')
-                title = line[1]
-                question = line[3]
-                command = line[4]
-                command = command.split('//')
-                command = command[0]
-                vote_list[title] = {}
-                vote_list[title]['question'] = question
-                vote_list[title]['command']  = command
-                vote_list[title]['type']     = 'rcon'
-                submenus.append(title)
+                line = line.replace("'", '"').split('"')
+                if len(line) > 4:
+                    title = line[1]
+                    question = line[3]
+                    command = line[4].split('//')[0].strip()
+                    vote_list[title] = {}
+                    vote_list[title]['question'] = question
+                    vote_list[title]['command']  = command
+                    vote_list[title]['type']     = 'rcon'
+                    submenus.append(title)
+                else:
+                    xavote.logging.log("invalid xavoterconlist.txt entry %s" % '"'.join(line), userid, True)
     registerVoteMenu("rcon"    , xalanguage["rcon vote"]    , rconVote  , submenus, rconCommand)
     
     submenus = []
