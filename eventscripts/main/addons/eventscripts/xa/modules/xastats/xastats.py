@@ -243,9 +243,9 @@ class PlayerManager(object):
         
     def __getitem__(self, userid):
         userid = int(userid)
-        if userid in self.players:
-            return self.players[userid]
-        raise IndexError, "Userid %s cannot be found in the stats" % userid
+        if not userid in self.players:
+            self.players[userid] = Player(userid)
+        return self.players[userid]
         
     def __iter__(self):
         for player in self.players.itervalues():
@@ -326,9 +326,9 @@ class SessionManager(object):
     def __getitem__(self, userid):
         if str(userid).isdigit():
             userid = int(userid)
-            if userid in self.sessions:
-                return self.sessions[userid]
-            raise KeyError, "Userid %s does not have a session" % userid
+            if not userid in self.sessions:
+                self.sessions[userid] = Session(userid)
+            return self.sessions[userid]
         raise KeyError, "Key %s does not exist in the session manager" % userid
         
     def __iter__(self):
