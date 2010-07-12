@@ -147,17 +147,17 @@ def giveObject(adminid, userid):
         amount = int(command.replace('health_', '').replace('cash_', ''))
         currentAmount  = es.getplayerprop(userid, prop)
         es.setplayerprop(userid, prop, currentAmount + amount)
-        formattedStr = ""
+        # issue #70 :: value formatting error
         strInt = str(amount)
-        strInt = strInt[::-1]
+        thousands = []
         while strInt:
-            formattedStr += strInt[:3] + ","
-            strInt = strInt[3:]
-        formattedStr = formattedStr[:-1]
+            thousands.append(strInt[-3:])
+            strInt = strInt[:-3]
+        formattedAmount = ",".join(reversed(thousands))
         tokens = {}
         tokens['admin'] = es.getplayername(adminid)
         tokens['user']  = es.getplayername(userid)
-        tokens['item']  =  '#green%s #lightgreen%s' % (formattedStr, 'cash' if command.startswith('cash_') else 'health')
+        tokens['item']  =  '#green%s #lightgreen%s' % (formattedAmount, 'cash' if command.startswith('cash_') else 'health')
         for tellplayer in playerlib.getPlayerList('#human'):
             es.tell(int(tellplayer), '#multi', xalanguage('admin give', tokens, tellplayer.get("lang")))
         xaadmingive.logging.log("has given player %s %s" % (tokens['user'], tokens['item']), adminid, True) 
