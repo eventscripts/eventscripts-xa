@@ -1,8 +1,9 @@
 import es 
-import votelib 
-import popuplib 
-import playerlib 
-import gamethread 
+import votelib
+import popuplib
+import playerlib
+import gamethread
+import usermsg
 import time
 import os
 import random
@@ -20,7 +21,7 @@ reset          = False
 
 info                = es.AddonInfo() 
 info.name           = "Vote" 
-info.version        = "0.9" 
+info.version        = "0.9a" 
 info.author         = "freddukes" 
 info.basename       = "xavote"
 
@@ -699,16 +700,11 @@ class HudHint(object):
         if time_left < 0:
             time_left = 0
         SortedVotes = self.SortDict()
-        es.usermsg("create", self.name, "HintText") 
-        es.usermsg("write" , "short"  , self.name, -1) 
         format = "Vote Counter: (%ss)\n-----------------------\n"%time_left
         for index in range(min(2, len(SortedVotes))): 
             option = SortedVotes[index] 
             format = format + option + " - Votes: " + str(self.votes[option]['votes']) + "\n" 
-        es.usermsg("write", "string", self.name, format)
-        for player in es.getUseridList(): 
-            es.usermsg("send", self.name, player, 0) 
-        es.usermsg("delete", self.name)
+        usermsg.hudhint(playerlib.getUseridList("#human"), format)
         if time_left:
             gamethread.delayedname(1, self.name, self.Loop) 
         
